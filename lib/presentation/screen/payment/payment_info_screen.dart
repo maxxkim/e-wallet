@@ -17,7 +17,7 @@ class PaymentInfoScreen extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.center, // Убедитесь, что все элементы центрированы
           children: <Widget>[
-            const SizedBox(height: 24),
+            const SizedBox(height: 40),
             Center( // Добавлено Center для текста
               child: Text(
                 'Transaction completed\n successfully!', // Исправлена опечатка
@@ -47,7 +47,7 @@ class PaymentInfoScreen extends StatelessWidget {
                   ),
                   const SizedBox(height: 16),
                   Text(
-                    '1808.00',
+                    '+ 1808.00',
                     style: Theme.of(context).textTheme.titleLarge,
                   ),
                   const SizedBox(height: 12),
@@ -86,6 +86,7 @@ class PaymentInfoScreen extends StatelessWidget {
                         height: 48.0,
                         width: 48.0,
                       ),
+                      const SizedBox(height: 4,),
                       Text(
                         'Help',
                         style: Theme.of(context).textTheme.titleMedium,
@@ -100,6 +101,7 @@ class PaymentInfoScreen extends StatelessWidget {
                         height: 48.0,
                         width: 48.0,
                       ),
+                      const SizedBox(height: 4,),
                       Text(
                         'Copy',
                         style: Theme.of(context).textTheme.titleMedium,
@@ -114,6 +116,7 @@ class PaymentInfoScreen extends StatelessWidget {
                         height: 48.0,
                         width: 48.0,
                       ),
+                      const SizedBox(height: 4,),
                       Text(
                         'Share',
                         style: Theme.of(context).textTheme.titleMedium,

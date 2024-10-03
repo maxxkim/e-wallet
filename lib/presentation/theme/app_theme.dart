@@ -28,6 +28,8 @@ final ThemeData appTheme = ThemeData(
     tertiary: whiteColor,
     tertiaryContainer: lightGreyColor,
     tertiaryFixed: lightRedColor,
+    error: redColor,
+    scrim: greenColor,
   ), 
 
   textTheme: const TextTheme(
@@ -44,6 +46,8 @@ final ThemeData appTheme = ThemeData(
     labelSmall: TextStyle(color: lightGreyColor, fontSize: 12, fontWeight: FontWeight.w300, fontFamily: 'RobotoFlex'),
     labelMedium: TextStyle(color: lightGreyColor, fontSize: 16, fontWeight: FontWeight.w300, fontFamily: 'RobotoFlex'),
     labelLarge: TextStyle(color: greenColor, fontSize: 16, fontWeight: FontWeight.bold, fontFamily: 'RobotoFlex'),
+    inText: TextStyle(color: greenColor, fontSize: 16, fontWeight: FontWeight.bold, fontFamily: 'RobotoFlex'),
+    outText: TextStyle(color: redColor, fontSize: 16, fontWeight: FontWeight.bold, fontFamily: 'RobotoFlex'),
   ),
 
   appBarTheme: const AppBarTheme(

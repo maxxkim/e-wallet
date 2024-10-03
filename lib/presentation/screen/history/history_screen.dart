@@ -1,8 +1,6 @@
 // ignore_for_file: prefer_const_constructors
 
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
-import 'package:zippy/presentation/screen/dashboard/widgets/transaction_information_display.dart';
 import 'package:zippy/presentation/screen/history/widgets/transaction_list.dart';
 import 'package:zippy/presentation/widget/custom_text_field.dart';
 
@@ -11,9 +9,7 @@ class HistoryScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    DateTime? startDate;
-    DateTime? endDate;
-    return Scaffold(
+      return Scaffold(
       appBar: AppBar(
         backgroundColor: Theme.of(context).scaffoldBackgroundColor,
         toolbarHeight: 0,

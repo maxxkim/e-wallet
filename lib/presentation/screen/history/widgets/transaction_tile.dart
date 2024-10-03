@@ -8,6 +8,7 @@ class TransactionTile extends StatefulWidget {
   final String time;
   final String status;
   final String currency;
+  final String type;
   final double amount;
   final VoidCallback onIconTap;
 
@@ -19,6 +20,7 @@ class TransactionTile extends StatefulWidget {
     required this.time,
     required this.onIconTap,
     required this.amount,
+    required this.type,
     required this.status,
     required this.currency,
   }) : super(key: key);
@@ -58,7 +60,7 @@ class _TransactionTileState extends State<TransactionTile> {
                 style: Theme.of(context).textTheme.bodySmall,
               ),
               leading: SvgPicture.asset(
-                'assets/images/icon_transaction_background.svg',
+                getIcon(widget.type),
                 height: 36.0,
                 width: 36.0,
               ),
@@ -66,8 +68,8 @@ class _TransactionTileState extends State<TransactionTile> {
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   Text(
-                    '${widget.currency ?? ''}${widget.amount.toStringAsFixed(2)}', // Форматируем сумму с валютой
-                    style: Theme.of(context).textTheme.labelLarge,
+                    getText(widget.type, '${widget.currency} ${widget.amount.toStringAsFixed(2)}',),
+                    style: getColor(widget.type), // Форматируем сумму с валютой
                   ),
                   SizedBox(width: 8.0), // Добавляем немного отступа между текстом и иконкой
                   GestureDetector(
@@ -110,7 +112,7 @@ class _TransactionTileState extends State<TransactionTile> {
                               style: Theme.of(context).textTheme.titleMedium,
                             ),
                             Text(
-                              widget.currency! + widget.amount.toString(), // Замените на необходимую информацию
+                              widget.currency + widget.amount.toString(), // Замените на необходимую информацию
                               style: Theme.of(context).textTheme.bodyMedium,
                             ),
                           ],
@@ -204,5 +206,30 @@ class _TransactionTileState extends State<TransactionTile> {
         ),
       ),
     );
+  }
+  String getIcon(String type)
+  {
+    if (type == "in") {
+      return 'assets/images/icon_transaction_background.svg';
+    } else {
+      return 'assets/images/icon_transaction_out.svg';
+    }
+  }
+
+  String getText(String type, String text){
+    if (type == "in") {
+      return text;
+    } else {
+      return "-$text";
+    }
+  }
+
+  TextStyle? getColor(String type)
+  {
+    if (type == "in") {
+      return Theme.of(context).textTheme.inText;
+    } else {
+      return Theme.of(context).textTheme.outText;
+    }
   }
 }

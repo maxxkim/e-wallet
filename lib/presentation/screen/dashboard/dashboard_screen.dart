@@ -1,15 +1,72 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
+import 'package:intl/intl.dart';
 import 'package:zippy/presentation/bloc/dashboard/dashboard_cubit.dart';
-import 'package:zippy/presentation/screen/dashboard/widgets/dashboard_display.dart';
-import 'package:zippy/presentation/screen/dashboard/widgets/transaction_information_display.dart';
+import 'package:zippy/presentation/screen/history/widgets/transaction_tile.dart';
+import 'widgets/dashboard_display.dart';
 
 class DashboardScreen extends StatelessWidget {
   const DashboardScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
+    DateTime now = DateTime.now();
+    String currentMonth = DateFormat('MMMM yy').format(now);
+
+    final List<String> months = [
+      "January 24",
+      "February 24",
+      "March 24",
+      "April 24",
+      "May 24",
+      "June 24",
+      "July 24",
+      "August 24",
+      "September 24",
+      "October 24",
+      "November 24",
+      "December 24",
+    ];
+
+    int currentIndex = months.indexOf(currentMonth);
+    int startIndex = (currentIndex - 2).clamp(0, months.length); // Начинаем с 2 месяцев до текущего
+    int endIndex = (startIndex + 5).clamp(0, months.length); // Отображаем 5 месяцев
+
+        final Random random = Random();
+
+    String getRandomStatus() {
+      final statuses = ['pending', 'success', 'error'];
+      return statuses[random.nextInt(statuses.length)];
+    }
+
+    String getRandomDate() {
+      final day = random.nextInt(28) + 1; // Генерируем случайный день
+      return 'Sep $day, 2024'; // Можно сделать более универсальным
+    }
+
+    String getRandomType() {
+      final types = ['in', 'out'];
+      return types[random.nextInt(types.length)];
+    }
+
+    String getRandomTime() {
+      final hour = random.nextInt(12) + 1;
+      final minute = random.nextInt(60);
+      final ampm = random.nextBool() ? 'AM' : 'PM';
+      return '$hour:${minute.toString().padLeft(2, '0')} $ampm';
+    }
+
+    double getRandomAmount() {
+      return (random.nextDouble() * 10000).roundToDouble(); // Случайная сумма
+    }
+
+    String getRandomId() {
+      return '#${random.nextInt(1000000000)}'; // Случайный ID
+    }
+    
     return BlocProvider(
       create: (_) => DashboardCubit(),
       child: Scaffold(
@@ -28,8 +85,7 @@ class DashboardScreen extends StatelessWidget {
               padding: const EdgeInsets.only(right: 12),
               child: IconButton(
                 icon: const Icon(Icons.menu),
-                onPressed: () {
-                },
+                onPressed: () {},
               ),
             ),
           ],
@@ -43,71 +99,171 @@ class DashboardScreen extends StatelessWidget {
             children: <Widget>[
               const DasboardDisplay(),
               const SizedBox(height: 16),
-              Row(
-                children: [
-                  FilledButton(
-                    onPressed: () => print("hui"),
-                    style: ButtonStyle(
-                      padding: WidgetStateProperty.all(EdgeInsets.symmetric(horizontal: 24.0)), // Adjust horizontal padding
-                    ),
-                    child: const Text("Period"),
-                  ),
-                  const Spacer(),
-                  FilledButton(
-                    onPressed: () => print("hui"),
-                    style: ButtonStyle(
-                      padding: WidgetStateProperty.all(EdgeInsets.symmetric(horizontal: 24.0)), // Adjust horizontal padding
-                      backgroundColor: WidgetStateProperty.all(Theme.of(context).colorScheme.secondaryContainer), // Задаем цвет из темы
-                    ),
-                    child: Text("Deposit", style: Theme.of(context).textTheme.bodyMedium,),
-                  ),
-                  const Spacer(),
-                  FilledButton(
-                    onPressed: () => print("hui"),
-                    style: ButtonStyle(
-                      padding: WidgetStateProperty.all(EdgeInsets.symmetric(horizontal: 24)), // Adjust horizontal padding
-                      backgroundColor: WidgetStateProperty.all(Theme.of(context).colorScheme.secondaryContainer), // Задаем цвет из темы
-                    ),
-                    child: Text("Withdrawal", style: Theme.of(context).textTheme.bodyMedium,),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 16),
-              const TransactionsInfoDisplay(),
 
+              // Button Row
+              BlocBuilder<DashboardCubit, DashboardState>(
+                builder: (context, state) {
+                  return Row(
+                    children: [
+                      FilledButton(
+                        onPressed: () => context.read<DashboardCubit>().selectFilter(FilterType.period),
+                        style: ButtonStyle(
+                          padding: WidgetStateProperty.all(const EdgeInsets.symmetric(horizontal: 24.0)),
+                          backgroundColor: WidgetStateProperty.all(
+                            state.filterType == FilterType.period ? Theme.of(context).colorScheme.primary : Theme.of(context).colorScheme.secondaryContainer,
+                          ),
+                          foregroundColor: WidgetStateProperty.all(
+                            state.filterType == FilterType.period ? Colors.white : Colors.black,
+                          ),
+                          textStyle: WidgetStateProperty.all(state.filterType == FilterType.period ? Theme.of(context).textTheme.displaySmall : Theme.of(context).textTheme.bodyMedium),
+                        ),
+                        child: const Text("Period"),
+                      ),
+                      const Spacer(),
+                      FilledButton(
+                        onPressed: () => context.read<DashboardCubit>().selectFilter(FilterType.deposit),
+                        style: ButtonStyle(
+                          padding: WidgetStateProperty.all(const EdgeInsets.symmetric(horizontal: 24.0)),
+                          backgroundColor: WidgetStateProperty.all(
+                            state.filterType == FilterType.deposit ? Theme.of(context).colorScheme.primary : Theme.of(context).colorScheme.secondaryContainer,
+                          ),
+                          foregroundColor: WidgetStateProperty.all(
+                            state.filterType == FilterType.deposit ? Colors.white : Colors.black,
+                          ),
+                          textStyle: WidgetStateProperty.all(state.filterType == FilterType.deposit ? Theme.of(context).textTheme.displaySmall : Theme.of(context).textTheme.bodyMedium),
+                        ),
+                        child: const Text("Deposit"),
+                      ),
+                      const Spacer(),
+                      FilledButton(
+                        onPressed: () => context.read<DashboardCubit>().selectFilter(FilterType.withdrawal),
+                        style: ButtonStyle(
+                          padding: WidgetStateProperty.all(const EdgeInsets.symmetric(horizontal: 24.0)),
+                          backgroundColor: WidgetStateProperty.all(
+                            state.filterType == FilterType.withdrawal ? Theme.of(context).colorScheme.primary : Theme.of(context).colorScheme.secondaryContainer,
+                          ),
+                          foregroundColor: WidgetStateProperty.all(
+                            state.filterType == FilterType.withdrawal ? Colors.white : Colors.black,
+                          ),
+                          textStyle: WidgetStateProperty.all(state.filterType == FilterType.withdrawal ? Theme.of(context).textTheme.displaySmall : Theme.of(context).textTheme.bodyMedium),
+                        ),
+                        child: const Text("Withdrawal"),
+                      ),
+                    ],
+                  );
+                },
+              ),
+
+              const SizedBox(height: 16),
+               Expanded( // Оборачиваем в Expanded
+                child: Container(
+                  decoration: BoxDecoration(
+                    color: Theme.of(context).colorScheme.tertiaryContainer,
+                    borderRadius: BorderRadius.circular(32),
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.end,
+                    children: [
+                      BlocBuilder<DashboardCubit, DashboardState>(
+                        builder: (context, state) {
+                          return state.filterType == FilterType.period
+                            ? Row(
+                        children: [
+                          Expanded(
+                            child: Container(
+                              height: 48.0,
+                              decoration: BoxDecoration(
+                                color: Theme.of(context).scaffoldBackgroundColor,
+                                border: Border.all(
+                                  color: Theme.of(context).colorScheme.primary, // Цвет рамки
+                                  width: 1.0, // Толщина рамки
+                                ),
+                                borderRadius: const BorderRadius.vertical(
+                                  top: Radius.circular(16),
+                                  bottom: Radius.circular(16),
+                                ),
+                              ),
+                              child:Padding(
+                                padding: const EdgeInsets.only(top: 16, left: 16, right: 16),
+                                child: Center(
+                                  child: ListView.builder(
+                                    scrollDirection: Axis.horizontal,
+                                    itemCount: endIndex - startIndex,
+                                    itemBuilder: (context, index) {
+                                      String month = months[startIndex + index];
+                                      bool isCurrentMonth = month == currentMonth;
+                                      return Padding(
+                                        padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                                        child: Text(
+                                          month,
+                                          style: isCurrentMonth
+                                              ? Theme.of(context).textTheme.headlineSmall // Выделяем текущий месяц
+                                              : Theme.of(context).textTheme.bodyMedium,
+                                        ),
+                                      );
+                                    },
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ),
+                        ],
+                        ) : const SizedBox.shrink();}),
+                      Expanded(
+                        child: ListView.builder(
+                          itemCount: 20,
+                          itemBuilder: (context, index) {
+                            return Column(
+                              children: [
+                                Container(
+                                    decoration: BoxDecoration(
+                                      color: Theme.of(context).colorScheme.tertiaryContainer,
+                                      borderRadius: BorderRadius.zero,
+                                    ),
+                                    child: TransactionTile(
+                                      id: getRandomId(),
+                                      title: 'Transaction #${index + 1}',
+                                      date: getRandomDate(),
+                                      time: getRandomTime(),
+                                      currency: '\$',
+                                      status: getRandomStatus(),
+                                      amount: getRandomAmount(),
+                                      type: getRandomType(),
+                                      onIconTap: () => context.go('/dashboard/infoDashboard'),
+                                    ),
+                                ),
+                                Container(height: 1, color: Theme.of(context).scaffoldBackgroundColor,),
+                              ],
+                            );
+                          },
+                        ),
+                      ),
+                      Row(
+                        children: [
+                          Expanded(
+                            child: GestureDetector(
+                              onTap: () => context.go('/dashboard/history'),
+                              child: SizedBox(
+                                height: 56,
+                                child: Center(
+                                  child: Text(
+                                    "View All",
+                                    style: Theme.of(context).textTheme.titleMedium,
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+              ),
             ],
           ),
         ),
       ),
-    );
-  }
-
-  void _showLogoutConfirmation(BuildContext context) {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: Text('Logout', style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Colors.indigo[900])),
-          content: const Text('Are you sure you want to log out?'),
-          shape: const RoundedRectangleBorder(
-            borderRadius: BorderRadius.zero,
-          ),
-          actions: <Widget>[
-            TextButton(
-              child: Text('Yes', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.indigo[900])),
-              onPressed: () {
-                context.go('/');
-              },
-            ),
-            TextButton(
-              child: Text('Cancel', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.indigo[900])),
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-            ),
-          ],
-        );
-      },
     );
   }
 }

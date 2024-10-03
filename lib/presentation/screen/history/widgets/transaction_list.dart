@@ -96,6 +96,7 @@ class TransactionList extends StatelessWidget {
                           ),
                           child: TransactionTile(
                             id: '#123456789',
+                            type: "in",
                             title: 'Transaction #${index + 1}',
                             date: 'Sep 12, 2024',
                             time: '6:30 PM',
