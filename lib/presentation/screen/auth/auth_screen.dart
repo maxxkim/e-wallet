@@ -1,5 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_screen_lock/flutter_screen_lock.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -67,11 +68,16 @@ class AuthScreen extends StatelessWidget {
                         child: RectangularButton(
                           label: "Sign Up",
                           onPressed: () {
-                            final phoneNumber = phoneController.text.trim();
-                            if (phoneNumber.isNotEmpty) {
-                              context.read<AuthCubit>().loginWithPhone(phoneNumber);
-                            }
-                            context.go('/dashboard');
+                            showDialog<void>(
+                            context: context,
+                            builder: (context) {
+                              return ScreenLock(
+                                correctString: '1234',
+                                onCancelled: Navigator.of(context).pop,
+                                onUnlocked: Navigator.of(context).pop,
+                              );
+                            },
+                          );
                           },
                         ),
                       ),

@@ -57,19 +57,22 @@ class DasboardDisplay extends StatelessWidget {
                     ],
                   ),
                 ),
-                const SizedBox(height: 8.0),
-                Container(
-                  height: 48.0,
-                  decoration: BoxDecoration(  
-                    color: Theme.of(context).colorScheme.primary,
-                    borderRadius: const BorderRadius.vertical(bottom: Radius.circular(16)),
+                const Spacer(),
+                Align(
+                  child: Container(
+                    height: 32.0,
+                    decoration: BoxDecoration(  
+                      color: Theme.of(context).colorScheme.primary,
+                      borderRadius: const BorderRadius.vertical(bottom: Radius.circular(16)),
+                    ),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      children: [
+                        Text("Top Up", style: Theme.of(context).textTheme.displayMedium),
+                        Text("Withdraw", style: Theme.of(context).textTheme.displayMedium),
+                      ],
+                    ),
                   ),
-                  child: Row(children: [
-                    const SizedBox(width: 32.0),
-                    Text("Top Up", style: Theme.of(context).textTheme.displayMedium),
-                    const SizedBox(width: 72.0),
-                    Text("Withdraw", style: Theme.of(context).textTheme.displayMedium),
-                  ]),
                 ),
               ],
             ),

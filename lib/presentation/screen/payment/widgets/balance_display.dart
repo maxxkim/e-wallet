@@ -12,7 +12,7 @@ class BalanceDisplay extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      height: 144,
+      height: 128,
       decoration: BoxDecoration(
         color: Theme.of(context).colorScheme.secondaryContainer,
         borderRadius: BorderRadius.circular(16),
@@ -45,9 +45,9 @@ class BalanceDisplay extends StatelessWidget {
               ],
             ),
           ),
-          const SizedBox(height: 8.0),
+          const Spacer(),
           Container(
-            height: 40.0,
+            height: 24.0,
             width: double.infinity, // Устанавливаем ширину равной родительскому контейнеру
             decoration: BoxDecoration(  
               color: Theme.of(context).colorScheme.primary,
@@ -58,7 +58,7 @@ class BalanceDisplay extends StatelessWidget {
               children: [
                 Text(
                   "Select from contacts",
-                  style: Theme.of(context).textTheme.displayMedium,
+                  style: Theme.of(context).textTheme.displaySmall,
                 ),
                 const SizedBox(width: 8), // Отступ между текстом и иконкой
                 const Icon(

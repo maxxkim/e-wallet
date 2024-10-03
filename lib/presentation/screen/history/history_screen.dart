@@ -3,6 +3,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:zippy/presentation/screen/dashboard/widgets/transaction_information_display.dart';
+import 'package:zippy/presentation/screen/history/widgets/transaction_list.dart';
 import 'package:zippy/presentation/widget/custom_text_field.dart';
 
 class HistoryScreen extends StatelessWidget {
@@ -18,71 +19,25 @@ class HistoryScreen extends StatelessWidget {
         toolbarHeight: 0,
         ),
       body: Padding(
-        padding: const EdgeInsets.all(16),
+        padding: const EdgeInsets.only(top: 16, left: 16, right: 16),
         child: Column(
           children: <Widget>[
-                CustomTextField(
-                hintText: "Search",
-                controller: TextEditingController(),
-              ),
-              Row(
-                children: [
-                  Container(
-                    height: 24,
-                    width: 24,
-                    color: Theme.of(context).colorScheme.secondaryContainer,
-                  ),
-           
-                ],
-              ),
-            const SizedBox(height: 8),
+            CustomTextField(
+              hintText: "Search",
+              controller: TextEditingController(),
+            ),
+              
+            const SizedBox(height: 16),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Expanded(
-                  child: GestureDetector(
-                    onTap: () async {
-                      DateTime? pickedDate = await showDatePicker(
-                        context: context,
-                        initialDate: startDate ?? DateTime.now(),
-                        firstDate: DateTime(2000),
-                        lastDate: DateTime(2101),
-                      );
-                      if (pickedDate != null && pickedDate != startDate) {
-                        startDate = pickedDate;
-                      }
-                    },
-                    child: Container(
-                      color: Colors.indigo[900],
-                      padding: const EdgeInsets.symmetric(vertical: 10),
-                      child: Center(child: Text(startDate == null ? 'August 2024' : '${startDate.toLocal()}'.split(' ')[0], style: const TextStyle(color: Colors.white))),
-                    ),
-                  ),
-                ),
+                Text("September 2024", style: Theme.of(context).textTheme.titleSmall),
                 const SizedBox(width: 8),
-                Expanded(
-                  child: GestureDetector(
-                    onTap: () async {
-                      DateTime? pickedDate = await showDatePicker(
-                        context: context,
-                        initialDate: endDate ?? DateTime.now(),
-                        firstDate: DateTime(2000),
-                        lastDate: DateTime(2101),
-                      );
-                      if (pickedDate != null && pickedDate != endDate) {
-                        endDate = pickedDate;
-                      }
-                    },
-                    child: Container(
-                      color: Colors.indigo[900],
-                      padding: const EdgeInsets.symmetric(vertical: 10),
-                      child: Center(child: Text(endDate == null ? 'Today' : '${endDate.toLocal()}'.split(' ')[0], style: const TextStyle(color: Colors.white))),
-                    ),
-                  ),
-                ),
+                Text("Totel: \$ 4 000.00", style: Theme.of(context).textTheme.titleSmall),
               ],
             ),
-            const SizedBox(height: 16),
+            
+            const SizedBox(height: 8),
             Row(
               children: [
                 Expanded(
@@ -101,6 +56,7 @@ class HistoryScreen extends StatelessWidget {
                     ),
                   ),
                 ),
+                
                 const SizedBox(width: 16), // Отступ между контейнерами (при желании)
                 Expanded(
                   child: Container(
@@ -121,7 +77,11 @@ class HistoryScreen extends StatelessWidget {
               ],
             ),
             const SizedBox(height: 16),
-            const TransactionsInfoDisplay(),
+            Align( 
+              alignment: Alignment.centerLeft, 
+              child: Text("Transaction history", style: Theme.of(context).textTheme.titleSmall)),
+            const SizedBox(height: 16),
+            const TransactionList(),
           ],
         ),
       ),

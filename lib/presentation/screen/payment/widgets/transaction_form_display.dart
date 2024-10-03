@@ -44,12 +44,13 @@ class TransactionFormDisplay extends StatelessWidget {
               Column(
                 children: [
                   Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                     children: [
                       Text(
                         "To transfer the amount of (amount)\nto the number (number), press continue.",
                         style: Theme.of(context).textTheme.bodySmall,
                       ),
-                      const SizedBox(width: 12.0),
+                      const SizedBox(width:8),
                       FilledButton(
                         onPressed: () => print("hui"),
                         child: Text(
