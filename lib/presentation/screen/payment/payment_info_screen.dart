@@ -82,7 +82,7 @@ class PaymentInfoScreen extends StatelessWidget {
                   Column(
                     children: [
                       SvgPicture.asset(
-                        'assets/images/icon_support.svg',
+                        'assets/images/icon_support_lg.svg',
                         height: 48.0,
                         width: 48.0,
                       ),
@@ -96,7 +96,7 @@ class PaymentInfoScreen extends StatelessWidget {
                   Column(
                     children: [
                       SvgPicture.asset(
-                        'assets/images/icon_copy.svg',
+                        'assets/images/icon_copy_lg.svg',
                         height: 48.0,
                         width: 48.0,
                       ),
@@ -110,7 +110,7 @@ class PaymentInfoScreen extends StatelessWidget {
                   Column(
                     children: [
                       SvgPicture.asset(
-                        'assets/images/icon_share.svg',
+                        'assets/images/icon_share_lg.svg',
                         height: 48.0,
                         width: 48.0,
                       ),
