@@ -23,7 +23,7 @@ class DasboardDisplay extends StatelessWidget {
               mainAxisSize: MainAxisSize.min,
               children: [
                 Padding(
-                  padding: const EdgeInsets.only(left: 24, top: 16, bottom: 16, right:16),
+                  padding: const EdgeInsets.only(left: 24, top: 16, bottom: 16, right: 16),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
@@ -60,7 +60,7 @@ class DasboardDisplay extends StatelessWidget {
                 const Spacer(),
                 Align(
                   child: Container(
-                    height: 32.0,
+                    height: 40.0,
                     decoration: BoxDecoration(  
                       color: Theme.of(context).colorScheme.primary,
                       borderRadius: const BorderRadius.vertical(bottom: Radius.circular(16)),
@@ -78,9 +78,9 @@ class DasboardDisplay extends StatelessWidget {
             ),
           ),
         ),
-        const SizedBox(width: 8),
+        const SizedBox(width: 4),
         Padding(
-          padding: const EdgeInsets.only(left: 12, right: 12),
+          padding: const EdgeInsets.only(left: 12, right: 4),
           child: Column(
             children: [
               // Правый верхний квадратный контейнер

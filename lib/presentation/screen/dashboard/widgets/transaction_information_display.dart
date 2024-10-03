@@ -39,7 +39,7 @@ class TransactionsInfoDisplay extends StatelessWidget {
           borderRadius: BorderRadius.circular(32),
         ),
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.end,
           children: [
             Row(
               children: [
@@ -67,7 +67,7 @@ class TransactionsInfoDisplay extends StatelessWidget {
                             String month = months[startIndex + index];
                             bool isCurrentMonth = month == currentMonth;
                             return Padding(
-                              padding: const EdgeInsets.symmetric(horizontal: 6.0),
+                              padding: const EdgeInsets.symmetric(horizontal: 16.0),
                               child: Text(
                                 month,
                                 style: isCurrentMonth
@@ -116,16 +116,8 @@ class TransactionsInfoDisplay extends StatelessWidget {
                 Expanded(
                   child: GestureDetector(
                     onTap: () => context.go('/dashboard/history'),
-                    child: Container(
-                      height: 56.0,
-                      decoration: BoxDecoration(
-                        border: Border.all(
-                        color: Theme.of(context).colorScheme.tertiary, // Цвет рамки
-                        width: 1.0, // Толщина рамки
-                      ),
-                        color: Theme.of(context).colorScheme.tertiaryContainer,
-                        borderRadius: const BorderRadius.vertical(bottom: Radius.circular(16)),
-                      ),
+                    child: SizedBox(
+                      height: 56,
                       child: Center(
                         child: Text(
                           "View All",
@@ -137,9 +129,9 @@ class TransactionsInfoDisplay extends StatelessWidget {
                 ),
               ],
             ),
-              ],
-            ),
+          ],
         ),
+      ),
     );
   }
 }

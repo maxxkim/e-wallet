@@ -31,6 +31,7 @@ class TransactionList extends StatelessWidget {
     int startIndex = (currentIndex - 2).clamp(0, months.length); // Начинаем с 2 месяцев до текущего
     int endIndex = (startIndex + 5).clamp(0, months.length); // Отображаем 5 месяцев
 
+    int itemCount = 77;
     return Expanded( // Оборачиваем в Expanded
       child: Container(
         decoration: BoxDecoration(
@@ -84,11 +85,11 @@ class TransactionList extends StatelessWidget {
             ),
             Expanded(
               child: ListView.builder(
-                itemCount: 20,
+                itemCount: itemCount,
                 itemBuilder: (context, index) {
                   return Column(
                     children: [
-                      Container(
+                      if (index < itemCount) Container(
                           decoration: BoxDecoration(
                             color: Theme.of(context).colorScheme.tertiaryContainer,
                             borderRadius: BorderRadius.zero,

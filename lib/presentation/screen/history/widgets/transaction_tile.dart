@@ -194,6 +194,7 @@ class _TransactionTileState extends State<TransactionTile> {
                             ),
                           ],
                         ),
+                        
                       ],
                     ),
                   ],

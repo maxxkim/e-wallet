@@ -14,16 +14,27 @@ class DashboardScreen extends StatelessWidget {
       create: (_) => DashboardCubit(),
       child: Scaffold(
         appBar: AppBar(
-          actions: [
-            IconButton(
-              icon: const Icon(Icons.logout),
+          leading: Padding(
+            padding: const EdgeInsets.only(left: 12),
+            child: IconButton(
+              icon: const Icon(Icons.arrow_back),
               onPressed: () {
-                _showLogoutConfirmation(context);
+                Navigator.pop(context);
               },
             ),
+          ),
+          actions: [
+            Padding(
+              padding: const EdgeInsets.only(right: 12),
+              child: IconButton(
+                icon: const Icon(Icons.menu),
+                onPressed: () {
+                },
+              ),
+            ),
           ],
-          backgroundColor: Theme.of(context).scaffoldBackgroundColor,
-          toolbarHeight: 0,
+          backgroundColor: Theme.of(context).colorScheme.primary,
+          toolbarHeight: 40,
         ),
         body: Padding(
           padding: const EdgeInsets.all(16.0),
@@ -31,18 +42,22 @@ class DashboardScreen extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.start,
             children: <Widget>[
               const DasboardDisplay(),
-              const SizedBox(height: 8),
+              const SizedBox(height: 16),
               Row(
                 children: [
                   FilledButton(
                     onPressed: () => print("hui"),
+                    style: ButtonStyle(
+                      padding: MaterialStateProperty.all(EdgeInsets.symmetric(horizontal: 32.0)), // Adjust horizontal padding
+                    ),
                     child: const Text("Period"),
                   ),
                   const Spacer(),
                   FilledButton(
                     onPressed: () => print("hui"),
                     style: ButtonStyle(
-                      backgroundColor: WidgetStateProperty.all(Theme.of(context).colorScheme.secondaryContainer), // Задаем цвет из темы
+                      padding: MaterialStateProperty.all(EdgeInsets.symmetric(horizontal: 32.0)), // Adjust horizontal padding
+                      backgroundColor: MaterialStateProperty.all(Theme.of(context).colorScheme.secondaryContainer), // Задаем цвет из темы
                     ),
                     child: Text("Deposit", style: Theme.of(context).textTheme.bodyMedium,),
                   ),
@@ -50,45 +65,16 @@ class DashboardScreen extends StatelessWidget {
                   FilledButton(
                     onPressed: () => print("hui"),
                     style: ButtonStyle(
-                      backgroundColor: WidgetStateProperty.all(Theme.of(context).colorScheme.secondaryContainer), // Задаем цвет из темы
+                      padding: MaterialStateProperty.all(EdgeInsets.symmetric(horizontal: 32)), // Adjust horizontal padding
+                      backgroundColor: MaterialStateProperty.all(Theme.of(context).colorScheme.secondaryContainer), // Задаем цвет из темы
                     ),
                     child: Text("Withdrawal", style: Theme.of(context).textTheme.bodyMedium,),
                   ),
                 ],
               ),
-              const SizedBox(height: 8),
+              const SizedBox(height: 16),
               const TransactionsInfoDisplay(),
-              /*const SizedBox(height: 8),
-              RectangularButton(
-                label: 'Pay by Email',
-                onPressed: () => context.go('/dashboard/payment'),
-              ),
-              const SizedBox(height: 8),
-              Align(
-                alignment: Alignment.centerRight,
-                child: GestureDetector(
-                  onTap: () => context.go('/dashboard/history'),
-                  child: Text(
-                    'See full history → ',
-                    style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.indigo[900]),
-                  ),
-                ),
-              ),
-              const SizedBox(height: 8),
-              Expanded(
-                child: ListView.builder(
-                  itemCount: 20,
-                  itemBuilder: (context, index) {
-                    return TransactionTile(
-                      title: 'Transaction #${index + 1}',
-                      subtitle: '26-8-2024 11:02',
-                      onTap: () => context.go('/dashboard/infoDashboard'), 
-                      amount: 13.12,
-                      currency: '₽', 
-                    );
-                  },
-                ),
-              ),*/
+
             ],
           ),
         ),

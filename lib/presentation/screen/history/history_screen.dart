@@ -80,6 +80,36 @@ class HistoryScreen extends StatelessWidget {
             Align( 
               alignment: Alignment.centerLeft, 
               child: Text("Transaction history", style: Theme.of(context).textTheme.titleSmall)),
+            const SizedBox(height: 8),
+              Row(
+                children: [
+                  FilledButton(
+                    onPressed: () => print("hui"),
+                    style: ButtonStyle(
+                      padding: WidgetStateProperty.all(EdgeInsets.symmetric(horizontal: 32.0)), // Adjust horizontal padding
+                    ),
+                    child: const Text("Period"),
+                  ),
+                  const Spacer(),
+                  FilledButton(
+                    onPressed: () => print("hui"),
+                    style: ButtonStyle(
+                      padding: WidgetStateProperty.all(EdgeInsets.symmetric(horizontal: 32.0)), // Adjust horizontal padding
+                      backgroundColor: WidgetStateProperty.all(Theme.of(context).colorScheme.secondaryContainer), // Задаем цвет из темы
+                    ),
+                    child: Text("Deposit", style: Theme.of(context).textTheme.bodyMedium,),
+                  ),
+                  const Spacer(),
+                  FilledButton(
+                    onPressed: () => print("hui"),
+                    style: ButtonStyle(
+                      padding: WidgetStateProperty.all(EdgeInsets.symmetric(horizontal: 32)), // Adjust horizontal padding
+                      backgroundColor: WidgetStateProperty.all(Theme.of(context).colorScheme.secondaryContainer), // Задаем цвет из темы
+                    ),
+                    child: Text("Withdrawal", style: Theme.of(context).textTheme.bodyMedium,),
+                  ),
+                ],
+              ),
             const SizedBox(height: 16),
             const TransactionList(),
           ],
