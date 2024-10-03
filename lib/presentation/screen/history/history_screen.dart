@@ -86,7 +86,7 @@ class HistoryScreen extends StatelessWidget {
                   FilledButton(
                     onPressed: () => print("hui"),
                     style: ButtonStyle(
-                      padding: WidgetStateProperty.all(EdgeInsets.symmetric(horizontal: 32.0)), // Adjust horizontal padding
+                      padding: WidgetStateProperty.all(EdgeInsets.symmetric(horizontal: 24.0)), // Adjust horizontal padding
                     ),
                     child: const Text("Period"),
                   ),
@@ -94,7 +94,7 @@ class HistoryScreen extends StatelessWidget {
                   FilledButton(
                     onPressed: () => print("hui"),
                     style: ButtonStyle(
-                      padding: WidgetStateProperty.all(EdgeInsets.symmetric(horizontal: 32.0)), // Adjust horizontal padding
+                      padding: WidgetStateProperty.all(EdgeInsets.symmetric(horizontal: 24.0)), // Adjust horizontal padding
                       backgroundColor: WidgetStateProperty.all(Theme.of(context).colorScheme.secondaryContainer), // Задаем цвет из темы
                     ),
                     child: Text("Deposit", style: Theme.of(context).textTheme.bodyMedium,),
@@ -103,7 +103,7 @@ class HistoryScreen extends StatelessWidget {
                   FilledButton(
                     onPressed: () => print("hui"),
                     style: ButtonStyle(
-                      padding: WidgetStateProperty.all(EdgeInsets.symmetric(horizontal: 32)), // Adjust horizontal padding
+                      padding: WidgetStateProperty.all(EdgeInsets.symmetric(horizontal: 24)), // Adjust horizontal padding
                       backgroundColor: WidgetStateProperty.all(Theme.of(context).colorScheme.secondaryContainer), // Задаем цвет из темы
                     ),
                     child: Text("Withdrawal", style: Theme.of(context).textTheme.bodyMedium,),
