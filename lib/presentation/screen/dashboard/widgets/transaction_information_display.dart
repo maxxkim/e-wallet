@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
+import 'package:zippy/domain/model/transaction/transaction_model.dart';
 import 'package:zippy/presentation/screen/history/widgets/transaction_tile.dart';
 
 class TransactionsInfoDisplay extends StatelessWidget {
@@ -95,14 +95,7 @@ class TransactionsInfoDisplay extends StatelessWidget {
                             borderRadius: BorderRadius.zero,
                           ),
                           child: TransactionTile(
-                            type: "in",
-                            id: '#123456789',
-                            title: 'Transaction #${index + 1}',
-                            date: DateTime.now(),
-                            currency: '\$',
-                            status: 'completed',
-
-                            amount: 1800.08,
+                            transaction: Transaction.generateRandomTransaction(),
                             onIconTap: () => context.go('/dashboard/infoDashboard'),
                         ),
                       ),

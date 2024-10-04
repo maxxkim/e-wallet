@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
+import 'package:zippy/domain/model/transaction/transaction_model.dart';
 import 'package:zippy/presentation/bloc/dashboard/dashboard_cubit.dart';
 import 'package:zippy/presentation/screen/history/widgets/transaction_tile.dart';
 import 'widgets/dashboard_display.dart';
@@ -36,10 +37,6 @@ class DashboardScreen extends StatelessWidget {
     int endIndex = (startIndex + 5).clamp(0, months.length); // Отображаем 5 месяцев
 
 
-    String getRandomStatus() {
-      final statuses = ['pending', 'success', 'error'];
-      return statuses[random.nextInt(statuses.length)];
-    }
 
 
     
@@ -192,13 +189,7 @@ class DashboardScreen extends StatelessWidget {
                             return Column(
                               children: [
                                 TransactionTile(
-                                  id: getRandomId(),
-                                  title: 'Transaction #${index + 1}',
-                                  date: generateRandomDate(),
-                                  currency: '\$',
-                                  status: getRandomStatus(),
-                                  amount: getRandomAmount(),
-                                  type: getRandomType(),
+                                  transaction: Transaction.generateRandomTransaction(),
                                   onIconTap: () => context.go('/dashboard/infoDashboard'),
                                 ),
                                 Container(height: 1, color: Theme.of(context).scaffoldBackgroundColor,),
@@ -235,29 +226,5 @@ class DashboardScreen extends StatelessWidget {
       ),
     );
   }
-      DateTime generateRandomDate() {
-    int daysBack = this.random.nextInt(730);
-    return DateTime.now().subtract(Duration(days: daysBack));
-    }
-
-    String getRandomType() {
-      final types = ['in', 'out'];
-      return types[random.nextInt(types.length)];
-    }
-
-    String getRandomTime() {
-      final hour = random.nextInt(12) + 1;
-      final minute = random.nextInt(60);
-      final ampm = random.nextBool() ? 'AM' : 'PM';
-      return '$hour:${minute.toString().padLeft(2, '0')} $ampm';
-    }
-
-    double getRandomAmount() {
-      return (random.nextDouble() * 10000).roundToDouble(); // Случайная сумма
-    }
-
-    String getRandomId() {
-      return '#${random.nextInt(1000000000)}'; // Случайный ID
-    }
 }
 
