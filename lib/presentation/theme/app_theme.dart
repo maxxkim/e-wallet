@@ -34,13 +34,14 @@ final ThemeData appTheme = ThemeData(
 
   textTheme: const TextTheme(
     titleSmall: TextStyle(color: bluePurpleColor, fontSize: 12, fontWeight: FontWeight.bold, fontFamily: 'RobotoFlex'),
-    titleMedium: TextStyle(color: bluePurpleColor, fontSize: 14, fontWeight: FontWeight.w500, fontFamily: 'RobotoFlex'),
+    titleMedium: TextStyle(color: blackColor, fontSize: 14, fontWeight: FontWeight.w600, fontFamily: 'RobotoFlex'),
     titleLarge: TextStyle(color: bluePurpleColor, fontSize: 24, fontWeight: FontWeight.bold, fontFamily: 'RobotoFlex'),
-    bodySmall: TextStyle(color: blackColor, fontSize: 12, fontWeight: FontWeight.w300, fontFamily: 'RobotoFlex'),
-    bodyMedium: TextStyle(color: blackColor, fontSize: 14, fontWeight: FontWeight.w400, fontFamily: 'RobotoFlex'), 
+    bodySmall: TextStyle(color: blackColor, fontSize: 14, fontWeight: FontWeight.w300, fontFamily: 'RobotoFlex'),
+    bodyMedium: TextStyle(color: blackColor, fontSize: 14, fontWeight: FontWeight.w300, fontFamily: 'RobotoFlex'), 
     bodyLarge: TextStyle(color: blackColor, fontSize: 16, fontWeight: FontWeight.w300, fontFamily: 'RobotoFlex'),
-    headlineSmall: TextStyle(color: bluePurpleColor, fontSize: 16, fontWeight: FontWeight.w500, fontFamily: 'RobotoFlex'), 
+    headlineSmall: TextStyle(color: bluePurpleColor, fontSize: 16, fontWeight: FontWeight.w600, fontFamily: 'RobotoFlex'), 
     headlineMedium: TextStyle(color: bluePurpleColor, fontSize: 20, fontWeight: FontWeight.bold, fontFamily: 'RobotoFlex'),
+    headlineLarge: TextStyle(color: bluePurpleColor, fontSize: 12, fontWeight: FontWeight.w400, fontFamily: 'RobotoFlex'),
     displaySmall: TextStyle(color: whiteColor, fontSize: 14, fontWeight: FontWeight.bold, fontFamily: 'RobotoFlex'),
     displayMedium: TextStyle(color: whiteColor, fontSize: 16, fontWeight: FontWeight.bold, fontFamily: 'RobotoFlex'),
     labelSmall: TextStyle(color: lightGreyColor, fontSize: 12, fontWeight: FontWeight.w300, fontFamily: 'RobotoFlex'),
