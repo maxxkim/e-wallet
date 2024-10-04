@@ -1,4 +1,17 @@
-class DashboardState {
+import 'package:zippy/domain/model/transaction/transaction_model.dart';
 
-  const DashboardState();
-} 
+enum FilterType { period, deposit, withdrawal }
+
+class DashboardState {
+  final FilterType filterType;
+  final double balance;
+  final List<Transaction>? transactions;
+  final List<Transaction>? filteredTransactions; // This will hold filtered transactions based on the selected filter
+
+  const DashboardState({
+    required this.filterType,
+    required this.balance,
+    this.transactions,
+    this.filteredTransactions,
+  });
+}
