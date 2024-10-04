@@ -45,7 +45,12 @@ class _TransactionTileState extends State<TransactionTile> {
       child: Container(
         decoration: BoxDecoration(
           color: Theme.of(context).colorScheme.tertiaryContainer,
-          borderRadius: BorderRadius.zero,
+          borderRadius: BorderRadius.only(
+            topLeft: Radius.circular(16.0), // Adjust the radius as needed
+            topRight: Radius.circular(16.0), // Adjust the radius as needed
+            bottomLeft: Radius.zero,
+            bottomRight: Radius.zero,
+          ),
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -56,8 +61,8 @@ class _TransactionTileState extends State<TransactionTile> {
                 style: Theme.of(context).textTheme.headlineSmall,
               ),
               subtitle: Text(
-                widget.date+" "+widget.time, // Используем переданную подстроку
-                style: Theme.of(context).textTheme.bodySmall,
+                widget.date+"\n"+widget.time, // Используем переданную подстроку
+                style: Theme.of(context).textTheme.bodyMedium,
               ),
               leading: SvgPicture.asset(
                 getIcon(widget.type),
@@ -101,7 +106,7 @@ class _TransactionTileState extends State<TransactionTile> {
                             ),
                             Text(
                               widget.id, // Замените на необходимую информацию
-                              style: Theme.of(context).textTheme.bodyMedium,
+                              style: Theme.of(context).textTheme.bodySmall,
                             ),
                           ],
                         ),
@@ -113,7 +118,7 @@ class _TransactionTileState extends State<TransactionTile> {
                             ),
                             Text(
                               widget.currency + widget.amount.toString(), // Замените на необходимую информацию
-                              style: Theme.of(context).textTheme.bodyMedium,
+                              style: Theme.of(context).textTheme.bodySmall,
                             ),
                           ],
                         ),
@@ -125,7 +130,7 @@ class _TransactionTileState extends State<TransactionTile> {
                             ),
                             Text(
                               widget.date, // Замените на необходимую информацию
-                              style: Theme.of(context).textTheme.bodyMedium,
+                              style: Theme.of(context).textTheme.bodySmall,
                             ),
                           ],
                         ),
@@ -137,7 +142,7 @@ class _TransactionTileState extends State<TransactionTile> {
                             ),
                             Text(
                               widget.time, // Замените на необходимую информацию
-                              style: Theme.of(context).textTheme.bodyMedium,
+                              style: Theme.of(context).textTheme.bodySmall,
                             ),
                           ],
                         ),

@@ -215,22 +215,16 @@ class DashboardScreen extends StatelessWidget {
                           itemBuilder: (context, index) {
                             return Column(
                               children: [
-                                Container(
-                                    decoration: BoxDecoration(
-                                      color: Theme.of(context).colorScheme.tertiaryContainer,
-                                      borderRadius: BorderRadius.zero,
-                                    ),
-                                    child: TransactionTile(
-                                      id: getRandomId(),
-                                      title: 'Transaction #${index + 1}',
-                                      date: getRandomDate(),
-                                      time: getRandomTime(),
-                                      currency: '\$',
-                                      status: getRandomStatus(),
-                                      amount: getRandomAmount(),
-                                      type: getRandomType(),
-                                      onIconTap: () => context.go('/dashboard/infoDashboard'),
-                                    ),
+                                TransactionTile(
+                                  id: getRandomId(),
+                                  title: 'Transaction #${index + 1}',
+                                  date: getRandomDate(),
+                                  time: getRandomTime(),
+                                  currency: '\$',
+                                  status: getRandomStatus(),
+                                  amount: getRandomAmount(),
+                                  type: getRandomType(),
+                                  onIconTap: () => context.go('/dashboard/infoDashboard'),
                                 ),
                                 Container(height: 1, color: Theme.of(context).scaffoldBackgroundColor,),
                               ],
