@@ -80,10 +80,12 @@ class _TransactionTileState extends State<TransactionTile> {
               ),
             ),
             if (_isExpanded)
-              Container(
-                padding: EdgeInsets.all(12),
-                color: Theme.of(context).scaffoldBackgroundColor,
+            Container(
+              padding: EdgeInsets.all(12),
+              color: Theme.of(context).scaffoldBackgroundColor,
+              child: IntrinsicHeight(
                 child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Column(
@@ -101,6 +103,7 @@ class _TransactionTileState extends State<TransactionTile> {
                             ),
                           ],
                         ),
+                        const SizedBox(height: 8),
                         Row(
                           children: [
                             Text(
@@ -113,6 +116,7 @@ class _TransactionTileState extends State<TransactionTile> {
                             ),
                           ],
                         ),
+                        const SizedBox(height: 8),
                         Row(
                           children: [
                             Text(
@@ -120,12 +124,12 @@ class _TransactionTileState extends State<TransactionTile> {
                               style: Theme.of(context).textTheme.titleMedium,
                             ),
                             Text(
-                              DateFormat('MMMM, d yyyy')
-                                  .format(widget.transaction.date),
+                              DateFormat('MMMM d, yyyy').format(widget.transaction.date),
                               style: Theme.of(context).textTheme.bodySmall,
                             ),
                           ],
                         ),
+                        const SizedBox(height: 8),
                         Row(
                           children: [
                             Text(
@@ -133,71 +137,75 @@ class _TransactionTileState extends State<TransactionTile> {
                               style: Theme.of(context).textTheme.titleMedium,
                             ),
                             Text(
-                              DateFormat('hh:mm a')
-                                  .format(widget.transaction.date),
+                              DateFormat('hh:mm a').format(widget.transaction.date),
                               style: Theme.of(context).textTheme.bodySmall,
                             ),
                           ],
                         ),
                       ],
                     ),
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.end,
-                      children: [
-                        Text(
-                          'Status: ${widget.transaction.status}',
-                          style: Theme.of(context).textTheme.titleMedium,
-                        ),
-                        Row(
-                          children: [
-                            Column(
-                              children: [
-                                SvgPicture.asset(
-                                  'assets/images/icon_support.svg',
-                                  height: 24.0,
-                                  width: 24.0,
-                                ),
-                                Text(
-                                  'Help',
-                                  style: Theme.of(context).textTheme.headlineLarge,
-                                ),
-                              ],
-                            ),
-                            const SizedBox(width: 8),
-                            Column(
-                              children: [
-                                SvgPicture.asset(
-                                  'assets/images/icon_copy.svg',
-                                  height: 24.0,
-                                  width: 24.0,
-                                ),
-                                Text(
-                                  'Copy',
-                                  style: Theme.of(context).textTheme.headlineLarge,
-                                ),
-                              ],
-                            ),
-                            const SizedBox(width: 8),
-                            Column(
-                              children: [
-                                SvgPicture.asset(
-                                  'assets/images/icon_share.svg',
-                                  height: 24.0,
-                                  width: 24.0,
-                                ),
-                                Text(
-                                  'Share',
-                                  style: Theme.of(context).textTheme.headlineLarge,
-                                ),
-                              ],
-                            ),
-                          ],
-                        ),
-                      ],
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.end,
+                        children: [
+                          Text(
+                            'Status: ${widget.transaction.status}',
+                            style: Theme.of(context).textTheme.titleMedium,
+                          ),
+                          const Spacer(),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.end,
+                            children: [
+                              Column(
+                                children: [
+                                  SvgPicture.asset(
+                                    'assets/images/icon_support.svg',
+                                    height: 24.0,
+                                    width: 24.0,
+                                  ),
+                                  Text(
+                                    'Help',
+                                    style: Theme.of(context).textTheme.headlineLarge,
+                                  ),
+                                ],
+                              ),
+                              const SizedBox(width: 16.0),
+                              Column(
+                                children: [
+                                  SvgPicture.asset(
+                                    'assets/images/icon_copy.svg',
+                                    height: 24.0,
+                                    width: 24.0,
+                                  ),
+                                  Text(
+                                    'Copy',
+                                    style: Theme.of(context).textTheme.headlineLarge,
+                                  ),
+                                ],
+                              ),
+                              const SizedBox(width: 16.0),
+                              Column(
+                                children: [
+                                  SvgPicture.asset(
+                                    'assets/images/icon_share.svg',
+                                    height: 24.0,
+                                    width: 24.0,
+                                  ),
+                                  Text(
+                                    'Share',
+                                    style: Theme.of(context).textTheme.headlineLarge,
+                                  ),
+                                ],
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
                     ),
                   ],
                 ),
               ),
+            ),
           ],
         ),
       ),
