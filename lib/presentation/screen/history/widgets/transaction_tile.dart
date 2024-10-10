@@ -1,27 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:intl/intl.dart';
+import 'package:zippy/domain/model/transaction/transaction_model.dart';
 
 class TransactionTile extends StatefulWidget {
-  final String id;
-  final String title;
-  final DateTime date;
-  final String status;
-  final String currency;
-  final String type;
-  final double amount;
+  final Transaction transaction;
   final VoidCallback onIconTap;
 
   const TransactionTile({
     Key? key,
-    required this.id,
-    required this.title,
-    required this.date,
+    required this.transaction,
     required this.onIconTap,
-    required this.amount,
-    required this.type,
-    required this.status,
-    required this.currency,
   }) : super(key: key);
 
   @override
@@ -45,8 +34,8 @@ class _TransactionTileState extends State<TransactionTile> {
         decoration: BoxDecoration(
           color: Theme.of(context).colorScheme.tertiaryContainer,
           borderRadius: BorderRadius.only(
-            topLeft: Radius.circular(16.0), // Adjust the radius as needed
-            topRight: Radius.circular(16.0), // Adjust the radius as needed
+            topLeft: Radius.circular(16.0),
+            topRight: Radius.circular(16.0),
             bottomLeft: Radius.zero,
             bottomRight: Radius.zero,
           ),
@@ -58,15 +47,15 @@ class _TransactionTileState extends State<TransactionTile> {
               horizontalTitleGap: 8.0,
               contentPadding: EdgeInsets.only(left: 12.0, right: 12.0),
               title: Text(
-                widget.title, // Используем переданное название транзакции
+                widget.transaction.title,
                 style: Theme.of(context).textTheme.headlineSmall,
               ),
               subtitle: Text(
-                DateFormat('MMMM d, hh:mm a').format(widget.date),
+                DateFormat('MMMM d, hh:mm a').format(widget.transaction.date),
                 style: Theme.of(context).textTheme.bodyMedium,
               ),
               leading: SvgPicture.asset(
-                getIcon(widget.type),
+                getIcon(widget.transaction.type),
                 height: 36.0,
                 width: 36.0,
               ),
@@ -74,16 +63,17 @@ class _TransactionTileState extends State<TransactionTile> {
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   Text(
-                    getText(widget.type, '${widget.currency} ${widget.amount.toStringAsFixed(2)}',),
-                    style: getColor(widget.type), // Форматируем сумму с валютой
+                    getText(widget.transaction.type,
+                        '${widget.transaction.currency} ${widget.transaction.amount.toStringAsFixed(2)}'),
+                    style: getColor(widget.transaction.type),
                   ),
-                  SizedBox(width: 8.0), // Добавляем немного отступа между текстом и иконкой
+                  SizedBox(width: 8.0),
                   GestureDetector(
-                    onTap: widget.onIconTap, // Вызываем переданный обработчик
+                    onTap: widget.onIconTap,
                     child: SvgPicture.asset(
-                      'assets/images/icon_receipt.svg', // Замените на путь к вашей иконке чека
-                      height: 24.0, // Высота иконки
-                      width: 24.0, // Ширина иконки
+                      'assets/images/icon_receipt.svg',
+                      height: 24.0,
+                      width: 24.0,
                     ),
                   ),
                 ],
@@ -94,19 +84,19 @@ class _TransactionTileState extends State<TransactionTile> {
                 padding: EdgeInsets.all(12),
                 color: Theme.of(context).scaffoldBackgroundColor,
                 child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween, // Распределяем пространство между колонками
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Column(
-                      crossAxisAlignment: CrossAxisAlignment.start, // Выравниваем по левому краю
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Row(
                           children: [
                             Text(
-                              'Transaction ID: ', // Замените на необходимую информацию
+                              'Transaction ID: ',
                               style: Theme.of(context).textTheme.titleMedium,
                             ),
                             Text(
-                              widget.id, // Замените на необходимую информацию
+                              widget.transaction.id,
                               style: Theme.of(context).textTheme.bodySmall,
                             ),
                           ],
@@ -114,11 +104,11 @@ class _TransactionTileState extends State<TransactionTile> {
                         Row(
                           children: [
                             Text(
-                              'Amount: ', // Замените на необходимую информацию
+                              'Amount: ',
                               style: Theme.of(context).textTheme.titleMedium,
                             ),
                             Text(
-                              widget.currency + widget.amount.toString(), // Замените на необходимую информацию
+                              '${widget.transaction.currency} ${widget.transaction.amount.toString()}',
                               style: Theme.of(context).textTheme.bodySmall,
                             ),
                           ],
@@ -130,11 +120,11 @@ class _TransactionTileState extends State<TransactionTile> {
                               style: Theme.of(context).textTheme.titleMedium,
                             ),
                             Text(
-                              DateFormat('MMMM, d yyyy').format(widget.date),
+                              DateFormat('MMMM, d yyyy')
+                                  .format(widget.transaction.date),
                               style: Theme.of(context).textTheme.bodySmall,
                             ),
-
-                                ],
+                          ],
                         ),
                         Row(
                           children: [
@@ -143,7 +133,8 @@ class _TransactionTileState extends State<TransactionTile> {
                               style: Theme.of(context).textTheme.titleMedium,
                             ),
                             Text(
-                              DateFormat('hh:mm a').format(widget.date),
+                              DateFormat('hh:mm a')
+                                  .format(widget.transaction.date),
                               style: Theme.of(context).textTheme.bodySmall,
                             ),
                           ],
@@ -154,9 +145,9 @@ class _TransactionTileState extends State<TransactionTile> {
                       crossAxisAlignment: CrossAxisAlignment.end,
                       children: [
                         Text(
-                          'Status: ' + widget.status, // Замените на необходимую информацию
+                          'Status: ${widget.transaction.status}',
                           style: Theme.of(context).textTheme.titleMedium,
-                        ),                       
+                        ),
                         Row(
                           children: [
                             Column(
@@ -167,7 +158,7 @@ class _TransactionTileState extends State<TransactionTile> {
                                   width: 24.0,
                                 ),
                                 Text(
-                                  'Help', // Замените на необходимую информацию
+                                  'Help',
                                   style: Theme.of(context).textTheme.headlineLarge,
                                 ),
                               ],
@@ -181,7 +172,7 @@ class _TransactionTileState extends State<TransactionTile> {
                                   width: 24.0,
                                 ),
                                 Text(
-                                  'Copy', // Замените на необходимую информацию
+                                  'Copy',
                                   style: Theme.of(context).textTheme.headlineLarge,
                                 ),
                               ],
@@ -195,14 +186,13 @@ class _TransactionTileState extends State<TransactionTile> {
                                   width: 24.0,
                                 ),
                                 Text(
-                                  'Share', // Замените на необходимую информацию
+                                  'Share',
                                   style: Theme.of(context).textTheme.headlineLarge,
                                 ),
                               ],
                             ),
                           ],
                         ),
-                        
                       ],
                     ),
                   ],
@@ -213,8 +203,8 @@ class _TransactionTileState extends State<TransactionTile> {
       ),
     );
   }
-  String getIcon(String type)
-  {
+
+  String getIcon(String type) {
     if (type == "in") {
       return 'assets/images/icon_transaction_background.svg';
     } else {
@@ -222,7 +212,7 @@ class _TransactionTileState extends State<TransactionTile> {
     }
   }
 
-  String getText(String type, String text){
+  String getText(String type, String text) {
     if (type == "in") {
       return text;
     } else {
@@ -230,8 +220,7 @@ class _TransactionTileState extends State<TransactionTile> {
     }
   }
 
-  TextStyle? getColor(String type)
-  {
+  TextStyle? getColor(String type) {
     if (type == "in") {
       return Theme.of(context).textTheme.inText;
     } else {

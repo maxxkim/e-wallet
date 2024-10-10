@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
-import 'dart:math';
+import 'package:zippy/domain/model/transaction/transaction_model.dart';
 import 'package:zippy/presentation/screen/history/widgets/transaction_tile.dart';
 
 class TransactionList extends StatelessWidget {
@@ -89,9 +89,6 @@ class TransactionList extends StatelessWidget {
               child: ListView.builder(
                 itemCount: itemCount,
                 itemBuilder: (context, index) {
-
-                  DateTime randomDate = generateRandomDate();
-
                   return Column(
                     children: [
                       if (index < itemCount)
@@ -101,14 +98,7 @@ class TransactionList extends StatelessWidget {
                             borderRadius: BorderRadius.zero,
                           ),
                           child: TransactionTile(
-                            id: '#123456789',
-                            type: "in",
-                            title: 'Transaction #${index + 1}',
-                            date: randomDate,
-                            // time: '1pm',
-                            currency: '\$', 
-                            status: 'completed',
-                            amount: 1800.08,
+                            transaction: Transaction.generateRandomTransaction(),
                             onIconTap: () => context.go('/dashboard/infoDashboard'),
                           ),
                         ),
@@ -122,11 +112,5 @@ class TransactionList extends StatelessWidget {
         ),
       ),
     );
-  }
-
-  DateTime generateRandomDate() {
-  Random random = Random();
-  int daysBack = random.nextInt(730);
-  return DateTime.now().subtract(Duration(days: daysBack));
   }
 }

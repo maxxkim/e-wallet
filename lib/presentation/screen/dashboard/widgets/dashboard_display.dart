@@ -3,11 +3,13 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
 
  
-class DasboardDisplay extends StatelessWidget {
-  const DasboardDisplay({super.key});
+class DashboardDisplay extends StatelessWidget {
+  final double? balance;
+  const DashboardDisplay({super.key, this.balance});
 
   @override
   Widget build(BuildContext context) {
+    double displayedBalance = balance ?? 0.00;
     return Row(
       children: [
         // Левый контейнер с балансом
@@ -41,7 +43,7 @@ class DasboardDisplay extends StatelessWidget {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
-                                '1 800.08',
+                                displayedBalance.toStringAsFixed(2),
                                 style: Theme.of(context).textTheme.headlineMedium,
                               ),
                               Row(
