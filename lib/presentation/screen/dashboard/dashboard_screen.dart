@@ -174,7 +174,10 @@ class DashboardScreen extends StatelessWidget {
                                   children: [
                                     TransactionTile(
                                       transaction: state.filteredTransactions![index],
-                                      onIconTap: () => context.go('/dashboard/infoDashboard'),
+                                      onIconTap: () {
+                                        // Перейти к новому экрану с передачей данных транзакции
+                                        context.go('/dashboard/infoDashboard', extra: state.filteredTransactions![index]);
+                                      },
                                     ),
                                     Container(
                                       height: 1,

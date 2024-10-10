@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:zippy/domain/model/transaction/transaction_model.dart';
 import 'package:zippy/presentation/screen/auth/auth_screen.dart';
 import 'package:zippy/presentation/screen/dashboard/dashboard_screen.dart';
 import 'package:zippy/presentation/screen/history/history_screen.dart';
@@ -28,9 +29,10 @@ final GoRouter appRouter = GoRouter(
           },
         ),
         GoRoute(
-          path: 'infoDashboard',
-          builder: (BuildContext context, GoRouterState state) {
-            return const PaymentInfoScreen();
+          path: 'infoDashboard', 
+          builder: (context, state) {
+            Transaction transaction = state.extra as Transaction;
+            return PaymentInfoScreen(transaction: transaction);
           },
         ),
         GoRoute(
@@ -41,8 +43,9 @@ final GoRouter appRouter = GoRouter(
           routes: <RouteBase>[
             GoRoute(
               path: 'infoHistory',
-              builder: (BuildContext context, GoRouterState state) {
-                return const PaymentInfoScreen();
+              builder: (context, state) {
+                Transaction transaction = state.extra as Transaction;
+                return PaymentInfoScreen(transaction: transaction);
               },
             ),
           ],
@@ -55,9 +58,10 @@ final GoRouter appRouter = GoRouter(
           routes: <RouteBase>[
             GoRoute(
               path: 'info',
-              builder: (BuildContext context, GoRouterState state) {
-                return const PaymentInfoScreen();
-              },
+                builder: (context, state) {
+                  Transaction transaction = state.extra as Transaction;
+                  return PaymentInfoScreen(transaction: transaction);
+                },
             ),
           ],
         )

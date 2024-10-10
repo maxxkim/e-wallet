@@ -1,12 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:zippy/domain/model/transaction/transaction_model.dart';
 import 'package:zippy/presentation/widget/custom_rectangular_button.dart';
 //import 'package:flutter_bloc/flutter_bloc.dart';
 //import 'package:zippy/presentation/bloc/dashboard/dashboard_cubit.dart';
 
 class PaymentInfoScreen extends StatelessWidget {
-  const PaymentInfoScreen({super.key});
+  final Transaction transaction;
+  const PaymentInfoScreen({required this.transaction, super.key});
 
   @override
    Widget build(BuildContext context) {
@@ -20,7 +22,7 @@ class PaymentInfoScreen extends StatelessWidget {
             const SizedBox(height: 40),
             Center( // Добавлено Center для текста
               child: Text(
-                'Transaction completed\n successfully!', // Исправлена опечатка
+                'Transaction status: ${transaction.status}', // Исправлена опечатка
                 textAlign: TextAlign.center, // Центрируем текст
                 style: Theme.of(context).textTheme.bodyLarge,
               ),
@@ -29,25 +31,27 @@ class PaymentInfoScreen extends StatelessWidget {
             Container(
               padding: const EdgeInsets.all(16.0),
               decoration: BoxDecoration(
-                color: Theme.of(context).colorScheme.secondaryContainer,
+                color: getContainer(context),
                 borderRadius: BorderRadius.circular(16),
               ),
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Text(
-                    'Top Up',
-                    style: Theme.of(context).textTheme.titleMedium,
-                  ),
+                  if(transaction.type == "in")
+                    Text(
+                      'Top Up',
+                      style: Theme.of(context).textTheme.titleMedium,
+                    ),
+                  if(transaction.type == "out")
+                    Text(
+                      'Withdraw',
+                      style: Theme.of(context).textTheme.titleMedium,
+                    ),
                   const SizedBox(height: 16),
-                  SvgPicture.asset(
-                    'assets/images/icon_tick.svg',
-                    height: 48.0,
-                    width: 48.0,
-                  ),
+                  getIcon(context),
                   const SizedBox(height: 16),
                   Text(
-                    '+ 1808.00',
+                    '${getSign(context)} ${transaction.amount}',
                     style: Theme.of(context).textTheme.titleLarge,
                   ),
                   const SizedBox(height: 12),
@@ -65,7 +69,7 @@ class PaymentInfoScreen extends StatelessWidget {
                         ),
                         Text(" → ", style: Theme.of(context).textTheme.titleMedium),
                         Text(
-                          '\$ 1342.24',
+                          '${transaction.currency} ${1356.32 + transaction.amount}',
                           style: Theme.of(context).textTheme.titleMedium,
                         ),
                       ],
@@ -141,5 +145,49 @@ class PaymentInfoScreen extends StatelessWidget {
         ),
       ),
     );
+  }
+  String getSign(BuildContext context)
+  {
+    if (transaction.type == "in") {
+      return "+";
+    }
+    else {
+      return "-";
+    }
+  }
+  Color getContainer(BuildContext context)
+  {
+    if (transaction.status == "success") {
+      return Theme.of(context).colorScheme.secondaryContainer;
+    }
+    else if (transaction.status == "pending") {
+      return Theme.of(context).colorScheme.onTertiaryContainer;
+    }
+    else {
+      return Theme.of(context).colorScheme.onErrorContainer;
+    }
+  }
+  Widget getIcon(BuildContext context){
+    if (transaction.status == "success") {
+      return SvgPicture.asset(
+                    'assets/images/icon_tick.svg',
+                    height: 48.0,
+                    width: 48.0,
+                  );
+    }
+    else if (transaction.status == "pending") {
+      return SvgPicture.asset(
+                    'assets/images/icon_transaction_pending.svg',
+                    height: 48.0,
+                    width: 48.0,
+                  );
+    }
+    else {
+      return SvgPicture.asset(
+                    'assets/images/icon_transaction_error.svg',
+                    height: 48.0,
+                    width: 48.0,
+                  );
+    }
   }
 }
