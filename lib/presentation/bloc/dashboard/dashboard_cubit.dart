@@ -1,36 +1,55 @@
 import 'dart:math';
 
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:intl/intl.dart';
 import 'package:zippy/domain/model/transaction/transaction_model.dart';
 import 'package:zippy/domain/state/dashboard/dashboard_state.dart';
 
 class DashboardCubit extends Cubit<DashboardState> {
   DashboardCubit() : super(DashboardState(
     filterType: FilterType.period, 
+    chosenMonth:  DateFormat('MMMM').format(DateTime.now()),
     balance: getRandomBalance(),
     transactions: getRandomTransactions(),
     filteredTransactions: getRandomTransactions(),
   ));
 
   void selectFilter(FilterType filterType) {
-    List<Transaction>? filteredTransactions = filterTransactions(filterType, state.transactions);
+    List<Transaction>? filteredTransactions = filterTransactions(filterType, state.transactions, state.chosenMonth);
 
     emit(DashboardState(
       filterType: filterType,
+      chosenMonth: state.chosenMonth,
       balance: state.balance,
-      transactions: state.transactions, // keep the original transactions
-      filteredTransactions: filteredTransactions, // updated transactions to display
+      transactions: state.transactions, 
+      filteredTransactions: filteredTransactions, 
     ));
   }
 
-  List<Transaction>? filterTransactions(FilterType filterType, List<Transaction>? transactions) {
+  void selectMonth(String month) {
+    final updatedChosenMonth = month;
+    List<Transaction>? filteredTransactions = filterTransactions(FilterType.period, state.transactions, updatedChosenMonth);
+
+    emit(DashboardState(
+      filterType: FilterType.period,
+      chosenMonth: updatedChosenMonth,
+      balance: state.balance,
+      transactions: state.transactions, 
+      filteredTransactions: filteredTransactions, 
+    ));
+  }
+
+
+  List<Transaction>? filterTransactions(FilterType filterType, List<Transaction>? transactions, String? month) {
     if (transactions == null) return null;
 
     if (filterType == FilterType.deposit) {
       return transactions.where((transaction) => transaction.type == 'in').toList();
     } else if (filterType == FilterType.withdrawal) {
       return transactions.where((transaction) => transaction.type == 'out').toList();
-    } 
+    } else if (filterType == FilterType.period) {
+      return transactions.where((transaction) => DateFormat('MMMM').format(transaction.date) == month).toList();
+    }  
     return transactions;
   }
   static double getRandomBalance(){

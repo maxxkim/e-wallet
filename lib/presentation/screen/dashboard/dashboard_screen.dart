@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
-import 'package:intl/intl.dart';
 import 'package:zippy/domain/state/dashboard/dashboard_state.dart';
 import 'package:zippy/presentation/bloc/dashboard/dashboard_cubit.dart';
 import 'package:zippy/presentation/screen/history/widgets/transaction_tile.dart';
@@ -12,8 +11,6 @@ class DashboardScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    DateTime now = DateTime.now();
-    String currentMonth = DateFormat('MMMM').format(now);
 
     final List<String> months = [
       "January",
@@ -30,14 +27,15 @@ class DashboardScreen extends StatelessWidget {
       "December",
     ];
 
-    int currentIndex = months.indexOf(currentMonth);
-    int startIndex = (currentIndex - 2).clamp(0, months.length); 
-    int endIndex = (startIndex + 5).clamp(0, months.length); 
+
 
     return BlocProvider(
       create: (_) => DashboardCubit(),
       child: BlocBuilder<DashboardCubit, DashboardState>(
         builder: (context, state) {
+          int currentIndex = months.indexOf(state.chosenMonth)+1;
+          int startIndex = (currentIndex - 2).clamp(0, months.length); 
+          int endIndex = (startIndex + 5).clamp(0, months.length); 
           return Scaffold(
             appBar: AppBar(
               leading: Padding(
@@ -149,15 +147,18 @@ class DashboardScreen extends StatelessWidget {
                                   itemCount: endIndex - startIndex,
                                   itemBuilder: (context, index) {
                                     String month = months[startIndex + index];
-                                    bool isCurrentMonth = month == currentMonth;
-                                    return Padding(
-                                      padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                                      child: Center(
-                                        child: Text(
-                                          month,
-                                          style: isCurrentMonth
-                                              ? Theme.of(context).textTheme.headlineSmall
-                                              : Theme.of(context).textTheme.bodyMedium,
+                                    bool isCurrentMonth = month == state.chosenMonth;
+                                    return GestureDetector(
+                                      onTap:() => context.read<DashboardCubit>().selectMonth(month),
+                                      child: Padding(
+                                        padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                                        child: Center(
+                                          child: Text(
+                                            month,
+                                            style: isCurrentMonth
+                                                ? Theme.of(context).textTheme.headlineSmall
+                                                : Theme.of(context).textTheme.bodyMedium,
+                                          ),
                                         ),
                                       ),
                                     );

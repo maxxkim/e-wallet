@@ -6,12 +6,14 @@ class DashboardState {
   final FilterType filterType;
   final double balance;
   final List<Transaction>? transactions;
-  final List<Transaction>? filteredTransactions; // This will hold filtered transactions based on the selected filter
+  final List<Transaction>? filteredTransactions; 
+  final String chosenMonth;
 
   const DashboardState({
     required this.filterType,
     required this.balance,
     this.transactions,
     this.filteredTransactions,
+    required this.chosenMonth,
   });
 }
