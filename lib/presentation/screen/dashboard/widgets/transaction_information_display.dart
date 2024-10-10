@@ -1,15 +1,15 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
-import 'dart:math';
 import 'package:zippy/presentation/screen/history/widgets/transaction_tile.dart';
 
-class TransactionList extends StatelessWidget {
-  const TransactionList({super.key});
+class TransactionsInfoDisplay extends StatelessWidget {
+  const TransactionsInfoDisplay({super.key});
 
   @override
   Widget build(BuildContext context) {
-
+    // Получаем текущий месяц
     DateTime now = DateTime.now();
     String currentMonth = DateFormat('MMMM yy').format(now);
 
@@ -29,19 +29,17 @@ class TransactionList extends StatelessWidget {
     ];
 
     int currentIndex = months.indexOf(currentMonth);
-    int startIndex = (currentIndex - 2).clamp(0, months.length);
-    int endIndex = (startIndex + 5).clamp(0, months.length);
+    int startIndex = (currentIndex - 2).clamp(0, months.length); // Начинаем с 2 месяцев до текущего
+    int endIndex = (startIndex + 5).clamp(0, months.length); // Отображаем 5 месяцев
 
-    int itemCount = 77;
-
-    return Expanded(
+    return Expanded( // Оборачиваем в Expanded
       child: Container(
         decoration: BoxDecoration(
           color: Theme.of(context).colorScheme.tertiaryContainer,
           borderRadius: BorderRadius.circular(32),
         ),
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.end,
           children: [
             Row(
               children: [
@@ -51,15 +49,15 @@ class TransactionList extends StatelessWidget {
                     decoration: BoxDecoration(
                       color: Theme.of(context).scaffoldBackgroundColor,
                       border: Border.all(
-                        color: Theme.of(context).colorScheme.primary,
-                        width: 1.0,
+                        color: Theme.of(context).colorScheme.primary, // Цвет рамки
+                        width: 1.0, // Толщина рамки
                       ),
                       borderRadius: const BorderRadius.vertical(
                         top: Radius.circular(16),
                         bottom: Radius.circular(16),
                       ),
                     ),
-                    child: Padding(
+                    child:Padding(
                       padding: const EdgeInsets.only(top: 16, left: 16, right: 16),
                       child: Center(
                         child: ListView.builder(
@@ -69,11 +67,11 @@ class TransactionList extends StatelessWidget {
                             String month = months[startIndex + index];
                             bool isCurrentMonth = month == currentMonth;
                             return Padding(
-                              padding: const EdgeInsets.symmetric(horizontal: 6.0),
+                              padding: const EdgeInsets.symmetric(horizontal: 16.0),
                               child: Text(
                                 month,
                                 style: isCurrentMonth
-                                    ? Theme.of(context).textTheme.headlineSmall
+                                    ? Theme.of(context).textTheme.headlineSmall // Выделяем текущий месяц
                                     : Theme.of(context).textTheme.bodyMedium,
                               ),
                             );
@@ -87,46 +85,54 @@ class TransactionList extends StatelessWidget {
             ),
             Expanded(
               child: ListView.builder(
-                itemCount: itemCount,
+                itemCount: 20,
                 itemBuilder: (context, index) {
-
-                  DateTime randomDate = generateRandomDate();
-
                   return Column(
                     children: [
-                      if (index < itemCount)
-                        Container(
+                      Container(
                           decoration: BoxDecoration(
                             color: Theme.of(context).colorScheme.tertiaryContainer,
                             borderRadius: BorderRadius.zero,
                           ),
                           child: TransactionTile(
-                            id: '#123456789',
                             type: "in",
+                            id: '#123456789',
                             title: 'Transaction #${index + 1}',
-                            date: randomDate,
-                            // time: '1pm',
-                            currency: '\$', 
+                            date: DateTime.now(),
+                            currency: '\$',
                             status: 'completed',
+
                             amount: 1800.08,
                             onIconTap: () => context.go('/dashboard/infoDashboard'),
-                          ),
                         ),
-                      Container(height: 1, color: Theme.of(context).scaffoldBackgroundColor),
+                      ),
+                      Container(height: 1, color: Theme.of(context).scaffoldBackgroundColor,),
                     ],
                   );
                 },
               ),
             ),
+            Row(
+              children: [
+                Expanded(
+                  child: GestureDetector(
+                    onTap: () => context.go('/dashboard/history'),
+                    child: SizedBox(
+                      height: 56,
+                      child: Center(
+                        child: Text(
+                          "View All",
+                          style: Theme.of(context).textTheme.titleMedium,
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
           ],
         ),
       ),
     );
-  }
-
-  DateTime generateRandomDate() {
-  Random random = Random();
-  int daysBack = random.nextInt(730);
-  return DateTime.now().subtract(Duration(days: daysBack));
   }
 }

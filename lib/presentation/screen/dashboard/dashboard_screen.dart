@@ -9,8 +9,8 @@ import 'package:zippy/presentation/screen/history/widgets/transaction_tile.dart'
 import 'widgets/dashboard_display.dart';
 
 class DashboardScreen extends StatelessWidget {
-  const DashboardScreen({super.key});
-
+   DashboardScreen({super.key});
+  final Random random = Random();
   @override
   Widget build(BuildContext context) {
     DateTime now = DateTime.now();
@@ -35,37 +35,13 @@ class DashboardScreen extends StatelessWidget {
     int startIndex = (currentIndex - 2).clamp(0, months.length); // Начинаем с 2 месяцев до текущего
     int endIndex = (startIndex + 5).clamp(0, months.length); // Отображаем 5 месяцев
 
-        final Random random = Random();
 
     String getRandomStatus() {
       final statuses = ['pending', 'success', 'error'];
       return statuses[random.nextInt(statuses.length)];
     }
 
-    String getRandomDate() {
-      final day = random.nextInt(28) + 1; // Генерируем случайный день
-      return 'Sep $day, 2024'; // Можно сделать более универсальным
-    }
 
-    String getRandomType() {
-      final types = ['in', 'out'];
-      return types[random.nextInt(types.length)];
-    }
-
-    String getRandomTime() {
-      final hour = random.nextInt(12) + 1;
-      final minute = random.nextInt(60);
-      final ampm = random.nextBool() ? 'AM' : 'PM';
-      return '$hour:${minute.toString().padLeft(2, '0')} $ampm';
-    }
-
-    double getRandomAmount() {
-      return (random.nextDouble() * 10000).roundToDouble(); // Случайная сумма
-    }
-
-    String getRandomId() {
-      return '#${random.nextInt(1000000000)}'; // Случайный ID
-    }
     
     return BlocProvider(
       create: (_) => DashboardCubit(),
@@ -218,8 +194,7 @@ class DashboardScreen extends StatelessWidget {
                                 TransactionTile(
                                   id: getRandomId(),
                                   title: 'Transaction #${index + 1}',
-                                  date: getRandomDate(),
-                                  time: getRandomTime(),
+                                  date: generateRandomDate(),
                                   currency: '\$',
                                   status: getRandomStatus(),
                                   amount: getRandomAmount(),
@@ -260,4 +235,29 @@ class DashboardScreen extends StatelessWidget {
       ),
     );
   }
+      DateTime generateRandomDate() {
+    int daysBack = this.random.nextInt(730);
+    return DateTime.now().subtract(Duration(days: daysBack));
+    }
+
+    String getRandomType() {
+      final types = ['in', 'out'];
+      return types[random.nextInt(types.length)];
+    }
+
+    String getRandomTime() {
+      final hour = random.nextInt(12) + 1;
+      final minute = random.nextInt(60);
+      final ampm = random.nextBool() ? 'AM' : 'PM';
+      return '$hour:${minute.toString().padLeft(2, '0')} $ampm';
+    }
+
+    double getRandomAmount() {
+      return (random.nextDouble() * 10000).roundToDouble(); // Случайная сумма
+    }
+
+    String getRandomId() {
+      return '#${random.nextInt(1000000000)}'; // Случайный ID
+    }
 }
+
