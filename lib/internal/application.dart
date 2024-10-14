@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:keyboard_dismisser/keyboard_dismisser.dart';
+import 'package:zippy/data/repository/dashboard/dashboard_data_repository.dart';
+import 'package:zippy/domain/repository/dashboard/dashboard_repository.dart';
 import 'package:zippy/presentation/app_router.dart';
 import 'package:zippy/presentation/theme/app_theme.dart';
 import 'package:zippy/presentation/theme/app_theme_dark.dart';
@@ -35,6 +37,11 @@ class ZippyApp extends StatelessWidget {
           RepositoryProvider<TopUpRepository>(
             create: (context) => TopUpDataRepository(
               RepositoryProvider.of<ApiUtil>(context),
+            ),
+          ),
+          RepositoryProvider<DashboardRepository>(
+            create: (context) => DashboardDataRepository(
+              RepositoryProvider.of<ApiUtil>(context)
             ),
           ),
         ],

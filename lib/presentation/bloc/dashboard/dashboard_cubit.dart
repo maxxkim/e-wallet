@@ -3,16 +3,28 @@ import 'dart:math';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
 import 'package:zippy/domain/model/transaction/transaction_model.dart';
+import 'package:zippy/domain/repository/dashboard/dashboard_repository.dart';
 import 'package:zippy/domain/state/dashboard/dashboard_state.dart';
 
 class DashboardCubit extends Cubit<DashboardState> {
-  DashboardCubit() : super(DashboardState(
-    filterType: FilterType.period, 
-    chosenMonth:  DateFormat('MMMM').format(DateTime.now()),
-    balance: getRandomBalance(),
-    transactions: getRandomTransactions(),
-    filteredTransactions: getRandomTransactions(),
-  ));
+  final DashboardRepository _dashboardRepository;
+
+  DashboardCubit(this._dashboardRepository) : super(DashboardState.initial());
+
+  static Future<DashboardCubit> create(DashboardRepository dashboardRepository) async {
+    final balance = await dashboardRepository.getBalance();
+    final transactions = getRandomTransactions(); // You might want to fetch transactions as well
+
+    return DashboardCubit(dashboardRepository)
+      ..emit(DashboardState(
+        filterType: FilterType.period,
+        chosenMonth: DateFormat('MMMM').format(DateTime.now()),
+        balance: balance,
+        transactions: transactions,
+        filteredTransactions: transactions,
+      ));
+  }
+
 
   void selectFilter(FilterType filterType) {
     List<Transaction>? filteredTransactions = filterTransactions(filterType, state.transactions, state.chosenMonth);
