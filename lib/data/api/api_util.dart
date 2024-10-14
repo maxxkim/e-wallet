@@ -1,4 +1,4 @@
-import 'package:zippy/data/api/request/get_top_up_body.dart.dart';
+import 'package:zippy/data/api/request/get_top_up_body.dart';
 import 'package:zippy/data/api/request/get_withdraw_body.dart';
 import 'package:zippy/data/api/service/api_service.dart';
 import 'package:zippy/data/mapper/dashboard/balance_mapper.dart';

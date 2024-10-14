@@ -1,16 +1,17 @@
-import 'package:intl/intl.dart';
 import 'package:zippy/domain/model/transaction/transaction_model.dart';
 
 enum FilterType { period, deposit, withdrawal }
 
-class DashboardState {
+abstract class DashboardState {}
+
+class DashboardStateLoaded extends DashboardState {
   final FilterType filterType;
   final String chosenMonth;
   final double balance;
   final List<Transaction>? transactions;
   final List<Transaction>? filteredTransactions;
 
-  DashboardState({
+  DashboardStateLoaded({
     required this.filterType,
     required this.chosenMonth,
     required this.balance,
@@ -18,13 +19,28 @@ class DashboardState {
     required this.filteredTransactions,
   });
 
-  factory DashboardState.initial() {
-    return DashboardState(
-      filterType: FilterType.period,
-      chosenMonth: DateFormat('MMMM').format(DateTime.now()),
-      balance: 0.0, 
-      transactions: [],
-      filteredTransactions: [],
+  // Implementing the copyWith method
+  DashboardStateLoaded copyWith({
+    FilterType? filterType, 
+    String? chosenMonth,
+    double? balance,
+    List<Transaction>? transactions,
+    List<Transaction>? filteredTransactions,
+  }) {
+    return DashboardStateLoaded(
+      filterType: filterType ?? this.filterType,
+      chosenMonth: chosenMonth ?? this.chosenMonth,
+      balance: balance ?? this.balance,
+      transactions: transactions ?? this.transactions,
+      filteredTransactions: filteredTransactions ?? this.filteredTransactions,
     );
   }
+}
+
+class DashboardStateError extends DashboardState {
+  final String errorMessage;
+
+  DashboardStateError({
+    required this.errorMessage,
+  });
 }

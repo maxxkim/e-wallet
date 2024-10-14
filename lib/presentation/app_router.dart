@@ -3,10 +3,12 @@ import 'package:go_router/go_router.dart';
 import 'package:zippy/domain/model/transaction/transaction_model.dart';
 import 'package:zippy/presentation/screen/auth/auth_screen.dart';
 import 'package:zippy/presentation/screen/dashboard/dashboard_screen.dart';
+import 'package:zippy/presentation/screen/error_screen.dart';
 import 'package:zippy/presentation/screen/history/history_screen.dart';
 import 'package:zippy/presentation/screen/payment/payment_info_screen.dart';
 import 'package:zippy/presentation/screen/payment/payment_screen.dart';
 import 'package:zippy/presentation/screen/top_up/top_up_screen.dart';
+import 'package:dio/dio.dart'; // Импортируйте Dio
 
 final GoRouter appRouter = GoRouter(
   routes: <RouteBase>[
@@ -29,10 +31,14 @@ final GoRouter appRouter = GoRouter(
           },
         ),
         GoRoute(
-          path: 'infoDashboard', 
+          path: 'infoDashboard',
           builder: (context, state) {
-            Transaction transaction = state.extra as Transaction;
-            return PaymentInfoScreen(transaction: transaction);
+            try {
+              Transaction transaction = state.extra as Transaction;
+              return PaymentInfoScreen(transaction: transaction);
+            } catch (e) {
+              return ErrorScreen(errorMessage: _handleError(e));
+            }
           },
         ),
         GoRoute(
@@ -44,8 +50,12 @@ final GoRouter appRouter = GoRouter(
             GoRoute(
               path: 'infoHistory',
               builder: (context, state) {
-                Transaction transaction = state.extra as Transaction;
-                return PaymentInfoScreen(transaction: transaction);
+                try {
+                  Transaction transaction = state.extra as Transaction;
+                  return PaymentInfoScreen(transaction: transaction);
+                } catch (e) {
+                  return ErrorScreen(errorMessage: _handleError(e));
+                }
               },
             ),
           ],
@@ -58,14 +68,45 @@ final GoRouter appRouter = GoRouter(
           routes: <RouteBase>[
             GoRoute(
               path: 'info',
-                builder: (context, state) {
+              builder: (context, state) {
+                try {
                   Transaction transaction = state.extra as Transaction;
                   return PaymentInfoScreen(transaction: transaction);
-                },
+                } catch (e) {
+                  return ErrorScreen(errorMessage: _handleError(e));
+                }
+              },
             ),
           ],
         )
       ],
     ),
   ],
+  errorBuilder: (BuildContext context, GoRouterState state) {
+    return ErrorScreen(errorMessage: 'Произошла ошибка навигации');
+  },
 );
+
+// Функция обработки ошибок
+String _handleError(dynamic error) {
+  if (error is DioException) {
+    // Здесь вы можете обрабатывать различные типы DioException и возвращать соответствующие сообщения
+    switch (error.type) {
+      case DioExceptionType.connectionTimeout:
+        return 'Ошибка подключения. Попробуйте еще раз.';
+      case DioExceptionType.sendTimeout:
+        return 'Время ожидания отправки истекло.';
+      case DioExceptionType.receiveTimeout:
+        return 'Время ожидания получения ответа истекло.';
+      case DioExceptionType.badResponse:
+        return 'Ошибка сервера: ${error.response?.statusCode}.';
+      case DioExceptionType.cancel:
+        return 'Запрос отменен.';
+      case DioExceptionType.unknown:
+        return 'Произошла неизвестная ошибка.';
+      default:
+        return 'Произошла ошибка.';
+    }
+  }
+  return 'Произошла неизвестная ошибка.';
+}

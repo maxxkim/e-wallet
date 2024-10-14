@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'package:zippy/domain/repository/dashboard/dashboard_repository.dart';
 import 'package:zippy/domain/state/dashboard/dashboard_state.dart';
 import 'package:zippy/presentation/bloc/dashboard/dashboard_cubit.dart';
+import 'package:zippy/presentation/screen/error_screen.dart';
 import 'package:zippy/presentation/screen/history/widgets/transaction_tile.dart';
 import 'widgets/dashboard_display.dart';
 
@@ -31,16 +32,17 @@ class DashboardScreen extends StatelessWidget {
       future: _createDashboardCubit(context),
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
-          return Center(child: CircularProgressIndicator());
+          return const Center(child: CircularProgressIndicator());
         } else if (snapshot.hasError) {
-          return Center(child: Text('Error: ${snapshot.error}'));
+          // Возвращаем ErrorScreen при возникновении ошибки
+          return ErrorScreen(errorMessage: 'Ошибка: ${snapshot.error}');
         } else if (snapshot.hasData) {
           final dashboardCubit = snapshot.data!;
-          
           return BlocProvider.value(
             value: dashboardCubit,
             child: BlocBuilder<DashboardCubit, DashboardState>(
               builder: (context, state) {
+                if (state is DashboardStateLoaded){
                 int currentIndex = months.indexOf(state.chosenMonth) + 1;
                 int startIndex = (currentIndex - 2).clamp(0, months.length);
                 int endIndex = (startIndex + 5).clamp(0, months.length);
@@ -224,6 +226,14 @@ class DashboardScreen extends StatelessWidget {
                     ),
                   ),
                 );
+                }
+                else if (state is DashboardStateError)
+                {
+                  return ErrorScreen(errorMessage: state.errorMessage);
+                }
+                else {
+                  return const ErrorScreen(errorMessage: "Неизвестная ошибка");
+                }
               },
             ),
           );
