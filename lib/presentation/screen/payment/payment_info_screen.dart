@@ -22,7 +22,7 @@ class PaymentInfoScreen extends StatelessWidget {
             const SizedBox(height: 40),
             Center( // Добавлено Center для текста
               child: Text(
-                'Transaction status: ${transaction.status}', // Исправлена опечатка
+                'Transaction status: ${transaction.status}',
                 textAlign: TextAlign.center, // Центрируем текст
                 style: Theme.of(context).textTheme.bodyLarge,
               ),
@@ -62,14 +62,14 @@ class PaymentInfoScreen extends StatelessWidget {
                       children: [
                         Text("Balance: ", style: Theme.of(context).textTheme.titleMedium),
                         Text(
-                          '\$ 1356.32',
+                          '${transaction.currency} 1356.32',
                           style: Theme.of(context).textTheme.titleMedium?.copyWith(
                             decoration: TextDecoration.lineThrough,
                           ),
                         ),
                         Text(" → ", style: Theme.of(context).textTheme.titleMedium),
                         Text(
-                          '${transaction.currency} ${1356.32 + transaction.amount}',
+                          '${transaction.currency} ${1356.32 + transaction.amount.roundToDouble()}',
                           style: Theme.of(context).textTheme.titleMedium,
                         ),
                       ],
@@ -157,7 +157,7 @@ class PaymentInfoScreen extends StatelessWidget {
   }
   Color getContainer(BuildContext context)
   {
-    if (transaction.status == "success") {
+    if (transaction.status == "completed") {
       return Theme.of(context).colorScheme.secondaryContainer;
     }
     else if (transaction.status == "pending") {
@@ -168,7 +168,7 @@ class PaymentInfoScreen extends StatelessWidget {
     }
   }
   Widget getIcon(BuildContext context){
-    if (transaction.status == "success") {
+    if (transaction.status == "completed") {
       return SvgPicture.asset(
                     'assets/images/icon_tick.svg',
                     height: 48.0,

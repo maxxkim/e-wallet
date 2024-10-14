@@ -30,7 +30,6 @@ class AuthScreen extends StatelessWidget {
             if (state is AuthFailure) {
               ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(state.message ?? 'Error')));
             }
-            // Показываем диалоговое окно, если код подтверждения отправлен
             if (state is AuthCodeSent) {
               _showVerificationDialog(context);
             }
@@ -51,11 +50,11 @@ class AuthScreen extends StatelessWidget {
                 ),
                 const SizedBox(height: 40),
                 AuthTextField(
-                  switchValue: !context.watch<ThemeCubit>().isDarkMode, // Получаем текущее состояние темы
+                  switchValue: !context.watch<ThemeCubit>().isDarkMode, 
                   onSwitchChanged: (value) {
-                    context.read<ThemeCubit>().toggleTheme(); // Вызов метода переключения темы
+                    context.read<ThemeCubit>().toggleTheme(); 
                   },
-                  controller: phoneController, // Передаем контроллер телефонного поля
+                  controller: phoneController, 
                 ),
                 const SizedBox(height: 40),
                 if (state is AuthLoading) 
@@ -63,8 +62,8 @@ class AuthScreen extends StatelessWidget {
                 else
                   Row(
                     children: [
-                      const SizedBox(width: 64), // Add some spacing
-                      Expanded( // Use Expanded to let the button take available space
+                      const SizedBox(width: 64), 
+                      Expanded(
                         child: RectangularButton(
                           label: "Sign Up",
                           onPressed: () {
@@ -81,8 +80,8 @@ class AuthScreen extends StatelessWidget {
                           },
                         ),
                       ),
-                      const SizedBox(width: 16), // Add some spacing
-                      Expanded( // Similarly for Sign in
+                      const SizedBox(width: 16), 
+                      Expanded( 
                         child: OutlinedButtonCustom(
                           label: "Sign In",
                           onPressed: () {
@@ -94,10 +93,10 @@ class AuthScreen extends StatelessWidget {
                           },
                         ),
                       ),
-                      const SizedBox(width: 64), // Add some spacing
+                      const SizedBox(width: 64), 
                     ],
                   ),
-                const Spacer(), // Добавляем Spacer для перемещения "Terms of Use" вниз
+                const Spacer(),
                 const Align(alignment: Alignment.bottomCenter, child: Text("Terms of Use | Contact support")),
                 const SizedBox(height: 40),
               ],

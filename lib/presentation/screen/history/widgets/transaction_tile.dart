@@ -98,7 +98,7 @@ class _TransactionTileState extends State<TransactionTile> {
                               style: Theme.of(context).textTheme.titleMedium,
                             ),
                             Text(
-                              widget.transaction.id,
+                              widget.transaction.id.substring(0,8)+'...',
                               style: Theme.of(context).textTheme.bodySmall,
                             ),
                           ],

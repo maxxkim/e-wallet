@@ -1,6 +1,7 @@
 import 'package:dio/dio.dart';
 import 'package:zippy/data/api/api_balance.dart';
 import 'package:zippy/data/api/api_top_up.dart';
+import 'package:zippy/data/api/api_transaction.dart';
 import 'package:zippy/data/api/api_withdraw.dart';
 import 'package:zippy/data/api/request/get_top_up_body.dart';
 import 'package:zippy/data/api/request/get_withdraw_body.dart';
@@ -36,8 +37,15 @@ class ApiService {
 
   Future<ApiBalance> getBalance() async {
     final response = await _dio.get(
-      'https://eadd-51-159-99-217.ngrok-free.app/wallet/mock-user-123/balance',
+      'https://d2ef-51-159-97-191.ngrok-free.app/wallet/user122/balance',
     );
     return ApiBalance.fromApi(response.data);
+  }
+
+  Future<ApiTransaction> getTransactions() async {
+    final response = await _dio.get(
+      'https://d2ef-51-159-97-191.ngrok-free.app/transactions/all',
+    );
+    return ApiTransaction.fromApi(response.data);
   }
 }

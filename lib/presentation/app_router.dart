@@ -83,7 +83,7 @@ final GoRouter appRouter = GoRouter(
     ),
   ],
   errorBuilder: (BuildContext context, GoRouterState state) {
-    return ErrorScreen(errorMessage: 'Произошла ошибка навигации');
+    return const ErrorScreen(errorMessage: 'Произошла ошибка навигации');
   },
 );
 

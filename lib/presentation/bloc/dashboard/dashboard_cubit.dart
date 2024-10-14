@@ -1,5 +1,4 @@
 import 'dart:math';
-
 import 'package:dio/dio.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
@@ -10,7 +9,13 @@ import 'package:zippy/domain/state/dashboard/dashboard_state.dart';
 class DashboardCubit extends Cubit<DashboardState> {
   final DashboardRepository _dashboardRepository;
 
-  DashboardCubit(this._dashboardRepository) : super(DashboardState.initial());
+  DashboardCubit(this._dashboardRepository) : super(DashboardStateLoaded(
+      filterType: FilterType.period,
+      chosenMonth: DateFormat('MMMM').format(DateTime.now()),
+      balance: 0.0,
+      transactions: [],
+      filteredTransactions: [],
+    ));
 
   static Future<DashboardCubit> create(DashboardRepository dashboardRepository) async {
     final cubit = DashboardCubit(dashboardRepository);
@@ -21,7 +26,7 @@ class DashboardCubit extends Cubit<DashboardState> {
   Future<void> loadData() async {
     try {
       final balance = await _dashboardRepository.getBalance();
-      final transactions = getRandomTransactions();
+      final transactions = await _dashboardRepository.getTransactions();
 
       emit(DashboardStateLoaded(
         filterType: FilterType.period,
@@ -31,35 +36,34 @@ class DashboardCubit extends Cubit<DashboardState> {
         filteredTransactions: transactions,
       ));
     } catch (e) {
-      // Обработка ошибок
+      print(e);
       emit(DashboardStateError(
-        errorMessage: _handleError(e), // Устанавливаем сообщение об ошибке
+        errorMessage: _handleError(e),
       ));
     }
   }
 
   void selectFilter(FilterType filterType) {
-    List<Transaction>? filteredTransactions = filterTransactions(filterType, state.transactions, state.chosenMonth);
-    emit(DashboardStateLoaded(
-      filterType: filterType,
-      chosenMonth: state.chosenMonth,
-      balance: state.balance,
-      transactions: state.transactions,
-      filteredTransactions: filteredTransactions,
-    ));
+    if (state is DashboardStateLoaded) {
+      var currentState = state as DashboardStateLoaded;
+      List<Transaction>? filteredTransactions = filterTransactions(filterType, currentState.transactions, currentState.chosenMonth);
+      emit(currentState.copyWith(
+        filterType: filterType,
+        filteredTransactions: filteredTransactions,
+      ));
+    }
   }
 
   void selectMonth(String month) {
-    final updatedChosenMonth = month;
-    List<Transaction>? filteredTransactions = filterTransactions(FilterType.period, state.transactions, updatedChosenMonth);
+    if (state is DashboardStateLoaded) {
+      var currentState = state as DashboardStateLoaded;
+      List<Transaction>? filteredTransactions = filterTransactions(FilterType.period, currentState.transactions, month);
 
-    emit(DashboardStateLoaded(
-    filterType: FilterType.period,
-    chosenMonth: updatedChosenMonth,
-    balance: state.balance,
-    transactions: state.transactions,
-    filteredTransactions: filteredTransactions,
-  ));
+      emit(currentState.copyWith(
+        chosenMonth: month,
+        filteredTransactions: filteredTransactions,
+      ));
+    }
   }
 
   List<Transaction>? filterTransactions(FilterType filterType, List<Transaction>? transactions, String? month) {
@@ -74,7 +78,6 @@ class DashboardCubit extends Cubit<DashboardState> {
     }
     return transactions;
   }
-
   String _handleError(dynamic error) {
     // Здесь вы можете обрабатывать различные типы ошибок и возвращать соответствующие сообщения
     if (error is DioException) {
@@ -97,7 +100,7 @@ class DashboardCubit extends Cubit<DashboardState> {
           return 'Произошла неизвестная ошибка.';
       }
     }
-    return 'Произошла неизвестная ошибка.';
+    return error.toString();
   }
 
   static double getRandomBalance() {
