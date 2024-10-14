@@ -30,6 +30,8 @@ final ThemeData appTheme = ThemeData(
     tertiaryFixed: lightRedColor,
     error: redColor,
     scrim: greenColor,
+    onErrorContainer: lightRedColor,
+    onTertiaryContainer: lightYellowColor
   ), 
 
   textTheme: const TextTheme(

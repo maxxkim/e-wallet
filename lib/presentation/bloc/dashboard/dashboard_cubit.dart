@@ -1,28 +1,51 @@
 import 'dart:math';
 
+import 'package:dio/dio.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
 import 'package:zippy/domain/model/transaction/transaction_model.dart';
+import 'package:zippy/domain/repository/dashboard/dashboard_repository.dart';
 import 'package:zippy/domain/state/dashboard/dashboard_state.dart';
 
 class DashboardCubit extends Cubit<DashboardState> {
-  DashboardCubit() : super(DashboardState(
-    filterType: FilterType.period, 
-    chosenMonth:  DateFormat('MMMM').format(DateTime.now()),
-    balance: getRandomBalance(),
-    transactions: getRandomTransactions(),
-    filteredTransactions: getRandomTransactions(),
-  ));
+  final DashboardRepository _dashboardRepository;
+
+  DashboardCubit(this._dashboardRepository) : super(DashboardState.initial());
+
+  static Future<DashboardCubit> create(DashboardRepository dashboardRepository) async {
+    final cubit = DashboardCubit(dashboardRepository);
+    await cubit.loadData();
+    return cubit;
+  }
+
+  Future<void> loadData() async {
+    try {
+      final balance = await _dashboardRepository.getBalance();
+      final transactions = getRandomTransactions();
+
+      emit(DashboardStateLoaded(
+        filterType: FilterType.period,
+        chosenMonth: DateFormat('MMMM').format(DateTime.now()),
+        balance: balance,
+        transactions: transactions,
+        filteredTransactions: transactions,
+      ));
+    } catch (e) {
+      // Обработка ошибок
+      emit(DashboardStateError(
+        errorMessage: _handleError(e), // Устанавливаем сообщение об ошибке
+      ));
+    }
+  }
 
   void selectFilter(FilterType filterType) {
     List<Transaction>? filteredTransactions = filterTransactions(filterType, state.transactions, state.chosenMonth);
-
-    emit(DashboardState(
+    emit(DashboardStateLoaded(
       filterType: filterType,
       chosenMonth: state.chosenMonth,
       balance: state.balance,
-      transactions: state.transactions, 
-      filteredTransactions: filteredTransactions, 
+      transactions: state.transactions,
+      filteredTransactions: filteredTransactions,
     ));
   }
 
@@ -30,15 +53,14 @@ class DashboardCubit extends Cubit<DashboardState> {
     final updatedChosenMonth = month;
     List<Transaction>? filteredTransactions = filterTransactions(FilterType.period, state.transactions, updatedChosenMonth);
 
-    emit(DashboardState(
-      filterType: FilterType.period,
-      chosenMonth: updatedChosenMonth,
-      balance: state.balance,
-      transactions: state.transactions, 
-      filteredTransactions: filteredTransactions, 
-    ));
+    emit(DashboardStateLoaded(
+    filterType: FilterType.period,
+    chosenMonth: updatedChosenMonth,
+    balance: state.balance,
+    transactions: state.transactions,
+    filteredTransactions: filteredTransactions,
+  ));
   }
-
 
   List<Transaction>? filterTransactions(FilterType filterType, List<Transaction>? transactions, String? month) {
     if (transactions == null) return null;
@@ -49,17 +71,43 @@ class DashboardCubit extends Cubit<DashboardState> {
       return transactions.where((transaction) => transaction.type == 'out').toList();
     } else if (filterType == FilterType.period) {
       return transactions.where((transaction) => DateFormat('MMMM').format(transaction.date) == month).toList();
-    }  
+    }
     return transactions;
   }
-  static double getRandomBalance(){
+
+  String _handleError(dynamic error) {
+    // Здесь вы можете обрабатывать различные типы ошибок и возвращать соответствующие сообщения
+    if (error is DioException) {
+      switch (error.type) {
+        case DioExceptionType.connectionTimeout:
+          return 'Ошибка подключения. Попробуйте еще раз.';
+        case DioExceptionType.connectionError:
+          return 'Ошибка подключения. Попробуйте еще раз.';
+        case DioExceptionType.sendTimeout:
+          return 'Время ожидания отправки истекло.';
+        case DioExceptionType.receiveTimeout:
+          return 'Время ожидания получения ответа истекло.';
+        case DioExceptionType.badResponse:
+          return 'Ошибка сервера: ${error.response?.statusCode}.';
+        case DioExceptionType.badCertificate:
+          return 'Ошибка сертификата.';
+        case DioExceptionType.cancel:
+          return 'Запрос отменен.';
+        case DioExceptionType.unknown:
+          return 'Произошла неизвестная ошибка.';
+      }
+    }
+    return 'Произошла неизвестная ошибка.';
+  }
+
+  static double getRandomBalance() {
     final Random random = Random();
     return (random.nextDouble() * 1000000).roundToDouble(); // Случайная сумма
   }
 
   static List<Transaction> getRandomTransactions() {
     final Random random = Random();
-    int numberOfTransactions = 20 + random.nextInt(31); // Generates a number between 20 and 50
+    int numberOfTransactions = 20 + random.nextInt(31); // Генерирует число от 20 до 50
 
     List<Transaction> transactions = [];
 

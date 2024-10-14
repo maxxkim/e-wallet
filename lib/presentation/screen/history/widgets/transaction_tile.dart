@@ -33,7 +33,7 @@ class _TransactionTileState extends State<TransactionTile> {
       child: Container(
         decoration: BoxDecoration(
           color: Theme.of(context).colorScheme.tertiaryContainer,
-          borderRadius: BorderRadius.only(
+          borderRadius: const BorderRadius.only(
             topLeft: Radius.circular(16.0),
             topRight: Radius.circular(16.0),
             bottomLeft: Radius.zero,
@@ -45,7 +45,7 @@ class _TransactionTileState extends State<TransactionTile> {
           children: [
             ListTile(
               horizontalTitleGap: 8.0,
-              contentPadding: EdgeInsets.only(left: 12.0, right: 12.0),
+              contentPadding: const EdgeInsets.only(left: 12.0, right: 12.0),
               title: Text(
                 widget.transaction.title,
                 style: Theme.of(context).textTheme.headlineSmall,
@@ -67,7 +67,7 @@ class _TransactionTileState extends State<TransactionTile> {
                         '${widget.transaction.currency} ${widget.transaction.amount.toStringAsFixed(2)}'),
                     style: getColor(widget.transaction.type),
                   ),
-                  SizedBox(width: 8.0),
+                  const SizedBox(width: 8.0),
                   GestureDetector(
                     onTap: widget.onIconTap,
                     child: SvgPicture.asset(
@@ -81,7 +81,7 @@ class _TransactionTileState extends State<TransactionTile> {
             ),
             if (_isExpanded)
             Container(
-              padding: EdgeInsets.all(12),
+              padding: const EdgeInsets.all(12),
               color: Theme.of(context).scaffoldBackgroundColor,
               child: IntrinsicHeight(
                 child: Row(
