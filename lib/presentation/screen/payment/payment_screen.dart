@@ -17,54 +17,57 @@ class PaymentScreen extends StatelessWidget {
       appBar: AppBar(title: const Text('New payment')),
       body:  Padding(
         padding: const EdgeInsets.all(16.0),
-        child: Column(
-          children: <Widget>[
-            const BalanceDisplay(amount: 3500),
-            Center(
-        child: ContactButtonRow(
-          buttons: [
-            ContactButton(
-              color: Theme.of(context).colorScheme.primary,
-              icon: Icons.add,
-              subtitle: 'New\nContact',
-            ),
-            ContactButton(
-              color: Theme.of(context).colorScheme.primary,
-              icon: Icons.arrow_right_alt,
-              subtitle: 'New\nTransaction',
-            ),
-            ContactButton(
-              color: Theme.of(context).colorScheme.tertiaryContainer,
-              icon: Icons.person,
-              subtitle: 'Enrique\nIglesias',
-            ),
-            ContactButton(
-              color: Theme.of(context).colorScheme.tertiaryContainer,
-              icon: Icons.person,
-              subtitle: 'Lionel\nMessi',
-            ),
-            ContactButton(
-              color: Theme.of(context).colorScheme.tertiaryContainer,
-              icon: Icons.person,
-              subtitle: 'Juan\nPeron',
-            ),
-            ContactButton(
-              color: Theme.of(context).colorScheme.tertiaryContainer,
-              icon: Icons.person,
-              subtitle: 'John\nDoe',
-            ),
-            ContactButton(
-              color: Theme.of(context).colorScheme.tertiaryContainer,
-              icon: Icons.person,
-              subtitle: 'Ximena\nMerino',
-            ),
-          ],
-        ),
-      ),
-            const TransactionFormDisplay(),
-            const SizedBox(height: 4),
-            
-          ],
+        child: SingleChildScrollView(
+          child: Column(
+            children: <Widget>[
+              const BalanceDisplay(amount: 3500),
+              const SizedBox(height: 8),
+              Center(
+                child: ContactButtonRow(
+                  buttons: [
+                    ContactButton(
+                      color: Theme.of(context).colorScheme.primary,
+                      icon: Icons.add,
+                      subtitle: 'New\nContact',
+                    ),
+                    ContactButton(
+                      color: Theme.of(context).colorScheme.primary,
+                      icon: Icons.arrow_right_alt,
+                      subtitle: 'New\nTransaction',
+                    ),
+                    ContactButton(
+                      color: Theme.of(context).colorScheme.tertiaryContainer,
+                      icon: Icons.person,
+                      subtitle: 'Enrique\nIglesias',
+                    ),
+                    ContactButton(
+                      color: Theme.of(context).colorScheme.tertiaryContainer,
+                      icon: Icons.person,
+                      subtitle: 'Lionel\nMessi',
+                    ),
+                    ContactButton(
+                      color: Theme.of(context).colorScheme.tertiaryContainer,
+                      icon: Icons.person,
+                      subtitle: 'Juan\nPeron',
+                    ),
+                    ContactButton(
+                      color: Theme.of(context).colorScheme.tertiaryContainer,
+                      icon: Icons.person,
+                      subtitle: 'John\nDoe',
+                    ),
+                    ContactButton(
+                      color: Theme.of(context).colorScheme.tertiaryContainer,
+                      icon: Icons.person,
+                      subtitle: 'Ximena\nMerino',
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 8),
+              const TransactionFormDisplay(),
+              const SizedBox(height: 4),
+            ],
+          ),
         ),
       ),
     );

@@ -16,22 +16,24 @@ class ContactButtonRow extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.spaceEvenly, // Центрируем элементы с равномерным пространством
           children: buttons.map((button) {
             return SizedBox(
-              height: 64, 
+              height: 88, // Устанавливаем высоту равной общей высоте
               width: 64, 
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   CircleAvatar(
-                    radius: 16, // Радиус круга
+                    radius: 24, // Увеличиваем радиус, чтобы иконка не была слишком маленькой
                     backgroundColor: button.color,
-                    child: Icon(button.icon, color: Colors.white), // Отображаем иконку, если она есть
+                    child: Icon(button.icon, size: 32, color: Colors.white), // Увеличиваем иконку для лучшей видимости
                   ),
                   const SizedBox(height: 4), // Отступ между кнопкой и подписью
-                  Center(
-                    child: Text(
-                      textAlign: TextAlign.center,
-                      button.subtitle,
-                      style: Theme.of(context).textTheme.bodySmall,
+                  Flexible( // Используем Flexible, чтобы текст мог занимать доступное пространство
+                    child: Center(
+                      child: Text(
+                        textAlign: TextAlign.center,
+                        button.subtitle,
+                        style: Theme.of(context).textTheme.bodySmall,
+                      ),
                     ),
                   ),
                 ],
