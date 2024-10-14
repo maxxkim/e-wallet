@@ -22,60 +22,63 @@ class PaymentInfoScreen extends StatelessWidget {
             const SizedBox(height: 40),
             Center( // Добавлено Center для текста
               child: Text(
-                'Transaction status: ${transaction.status}',
+                getText(context),
                 textAlign: TextAlign.center, // Центрируем текст
-                style: Theme.of(context).textTheme.bodyLarge,
+                style: Theme.of(context).textTheme.displayLarge,
               ),
             ),
             const SizedBox(height: 24),
-            Container(
-              padding: const EdgeInsets.all(16.0),
-              decoration: BoxDecoration(
-                color: getContainer(context),
-                borderRadius: BorderRadius.circular(16),
-              ),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  if(transaction.type == "in")
+            Padding(
+              padding: const EdgeInsets.only(left: 32.0, right: 32.0),
+              child: Container(
+                padding: const EdgeInsets.all(16.0),
+                decoration: BoxDecoration(
+                  color: getContainer(context),
+                  borderRadius: BorderRadius.circular(16),
+                ),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    if(transaction.type == "deposit")
+                      Text(
+                        'Top Up',
+                        style: Theme.of(context).textTheme.titleMedium,
+                      ),
+                    if(transaction.type == "withdraw")
+                      Text(
+                        'Withdraw',
+                        style: Theme.of(context).textTheme.titleMedium,
+                      ),
+                    const SizedBox(height: 16),
+                    getIcon(context),
+                    const SizedBox(height: 16),
                     Text(
-                      'Top Up',
-                      style: Theme.of(context).textTheme.titleMedium,
+                      '${getSign(context)} ${transaction.amount} ${transaction.currency}',
+                      style: Theme.of(context).textTheme.titleLarge,
                     ),
-                  if(transaction.type == "out")
-                    Text(
-                      'Withdraw',
-                      style: Theme.of(context).textTheme.titleMedium,
-                    ),
-                  const SizedBox(height: 16),
-                  getIcon(context),
-                  const SizedBox(height: 16),
-                  Text(
-                    '${getSign(context)} ${transaction.amount}',
-                    style: Theme.of(context).textTheme.titleLarge,
-                  ),
-                  const SizedBox(height: 12),
-                  Align(
-                    alignment: Alignment.center, // Центрируем содержимое
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min, 
-                      children: [
-                        Text("Balance: ", style: Theme.of(context).textTheme.titleMedium),
-                        Text(
-                          '${transaction.currency} 1356.32',
-                          style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                            decoration: TextDecoration.lineThrough,
+                    const SizedBox(height: 12),
+                    Align(
+                      alignment: Alignment.center, // Центрируем содержимое
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min, 
+                        children: [
+                          Text("Balance: ", style: Theme.of(context).textTheme.titleMedium),
+                          Text(
+                            '${transaction.currency} 1356.32',
+                            style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                              decoration: TextDecoration.lineThrough,
+                            ),
                           ),
-                        ),
-                        Text(" → ", style: Theme.of(context).textTheme.titleMedium),
-                        Text(
-                          '${transaction.currency} ${1356.32 + transaction.amount.roundToDouble()}',
-                          style: Theme.of(context).textTheme.titleMedium,
-                        ),
-                      ],
+                          Text(" → ", style: Theme.of(context).textTheme.titleMedium),
+                          Text(
+                            '${transaction.currency} ${1356.32 + transaction.amount.roundToDouble()}',
+                            style: Theme.of(context).textTheme.titleMedium,
+                          ),
+                        ],
+                      ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
             ),
             const SizedBox(height: 32),
@@ -87,8 +90,8 @@ class PaymentInfoScreen extends StatelessWidget {
                     children: [
                       SvgPicture.asset(
                         'assets/images/icon_support_lg.svg',
-                        height: 48.0,
-                        width: 48.0,
+                        height: 40.0,
+                        width: 40.0,
                       ),
                       const SizedBox(height: 4,),
                       Text(
@@ -102,8 +105,8 @@ class PaymentInfoScreen extends StatelessWidget {
                     children: [
                       SvgPicture.asset(
                         'assets/images/icon_copy_lg.svg',
-                        height: 48.0,
-                        width: 48.0,
+                        height: 40.0,
+                        width: 40.0,
                       ),
                       const SizedBox(height: 4,),
                       Text(
@@ -117,8 +120,8 @@ class PaymentInfoScreen extends StatelessWidget {
                     children: [
                       SvgPicture.asset(
                         'assets/images/icon_share_lg.svg',
-                        height: 48.0,
-                        width: 48.0,
+                        height: 40.0,
+                        width: 40.0,
                       ),
                       const SizedBox(height: 4,),
                       Text(
@@ -188,6 +191,17 @@ class PaymentInfoScreen extends StatelessWidget {
                     height: 48.0,
                     width: 48.0,
                   );
+    }
+  }
+  String getText(BuildContext context){
+    if (transaction.status == "completed") {
+      return "Transaction was completed\nsuccessfully!";
+    }
+    else if (transaction.status == "pending") {
+      return "Transaction is being\nprocessed!";
+    }
+    else {
+      return "Transaction\nwas not complete!";
     }
   }
 }

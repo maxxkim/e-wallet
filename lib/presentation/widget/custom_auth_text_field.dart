@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/svg.dart';
 
 class AuthTextField extends StatelessWidget {
   final String label;
@@ -54,9 +55,10 @@ class AuthTextField extends StatelessWidget {
                         child: CircleAvatar(
                           backgroundColor: Colors.white, // Цвет кружка
                           radius: 15, // Размер кружка
-                          child: Icon(
-                            switchValue ? Icons.light_mode : Icons.dark_mode, // Иконка в зависимости от состояния
-                            color: Colors.black, // Цвет иконки (всегда черная)
+                          child: SvgPicture.asset(
+                            height: 24,
+                            switchValue ? 'assets/images/icon_theme_light.svg' : "assets/images/icon_theme_dark.svg",
+                            semanticsLabel: 'Acme Logo'
                           ),
                         ),
                       ),

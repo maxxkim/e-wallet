@@ -70,9 +70,9 @@ class DashboardCubit extends Cubit<DashboardState> {
     if (transactions == null) return null;
 
     if (filterType == FilterType.deposit) {
-      return transactions.where((transaction) => transaction.type == 'in').toList();
+      return transactions.where((transaction) => transaction.type == 'deposit').toList();
     } else if (filterType == FilterType.withdrawal) {
-      return transactions.where((transaction) => transaction.type == 'out').toList();
+      return transactions.where((transaction) => transaction.type == 'withdraw').toList();
     } else if (filterType == FilterType.period) {
       return transactions.where((transaction) => DateFormat('MMMM').format(transaction.date) == month).toList();
     }
