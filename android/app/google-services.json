@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "497438340192",
+    "project_id": "zippywallet-mvp",
+    "storage_bucket": "zippywallet-mvp.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:497438340192:android:29e616f1268bd30876ff05",
+        "android_client_info": {
+          "package_name": "com.example.zippy"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDLMB1CoPkjm04Dqi2QNiKtl_Y3wKn6nmI"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
