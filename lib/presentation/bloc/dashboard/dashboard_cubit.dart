@@ -36,7 +36,6 @@ class DashboardCubit extends Cubit<DashboardState> {
         filteredTransactions: transactions,
       ));
     } catch (e) {
-      print(e);
       emit(DashboardStateError(
         errorMessage: _handleError(e),
       ));

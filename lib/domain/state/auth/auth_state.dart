@@ -1,18 +1,38 @@
-part of '../../../presentation/bloc/auth/auth_cubit.dart';
+import 'package:zippy/domain/model/transaction/transaction_model.dart';
 
-@immutable
+enum FilterType { period, deposit, withdrawal }
+
 abstract class AuthState {}
 
-class AuthInitial extends AuthState {}
+class AuthStateLoaded extends AuthState {
+  final bool codeSent;
+  final String? phoneNumber;
+  final String verificationCode;
 
-class AuthLoading extends AuthState {}
+  AuthStateLoaded({
+    required this.codeSent,
+    required this.verificationCode,
+    this.phoneNumber,
+  });
 
-class AuthFailure extends AuthState {
-  final String? message;
-  AuthFailure(this.message);
+  // Implementing the copyWith method
+  AuthStateLoaded copyWith({
+  required final bool codeSent,
+  required final String verificationCode,
+  final String? phoneNumber,
+  }) {
+    return AuthStateLoaded(
+      codeSent: codeSent,
+      phoneNumber: phoneNumber,
+      verificationCode: verificationCode,
+    );
+  }
 }
 
-class AuthCodeSent extends AuthState {
-  final String verificationId;
-  AuthCodeSent(this.verificationId);
+class AuthStateError extends AuthState {
+  final String errorMessage;
+
+  AuthStateError({
+    required this.errorMessage,
+  });
 }

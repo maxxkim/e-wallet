@@ -102,7 +102,6 @@ Future<void> _sendTransaction(BuildContext context) async {
   };
 
   // Print the transaction data
-  print(transactionData);
 
   // Pass the transactionData to the getTopUp method
   context.read<TopUpCubit>().getTopUp(

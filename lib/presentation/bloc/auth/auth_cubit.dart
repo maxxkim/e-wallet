@@ -1,63 +1,55 @@
-import 'package:bloc/bloc.dart';
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:meta/meta.dart';
-
-part '../../../domain/state/auth/auth_state.dart';
+import 'package:dio/dio.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:zippy/domain/repository/auth/auth_repository.dart';
+import 'package:zippy/domain/state/auth/auth_state.dart';
 
 class AuthCubit extends Cubit<AuthState> {
-  final FirebaseAuth _firebaseAuth;
+  final AuthRepository _AuthRepository;
 
-  AuthCubit(this._firebaseAuth) : super(AuthInitial());
+  AuthCubit(this._AuthRepository) : super(AuthStateLoaded(
+    codeSent: false,
+    verificationCode: '1111'
+  ));
 
-  Future<void> loginWithPhone(String phoneNumber) async {
-    try {
-      emit(AuthLoading());
-      await _firebaseAuth.verifyPhoneNumber(
-        phoneNumber: phoneNumber,
-        verificationCompleted: (PhoneAuthCredential credential) async {
-          await _firebaseAuth.signInWithCredential(credential);
-        },
-        verificationFailed: (FirebaseAuthException e) {
-          emit(AuthFailure(e.message));
-        },
-        codeSent: (String verificationId, int? resendToken) {
-// Сохраняем verificationId
-          emit(AuthCodeSent(verificationId));
-        },
-        codeAutoRetrievalTimeout: (String verificationId) {},
-      );
-    } catch (e) {
-      emit(AuthFailure(e.toString()));
-    }
+  static Future<AuthCubit> create(AuthRepository AuthRepository) async {
+    final cubit = AuthCubit(AuthRepository);
+    await cubit.loadData();
+    return cubit;
   }
 
-  Future<void> verifyCode(String smsCode) async {
-  /*
-    if (_verificationId == null) {
-      print('bad');
-      emit(AuthFailure("Verification ID is missing."));
-      return;
-    }
-
+  Future<void> loadData() async {
     try {
-      emit(AuthLoading());
-      PhoneAuthCredential credential = PhoneAuthProvider.credential(
-        verificationId: _verificationId!,
-        smsCode: smsCode,
-      );
-
-      await _firebaseAuth.signInWithCredential(credential);
-      print('good');
-      emit(AuthSuccess());
+      emit(AuthStateLoaded(
+          codeSent: false,
+          verificationCode: '1111'
+      ));
     } catch (e) {
-      print('fail ${e.toString()}');
-      emit(AuthFailure(e.toString()));
+      emit(AuthStateError(
+        errorMessage: _handleError(e),
+      ));
     }
- */
+  }
+  String _handleError(dynamic error) {
+    if (error is DioException) {
+      switch (error.type) {
+        case DioExceptionType.connectionTimeout:
+          return 'Ошибка подключения. Попробуйте еще раз.';
+        case DioExceptionType.connectionError:
+          return 'Ошибка подключения. Попробуйте еще раз.';
+        case DioExceptionType.sendTimeout:
+          return 'Время ожидания отправки истекло.';
+        case DioExceptionType.receiveTimeout:
+          return 'Время ожидания получения ответа истекло.';
+        case DioExceptionType.badResponse:
+          return 'Ошибка сервера: ${error.response?.statusCode}.';
+        case DioExceptionType.badCertificate:
+          return 'Ошибка сертификата.';
+        case DioExceptionType.cancel:
+          return 'Запрос отменен.';
+        case DioExceptionType.unknown:
+          return 'Произошла неизвестная ошибка.';
+      }
+    }
+    return error.toString();
   }
 }
-
-
-
-
-

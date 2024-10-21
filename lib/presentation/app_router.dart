@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:zippy/domain/model/transaction/transaction_model.dart';
 import 'package:zippy/presentation/screen/auth/auth_screen.dart';
+import 'package:zippy/presentation/screen/auth/sms_verification_screen.dart';
 import 'package:zippy/presentation/screen/dashboard/dashboard_screen.dart';
 import 'package:zippy/presentation/screen/error_screen.dart';
 import 'package:zippy/presentation/screen/history/history_screen.dart';
@@ -17,6 +18,18 @@ final GoRouter appRouter = GoRouter(
       builder: (BuildContext context, GoRouterState state) {
         return AuthScreen();
       },
+      routes: <RouteBase>[
+        GoRoute(
+          path: 'sms',
+          builder: (context, state) {
+            try {
+              return const SmsVerificationScreen();
+            } catch (e) {
+              return ErrorScreen(errorMessage: _handleError(e));
+            }
+          },
+        ),
+      ],
     ),
     GoRoute(
       path: '/dashboard',
