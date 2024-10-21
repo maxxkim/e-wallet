@@ -74,16 +74,7 @@ class AuthScreen extends StatelessWidget {
                                       child: RectangularButton(
                                         label: "Sign Up",
                                         onPressed: () {
-                                          showDialog<void>(
-                                            context: context,
-                                            builder: (context) {
-                                              return ScreenLock(
-                                                correctString: '1234',
-                                                onCancelled: Navigator.of(context).pop,
-                                                onUnlocked: () => context.go('/sms'),
-                                              );
-                                            },
-                                          );
+                                          context.go('/sms');
                                         },
                                       ),
                                     ),
