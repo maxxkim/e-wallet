@@ -9,7 +9,8 @@ import 'package:zippy/presentation/screen/error_screen.dart';
 import 'package:zippy/presentation/widget/custom_rectangular_button.dart';
 
 class SmsVerificationScreen extends StatelessWidget {
-  const SmsVerificationScreen({super.key});
+  SmsVerificationScreen({super.key});
+  final List<String> _verificationCode = ['', '', '', ''];
 
   @override
   Widget build(BuildContext context) {
@@ -19,7 +20,7 @@ class SmsVerificationScreen extends StatelessWidget {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return const Center(child: CircularProgressIndicator());
         } else if (snapshot.hasError) {
-          return ErrorScreen(errorMessage: 'Ошибка: ${snapshot.error}');
+          return ErrorScreen(errorMessage: 'Error: ${snapshot.error}');
         } else if (snapshot.hasData) {
           final authCubit = snapshot.data!;
           return BlocProvider.value(
@@ -47,7 +48,7 @@ class SmsVerificationScreen extends StatelessWidget {
                           const SizedBox(height: 20),
                           Center(
                             child: Text(
-                              "+66 (119) 345 87 90",
+                              state.phoneNumber,
                               textAlign: TextAlign.center,
                               style: Theme.of(context).textTheme.titleLarge,
                             ),
@@ -65,7 +66,31 @@ class SmsVerificationScreen extends StatelessWidget {
                                     decoration: BoxDecoration(
                                       color: Theme.of(context).scaffoldBackgroundColor,
                                       borderRadius: BorderRadius.circular(16),
-                                      border: Border.all(color: Theme.of(context).primaryColor),
+                                      border: Border.all(color: getContainerColor(state.codeStatus, context)),
+                                    ),
+                                    child: TextFormField(
+                                      textAlign: TextAlign.center,
+                                      keyboardType: TextInputType.number,
+                                      maxLength: 1,
+                                      decoration: const InputDecoration(
+                                        counterText: "",
+                                        border: InputBorder.none,
+                                      ),
+                                      onChanged: (value) {
+                                        if (value.length == 1) {
+                                          _verificationCode[i] = value;
+                                          if (i < 3) {
+                                            FocusScope.of(context).nextFocus();
+                                          } else {
+                                            // Когда заполнено последнее поле, проверяем код
+                                            String code = _verificationCode.join('');
+                                            context.read<AuthCubit>().verifyCode(code);
+                                          }
+                                        } else if (value.isEmpty && i > 0) {
+                                          _verificationCode[i] = '';
+                                          FocusScope.of(context).previousFocus();
+                                        }
+                                      },
                                     ),
                                   ),
                                 ),
@@ -90,12 +115,24 @@ class SmsVerificationScreen extends StatelessWidget {
                           Row(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
-                              Container(
-                                height: 32,
-                                width: 32,
-                                decoration: BoxDecoration(
-                                  color: Theme.of(context).primaryColor,
-                                  borderRadius: BorderRadius.circular(8),
+                              GestureDetector(
+                                onTap: () => context.read<AuthCubit>().toggleTerms(),
+                                child: Container(
+                                  height: 32,
+                                  width: 32,
+                                  decoration: BoxDecoration(
+                                    color: Theme.of(context).primaryColor,
+                                    borderRadius: BorderRadius.circular(8),
+                                  ),
+                                  child: Column(children: [
+                                    if(state.termsAccepted)
+                                      const Padding(
+                                        padding: EdgeInsets.only(top: 4.0),
+                                        child: Icon(Icons.check, 
+                                          color: Colors.white,
+                                        ),
+                                      ),
+                                  ],),
                                 ),
                               ),
                               const SizedBox(width: 24),
@@ -118,9 +155,16 @@ class SmsVerificationScreen extends StatelessWidget {
                             padding: const EdgeInsets.symmetric(horizontal: 40),
                             child: RectangularButton(
                               label: "Go",
-                              onPressed: () {
-                                context.go('/');
-                              },
+                              onPressed: state.termsAccepted && state.codeStatus == CodeStatus.correct
+                                  ? () {
+                                      context.go('/dashboard');
+                                    }
+                                  : () {
+                                      print("Enter code first");
+                                    }, 
+                              color: state.termsAccepted && state.codeStatus == CodeStatus.correct
+                                  ? Theme.of(context).primaryColor 
+                                  : Colors.grey, 
                             ),
                           ),
                           const SizedBox(height: 40),
@@ -143,5 +187,17 @@ class SmsVerificationScreen extends StatelessWidget {
     final authRepository = RepositoryProvider.of<AuthRepository>(context);
     final cubit = await AuthCubit.create(authRepository);
     return cubit;
+  }
+
+  Color getContainerColor(CodeStatus status, BuildContext context){
+    if (status == CodeStatus.correct) {
+      return Theme.of(context).colorScheme.scrim;
+    }
+    else if (status == CodeStatus.invalid) {
+      return Theme.of(context).colorScheme.error;
+    } 
+    else {
+      return Theme.of(context).colorScheme.primary;
+    }
   }
 }

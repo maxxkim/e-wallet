@@ -23,7 +23,7 @@ final GoRouter appRouter = GoRouter(
           path: 'sms',
           builder: (context, state) {
             try {
-              return const SmsVerificationScreen();
+              return SmsVerificationScreen();
             } catch (e) {
               return ErrorScreen(errorMessage: _handleError(e));
             }

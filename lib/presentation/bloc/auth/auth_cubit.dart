@@ -2,13 +2,16 @@ import 'package:dio/dio.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:zippy/domain/repository/auth/auth_repository.dart';
 import 'package:zippy/domain/state/auth/auth_state.dart';
+import 'dart:math';
 
 class AuthCubit extends Cubit<AuthState> {
   final AuthRepository _AuthRepository;
 
   AuthCubit(this._AuthRepository) : super(AuthStateLoaded(
-    codeSent: false,
-    verificationCode: '1111'
+    termsAccepted: false,
+    phoneNumber: generateRandomPhoneNumber(),
+    verificationCode: generateRandomFourDigitCode(),
+    codeStatus: CodeStatus.none
   ));
 
   static Future<AuthCubit> create(AuthRepository AuthRepository) async {
@@ -19,10 +22,16 @@ class AuthCubit extends Cubit<AuthState> {
 
   Future<void> loadData() async {
     try {
-      emit(AuthStateLoaded(
-          codeSent: false,
-          verificationCode: '1111'
-      ));
+      if(state is AuthStateLoaded) {
+        var currentState = state as AuthStateLoaded; {
+          emit(AuthStateLoaded(
+            termsAccepted: currentState.termsAccepted,
+            phoneNumber: currentState.phoneNumber,
+            verificationCode: currentState.verificationCode,
+            codeStatus: currentState.codeStatus
+          ));
+        }
+      }
     } catch (e) {
       emit(AuthStateError(
         errorMessage: _handleError(e),
@@ -52,4 +61,62 @@ class AuthCubit extends Cubit<AuthState> {
     }
     return error.toString();
   }
+  Future<void> verifyCode(String code) async {
+    if(state is AuthStateLoaded) {
+      var currentState = state as AuthStateLoaded;
+      if(currentState.verificationCode == code) {
+        emit(AuthStateLoaded(
+            termsAccepted: currentState.termsAccepted,
+            phoneNumber: currentState.phoneNumber,
+            verificationCode: currentState.verificationCode,
+            codeStatus: CodeStatus.correct
+          ));
+      }
+      else {
+        emit(AuthStateLoaded(
+            termsAccepted: currentState.termsAccepted,
+          phoneNumber: currentState.phoneNumber,
+          verificationCode: currentState.verificationCode,
+          codeStatus: CodeStatus.invalid
+        ));
+      }
+    }
+    else {
+      emit(AuthStateError(
+        errorMessage: _handleError(e),
+      ));
+    }
+  }
+  Future<void> toggleTerms() async {
+    if(state is AuthStateLoaded) {
+      var currentState = state as AuthStateLoaded;
+        emit(currentState.copyWith(
+          termsAccepted: !currentState.termsAccepted,
+          phoneNumber: currentState.phoneNumber,
+          verificationCode: currentState.verificationCode,
+          codeStatus: currentState.codeStatus
+        ));
+    }
+    else {
+      emit(AuthStateError(
+        errorMessage: _handleError(e),
+      ));
+    }
+  }
+}
+String generateRandomPhoneNumber() {
+  Random random = Random();
+  int areaCode = random.nextInt(900) + 100; // Генерируем код области от 100 до 999
+  int centralOfficeCode = random.nextInt(900) + 100; // Генерируем центральный офисный код от 100 до 999
+  int lineNumber = random.nextInt(10000); // Генерируем номер линии от 0000 до 9999
+
+  return '+7 ($areaCode) $centralOfficeCode-${lineNumber.toString().padLeft(4, '0')}';
+}
+
+String generateRandomFourDigitCode() {
+  Random random = Random();
+  int code = random.nextInt(10000);
+  String res = code.toString().padLeft(4, '0');
+  print(res);
+  return res; // Возвращаем строку с ведущими нулями
 }
