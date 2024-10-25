@@ -106,7 +106,7 @@ class _TransactionTileState extends State<TransactionTile> {
                                       style: Theme.of(context).textTheme.titleMedium,
                                     ),
                                     Text(
-                                      widget.transaction.id.substring(0,8)+'...',
+                                      '${widget.transaction.id.substring(0,8)}...',
                                       style: Theme.of(context).textTheme.bodySmall,
                                     ),
                                   ],
@@ -225,7 +225,7 @@ class _TransactionTileState extends State<TransactionTile> {
   }
 
   String getIcon(String type) {
-    if (type == "in") {
+    if (type == "deposit") {
       return 'assets/images/icon_transaction_background.svg';
     } else {
       return 'assets/images/icon_transaction_out.svg';
@@ -233,7 +233,7 @@ class _TransactionTileState extends State<TransactionTile> {
   }
 
   String getText(String type, String text) {
-    if (type == "in") {
+    if (type == "deposit") {
       return text;
     } else {
       return "-$text";
@@ -241,7 +241,7 @@ class _TransactionTileState extends State<TransactionTile> {
   }
 
   TextStyle? getColor(String type) {
-    if (type == "in") {
+    if (type == "deposit") {
       return Theme.of(context).textTheme.inText;
     } else {
       return Theme.of(context).textTheme.outText;
