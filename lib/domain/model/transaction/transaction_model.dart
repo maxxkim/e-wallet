@@ -26,7 +26,7 @@ class Transaction {
 
     static String getRandomType() {
       final Random random = Random();
-      final types = ['in', 'out'];
+      final types = ['deposit', 'withdraw'];
       return types[random.nextInt(types.length)];
     }
 

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
@@ -54,6 +55,7 @@ class SmsVerificationScreen extends StatelessWidget {
                             ),
                           ),
                           const SizedBox(height: 40),
+                          if (state.codeStatus == CodeStatus.none)
                           Row(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
@@ -95,6 +97,53 @@ class SmsVerificationScreen extends StatelessWidget {
                                   ),
                                 ),
                             ],
+                          ),
+                          if (state.codeStatus == CodeStatus.invalid)
+                          Animate(
+                            effects: const [ShakeEffect()],
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                for (var i = 0; i < 4; i++)
+                                  Padding(
+                                    padding: EdgeInsets.only(right: i < 3 ? 12 : 0),
+                                    child: Container(
+                                      height: 56,
+                                      width: 56,
+                                      decoration: BoxDecoration(
+                                        color: Theme.of(context).scaffoldBackgroundColor,
+                                        borderRadius: BorderRadius.circular(16),
+                                        border: Border.all(color: getContainerColor(state.codeStatus, context)),
+                                      ),
+                                      child: TextFormField(
+                                        initialValue: "",
+                                        textAlign: TextAlign.center,
+                                        keyboardType: TextInputType.number,
+                                        maxLength: 1,
+                                        decoration: const InputDecoration(
+                                          counterText: "",
+                                          border: InputBorder.none,
+                                        ),
+                                        onChanged: (value) {
+                                          if (value.length == 1) {
+                                            _verificationCode[i] = value;
+                                            if (i < 3) {
+                                              FocusScope.of(context).nextFocus();
+                                            } else {
+                                              // Когда заполнено последнее поле, проверяем код
+                                              String code = _verificationCode.join('');
+                                              context.read<AuthCubit>().verifyCode(code);
+                                            }
+                                          } else if (value.isEmpty && i > 0) {
+                                            _verificationCode[i] = '';
+                                            FocusScope.of(context).previousFocus();
+                                          }
+                                        },
+                                      ),
+                                    ),
+                                  ),
+                              ],
+                            ),
                           ),
                           const SizedBox(height: 40),
                           Row(
