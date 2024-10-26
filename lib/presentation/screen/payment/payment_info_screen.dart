@@ -160,7 +160,7 @@ class PaymentInfoScreen extends StatelessWidget {
   }
   Color getContainer(BuildContext context)
   {
-    if (transaction.status == "completed") {
+    if (transaction.status == "success") {
       return Theme.of(context).colorScheme.secondaryContainer;
     }
     else if (transaction.status == "pending") {
@@ -171,7 +171,7 @@ class PaymentInfoScreen extends StatelessWidget {
     }
   }
   Widget getIcon(BuildContext context){
-    if (transaction.status == "completed") {
+    if (transaction.status == "success") {
       return SvgPicture.asset(
                     'assets/images/icon_tick.svg',
                     height: 48.0,
@@ -194,7 +194,7 @@ class PaymentInfoScreen extends StatelessWidget {
     }
   }
   String getText(BuildContext context){
-    if (transaction.status == "completed") {
+    if (transaction.status == "success") {
       return "Transaction was completed\nsuccessfully!";
     }
     else if (transaction.status == "pending") {

@@ -2,9 +2,9 @@
 import 'package:flutter/material.dart';
 
 class ErrorScreen extends StatelessWidget {
-  final String errorMessage;
+  final String? errorMessage;
 
-  const ErrorScreen({Key? key, required this.errorMessage}) : super(key: key);
+  const ErrorScreen({Key? key, this.errorMessage}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -36,7 +36,7 @@ class ErrorScreen extends StatelessWidget {
               ),
               const SizedBox(height: 10),
               Text(
-                errorMessage,
+                errorMessage ?? "500 Server Error",
                 textAlign: TextAlign.center,
                 style: const TextStyle(
                   fontSize: 16,
