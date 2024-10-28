@@ -1,5 +1,8 @@
 
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
+import 'package:go_router/go_router.dart';
+import 'package:zippy/presentation/widget/custom_rectangular_button.dart';
 
 class ErrorScreen extends StatelessWidget {
   final String? errorMessage;
@@ -9,25 +12,26 @@ class ErrorScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.black,
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       body: Center(
         child: Container(
           padding: const EdgeInsets.all(20),
+          margin: const EdgeInsets.all(16),
+
           decoration: BoxDecoration(
-            color: Colors.redAccent,
+            color: Theme.of(context).colorScheme.secondaryFixed,
             borderRadius: BorderRadius.circular(15),
           ),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: <Widget>[
-              const Icon(
-                Icons.error,
-                size: 60,
-                color: Colors.white,
+              SvgPicture.asset(
+                'assets/images/zippy_logo.svg',
+                semanticsLabel: 'Zippy Motto',
               ),
               const SizedBox(height: 10),
               const Text(
-                'Произошла ошибка',
+                'An error occured',
                 style: TextStyle(
                   fontSize: 24,
                   color: Colors.white,
@@ -44,11 +48,11 @@ class ErrorScreen extends StatelessWidget {
                 ),
               ),
               const SizedBox(height: 20),
-              ElevatedButton(
+              RectangularButton(
                 onPressed: () {
-                  // Логика для повторной попытки или возврата на главный экран
+                  context.go('/');
                 },
-                child: const Text('Попробовать снова'),
+                label: 'Home',
               ),
             ],
           ),

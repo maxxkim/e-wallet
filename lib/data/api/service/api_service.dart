@@ -1,4 +1,6 @@
 import 'package:dio/dio.dart';
+import 'package:zippy/data/api/api_auth_initiate.dart';
+import 'package:zippy/data/api/api_auth_verify.dart';
 import 'package:zippy/data/api/api_balance.dart';
 import 'package:zippy/data/api/api_top_up.dart';
 import 'package:zippy/data/api/api_transaction.dart';
@@ -47,5 +49,20 @@ class ApiService {
       'https://d2ef-51-159-97-191.ngrok-free.app/transactions/all',
     );
     return ApiTransaction.fromApi(response.data);
+  }
+
+
+  Future<ApiAuthInitiate> initiateAuth() async {
+    final response = await _dio.post(
+      'https://d2ef-51-159-97-191.ngrok-free.app/transactions/all',
+    );
+    return ApiAuthInitiate.fromApi(response.data);
+  }
+
+  Future<ApiAuthVerify> verifyAuth() async {
+    final response = await _dio.post(
+      'https://d2ef-51-159-97-191.ngrok-free.app/transactions/all',
+    );
+    return ApiAuthVerify.fromApi(response.data);
   }
 }

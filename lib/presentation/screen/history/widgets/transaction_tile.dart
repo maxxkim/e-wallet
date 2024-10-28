@@ -79,130 +79,142 @@ class _TransactionTileState extends State<TransactionTile> {
                 ],
               ),
             ),
-            if (_isExpanded)
-            Container(
-              padding: const EdgeInsets.all(12),
-              color: Theme.of(context).scaffoldBackgroundColor,
-              child: IntrinsicHeight(
-                child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Row(
+            AnimatedContainer(
+              duration: const Duration(milliseconds: 500), // Animation duration
+              curve: Curves.easeInOut,
+              height: _isExpanded ? 132 : 0, // Adjust height based on expansion
+              child: SingleChildScrollView(
+                child: ClipRect(
+                  child: Align(
+                    alignment: Alignment.topCenter,
+                    heightFactor: _isExpanded ? 1 : 0, // Adjust based on state
+                    child: Container(
+                      padding: const EdgeInsets.all(12),
+                      color: Theme.of(context).scaffoldBackgroundColor,
+                      child: IntrinsicHeight(
+                        child: Row(
+                          crossAxisAlignment: CrossAxisAlignment.stretch,
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
-                            Text(
-                              'Transaction ID: ',
-                              style: Theme.of(context).textTheme.titleMedium,
+                            Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Row(
+                                  children: [
+                                    Text(
+                                      'Transaction ID: ',
+                                      style: Theme.of(context).textTheme.titleMedium,
+                                    ),
+                                    Text(
+                                      '${widget.transaction.id.substring(0,8)}...',
+                                      style: Theme.of(context).textTheme.bodySmall,
+                                    ),
+                                  ],
+                                ),
+                                const SizedBox(height: 8),
+                                Row(
+                                  children: [
+                                    Text(
+                                      'Amount: ',
+                                      style: Theme.of(context).textTheme.titleMedium,
+                                    ),
+                                    Text(
+                                      '${widget.transaction.currency} ${widget.transaction.amount.toString()}',
+                                      style: Theme.of(context).textTheme.bodySmall,
+                                    ),
+                                  ],
+                                ),
+                                const SizedBox(height: 8),
+                                Row(
+                                  children: [
+                                    Text(
+                                      'Date: ',
+                                      style: Theme.of(context).textTheme.titleMedium,
+                                    ),
+                                    Text(
+                                      DateFormat('MMMM d, yyyy').format(widget.transaction.date),
+                                      style: Theme.of(context).textTheme.bodySmall,
+                                    ),
+                                  ],
+                                ),
+                                const SizedBox(height: 8),
+                                Row(
+                                  children: [
+                                    Text(
+                                      'Time: ',
+                                      style: Theme.of(context).textTheme.titleMedium,
+                                    ),
+                                    Text(
+                                      DateFormat('hh:mm a').format(widget.transaction.date),
+                                      style: Theme.of(context).textTheme.bodySmall,
+                                    ),
+                                  ],
+                                ),
+                              ],
                             ),
-                            Text(
-                              widget.transaction.id.substring(0,8)+'...',
-                              style: Theme.of(context).textTheme.bodySmall,
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: 8),
-                        Row(
-                          children: [
-                            Text(
-                              'Amount: ',
-                              style: Theme.of(context).textTheme.titleMedium,
-                            ),
-                            Text(
-                              '${widget.transaction.currency} ${widget.transaction.amount.toString()}',
-                              style: Theme.of(context).textTheme.bodySmall,
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: 8),
-                        Row(
-                          children: [
-                            Text(
-                              'Date: ',
-                              style: Theme.of(context).textTheme.titleMedium,
-                            ),
-                            Text(
-                              DateFormat('MMMM d, yyyy').format(widget.transaction.date),
-                              style: Theme.of(context).textTheme.bodySmall,
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: 8),
-                        Row(
-                          children: [
-                            Text(
-                              'Time: ',
-                              style: Theme.of(context).textTheme.titleMedium,
-                            ),
-                            Text(
-                              DateFormat('hh:mm a').format(widget.transaction.date),
-                              style: Theme.of(context).textTheme.bodySmall,
-                            ),
-                          ],
-                        ),
-                      ],
-                    ),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.end,
-                        children: [
-                          Text(
-                            'Status: ${widget.transaction.status}',
-                            style: Theme.of(context).textTheme.titleMedium,
-                          ),
-                          const Spacer(),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.end,
-                            children: [
-                              Column(
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.end,
                                 children: [
-                                  SvgPicture.asset(
-                                    'assets/images/icon_support.svg',
-                                    height: 24.0,
-                                    width: 24.0,
-                                  ),
                                   Text(
-                                    'Help',
-                                    style: Theme.of(context).textTheme.headlineLarge,
+                                    'Status: ${widget.transaction.status}',
+                                    style: Theme.of(context).textTheme.titleMedium,
+                                  ),
+                                  const Spacer(),
+                                  Row(
+                                    mainAxisAlignment: MainAxisAlignment.end,
+                                    children: [
+                                      Column(
+                                        children: [
+                                          SvgPicture.asset(
+                                            'assets/images/icon_support.svg',
+                                            height: 24.0,
+                                            width: 24.0,
+                                          ),
+                                          Text(
+                                            'Help',
+                                            style: Theme.of(context).textTheme.headlineLarge,
+                                          ),
+                                        ],
+                                      ),
+                                      const SizedBox(width: 16.0),
+                                      Column(
+                                        children: [
+                                          SvgPicture.asset(
+                                            'assets/images/icon_copy.svg',
+                                            height: 24.0,
+                                            width: 24.0,
+                                          ),
+                                          Text(
+                                            'Copy',
+                                            style: Theme.of(context).textTheme.headlineLarge,
+                                          ),
+                                        ],
+                                      ),
+                                      const SizedBox(width: 16.0),
+                                      Column(
+                                        children: [
+                                          SvgPicture.asset(
+                                            'assets/images/icon_share.svg',
+                                            height: 24.0,
+                                            width: 24.0,
+                                          ),
+                                          Text(
+                                            'Share',
+                                            style: Theme.of(context).textTheme.headlineLarge,
+                                          ),
+                                        ],
+                                      ),
+                                    ],
                                   ),
                                 ],
                               ),
-                              const SizedBox(width: 16.0),
-                              Column(
-                                children: [
-                                  SvgPicture.asset(
-                                    'assets/images/icon_copy.svg',
-                                    height: 24.0,
-                                    width: 24.0,
-                                  ),
-                                  Text(
-                                    'Copy',
-                                    style: Theme.of(context).textTheme.headlineLarge,
-                                  ),
-                                ],
-                              ),
-                              const SizedBox(width: 16.0),
-                              Column(
-                                children: [
-                                  SvgPicture.asset(
-                                    'assets/images/icon_share.svg',
-                                    height: 24.0,
-                                    width: 24.0,
-                                  ),
-                                  Text(
-                                    'Share',
-                                    style: Theme.of(context).textTheme.headlineLarge,
-                                  ),
-                                ],
-                              ),
-                            ],
-                          ),
-                        ],
+                            ),
+                          ],
+                        ),
                       ),
                     ),
-                  ],
+                  ),
                 ),
               ),
             ),
@@ -213,7 +225,7 @@ class _TransactionTileState extends State<TransactionTile> {
   }
 
   String getIcon(String type) {
-    if (type == "in") {
+    if (type == "deposit") {
       return 'assets/images/icon_transaction_background.svg';
     } else {
       return 'assets/images/icon_transaction_out.svg';
@@ -221,7 +233,7 @@ class _TransactionTileState extends State<TransactionTile> {
   }
 
   String getText(String type, String text) {
-    if (type == "in") {
+    if (type == "deposit") {
       return text;
     } else {
       return "-$text";
@@ -229,7 +241,7 @@ class _TransactionTileState extends State<TransactionTile> {
   }
 
   TextStyle? getColor(String type) {
-    if (type == "in") {
+    if (type == "deposit") {
       return Theme.of(context).textTheme.inText;
     } else {
       return Theme.of(context).textTheme.outText;

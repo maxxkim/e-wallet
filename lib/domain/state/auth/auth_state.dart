@@ -1,18 +1,40 @@
-part of '../../../presentation/bloc/auth/auth_cubit.dart';
+enum CodeStatus {correct, invalid, none}
 
-@immutable
 abstract class AuthState {}
 
-class AuthInitial extends AuthState {}
+class AuthStateLoaded extends AuthState {
+  final bool termsAccepted;
+  final CodeStatus codeStatus;
+  final String phoneNumber;
+  final String verificationCode;
 
-class AuthLoading extends AuthState {}
+  AuthStateLoaded({
+    required this.termsAccepted,
+    required this.codeStatus,
+    required this.verificationCode,
+    required this.phoneNumber,
+  });
 
-class AuthFailure extends AuthState {
-  final String? message;
-  AuthFailure(this.message);
+  // Implementing the copyWith method
+  AuthStateLoaded copyWith({
+  required final bool termsAccepted,
+  required final String verificationCode,
+  required final String phoneNumber,
+  required final CodeStatus codeStatus,
+  }) {
+    return AuthStateLoaded(
+      termsAccepted: termsAccepted,
+      phoneNumber: phoneNumber,
+      verificationCode: verificationCode,
+      codeStatus: codeStatus,
+    );
+  }
 }
 
-class AuthCodeSent extends AuthState {
-  final String verificationId;
-  AuthCodeSent(this.verificationId);
+class AuthStateError extends AuthState {
+  final String errorMessage;
+
+  AuthStateError({
+    required this.errorMessage,
+  });
 }

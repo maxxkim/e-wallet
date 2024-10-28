@@ -35,7 +35,7 @@ class DashboardScreen extends StatelessWidget {
           return const Center(child: CircularProgressIndicator());
         } else if (snapshot.hasError) {
           // Возвращаем ErrorScreen при возникновении ошибки
-          return ErrorScreen(errorMessage: 'Ошибка: ${snapshot.error}');
+          return ErrorScreen(errorMessage: 'Error: ${snapshot.error}');
         } else if (snapshot.hasData) {
           final dashboardCubit = snapshot.data!;
           return BlocProvider.value(

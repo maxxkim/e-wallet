@@ -25,8 +25,10 @@ class DashboardCubit extends Cubit<DashboardState> {
 
   Future<void> loadData() async {
     try {
-      final balance = await _dashboardRepository.getBalance();
-      final transactions = await _dashboardRepository.getTransactions();
+      //final balance = await _dashboardRepository.getBalance();
+      //final transactions = await _dashboardRepository.getTransactions();
+      final balance = getRandomBalance();
+      final transactions = getRandomTransactions();
 
       emit(DashboardStateLoaded(
         filterType: FilterType.period,
@@ -36,7 +38,6 @@ class DashboardCubit extends Cubit<DashboardState> {
         filteredTransactions: transactions,
       ));
     } catch (e) {
-      print(e);
       emit(DashboardStateError(
         errorMessage: _handleError(e),
       ));
