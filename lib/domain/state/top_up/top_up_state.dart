@@ -1,5 +1,4 @@
 class TopUpState {
-
   final String message;
   final bool isSuccess;
 

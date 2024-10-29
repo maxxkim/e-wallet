@@ -11,4 +11,3 @@ class ContactButton {
     required this.subtitle,
   });
 }
-

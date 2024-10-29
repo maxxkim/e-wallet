@@ -1,4 +1,6 @@
 import 'package:dio/dio.dart';
+import 'package:zippy/data/api/api_auth_initiate.dart';
+import 'package:zippy/data/api/api_auth_verify.dart';
 import 'package:zippy/data/api/api_balance.dart';
 import 'package:zippy/data/api/api_top_up.dart';
 import 'package:zippy/data/api/api_transaction.dart';
@@ -13,7 +15,8 @@ class ApiService {
     // Добавление интерсептора для установки токена в заголовки
     _dio.interceptors.add(InterceptorsWrapper(
       onRequest: (options, handler) {
-        options.headers['Authorization'] = 'Bearer fake-user'; // Установка токена
+        options.headers['Authorization'] =
+            'Bearer fake-user'; // Установка токена
         return handler.next(options);
       },
     ));
@@ -26,7 +29,7 @@ class ApiService {
     );
     return ApiTopUp.fromApi(response.data);
   }
-  
+
   Future<ApiWithdraw> getWithdraw(GetWithdrawBody body) async {
     final response = await _dio.post(
       'https://payin-75jkb5hnza-uc.a.run.app/',
@@ -47,5 +50,19 @@ class ApiService {
       'https://d2ef-51-159-97-191.ngrok-free.app/transactions/all',
     );
     return ApiTransaction.fromApi(response.data);
+  }
+
+  Future<ApiAuthInitiate> initiateAuth() async {
+    final response = await _dio.post(
+      'https://d2ef-51-159-97-191.ngrok-free.app/transactions/all',
+    );
+    return ApiAuthInitiate.fromApi(response.data);
+  }
+
+  Future<ApiAuthVerify> verifyAuth() async {
+    final response = await _dio.post(
+      'https://d2ef-51-159-97-191.ngrok-free.app/transactions/all',
+    );
+    return ApiAuthVerify.fromApi(response.data);
   }
 }

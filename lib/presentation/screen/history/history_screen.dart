@@ -9,11 +9,11 @@ class HistoryScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-      return Scaffold(
+    return Scaffold(
       appBar: AppBar(
         backgroundColor: Theme.of(context).scaffoldBackgroundColor,
         toolbarHeight: 0,
-        ),
+      ),
       body: Padding(
         padding: const EdgeInsets.only(top: 16, left: 16, right: 16),
         child: Column(
@@ -22,17 +22,17 @@ class HistoryScreen extends StatelessWidget {
               hintText: "Search",
               controller: TextEditingController(),
             ),
-              
             const SizedBox(height: 16),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text("September 2024", style: Theme.of(context).textTheme.titleSmall),
+                Text("September 2024",
+                    style: Theme.of(context).textTheme.titleSmall),
                 const SizedBox(width: 8),
-                Text("Totel: \$ 4 000.00", style: Theme.of(context).textTheme.titleSmall),
+                Text("Totel: \$ 4 000.00",
+                    style: Theme.of(context).textTheme.titleSmall),
               ],
             ),
-            
             const SizedBox(height: 8),
             Row(
               children: [
@@ -42,30 +42,41 @@ class HistoryScreen extends StatelessWidget {
                       color: Theme.of(context).colorScheme.secondaryContainer,
                       borderRadius: BorderRadius.circular(16),
                     ),
-                    padding: const EdgeInsets.all(16.0), // Добавьте отступы для лучшего вида
+                    padding: const EdgeInsets.all(
+                        16.0), // Добавьте отступы для лучшего вида
                     child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start, // Выровнять содержимое по левому краю
+                      crossAxisAlignment: CrossAxisAlignment
+                          .start, // Выровнять содержимое по левому краю
                       children: [
                         Text('Expense'),
-                        Text('\$ 500', style: Theme.of(context).textTheme.titleLarge), // Замените на вычисленные расходы
+                        Text('\$ 500',
+                            style: Theme.of(context)
+                                .textTheme
+                                .titleLarge), // Замените на вычисленные расходы
                       ],
                     ),
                   ),
                 ),
-                
-                const SizedBox(width: 16), // Отступ между контейнерами (при желании)
+
+                const SizedBox(
+                    width: 16), // Отступ между контейнерами (при желании)
                 Expanded(
                   child: Container(
                     decoration: BoxDecoration(
                       color: Theme.of(context).colorScheme.tertiaryFixed,
                       borderRadius: BorderRadius.circular(16),
                     ),
-                    padding: const EdgeInsets.all(16.0), // Добавьте отступы для лучшего вида
+                    padding: const EdgeInsets.all(
+                        16.0), // Добавьте отступы для лучшего вида
                     child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start, // Выровнять содержимое по левому краю
+                      crossAxisAlignment: CrossAxisAlignment
+                          .start, // Выровнять содержимое по левому краю
                       children: [
                         Text('Income'),
-                        Text('\$ 1000', style: Theme.of(context).textTheme.titleLarge), // Замените на вычисленные доходы
+                        Text('\$ 1000',
+                            style: Theme.of(context)
+                                .textTheme
+                                .titleLarge), // Замените на вычисленные доходы
                       ],
                     ),
                   ),
@@ -73,39 +84,53 @@ class HistoryScreen extends StatelessWidget {
               ],
             ),
             const SizedBox(height: 16),
-            Align( 
-              alignment: Alignment.centerLeft, 
-              child: Text("Transaction history", style: Theme.of(context).textTheme.titleSmall)),
+            Align(
+                alignment: Alignment.centerLeft,
+                child: Text("Transaction history",
+                    style: Theme.of(context).textTheme.titleSmall)),
             const SizedBox(height: 8),
-              Row(
-                children: [
-                  FilledButton(
-                    onPressed: () => print("hui"),
-                    style: ButtonStyle(
-                      padding: WidgetStateProperty.all(EdgeInsets.symmetric(horizontal: 24.0)), // Adjust horizontal padding
-                    ),
-                    child: const Text("Period"),
+            Row(
+              children: [
+                FilledButton(
+                  onPressed: () => print("hui"),
+                  style: ButtonStyle(
+                    padding: WidgetStateProperty.all(EdgeInsets.symmetric(
+                        horizontal: 24.0)), // Adjust horizontal padding
                   ),
-                  const Spacer(),
-                  FilledButton(
-                    onPressed: () => print("hui"),
-                    style: ButtonStyle(
-                      padding: WidgetStateProperty.all(EdgeInsets.symmetric(horizontal: 24.0)), // Adjust horizontal padding
-                      backgroundColor: WidgetStateProperty.all(Theme.of(context).colorScheme.secondaryContainer), // Задаем цвет из темы
-                    ),
-                    child: Text("Deposit", style: Theme.of(context).textTheme.bodyMedium,),
+                  child: const Text("Period"),
+                ),
+                const Spacer(),
+                FilledButton(
+                  onPressed: () => print("hui"),
+                  style: ButtonStyle(
+                    padding: WidgetStateProperty.all(EdgeInsets.symmetric(
+                        horizontal: 24.0)), // Adjust horizontal padding
+                    backgroundColor: WidgetStateProperty.all(Theme.of(context)
+                        .colorScheme
+                        .secondaryContainer), // Задаем цвет из темы
                   ),
-                  const Spacer(),
-                  FilledButton(
-                    onPressed: () => print("hui"),
-                    style: ButtonStyle(
-                      padding: WidgetStateProperty.all(EdgeInsets.symmetric(horizontal: 24)), // Adjust horizontal padding
-                      backgroundColor: WidgetStateProperty.all(Theme.of(context).colorScheme.secondaryContainer), // Задаем цвет из темы
-                    ),
-                    child: Text("Withdrawal", style: Theme.of(context).textTheme.bodyMedium,),
+                  child: Text(
+                    "Deposit",
+                    style: Theme.of(context).textTheme.bodyMedium,
                   ),
-                ],
-              ),
+                ),
+                const Spacer(),
+                FilledButton(
+                  onPressed: () => print("hui"),
+                  style: ButtonStyle(
+                    padding: WidgetStateProperty.all(EdgeInsets.symmetric(
+                        horizontal: 24)), // Adjust horizontal padding
+                    backgroundColor: WidgetStateProperty.all(Theme.of(context)
+                        .colorScheme
+                        .secondaryContainer), // Задаем цвет из темы
+                  ),
+                  child: Text(
+                    "Withdrawal",
+                    style: Theme.of(context).textTheme.bodyMedium,
+                  ),
+                ),
+              ],
+            ),
             const SizedBox(height: 16),
             const TransactionList(),
           ],

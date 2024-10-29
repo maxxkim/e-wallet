@@ -14,7 +14,7 @@ class OutlinedButtonCustom extends StatelessWidget {
   Widget build(BuildContext context) {
     // Получаем текущую тему приложения
     final theme = Theme.of(context);
-    
+
     return OutlinedButton(
       onPressed: onPressed,
       style: OutlinedButton.styleFrom(
@@ -22,7 +22,9 @@ class OutlinedButtonCustom extends StatelessWidget {
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(16.0), // Закругление углов
         ),
-        side: BorderSide(color: theme.colorScheme.secondary, width: 1), // Цвет границы из темы
+        side: BorderSide(
+            color: theme.colorScheme.secondary,
+            width: 1), // Цвет границы из темы
         backgroundColor: theme.scaffoldBackgroundColor, // Прозрачный фон
       ),
       child: Text(

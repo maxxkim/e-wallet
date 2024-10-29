@@ -5,14 +5,14 @@ class GetTopUpBody {
   final String currency;
   final String payMethod;
   final String documentId;
-  final String amount; 
+  final String amount;
   final String email;
   final String name;
   final String timestamp;
   final String? payinExpirationTime;
   final String urlOk;
   final String urlError;
-  final String objData; 
+  final String objData;
 
   GetTopUpBody({
     required this.merchantId,

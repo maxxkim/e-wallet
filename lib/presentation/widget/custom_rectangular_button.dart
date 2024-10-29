@@ -2,10 +2,12 @@ import 'package:flutter/material.dart';
 
 class RectangularButton extends StatelessWidget {
   final String label;
-  final VoidCallback onPressed;
+  final VoidCallback? onPressed;
+  final Color? color;
 
   const RectangularButton({
     Key? key,
+    this.color,
     required this.label,
     required this.onPressed,
   }) : super(key: key);
@@ -19,7 +21,7 @@ class RectangularButton extends StatelessWidget {
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(16.0), // Закругление углов
         ),
-        backgroundColor: Theme.of(context).primaryColor,
+        backgroundColor: color ?? Theme.of(context).primaryColor,
       ),
       child: Text(
         label,

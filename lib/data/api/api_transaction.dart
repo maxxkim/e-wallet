@@ -7,11 +7,14 @@ class ApiTransaction {
       : transactions = (map['transactions'] as List<dynamic>)
             .map((transactionMap) => Transaction(
                   id: transactionMap['transactionId'],
-                  title: transactionMap['name'], // или другое поле для заголовка
+                  title:
+                      transactionMap['name'], // или другое поле для заголовка
                   date: DateTime.parse(transactionMap['createdAt']),
-                  status: transactionMap['status'].toLowerCase(), // Приводим к нижнему регистру
+                  status: transactionMap['status']
+                      .toLowerCase(), // Приводим к нижнему регистру
                   currency: transactionMap['currency'],
-                  type: transactionMap['type'].toLowerCase(), // Приводим к нижнему регистру
+                  type: transactionMap['type']
+                      .toLowerCase(), // Приводим к нижнему регистру
                   amount: double.parse(transactionMap['amount']),
                 ))
             .toList();

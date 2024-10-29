@@ -36,18 +36,25 @@ class AuthTextField extends StatelessWidget {
                 ),
               ),
               GestureDetector(
-                onTap: () => onSwitchChanged(!switchValue), // Переключение при нажатии
+                onTap: () =>
+                    onSwitchChanged(!switchValue), // Переключение при нажатии
                 child: Container(
                   width: 57,
                   height: 32,
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(20),
-                    color: switchValue ? Theme.of(context).colorScheme.secondary : Theme.of(context).colorScheme.primary,
+                    color: switchValue
+                        ? Theme.of(context).colorScheme.secondary
+                        : Theme.of(context).colorScheme.primary,
                     border: Border.all(
-                      color: switchValue ? Theme.of(context).colorScheme.secondary : Theme.of(context).colorScheme.primary,
+                      color: switchValue
+                          ? Theme.of(context).colorScheme.secondary
+                          : Theme.of(context).colorScheme.primary,
                     ), // Контур того же цвета, что и фон
                   ),
-                  alignment: switchValue ? Alignment.centerRight : Alignment.centerLeft,
+                  alignment: switchValue
+                      ? Alignment.centerRight
+                      : Alignment.centerLeft,
                   child: Stack(
                     children: [
                       Positioned(
@@ -56,10 +63,11 @@ class AuthTextField extends StatelessWidget {
                           backgroundColor: Colors.white, // Цвет кружка
                           radius: 15, // Размер кружка
                           child: SvgPicture.asset(
-                            height: 24,
-                            switchValue ? 'assets/images/icon_theme_light.svg' : "assets/images/icon_theme_dark.svg",
-                            semanticsLabel: 'Acme Logo'
-                          ),
+                              height: 24,
+                              switchValue
+                                  ? 'assets/images/icon_theme_light.svg'
+                                  : "assets/images/icon_theme_dark.svg",
+                              semanticsLabel: 'Acme Logo'),
                         ),
                       ),
                     ],
@@ -68,25 +76,37 @@ class AuthTextField extends StatelessWidget {
               ),
             ],
           ),
-          const SizedBox(height: 8), // Отступ между лейблом+переключателем и текстовым полем
+          const SizedBox(
+              height:
+                  8), // Отступ между лейблом+переключателем и текстовым полем
           SizedBox(
-            height: 72.0, // Установите нужную высоту (например, 72.0, что в 1.5 раза больше стандартной высоты)
+            height:
+                72.0, // Установите нужную высоту (например, 72.0, что в 1.5 раза больше стандартной высоты)
             child: TextField(
               controller: controller,
               decoration: InputDecoration(
                 border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(16.0), // Закругление углов
-                  borderSide: const BorderSide(color: Colors.grey), // Цвет границы
+                  borderRadius:
+                      BorderRadius.circular(16.0), // Закругление углов
+                  borderSide:
+                      const BorderSide(color: Colors.grey), // Цвет границы
                 ),
                 focusedBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(16.0), // Закругление углов при фокусе
-                  borderSide: BorderSide(color: Theme.of(context).colorScheme.secondary), // Цвет границы при фокусе
+                  borderRadius: BorderRadius.circular(
+                      16.0), // Закругление углов при фокусе
+                  borderSide: BorderSide(
+                      color: Theme.of(context)
+                          .colorScheme
+                          .secondary), // Цвет границы при фокусе
                 ),
                 hintText: "+ 66 (119) 345 97 90",
                 hintStyle: Theme.of(context).textTheme.labelMedium,
-                contentPadding: const EdgeInsets.symmetric(vertical: 20.0, horizontal: 16.0), // Отступы сверху/снизу и слева/справа
+                contentPadding: const EdgeInsets.symmetric(
+                    vertical: 20.0,
+                    horizontal: 16.0), // Отступы сверху/снизу и слева/справа
               ),
-              keyboardType: TextInputType.phone, // Тип клавиатуры для ввода номера
+              keyboardType:
+                  TextInputType.phone, // Тип клавиатуры для ввода номера
             ),
           ),
         ],

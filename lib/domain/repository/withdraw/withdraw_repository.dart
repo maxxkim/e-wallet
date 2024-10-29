@@ -12,7 +12,7 @@ abstract class WithdrawRepository {
     required String email,
     required String name,
     required String timestamp,
-    String? payinExpirationTime, 
+    String? payinExpirationTime,
     required String urlOk,
     required String urlError,
     required String objData,

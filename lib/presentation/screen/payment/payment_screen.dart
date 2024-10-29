@@ -7,15 +7,15 @@ import 'package:zippy/presentation/widget/custom_contact_button_row.dart';
 //import 'package:zippy/presentation/bloc/dashboard/dashboard_cubit.dart';
 
 class PaymentScreen extends StatelessWidget {
-   PaymentScreen({super.key});
-    final TextEditingController emailController = TextEditingController();
-    final TextEditingController amountController = TextEditingController();
+  PaymentScreen({super.key});
+  final TextEditingController emailController = TextEditingController();
+  final TextEditingController amountController = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: const Text('New payment')),
-      body:  Padding(
+      body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: SingleChildScrollView(
           child: Column(
@@ -72,6 +72,4 @@ class PaymentScreen extends StatelessWidget {
       ),
     );
   }
-
-
 }
