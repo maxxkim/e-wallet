@@ -56,67 +56,25 @@ class SmsVerificationScreen extends StatelessWidget {
                           ),
                           const SizedBox(height: 40),
                           if (state.codeStatus == CodeStatus.none)
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              for (var i = 0; i < 4; i++)
-                                Padding(
-                                  padding: EdgeInsets.only(right: i < 3 ? 12 : 0),
-                                  child: Container(
-                                    height: 56,
-                                    width: 56,
-                                    decoration: BoxDecoration(
-                                      color: Theme.of(context).scaffoldBackgroundColor,
-                                      borderRadius: BorderRadius.circular(16),
-                                      border: Border.all(color: getContainerColor(state.codeStatus, context)),
-                                    ),
-                                    child: TextFormField(
-                                      textAlign: TextAlign.center,
-                                      keyboardType: TextInputType.number,
-                                      maxLength: 1,
-                                      decoration: const InputDecoration(
-                                        counterText: "",
-                                        border: InputBorder.none,
-                                      ),
-                                      onChanged: (value) {
-                                        if (value.length == 1) {
-                                          _verificationCode[i] = value;
-                                          if (i < 3) {
-                                            FocusScope.of(context).nextFocus();
-                                          } else {
-                                            // Когда заполнено последнее поле, проверяем код
-                                            String code = _verificationCode.join('');
-                                            context.read<AuthCubit>().verifyCode(code);
-                                          }
-                                        } else if (value.isEmpty && i > 0) {
-                                          _verificationCode[i] = '';
-                                          FocusScope.of(context).previousFocus();
-                                        }
-                                      },
-                                    ),
-                                  ),
-                                ),
-                            ],
-                          ),
-                          if (state.codeStatus == CodeStatus.invalid)
-                          Animate(
-                            effects: const [ShakeEffect()],
-                            child: Row(
+                            Row(
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
                                 for (var i = 0; i < 4; i++)
                                   Padding(
-                                    padding: EdgeInsets.only(right: i < 3 ? 12 : 0),
+                                    padding:
+                                        EdgeInsets.only(right: i < 3 ? 12 : 0),
                                     child: Container(
                                       height: 56,
                                       width: 56,
                                       decoration: BoxDecoration(
-                                        color: Theme.of(context).scaffoldBackgroundColor,
+                                        color: Theme.of(context)
+                                            .scaffoldBackgroundColor,
                                         borderRadius: BorderRadius.circular(16),
-                                        border: Border.all(color: getContainerColor(state.codeStatus, context)),
+                                        border: Border.all(
+                                            color: getContainerColor(
+                                                state.codeStatus, context)),
                                       ),
                                       child: TextFormField(
-                                        initialValue: "",
                                         textAlign: TextAlign.center,
                                         keyboardType: TextInputType.number,
                                         maxLength: 1,
@@ -128,15 +86,20 @@ class SmsVerificationScreen extends StatelessWidget {
                                           if (value.length == 1) {
                                             _verificationCode[i] = value;
                                             if (i < 3) {
-                                              FocusScope.of(context).nextFocus();
+                                              FocusScope.of(context)
+                                                  .nextFocus();
                                             } else {
                                               // Когда заполнено последнее поле, проверяем код
-                                              String code = _verificationCode.join('');
-                                              context.read<AuthCubit>().verifyCode(code);
+                                              String code =
+                                                  _verificationCode.join('');
+                                              context
+                                                  .read<AuthCubit>()
+                                                  .verifyCode(code);
                                             }
                                           } else if (value.isEmpty && i > 0) {
                                             _verificationCode[i] = '';
-                                            FocusScope.of(context).previousFocus();
+                                            FocusScope.of(context)
+                                                .previousFocus();
                                           }
                                         },
                                       ),
@@ -144,7 +107,63 @@ class SmsVerificationScreen extends StatelessWidget {
                                   ),
                               ],
                             ),
-                          ),
+                          if (state.codeStatus == CodeStatus.invalid)
+                            Animate(
+                              effects: const [ShakeEffect()],
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  for (var i = 0; i < 4; i++)
+                                    Padding(
+                                      padding: EdgeInsets.only(
+                                          right: i < 3 ? 12 : 0),
+                                      child: Container(
+                                        height: 56,
+                                        width: 56,
+                                        decoration: BoxDecoration(
+                                          color: Theme.of(context)
+                                              .scaffoldBackgroundColor,
+                                          borderRadius:
+                                              BorderRadius.circular(16),
+                                          border: Border.all(
+                                              color: getContainerColor(
+                                                  state.codeStatus, context)),
+                                        ),
+                                        child: TextFormField(
+                                          initialValue: "",
+                                          textAlign: TextAlign.center,
+                                          keyboardType: TextInputType.number,
+                                          maxLength: 1,
+                                          decoration: const InputDecoration(
+                                            counterText: "",
+                                            border: InputBorder.none,
+                                          ),
+                                          onChanged: (value) {
+                                            if (value.length == 1) {
+                                              _verificationCode[i] = value;
+                                              if (i < 3) {
+                                                FocusScope.of(context)
+                                                    .nextFocus();
+                                              } else {
+                                                // Когда заполнено последнее поле, проверяем код
+                                                String code =
+                                                    _verificationCode.join('');
+                                                context
+                                                    .read<AuthCubit>()
+                                                    .verifyCode(code);
+                                              }
+                                            } else if (value.isEmpty && i > 0) {
+                                              _verificationCode[i] = '';
+                                              FocusScope.of(context)
+                                                  .previousFocus();
+                                            }
+                                          },
+                                        ),
+                                      ),
+                                    ),
+                                ],
+                              ),
+                            ),
                           const SizedBox(height: 40),
                           Row(
                             mainAxisAlignment: MainAxisAlignment.center,
@@ -165,7 +184,8 @@ class SmsVerificationScreen extends StatelessWidget {
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
                               GestureDetector(
-                                onTap: () => context.read<AuthCubit>().toggleTerms(),
+                                onTap: () =>
+                                    context.read<AuthCubit>().toggleTerms(),
                                 child: Container(
                                   height: 32,
                                   width: 32,
@@ -173,15 +193,18 @@ class SmsVerificationScreen extends StatelessWidget {
                                     color: Theme.of(context).primaryColor,
                                     borderRadius: BorderRadius.circular(8),
                                   ),
-                                  child: Column(children: [
-                                    if(state.termsAccepted)
-                                      const Padding(
-                                        padding: EdgeInsets.only(top: 4.0),
-                                        child: Icon(Icons.check, 
-                                          color: Colors.white,
+                                  child: Column(
+                                    children: [
+                                      if (state.termsAccepted)
+                                        const Padding(
+                                          padding: EdgeInsets.only(top: 4.0),
+                                          child: Icon(
+                                            Icons.check,
+                                            color: Colors.white,
+                                          ),
                                         ),
-                                      ),
-                                  ],),
+                                    ],
+                                  ),
                                 ),
                               ),
                               const SizedBox(width: 24),
@@ -204,16 +227,18 @@ class SmsVerificationScreen extends StatelessWidget {
                             padding: const EdgeInsets.symmetric(horizontal: 40),
                             child: RectangularButton(
                               label: "Go",
-                              onPressed: state.termsAccepted && state.codeStatus == CodeStatus.correct
+                              onPressed: state.termsAccepted &&
+                                      state.codeStatus == CodeStatus.correct
                                   ? () {
                                       context.go('/dashboard');
                                     }
                                   : () {
                                       print("Enter code first");
-                                    }, 
-                              color: state.termsAccepted && state.codeStatus == CodeStatus.correct
-                                  ? Theme.of(context).primaryColor 
-                                  : Colors.grey, 
+                                    },
+                              color: state.termsAccepted &&
+                                      state.codeStatus == CodeStatus.correct
+                                  ? Theme.of(context).primaryColor
+                                  : Colors.grey,
                             ),
                           ),
                           const SizedBox(height: 40),
@@ -238,14 +263,12 @@ class SmsVerificationScreen extends StatelessWidget {
     return cubit;
   }
 
-  Color getContainerColor(CodeStatus status, BuildContext context){
+  Color getContainerColor(CodeStatus status, BuildContext context) {
     if (status == CodeStatus.correct) {
       return Theme.of(context).colorScheme.scrim;
-    }
-    else if (status == CodeStatus.invalid) {
+    } else if (status == CodeStatus.invalid) {
       return Theme.of(context).colorScheme.error;
-    } 
-    else {
+    } else {
       return Theme.of(context).colorScheme.primary;
     }
   }

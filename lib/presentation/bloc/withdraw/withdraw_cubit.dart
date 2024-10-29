@@ -43,7 +43,6 @@ class WithdrawCubit extends Cubit<WithdrawState> {
         objData: objData,
       );
 
-
       emit(WithdrawState(message: "Top-up successful", isSuccess: true));
     } catch (e) {
       emit(WithdrawState(message: "Error during top-up: $e", isSuccess: false));

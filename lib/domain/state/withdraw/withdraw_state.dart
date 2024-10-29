@@ -1,5 +1,4 @@
 class WithdrawState {
-
   final String message;
   final bool isSuccess;
 

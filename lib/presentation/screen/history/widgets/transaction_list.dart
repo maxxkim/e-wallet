@@ -9,7 +9,6 @@ class TransactionList extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-
     DateTime now = DateTime.now();
     String currentMonth = DateFormat('MMMM yy').format(now);
 
@@ -60,7 +59,8 @@ class TransactionList extends StatelessWidget {
                       ),
                     ),
                     child: Padding(
-                      padding: const EdgeInsets.only(top: 16, left: 16, right: 16),
+                      padding:
+                          const EdgeInsets.only(top: 16, left: 16, right: 16),
                       child: Center(
                         child: ListView.builder(
                           scrollDirection: Axis.horizontal,
@@ -69,7 +69,8 @@ class TransactionList extends StatelessWidget {
                             String month = months[startIndex + index];
                             bool isCurrentMonth = month == currentMonth;
                             return Padding(
-                              padding: const EdgeInsets.symmetric(horizontal: 6.0),
+                              padding:
+                                  const EdgeInsets.symmetric(horizontal: 6.0),
                               child: Text(
                                 month,
                                 style: isCurrentMonth
@@ -94,15 +95,20 @@ class TransactionList extends StatelessWidget {
                       if (index < itemCount)
                         Container(
                           decoration: BoxDecoration(
-                            color: Theme.of(context).colorScheme.tertiaryContainer,
+                            color:
+                                Theme.of(context).colorScheme.tertiaryContainer,
                             borderRadius: BorderRadius.zero,
                           ),
                           child: TransactionTile(
-                            transaction: Transaction.generateRandomTransaction(),
-                            onIconTap: () => context.go('/dashboard/infoDashboard'),
+                            transaction:
+                                Transaction.generateRandomTransaction(),
+                            onIconTap: () =>
+                                context.go('/dashboard/infoDashboard'),
                           ),
                         ),
-                      Container(height: 1, color: Theme.of(context).scaffoldBackgroundColor),
+                      Container(
+                          height: 1,
+                          color: Theme.of(context).scaffoldBackgroundColor),
                     ],
                   );
                 },

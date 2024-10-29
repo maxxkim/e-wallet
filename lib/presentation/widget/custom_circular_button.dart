@@ -19,11 +19,15 @@ class CircularButton extends StatelessWidget {
     return Column(
       children: [
         ElevatedButton(
-          onPressed: isEnabled ? onPressed : null, // Деактивируем кнопку при необходимости
+          onPressed: isEnabled
+              ? onPressed
+              : null, // Деактивируем кнопку при необходимости
           style: ElevatedButton.styleFrom(
             shape: const CircleBorder(),
             padding: const EdgeInsets.all(16),
-            backgroundColor: isEnabled ? Colors.indigo[900] : Colors.grey, // Меняем цвет при деактивации
+            backgroundColor: isEnabled
+                ? Colors.indigo[900]
+                : Colors.grey, // Меняем цвет при деактивации
           ),
           child: Icon(icon, color: Colors.white, size: 30),
         ),

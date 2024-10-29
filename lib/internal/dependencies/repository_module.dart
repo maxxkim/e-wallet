@@ -26,7 +26,7 @@ class RepositoryModule {
     return _dashboardRepository!;
   }
 
-    static AuthRepository authRepository() {
+  static AuthRepository authRepository() {
     _authRepository ??= AuthDataRepository(
       ApiModule.apiUtil(),
     );

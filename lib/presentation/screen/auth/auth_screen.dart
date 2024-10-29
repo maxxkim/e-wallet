@@ -10,7 +10,8 @@ import 'package:zippy/presentation/widget/custom_outlined_button.dart';
 class AuthScreen extends StatelessWidget {
   AuthScreen({super.key});
 
-  final TextEditingController phoneController = TextEditingController(text: "+1 111 111 11 11");
+  final TextEditingController phoneController =
+      TextEditingController(text: "+1 111 111 11 11");
 
   @override
   Widget build(BuildContext context) {
@@ -23,15 +24,11 @@ class AuthScreen extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.start,
           children: <Widget>[
             const SizedBox(height: 72),
-            SvgPicture.asset(
-              'assets/images/zippy_pay_logo.svg',
-              semanticsLabel: 'Zippy Pay Logo'
-            ),
+            SvgPicture.asset('assets/images/zippy_pay_logo.svg',
+                semanticsLabel: 'Zippy Pay Logo'),
             const SizedBox(height: 40),
-            SvgPicture.asset(
-              'assets/images/zippy_motto.svg',
-              semanticsLabel: 'Zippy Motto'
-            ),
+            SvgPicture.asset('assets/images/zippy_motto.svg',
+                semanticsLabel: 'Zippy Motto'),
             const SizedBox(height: 40),
             AuthTextField(
               switchValue: !context.watch<ThemeCubit>().isDarkMode,
@@ -41,39 +38,41 @@ class AuthScreen extends StatelessWidget {
               controller: phoneController,
             ),
             const SizedBox(height: 40),
-              Row(
-                children: [
-                  const SizedBox(width: 64),
-                  Expanded(
-                    child: RectangularButton(
-                      label: "Sign Up",
-                      onPressed: () {
-                        context.go('/sms');
-                      },
-                    ),
+            Row(
+              children: [
+                const SizedBox(width: 64),
+                Expanded(
+                  child: RectangularButton(
+                    label: "Sign Up",
+                    onPressed: () {
+                      context.go('/sms');
+                    },
                   ),
-                  const SizedBox(width: 16),
-                  Expanded(
-                    child: OutlinedButtonCustom(
-                      label: "Sign In",
-                      onPressed: () {
-                        final phoneNumber = phoneController.text.trim();
-                        if (phoneNumber.isNotEmpty) {
-                          // Логика для входа
-                        }
-                        context.go('/dashboard');
-                      },
-                    ),
+                ),
+                const SizedBox(width: 16),
+                Expanded(
+                  child: OutlinedButtonCustom(
+                    label: "Sign In",
+                    onPressed: () {
+                      final phoneNumber = phoneController.text.trim();
+                      if (phoneNumber.isNotEmpty) {
+                        // Логика для входа
+                      }
+                      context.go('/dashboard');
+                    },
                   ),
-                  const SizedBox(width: 64),
-                ],
-              ),
+                ),
+                const SizedBox(width: 64),
+              ],
+            ),
             const Spacer(),
-            const Align(alignment: Alignment.bottomCenter, child: Text("Terms of Use | Contact support")),
+            const Align(
+                alignment: Alignment.bottomCenter,
+                child: Text("Terms of Use | Contact support")),
             const SizedBox(height: 40),
           ],
         ),
       ),
-  );
+    );
   }
 }

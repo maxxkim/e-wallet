@@ -11,16 +11,18 @@ class PaymentInfoScreen extends StatelessWidget {
   const PaymentInfoScreen({required this.transaction, super.key});
 
   @override
-   Widget build(BuildContext context) {
+  Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: const Text('Payment info')),
       body: Padding(
         padding: const EdgeInsets.all(16),
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.center, // Убедитесь, что все элементы центрированы
+          crossAxisAlignment: CrossAxisAlignment
+              .center, // Убедитесь, что все элементы центрированы
           children: <Widget>[
             const SizedBox(height: 40),
-            Center( // Добавлено Center для текста
+            Center(
+              // Добавлено Center для текста
               child: Text(
                 getText(context),
                 textAlign: TextAlign.center, // Центрируем текст
@@ -39,12 +41,12 @@ class PaymentInfoScreen extends StatelessWidget {
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    if(transaction.type == "deposit")
+                    if (transaction.type == "deposit")
                       Text(
                         'Top Up',
                         style: Theme.of(context).textTheme.titleMedium,
                       ),
-                    if(transaction.type == "withdraw")
+                    if (transaction.type == "withdraw")
                       Text(
                         'Withdraw',
                         style: Theme.of(context).textTheme.titleMedium,
@@ -60,16 +62,21 @@ class PaymentInfoScreen extends StatelessWidget {
                     Align(
                       alignment: Alignment.center, // Центрируем содержимое
                       child: Row(
-                        mainAxisSize: MainAxisSize.min, 
+                        mainAxisSize: MainAxisSize.min,
                         children: [
-                          Text("Balance: ", style: Theme.of(context).textTheme.titleMedium),
+                          Text("Balance: ",
+                              style: Theme.of(context).textTheme.titleMedium),
                           Text(
                             '${transaction.currency} 1356.32',
-                            style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                              decoration: TextDecoration.lineThrough,
-                            ),
+                            style: Theme.of(context)
+                                .textTheme
+                                .titleMedium
+                                ?.copyWith(
+                                  decoration: TextDecoration.lineThrough,
+                                ),
                           ),
-                          Text(" → ", style: Theme.of(context).textTheme.titleMedium),
+                          Text(" → ",
+                              style: Theme.of(context).textTheme.titleMedium),
                           Text(
                             '${transaction.currency} ${1356.32 + transaction.amount.roundToDouble()}',
                             style: Theme.of(context).textTheme.titleMedium,
@@ -82,9 +89,11 @@ class PaymentInfoScreen extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 32),
-            Center( // Центрируем Row с иконками
+            Center(
+              // Центрируем Row с иконками
               child: Row(
-                mainAxisAlignment: MainAxisAlignment.center, // Центрируем содержимое Row
+                mainAxisAlignment:
+                    MainAxisAlignment.center, // Центрируем содержимое Row
                 children: [
                   Column(
                     children: [
@@ -93,7 +102,9 @@ class PaymentInfoScreen extends StatelessWidget {
                         height: 40.0,
                         width: 40.0,
                       ),
-                      const SizedBox(height: 4,),
+                      const SizedBox(
+                        height: 4,
+                      ),
                       Text(
                         'Help',
                         style: Theme.of(context).textTheme.titleMedium,
@@ -108,7 +119,9 @@ class PaymentInfoScreen extends StatelessWidget {
                         height: 40.0,
                         width: 40.0,
                       ),
-                      const SizedBox(height: 4,),
+                      const SizedBox(
+                        height: 4,
+                      ),
                       Text(
                         'Copy',
                         style: Theme.of(context).textTheme.titleMedium,
@@ -123,7 +136,9 @@ class PaymentInfoScreen extends StatelessWidget {
                         height: 40.0,
                         width: 40.0,
                       ),
-                      const SizedBox(height: 4,),
+                      const SizedBox(
+                        height: 4,
+                      ),
                       Text(
                         'Share',
                         style: Theme.of(context).textTheme.titleMedium,
@@ -135,7 +150,7 @@ class PaymentInfoScreen extends StatelessWidget {
             ),
             const Spacer(),
             Padding(
-              padding: const EdgeInsets.only(right: 40,left: 40),
+              padding: const EdgeInsets.only(right: 40, left: 40),
               child: RectangularButton(
                 label: "Home",
                 onPressed: () {
@@ -149,58 +164,53 @@ class PaymentInfoScreen extends StatelessWidget {
       ),
     );
   }
-  String getSign(BuildContext context)
-  {
+
+  String getSign(BuildContext context) {
     if (transaction.type == "in") {
       return "+";
-    }
-    else {
+    } else {
       return "-";
     }
   }
-  Color getContainer(BuildContext context)
-  {
+
+  Color getContainer(BuildContext context) {
     if (transaction.status == "success") {
       return Theme.of(context).colorScheme.secondaryContainer;
-    }
-    else if (transaction.status == "pending") {
+    } else if (transaction.status == "pending") {
       return Theme.of(context).colorScheme.onTertiaryContainer;
-    }
-    else {
+    } else {
       return Theme.of(context).colorScheme.onErrorContainer;
     }
   }
-  Widget getIcon(BuildContext context){
+
+  Widget getIcon(BuildContext context) {
     if (transaction.status == "success") {
       return SvgPicture.asset(
-                    'assets/images/icon_tick.svg',
-                    height: 48.0,
-                    width: 48.0,
-                  );
-    }
-    else if (transaction.status == "pending") {
+        'assets/images/icon_tick.svg',
+        height: 48.0,
+        width: 48.0,
+      );
+    } else if (transaction.status == "pending") {
       return SvgPicture.asset(
-                    'assets/images/icon_transaction_pending.svg',
-                    height: 48.0,
-                    width: 48.0,
-                  );
-    }
-    else {
+        'assets/images/icon_transaction_pending.svg',
+        height: 48.0,
+        width: 48.0,
+      );
+    } else {
       return SvgPicture.asset(
-                    'assets/images/icon_transaction_error.svg',
-                    height: 48.0,
-                    width: 48.0,
-                  );
+        'assets/images/icon_transaction_error.svg',
+        height: 48.0,
+        width: 48.0,
+      );
     }
   }
-  String getText(BuildContext context){
+
+  String getText(BuildContext context) {
     if (transaction.status == "success") {
       return "Transaction was completed\nsuccessfully!";
-    }
-    else if (transaction.status == "pending") {
+    } else if (transaction.status == "pending") {
       return "Transaction is being\nprocessed!";
-    }
-    else {
+    } else {
       return "Transaction\nwas not complete!";
     }
   }

@@ -103,11 +103,14 @@ class _TransactionTileState extends State<TransactionTile> {
                                   children: [
                                     Text(
                                       'Transaction ID: ',
-                                      style: Theme.of(context).textTheme.titleMedium,
+                                      style: Theme.of(context)
+                                          .textTheme
+                                          .titleMedium,
                                     ),
                                     Text(
-                                      '${widget.transaction.id.substring(0,8)}...',
-                                      style: Theme.of(context).textTheme.bodySmall,
+                                      '${widget.transaction.id.substring(0, 8)}...',
+                                      style:
+                                          Theme.of(context).textTheme.bodySmall,
                                     ),
                                   ],
                                 ),
@@ -116,11 +119,14 @@ class _TransactionTileState extends State<TransactionTile> {
                                   children: [
                                     Text(
                                       'Amount: ',
-                                      style: Theme.of(context).textTheme.titleMedium,
+                                      style: Theme.of(context)
+                                          .textTheme
+                                          .titleMedium,
                                     ),
                                     Text(
                                       '${widget.transaction.currency} ${widget.transaction.amount.toString()}',
-                                      style: Theme.of(context).textTheme.bodySmall,
+                                      style:
+                                          Theme.of(context).textTheme.bodySmall,
                                     ),
                                   ],
                                 ),
@@ -129,11 +135,15 @@ class _TransactionTileState extends State<TransactionTile> {
                                   children: [
                                     Text(
                                       'Date: ',
-                                      style: Theme.of(context).textTheme.titleMedium,
+                                      style: Theme.of(context)
+                                          .textTheme
+                                          .titleMedium,
                                     ),
                                     Text(
-                                      DateFormat('MMMM d, yyyy').format(widget.transaction.date),
-                                      style: Theme.of(context).textTheme.bodySmall,
+                                      DateFormat('MMMM d, yyyy')
+                                          .format(widget.transaction.date),
+                                      style:
+                                          Theme.of(context).textTheme.bodySmall,
                                     ),
                                   ],
                                 ),
@@ -142,11 +152,15 @@ class _TransactionTileState extends State<TransactionTile> {
                                   children: [
                                     Text(
                                       'Time: ',
-                                      style: Theme.of(context).textTheme.titleMedium,
+                                      style: Theme.of(context)
+                                          .textTheme
+                                          .titleMedium,
                                     ),
                                     Text(
-                                      DateFormat('hh:mm a').format(widget.transaction.date),
-                                      style: Theme.of(context).textTheme.bodySmall,
+                                      DateFormat('hh:mm a')
+                                          .format(widget.transaction.date),
+                                      style:
+                                          Theme.of(context).textTheme.bodySmall,
                                     ),
                                   ],
                                 ),
@@ -158,7 +172,8 @@ class _TransactionTileState extends State<TransactionTile> {
                                 children: [
                                   Text(
                                     'Status: ${widget.transaction.status}',
-                                    style: Theme.of(context).textTheme.titleMedium,
+                                    style:
+                                        Theme.of(context).textTheme.titleMedium,
                                   ),
                                   const Spacer(),
                                   Row(
@@ -173,7 +188,9 @@ class _TransactionTileState extends State<TransactionTile> {
                                           ),
                                           Text(
                                             'Help',
-                                            style: Theme.of(context).textTheme.headlineLarge,
+                                            style: Theme.of(context)
+                                                .textTheme
+                                                .headlineLarge,
                                           ),
                                         ],
                                       ),
@@ -187,7 +204,9 @@ class _TransactionTileState extends State<TransactionTile> {
                                           ),
                                           Text(
                                             'Copy',
-                                            style: Theme.of(context).textTheme.headlineLarge,
+                                            style: Theme.of(context)
+                                                .textTheme
+                                                .headlineLarge,
                                           ),
                                         ],
                                       ),
@@ -201,7 +220,9 @@ class _TransactionTileState extends State<TransactionTile> {
                                           ),
                                           Text(
                                             'Share',
-                                            style: Theme.of(context).textTheme.headlineLarge,
+                                            style: Theme.of(context)
+                                                .textTheme
+                                                .headlineLarge,
                                           ),
                                         ],
                                       ),

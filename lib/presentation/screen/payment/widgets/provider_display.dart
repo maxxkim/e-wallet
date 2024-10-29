@@ -22,7 +22,8 @@ class ProviderDisplay extends StatelessWidget {
         children: [
           Text(
             title,
-            style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.white),
+            style: const TextStyle(
+                fontSize: 20, fontWeight: FontWeight.bold, color: Colors.white),
           ),
           const Spacer(),
           Icon(iconData, color: Colors.white, size: 30),

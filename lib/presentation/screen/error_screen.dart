@@ -1,4 +1,3 @@
-
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
@@ -17,7 +16,6 @@ class ErrorScreen extends StatelessWidget {
         child: Container(
           padding: const EdgeInsets.all(20),
           margin: const EdgeInsets.all(16),
-
           decoration: BoxDecoration(
             color: Theme.of(context).colorScheme.secondaryFixed,
             borderRadius: BorderRadius.circular(15),

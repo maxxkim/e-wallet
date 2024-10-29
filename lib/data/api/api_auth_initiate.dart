@@ -1,4 +1,4 @@
-class ApiAuthInitiate{
+class ApiAuthInitiate {
   final bool isNewUser;
   final String userId;
   final String walletId;

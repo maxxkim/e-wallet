@@ -15,26 +15,43 @@ final ThemeData appThemeDark = ThemeData(
   primaryColor: aquamarineColor,
   brightness: Brightness.light,
   scaffoldBackgroundColor: whiteColor,
-
   textTheme: const TextTheme(
-    bodySmall: TextStyle(color: whiteColor, fontSize: 12, fontWeight: FontWeight.w300, fontFamily: 'Roboto'),
-    bodyMedium: TextStyle(color: whiteColor, fontSize: 14, fontWeight: FontWeight.w300, fontFamily: 'Roboto'),
-    bodyLarge: TextStyle(color: whiteColor, fontSize: 16, fontWeight: FontWeight.w300, fontFamily: 'Roboto'),
-    headlineSmall: TextStyle(color: whiteColor, fontSize: 16, fontWeight: FontWeight.w300, fontFamily: 'Roboto'),
-    headlineMedium: TextStyle(color: whiteColor, fontSize: 20, fontWeight: FontWeight.bold, fontFamily: 'Roboto'),
-    labelSmall: TextStyle(color: whiteColor, fontSize: 12, fontWeight: FontWeight.w300),
+    bodySmall: TextStyle(
+        color: whiteColor,
+        fontSize: 12,
+        fontWeight: FontWeight.w300,
+        fontFamily: 'Roboto'),
+    bodyMedium: TextStyle(
+        color: whiteColor,
+        fontSize: 14,
+        fontWeight: FontWeight.w300,
+        fontFamily: 'Roboto'),
+    bodyLarge: TextStyle(
+        color: whiteColor,
+        fontSize: 16,
+        fontWeight: FontWeight.w300,
+        fontFamily: 'Roboto'),
+    headlineSmall: TextStyle(
+        color: whiteColor,
+        fontSize: 16,
+        fontWeight: FontWeight.w300,
+        fontFamily: 'Roboto'),
+    headlineMedium: TextStyle(
+        color: whiteColor,
+        fontSize: 20,
+        fontWeight: FontWeight.bold,
+        fontFamily: 'Roboto'),
+    labelSmall:
+        TextStyle(color: whiteColor, fontSize: 12, fontWeight: FontWeight.w300),
   ),
-
   colorScheme: const ColorScheme.light(
     primary: bluePurpleColor,
-    secondary: whiteColor, 
-  ), 
-  
+    secondary: whiteColor,
+  ),
   appBarTheme: const AppBarTheme(
     backgroundColor: bluePurpleColor,
     foregroundColor: whiteColor,
   ),
-
   buttonTheme: ButtonThemeData(
     buttonColor: bluePurpleColor,
     textTheme: ButtonTextTheme.primary,
@@ -43,11 +60,11 @@ final ThemeData appThemeDark = ThemeData(
     ),
     padding: const EdgeInsets.symmetric(vertical: 16.0),
   ),
-
   elevatedButtonTheme: ElevatedButtonThemeData(
     style: ButtonStyle(
       backgroundColor: WidgetStateProperty.all(bluePurpleColor),
-      padding: WidgetStateProperty.all(const EdgeInsets.symmetric(vertical: 16.0)),
+      padding:
+          WidgetStateProperty.all(const EdgeInsets.symmetric(vertical: 16.0)),
       textStyle: WidgetStateProperty.all(
         const TextStyle(
           fontWeight: FontWeight.bold,
@@ -62,7 +79,6 @@ final ThemeData appThemeDark = ThemeData(
       ),
     ),
   ),
-
   inputDecorationTheme: InputDecorationTheme(
     border: OutlineInputBorder(
       borderSide: const BorderSide(color: darkGreyColor, width: 1),
@@ -84,13 +100,14 @@ final ThemeData appThemeDark = ThemeData(
       borderSide: const BorderSide(color: redColor, width: 1),
       borderRadius: BorderRadius.circular(15.0),
     ),
-    hintStyle: const TextStyle(color: lightGreyColor, fontWeight: FontWeight.w300),
+    hintStyle:
+        const TextStyle(color: lightGreyColor, fontWeight: FontWeight.w300),
   ),
-
   textButtonTheme: TextButtonThemeData(
     style: ButtonStyle(
       foregroundColor: WidgetStateProperty.all(bluePurpleColor),
-      padding: WidgetStateProperty.all(const EdgeInsets.symmetric(vertical: 8.0)),
+      padding:
+          WidgetStateProperty.all(const EdgeInsets.symmetric(vertical: 8.0)),
       textStyle: WidgetStateProperty.all(
         const TextStyle(
           fontWeight: FontWeight.bold,
@@ -105,14 +122,12 @@ final ThemeData appThemeDark = ThemeData(
       ),
     ),
   ),
-
   sliderTheme: SliderThemeData(
     activeTrackColor: midLightAquamarineColor,
     inactiveTrackColor: lightAquamarineColor,
     thumbColor: bluePurpleColor,
     overlayColor: bluePurpleColor.withOpacity(0.2),
   ),
-
   cardColor: lightAquamarineColor,
   dialogBackgroundColor: lightGreyColor,
 );

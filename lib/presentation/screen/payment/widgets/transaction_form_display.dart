@@ -25,7 +25,9 @@ class TransactionFormDisplay extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                CustomTextField(controller: emailController, labelText: 'Mobile number or Email'),
+                CustomTextField(
+                    controller: emailController,
+                    labelText: 'Mobile number or Email'),
                 const SizedBox(height: 16),
                 CustomTextField(
                   controller: amountController,
@@ -46,14 +48,17 @@ class TransactionFormDisplay extends StatelessWidget {
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 24),
             child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween, // Равномерное распределение пространства между текстом и кнопкой
+              mainAxisAlignment: MainAxisAlignment
+                  .spaceBetween, // Равномерное распределение пространства между текстом и кнопкой
               children: [
-                Expanded( // Используем Expanded для того, чтобы текст занимал доступное пространство
+                Expanded(
+                  // Используем Expanded для того, чтобы текст занимал доступное пространство
                   child: Text(
                     "To transfer the amount of (amount)\nto the number (number), press continue.",
                     style: Theme.of(context).textTheme.bodySmall,
                     maxLines: 6, // Ограничиваем количество строк
-                    overflow: TextOverflow.ellipsis, // Добавляем многоточие, если текст слишком длинный
+                    overflow: TextOverflow
+                        .ellipsis, // Добавляем многоточие, если текст слишком длинный
                   ),
                 ),
                 const SizedBox(width: 8),

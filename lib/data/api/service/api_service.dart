@@ -15,7 +15,8 @@ class ApiService {
     // Добавление интерсептора для установки токена в заголовки
     _dio.interceptors.add(InterceptorsWrapper(
       onRequest: (options, handler) {
-        options.headers['Authorization'] = 'Bearer fake-user'; // Установка токена
+        options.headers['Authorization'] =
+            'Bearer fake-user'; // Установка токена
         return handler.next(options);
       },
     ));
@@ -28,7 +29,7 @@ class ApiService {
     );
     return ApiTopUp.fromApi(response.data);
   }
-  
+
   Future<ApiWithdraw> getWithdraw(GetWithdrawBody body) async {
     final response = await _dio.post(
       'https://payin-75jkb5hnza-uc.a.run.app/',
@@ -50,7 +51,6 @@ class ApiService {
     );
     return ApiTransaction.fromApi(response.data);
   }
-
 
   Future<ApiAuthInitiate> initiateAuth() async {
     final response = await _dio.post(

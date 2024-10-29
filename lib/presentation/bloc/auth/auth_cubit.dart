@@ -7,12 +7,12 @@ import 'dart:math';
 class AuthCubit extends Cubit<AuthState> {
   final AuthRepository _AuthRepository;
 
-  AuthCubit(this._AuthRepository) : super(AuthStateLoaded(
-    termsAccepted: false,
-    phoneNumber: generateRandomPhoneNumber(),
-    verificationCode: generateRandomFourDigitCode(),
-    codeStatus: CodeStatus.none
-  ));
+  AuthCubit(this._AuthRepository)
+      : super(AuthStateLoaded(
+            termsAccepted: false,
+            phoneNumber: generateRandomPhoneNumber(),
+            verificationCode: generateRandomFourDigitCode(),
+            codeStatus: CodeStatus.none));
 
   static Future<AuthCubit> create(AuthRepository AuthRepository) async {
     final cubit = AuthCubit(AuthRepository);
@@ -22,14 +22,14 @@ class AuthCubit extends Cubit<AuthState> {
 
   Future<void> loadData() async {
     try {
-      if(state is AuthStateLoaded) {
-        var currentState = state as AuthStateLoaded; {
+      if (state is AuthStateLoaded) {
+        var currentState = state as AuthStateLoaded;
+        {
           emit(AuthStateLoaded(
-            termsAccepted: currentState.termsAccepted,
-            phoneNumber: currentState.phoneNumber,
-            verificationCode: currentState.verificationCode,
-            codeStatus: currentState.codeStatus
-          ));
+              termsAccepted: currentState.termsAccepted,
+              phoneNumber: currentState.phoneNumber,
+              verificationCode: currentState.verificationCode,
+              codeStatus: currentState.codeStatus));
         }
       }
     } catch (e) {
@@ -38,6 +38,7 @@ class AuthCubit extends Cubit<AuthState> {
       ));
     }
   }
+
   String _handleError(dynamic error) {
     if (error is DioException) {
       switch (error.type) {
@@ -61,54 +62,54 @@ class AuthCubit extends Cubit<AuthState> {
     }
     return error.toString();
   }
+
   Future<void> verifyCode(String code) async {
-    if(state is AuthStateLoaded) {
+    if (state is AuthStateLoaded) {
       var currentState = state as AuthStateLoaded;
-      if(currentState.verificationCode == code) {
+      if (currentState.verificationCode == code) {
         emit(AuthStateLoaded(
             termsAccepted: currentState.termsAccepted,
             phoneNumber: currentState.phoneNumber,
             verificationCode: currentState.verificationCode,
-            codeStatus: CodeStatus.correct
-          ));
-      }
-      else {
+            codeStatus: CodeStatus.correct));
+      } else {
         emit(AuthStateLoaded(
             termsAccepted: currentState.termsAccepted,
-          phoneNumber: currentState.phoneNumber,
-          verificationCode: currentState.verificationCode,
-          codeStatus: CodeStatus.invalid
-        ));
+            phoneNumber: currentState.phoneNumber,
+            verificationCode: currentState.verificationCode,
+            codeStatus: CodeStatus.invalid));
       }
-    }
-    else {
+    } else {
       emit(AuthStateError(
         errorMessage: _handleError(e),
       ));
     }
   }
+
   Future<void> toggleTerms() async {
-    if(state is AuthStateLoaded) {
+    if (state is AuthStateLoaded) {
       var currentState = state as AuthStateLoaded;
-        emit(currentState.copyWith(
+      emit(currentState.copyWith(
           termsAccepted: !currentState.termsAccepted,
           phoneNumber: currentState.phoneNumber,
           verificationCode: currentState.verificationCode,
-          codeStatus: currentState.codeStatus
-        ));
-    }
-    else {
+          codeStatus: currentState.codeStatus));
+    } else {
       emit(AuthStateError(
         errorMessage: _handleError(e),
       ));
     }
   }
 }
+
 String generateRandomPhoneNumber() {
   Random random = Random();
-  int areaCode = random.nextInt(900) + 100; // Генерируем код области от 100 до 999
-  int centralOfficeCode = random.nextInt(900) + 100; // Генерируем центральный офисный код от 100 до 999
-  int lineNumber = random.nextInt(10000); // Генерируем номер линии от 0000 до 9999
+  int areaCode =
+      random.nextInt(900) + 100; // Генерируем код области от 100 до 999
+  int centralOfficeCode = random.nextInt(900) +
+      100; // Генерируем центральный офисный код от 100 до 999
+  int lineNumber =
+      random.nextInt(10000); // Генерируем номер линии от 0000 до 9999
 
   return '+7 ($areaCode) $centralOfficeCode-${lineNumber.toString().padLeft(4, '0')}';
 }

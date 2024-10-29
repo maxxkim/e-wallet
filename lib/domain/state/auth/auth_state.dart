@@ -1,4 +1,4 @@
-enum CodeStatus {correct, invalid, none}
+enum CodeStatus { correct, invalid, none }
 
 abstract class AuthState {}
 
@@ -17,10 +17,10 @@ class AuthStateLoaded extends AuthState {
 
   // Implementing the copyWith method
   AuthStateLoaded copyWith({
-  required final bool termsAccepted,
-  required final String verificationCode,
-  required final String phoneNumber,
-  required final CodeStatus codeStatus,
+    required final bool termsAccepted,
+    required final String verificationCode,
+    required final String phoneNumber,
+    required final CodeStatus codeStatus,
   }) {
     return AuthStateLoaded(
       termsAccepted: termsAccepted,

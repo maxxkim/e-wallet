@@ -21,7 +21,7 @@ class DashboardStateLoaded extends DashboardState {
 
   // Implementing the copyWith method
   DashboardStateLoaded copyWith({
-    FilterType? filterType, 
+    FilterType? filterType,
     String? chosenMonth,
     double? balance,
     List<Transaction>? transactions,

@@ -1,4 +1,4 @@
-class ApiAuthVerify{
+class ApiAuthVerify {
   final bool isVerified;
   final String accessToken;
   final String refreshToken;

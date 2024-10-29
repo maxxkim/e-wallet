@@ -2,7 +2,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:zippy/domain/state/top_up/top_up_state.dart';
 
 class TopUpCubit extends Cubit<TopUpState> {
-
   TopUpCubit(read) : super(TopUpState());
 
   Future<void> getTopUp({

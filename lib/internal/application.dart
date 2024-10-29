@@ -41,13 +41,11 @@ class ZippyApp extends StatelessWidget {
           ),
           RepositoryProvider<DashboardRepository>(
             create: (context) => DashboardDataRepository(
-              RepositoryProvider.of<ApiUtil>(context)
-            ),
+                RepositoryProvider.of<ApiUtil>(context)),
           ),
           RepositoryProvider<AuthRepository>(
-            create: (context) => AuthDataRepository(
-              RepositoryProvider.of<ApiUtil>(context)
-            ),
+            create: (context) =>
+                AuthDataRepository(RepositoryProvider.of<ApiUtil>(context)),
           ),
         ],
         child: MultiBlocProvider(
@@ -61,7 +59,9 @@ class ZippyApp extends StatelessWidget {
               return MaterialApp.router(
                 routerConfig: appRouter,
                 title: 'Zippy',
-                theme: (theme == AppTheme.light) ? appTheme : appThemeDark, // Выбор темы
+                theme: (theme == AppTheme.light)
+                    ? appTheme
+                    : appThemeDark, // Выбор темы
               );
             },
           ),

@@ -1,4 +1,3 @@
-
 import 'package:zippy/data/api/api_util.dart';
 import 'package:zippy/domain/model/auth/auth_inititate_model.dart';
 import 'package:zippy/domain/model/auth/auth_verify_model.dart';
@@ -16,8 +15,6 @@ class AuthDataRepository extends AuthRepository {
 
   @override
   Future<AuthVerify> verifyAuth() {
-  return _apiUtil.verifyAuth();
+    return _apiUtil.verifyAuth();
   }
-
-  
 }

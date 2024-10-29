@@ -22,11 +22,13 @@ class BalanceDisplay extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         children: [
           Padding(
-            padding: const EdgeInsets.only(left: 24, top: 16, bottom: 16, right:16),
+            padding:
+                const EdgeInsets.only(left: 24, top: 16, bottom: 16, right: 16),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text("Total balance", style: Theme.of(context).textTheme.bodyLarge),
+                Text("Total balance",
+                    style: Theme.of(context).textTheme.bodyLarge),
                 const SizedBox(height: 8),
                 Row(
                   children: [
@@ -48,13 +50,17 @@ class BalanceDisplay extends StatelessWidget {
           const Spacer(),
           Container(
             height: 24.0,
-            width: double.infinity, // Устанавливаем ширину равной родительскому контейнеру
-            decoration: BoxDecoration(  
+            width: double
+                .infinity, // Устанавливаем ширину равной родительскому контейнеру
+            decoration: BoxDecoration(
               color: Theme.of(context).colorScheme.primary,
-              borderRadius: const BorderRadius.vertical(bottom: Radius.circular(16)),
+              borderRadius:
+                  const BorderRadius.vertical(bottom: Radius.circular(16)),
             ),
-            child: Row( // Используем Row для выравнивания текста и иконки
-              mainAxisAlignment: MainAxisAlignment.center, // Центрируем содержимое
+            child: Row(
+              // Используем Row для выравнивания текста и иконки
+              mainAxisAlignment:
+                  MainAxisAlignment.center, // Центрируем содержимое
               children: [
                 Text(
                   "Select from contacts",

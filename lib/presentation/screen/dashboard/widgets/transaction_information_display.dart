@@ -29,10 +29,13 @@ class TransactionsInfoDisplay extends StatelessWidget {
     ];
 
     int currentIndex = months.indexOf(currentMonth);
-    int startIndex = (currentIndex - 2).clamp(0, months.length); // Начинаем с 2 месяцев до текущего
-    int endIndex = (startIndex + 5).clamp(0, months.length); // Отображаем 5 месяцев
+    int startIndex = (currentIndex - 2)
+        .clamp(0, months.length); // Начинаем с 2 месяцев до текущего
+    int endIndex =
+        (startIndex + 5).clamp(0, months.length); // Отображаем 5 месяцев
 
-    return Expanded( // Оборачиваем в Expanded
+    return Expanded(
+      // Оборачиваем в Expanded
       child: Container(
         decoration: BoxDecoration(
           color: Theme.of(context).colorScheme.tertiaryContainer,
@@ -49,7 +52,8 @@ class TransactionsInfoDisplay extends StatelessWidget {
                     decoration: BoxDecoration(
                       color: Theme.of(context).scaffoldBackgroundColor,
                       border: Border.all(
-                        color: Theme.of(context).colorScheme.primary, // Цвет рамки
+                        color:
+                            Theme.of(context).colorScheme.primary, // Цвет рамки
                         width: 1.0, // Толщина рамки
                       ),
                       borderRadius: const BorderRadius.vertical(
@@ -57,8 +61,9 @@ class TransactionsInfoDisplay extends StatelessWidget {
                         bottom: Radius.circular(16),
                       ),
                     ),
-                    child:Padding(
-                      padding: const EdgeInsets.only(top: 16, left: 16, right: 16),
+                    child: Padding(
+                      padding:
+                          const EdgeInsets.only(top: 16, left: 16, right: 16),
                       child: Center(
                         child: ListView.builder(
                           scrollDirection: Axis.horizontal,
@@ -67,11 +72,14 @@ class TransactionsInfoDisplay extends StatelessWidget {
                             String month = months[startIndex + index];
                             bool isCurrentMonth = month == currentMonth;
                             return Padding(
-                              padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                              padding:
+                                  const EdgeInsets.symmetric(horizontal: 16.0),
                               child: Text(
                                 month,
                                 style: isCurrentMonth
-                                    ? Theme.of(context).textTheme.headlineSmall // Выделяем текущий месяц
+                                    ? Theme.of(context)
+                                        .textTheme
+                                        .headlineSmall // Выделяем текущий месяц
                                     : Theme.of(context).textTheme.bodyMedium,
                               ),
                             );
@@ -90,16 +98,21 @@ class TransactionsInfoDisplay extends StatelessWidget {
                   return Column(
                     children: [
                       Container(
-                          decoration: BoxDecoration(
-                            color: Theme.of(context).colorScheme.tertiaryContainer,
-                            borderRadius: BorderRadius.zero,
-                          ),
-                          child: TransactionTile(
-                            transaction: Transaction.generateRandomTransaction(),
-                            onIconTap: () => context.go('/dashboard/infoDashboard'),
+                        decoration: BoxDecoration(
+                          color:
+                              Theme.of(context).colorScheme.tertiaryContainer,
+                          borderRadius: BorderRadius.zero,
+                        ),
+                        child: TransactionTile(
+                          transaction: Transaction.generateRandomTransaction(),
+                          onIconTap: () =>
+                              context.go('/dashboard/infoDashboard'),
                         ),
                       ),
-                      Container(height: 1, color: Theme.of(context).scaffoldBackgroundColor,),
+                      Container(
+                        height: 1,
+                        color: Theme.of(context).scaffoldBackgroundColor,
+                      ),
                     ],
                   );
                 },

@@ -9,15 +9,17 @@ import 'package:zippy/domain/state/dashboard/dashboard_state.dart';
 class DashboardCubit extends Cubit<DashboardState> {
   final DashboardRepository _dashboardRepository;
 
-  DashboardCubit(this._dashboardRepository) : super(DashboardStateLoaded(
-      filterType: FilterType.period,
-      chosenMonth: DateFormat('MMMM').format(DateTime.now()),
-      balance: 0.0,
-      transactions: [],
-      filteredTransactions: [],
-    ));
+  DashboardCubit(this._dashboardRepository)
+      : super(DashboardStateLoaded(
+          filterType: FilterType.period,
+          chosenMonth: DateFormat('MMMM').format(DateTime.now()),
+          balance: 0.0,
+          transactions: [],
+          filteredTransactions: [],
+        ));
 
-  static Future<DashboardCubit> create(DashboardRepository dashboardRepository) async {
+  static Future<DashboardCubit> create(
+      DashboardRepository dashboardRepository) async {
     final cubit = DashboardCubit(dashboardRepository);
     await cubit.loadData();
     return cubit;
@@ -47,7 +49,8 @@ class DashboardCubit extends Cubit<DashboardState> {
   void selectFilter(FilterType filterType) {
     if (state is DashboardStateLoaded) {
       var currentState = state as DashboardStateLoaded;
-      List<Transaction>? filteredTransactions = filterTransactions(filterType, currentState.transactions, currentState.chosenMonth);
+      List<Transaction>? filteredTransactions = filterTransactions(
+          filterType, currentState.transactions, currentState.chosenMonth);
       emit(currentState.copyWith(
         filterType: filterType,
         filteredTransactions: filteredTransactions,
@@ -58,7 +61,8 @@ class DashboardCubit extends Cubit<DashboardState> {
   void selectMonth(String month) {
     if (state is DashboardStateLoaded) {
       var currentState = state as DashboardStateLoaded;
-      List<Transaction>? filteredTransactions = filterTransactions(FilterType.period, currentState.transactions, month);
+      List<Transaction>? filteredTransactions = filterTransactions(
+          FilterType.period, currentState.transactions, month);
 
       emit(currentState.copyWith(
         chosenMonth: month,
@@ -67,18 +71,27 @@ class DashboardCubit extends Cubit<DashboardState> {
     }
   }
 
-  List<Transaction>? filterTransactions(FilterType filterType, List<Transaction>? transactions, String? month) {
+  List<Transaction>? filterTransactions(
+      FilterType filterType, List<Transaction>? transactions, String? month) {
     if (transactions == null) return null;
 
     if (filterType == FilterType.deposit) {
-      return transactions.where((transaction) => transaction.type == 'deposit').toList();
+      return transactions
+          .where((transaction) => transaction.type == 'deposit')
+          .toList();
     } else if (filterType == FilterType.withdrawal) {
-      return transactions.where((transaction) => transaction.type == 'withdraw').toList();
+      return transactions
+          .where((transaction) => transaction.type == 'withdraw')
+          .toList();
     } else if (filterType == FilterType.period) {
-      return transactions.where((transaction) => DateFormat('MMMM').format(transaction.date) == month).toList();
+      return transactions
+          .where((transaction) =>
+              DateFormat('MMMM').format(transaction.date) == month)
+          .toList();
     }
     return transactions;
   }
+
   String _handleError(dynamic error) {
     // Здесь вы можете обрабатывать различные типы ошибок и возвращать соответствующие сообщения
     if (error is DioException) {
@@ -111,7 +124,8 @@ class DashboardCubit extends Cubit<DashboardState> {
 
   static List<Transaction> getRandomTransactions() {
     final Random random = Random();
-    int numberOfTransactions = 20 + random.nextInt(31); // Генерирует число от 20 до 50
+    int numberOfTransactions =
+        20 + random.nextInt(31); // Генерирует число от 20 до 50
 
     List<Transaction> transactions = [];
 

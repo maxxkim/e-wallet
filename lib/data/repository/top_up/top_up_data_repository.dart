@@ -1,4 +1,3 @@
-
 import 'package:zippy/data/api/api_util.dart';
 import 'package:zippy/data/api/request/get_top_up_body.dart';
 import 'package:zippy/domain/model/top_up/top_up_model.dart';
@@ -17,11 +16,11 @@ class TopUpDataRepository extends TopUpRepository {
     required String currency,
     required String payMethod,
     required String documentId,
-    required String amount, 
+    required String amount,
     required String email,
     required String name,
     required String timestamp,
-    String? payinExpirationTime, 
+    String? payinExpirationTime,
     required String urlOk,
     required String urlError,
     required String objData,
