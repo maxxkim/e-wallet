@@ -10,7 +10,10 @@ import 'package:zippy/presentation/screen/error_screen.dart';
 import 'package:zippy/presentation/widget/custom_rectangular_button.dart';
 
 class SmsVerificationScreen extends StatelessWidget {
-  SmsVerificationScreen({super.key});
+  final String phoneNumber;
+
+  SmsVerificationScreen({Key? key, required this.phoneNumber})
+      : super(key: key);
   final List<String> _verificationCode = ['', '', '', ''];
 
   @override
@@ -49,7 +52,7 @@ class SmsVerificationScreen extends StatelessWidget {
                           const SizedBox(height: 20),
                           Center(
                             child: Text(
-                              state.phoneNumber,
+                              phoneNumber,
                               textAlign: TextAlign.center,
                               style: Theme.of(context).textTheme.titleLarge,
                             ),
@@ -145,7 +148,6 @@ class SmsVerificationScreen extends StatelessWidget {
                                                 FocusScope.of(context)
                                                     .nextFocus();
                                               } else {
-                                                // Когда заполнено последнее поле, проверяем код
                                                 String code =
                                                     _verificationCode.join('');
                                                 context
@@ -164,6 +166,8 @@ class SmsVerificationScreen extends StatelessWidget {
                                 ],
                               ),
                             ),
+                          if (state.codeStatus == CodeStatus.correct)
+                            SvgPicture.asset('assets/images/icon_tick.svg'),
                           const SizedBox(height: 40),
                           Row(
                             mainAxisAlignment: MainAxisAlignment.center,
@@ -259,7 +263,7 @@ class SmsVerificationScreen extends StatelessWidget {
 
   Future<AuthCubit> _createAuthCubit(BuildContext context) async {
     final authRepository = RepositoryProvider.of<AuthRepository>(context);
-    final cubit = await AuthCubit.create(authRepository);
+    final cubit = await AuthCubit.create(authRepository, phoneNumber);
     return cubit;
   }
 

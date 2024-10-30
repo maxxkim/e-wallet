@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_masked_text2/flutter_masked_text2.dart'; // Импортируем библиотеку
 import 'package:zippy/presentation/theme/theme_cubit.dart';
 import 'package:zippy/presentation/widget/custom_auth_text_field.dart';
 import 'package:zippy/presentation/widget/custom_rectangular_button.dart';
@@ -10,8 +11,10 @@ import 'package:zippy/presentation/widget/custom_outlined_button.dart';
 class AuthScreen extends StatelessWidget {
   AuthScreen({super.key});
 
-  final TextEditingController phoneController =
-      TextEditingController(text: "+1 111 111 11 11");
+  // Используем MaskeTextController для телефонного номера
+  final MaskedTextController phoneController = MaskedTextController(
+    mask: '+0 (000) 000-0000', // Укажите необходимую маску
+  );
 
   @override
   Widget build(BuildContext context) {
@@ -45,7 +48,13 @@ class AuthScreen extends StatelessWidget {
                   child: RectangularButton(
                     label: "Sign Up",
                     onPressed: () {
-                      context.go('/sms');
+                      final phoneNumber = phoneController.text.trim();
+                      if (_isValidPhoneNumber(phoneNumber)) {
+                        context.go('/sms/$phoneNumber');
+                      } else {
+                        _showError(
+                            context, 'Invalid phone number: $phoneNumber');
+                      }
                     },
                   ),
                 ),
@@ -73,6 +82,17 @@ class AuthScreen extends StatelessWidget {
           ],
         ),
       ),
+    );
+  }
+
+  bool _isValidPhoneNumber(String phoneNumber) {
+    // Проверьте длину после удаления нецифровых символов
+    return phoneNumber.length == 17; // Например, для маски (000) 000-0000
+  }
+
+  void _showError(BuildContext context, String message) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text(message)),
     );
   }
 }

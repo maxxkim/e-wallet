@@ -20,10 +20,13 @@ final GoRouter appRouter = GoRouter(
       },
       routes: <RouteBase>[
         GoRoute(
-          path: 'sms',
+          path: 'sms/:phoneNumber', // Параметр phoneNumber в пути
           builder: (context, state) {
             try {
-              return SmsVerificationScreen();
+              // Извлечение phoneNumber из pathParameters
+              final String phoneNumber = state.pathParameters['phoneNumber']!;
+              return SmsVerificationScreen(
+                  phoneNumber: phoneNumber); // Передача параметра в экран
             } catch (e) {
               return ErrorScreen(errorMessage: _handleError(e));
             }

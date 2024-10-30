@@ -42,13 +42,14 @@ class ApiUtil {
     return BalanceMapper.fromApi(result);
   }
 
-  Future<AuthInitiate> initiateAuth() async {
-    final result = await _apiService.initiateAuth();
+  Future<AuthInitiate> initiateAuth(String phone) async {
+    final result = await _apiService.initiateAuth(phone);
     return AuthInitiateMapper.fromApi(result);
   }
 
-  Future<AuthVerify> verifyAuth() async {
-    final result = await _apiService.verifyAuth();
+  Future<AuthVerify> verifyAuth(
+      String code, String phone, String userId) async {
+    final result = await _apiService.verifyAuth(code, phone, userId);
     return AuthVerifyMapper.fromApi(result);
   }
 }

@@ -1,10 +1,10 @@
 class ApiAuthInitiate {
   final bool isNewUser;
   final String userId;
-  final String walletId;
+  final String? walletId;
 
   ApiAuthInitiate.fromApi(Map<String, dynamic> map)
-      : isNewUser = map['results']['isNewUser'],
-        userId = map['results']['userId'],
-        walletId = map['results']['wallet_id'];
+      : isNewUser = map['isNewUser'],
+        userId = map['userId'],
+        walletId = map['wallet_id'];
 }

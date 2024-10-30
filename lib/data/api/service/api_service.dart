@@ -52,17 +52,34 @@ class ApiService {
     return ApiTransaction.fromApi(response.data);
   }
 
-  Future<ApiAuthInitiate> initiateAuth() async {
+  Future<ApiAuthInitiate> initiateAuth(String phone) async {
+    // Убираем все символы, кроме цифр
+    String cleanedPhone = phone.replaceAll(RegExp(r'[^0-9]'), '');
+
     final response = await _dio.post(
-      'https://d2ef-51-159-97-191.ngrok-free.app/transactions/all',
+      'https://auth-service-app-m9z4y.ondigitalocean.app/auth/initiate',
+      data: {
+        'phone': '+$cleanedPhone',
+        'currency': 'CLP',
+      },
     );
+    print(response);
     return ApiAuthInitiate.fromApi(response.data);
   }
 
-  Future<ApiAuthVerify> verifyAuth() async {
+  Future<ApiAuthVerify> verifyAuth(
+      String code, String phone, String userId) async {
+    String cleanedPhone = phone.replaceAll(RegExp(r'[^0-9]'), '');
+
     final response = await _dio.post(
-      'https://d2ef-51-159-97-191.ngrok-free.app/transactions/all',
+      'https://auth-service-app-m9z4y.ondigitalocean.app/auth/verify',
+      data: {
+        'phone': '+$cleanedPhone',
+        'code': code,
+        'userId': userId,
+      },
     );
+    print(response);
     return ApiAuthVerify.fromApi(response.data);
   }
 }

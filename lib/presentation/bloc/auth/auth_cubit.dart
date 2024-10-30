@@ -1,34 +1,37 @@
 import 'package:dio/dio.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:zippy/data/api/api_auth_verify.dart';
+import 'package:zippy/domain/model/auth/auth_inititate_model.dart';
+import 'package:zippy/domain/model/auth/auth_verify_model.dart';
 import 'package:zippy/domain/repository/auth/auth_repository.dart';
 import 'package:zippy/domain/state/auth/auth_state.dart';
 import 'dart:math';
 
 class AuthCubit extends Cubit<AuthState> {
-  final AuthRepository _AuthRepository;
+  final AuthRepository _authRepository;
 
-  AuthCubit(this._AuthRepository)
-      : super(AuthStateLoaded(
-            termsAccepted: false,
-            phoneNumber: generateRandomPhoneNumber(),
-            verificationCode: generateRandomFourDigitCode(),
-            codeStatus: CodeStatus.none));
+  AuthCubit(this._authRepository)
+      : super(
+            AuthStateLoaded(termsAccepted: false, codeStatus: CodeStatus.none));
 
-  static Future<AuthCubit> create(AuthRepository AuthRepository) async {
-    final cubit = AuthCubit(AuthRepository);
-    await cubit.loadData();
+  static Future<AuthCubit> create(
+      AuthRepository authRepository, String phone) async {
+    final cubit = AuthCubit(authRepository);
+    await cubit.loadData(phone);
     return cubit;
   }
 
-  Future<void> loadData() async {
+  Future<void> loadData(String phone) async {
     try {
+      final AuthInitiate authInitiate =
+          await _authRepository.initiateAuth(phone);
       if (state is AuthStateLoaded) {
         var currentState = state as AuthStateLoaded;
         {
           emit(AuthStateLoaded(
+              phone: phone,
+              authInitiateResponse: authInitiate,
               termsAccepted: currentState.termsAccepted,
-              phoneNumber: currentState.phoneNumber,
-              verificationCode: currentState.verificationCode,
               codeStatus: currentState.codeStatus));
         }
       }
@@ -66,17 +69,15 @@ class AuthCubit extends Cubit<AuthState> {
   Future<void> verifyCode(String code) async {
     if (state is AuthStateLoaded) {
       var currentState = state as AuthStateLoaded;
-      if (currentState.verificationCode == code) {
+      final AuthVerify authVerify = await _authRepository.verifyAuth(code,
+          currentState.phone ?? '', currentState.authInitiateResponse!.userId);
+      if (authVerify.isVerified) {
         emit(AuthStateLoaded(
             termsAccepted: currentState.termsAccepted,
-            phoneNumber: currentState.phoneNumber,
-            verificationCode: currentState.verificationCode,
             codeStatus: CodeStatus.correct));
       } else {
         emit(AuthStateLoaded(
             termsAccepted: currentState.termsAccepted,
-            phoneNumber: currentState.phoneNumber,
-            verificationCode: currentState.verificationCode,
             codeStatus: CodeStatus.invalid));
       }
     } else {
@@ -91,8 +92,6 @@ class AuthCubit extends Cubit<AuthState> {
       var currentState = state as AuthStateLoaded;
       emit(currentState.copyWith(
           termsAccepted: !currentState.termsAccepted,
-          phoneNumber: currentState.phoneNumber,
-          verificationCode: currentState.verificationCode,
           codeStatus: currentState.codeStatus));
     } else {
       emit(AuthStateError(
