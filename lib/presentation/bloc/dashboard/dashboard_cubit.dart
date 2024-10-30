@@ -2,6 +2,7 @@ import 'dart:math';
 import 'package:dio/dio.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:zippy/domain/model/transaction/transaction_model.dart';
 import 'package:zippy/domain/repository/dashboard/dashboard_repository.dart';
 import 'package:zippy/domain/state/dashboard/dashboard_state.dart';
@@ -27,6 +28,13 @@ class DashboardCubit extends Cubit<DashboardState> {
 
   Future<void> loadData() async {
     try {
+      final SharedPreferences prefs = await SharedPreferences.getInstance();
+      final String accessToken = prefs.getString('accessToken') ?? '';
+
+      if (accessToken.isEmpty) {
+        emit(DashboardStateError(errorMessage: 'Sign in token is missing'));
+      }
+
       //final balance = await _dashboardRepository.getBalance();
       //final transactions = await _dashboardRepository.getTransactions();
       final balance = getRandomBalance();
@@ -38,7 +46,22 @@ class DashboardCubit extends Cubit<DashboardState> {
         balance: balance,
         transactions: transactions,
         filteredTransactions: transactions,
+        accessToken: accessToken,
       ));
+    } catch (e) {
+      emit(DashboardStateError(
+        errorMessage: _handleError(e),
+      ));
+    }
+  }
+
+  Future<void> logout() async {
+    try {
+      final SharedPreferences prefs = await SharedPreferences.getInstance();
+      await prefs.remove('accessToken');
+      await prefs.remove('refreshToken');
+
+      emit(DashboardStateLoggedOut());
     } catch (e) {
       emit(DashboardStateError(
         errorMessage: _handleError(e),

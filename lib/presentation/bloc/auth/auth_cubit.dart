@@ -1,23 +1,34 @@
 import 'package:dio/dio.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:zippy/data/api/api_auth_verify.dart';
 import 'package:zippy/domain/model/auth/auth_inititate_model.dart';
 import 'package:zippy/domain/model/auth/auth_verify_model.dart';
 import 'package:zippy/domain/repository/auth/auth_repository.dart';
 import 'package:zippy/domain/state/auth/auth_state.dart';
-import 'dart:math';
 
 class AuthCubit extends Cubit<AuthState> {
   final AuthRepository _authRepository;
 
-  AuthCubit(this._authRepository)
-      : super(
-            AuthStateLoaded(termsAccepted: false, codeStatus: CodeStatus.none));
+  AuthCubit(
+    this._authRepository,
+  ) : super(AuthStateLoaded(
+          termsAccepted: false,
+          codeStatus: CodeStatus.none,
+          shakeKey: false,
+          userId: "",
+          phone: "",
+        ));
 
   static Future<AuthCubit> create(
-      AuthRepository authRepository, String phone) async {
-    final cubit = AuthCubit(authRepository);
-    await cubit.loadData(phone);
+    AuthRepository authRepository,
+    String phone,
+  ) async {
+    final cubit = AuthCubit(
+      authRepository,
+    );
+    await cubit.loadData(
+      phone,
+    );
     return cubit;
   }
 
@@ -25,16 +36,14 @@ class AuthCubit extends Cubit<AuthState> {
     try {
       final AuthInitiate authInitiate =
           await _authRepository.initiateAuth(phone);
-      if (state is AuthStateLoaded) {
-        var currentState = state as AuthStateLoaded;
-        {
-          emit(AuthStateLoaded(
-              phone: phone,
-              authInitiateResponse: authInitiate,
-              termsAccepted: currentState.termsAccepted,
-              codeStatus: currentState.codeStatus));
-        }
-      }
+      emit(AuthStateLoaded(
+        phone: phone,
+        userId: authInitiate.userId,
+        authInitiateResponse: authInitiate,
+        termsAccepted: false,
+        codeStatus: CodeStatus.none,
+        shakeKey: false,
+      ));
     } catch (e) {
       emit(AuthStateError(
         errorMessage: _handleError(e),
@@ -42,81 +51,81 @@ class AuthCubit extends Cubit<AuthState> {
     }
   }
 
-  String _handleError(dynamic error) {
-    if (error is DioException) {
-      switch (error.type) {
-        case DioExceptionType.connectionTimeout:
-          return 'Ошибка подключения. Попробуйте еще раз.';
-        case DioExceptionType.connectionError:
-          return 'Ошибка подключения. Попробуйте еще раз.';
-        case DioExceptionType.sendTimeout:
-          return 'Время ожидания отправки истекло.';
-        case DioExceptionType.receiveTimeout:
-          return 'Время ожидания получения ответа истекло.';
-        case DioExceptionType.badResponse:
-          return 'Ошибка сервера: ${error.response?.statusCode}.';
-        case DioExceptionType.badCertificate:
-          return 'Ошибка сертификата.';
-        case DioExceptionType.cancel:
-          return 'Запрос отменен.';
-        case DioExceptionType.unknown:
-          return 'Произошла неизвестная ошибка.';
-      }
-    }
-    return error.toString();
-  }
-
   Future<void> verifyCode(String code) async {
     if (state is AuthStateLoaded) {
-      var currentState = state as AuthStateLoaded;
-      final AuthVerify authVerify = await _authRepository.verifyAuth(code,
-          currentState.phone ?? '', currentState.authInitiateResponse!.userId);
-      if (authVerify.isVerified) {
-        emit(AuthStateLoaded(
-            termsAccepted: currentState.termsAccepted,
-            codeStatus: CodeStatus.correct));
-      } else {
-        emit(AuthStateLoaded(
-            termsAccepted: currentState.termsAccepted,
-            codeStatus: CodeStatus.invalid));
+      try {
+        var currentState = state as AuthStateLoaded;
+        final AuthVerify authVerify = await _authRepository.verifyAuth(
+          code,
+          currentState.phone,
+          currentState.userId,
+        );
+        emit(authVerify.isVerified
+            ? currentState.copyWith(
+                codeStatus: CodeStatus.correct,
+              )
+            : currentState.copyWith(
+                codeStatus: CodeStatus.invalid,
+                shakeKey: true,
+              ));
+        SharedPreferences prefs = await SharedPreferences.getInstance();
+        await prefs.setString('accessToken', authVerify.accessToken ?? '');
+        await prefs.setString('refreshToken', authVerify.refreshToken ?? '');
+      } catch (e) {
+        emit(AuthStateError(errorMessage: _handleError(e)));
       }
-    } else {
-      emit(AuthStateError(
-        errorMessage: _handleError(e),
-      ));
+    }
+  }
+
+  Future<void> restoreShake() async {
+    if (state is AuthStateLoaded) {
+      try {
+        var currentState = state as AuthStateLoaded;
+        emit(currentState.copyWith(
+          shakeKey: false,
+        ));
+      } catch (e) {
+        emit(AuthStateError(errorMessage: _handleError(e)));
+      }
     }
   }
 
   Future<void> toggleTerms() async {
     if (state is AuthStateLoaded) {
-      var currentState = state as AuthStateLoaded;
-      emit(currentState.copyWith(
+      try {
+        var currentState = state as AuthStateLoaded;
+        emit(currentState.copyWith(
           termsAccepted: !currentState.termsAccepted,
-          codeStatus: currentState.codeStatus));
-    } else {
-      emit(AuthStateError(
-        errorMessage: _handleError(e),
-      ));
+        ));
+      } catch (e) {
+        emit(AuthStateError(
+          errorMessage: _handleError(e),
+        ));
+      }
     }
   }
 }
 
-String generateRandomPhoneNumber() {
-  Random random = Random();
-  int areaCode =
-      random.nextInt(900) + 100; // Генерируем код области от 100 до 999
-  int centralOfficeCode = random.nextInt(900) +
-      100; // Генерируем центральный офисный код от 100 до 999
-  int lineNumber =
-      random.nextInt(10000); // Генерируем номер линии от 0000 до 9999
-
-  return '+7 ($areaCode) $centralOfficeCode-${lineNumber.toString().padLeft(4, '0')}';
-}
-
-String generateRandomFourDigitCode() {
-  Random random = Random();
-  int code = random.nextInt(10000);
-  String res = code.toString().padLeft(4, '0');
-  print(res);
-  return res; // Возвращаем строку с ведущими нулями
+String _handleError(dynamic error) {
+  if (error is DioException) {
+    switch (error.type) {
+      case DioExceptionType.connectionTimeout:
+        return 'Ошибка подключения. Попробуйте еще раз.';
+      case DioExceptionType.connectionError:
+        return 'Ошибка подключения. Попробуйте еще раз.';
+      case DioExceptionType.sendTimeout:
+        return 'Время ожидания отправки истекло.';
+      case DioExceptionType.receiveTimeout:
+        return 'Время ожидания получения ответа истекло.';
+      case DioExceptionType.badResponse:
+        return 'Ошибка сервера: ${error.response?.statusCode}.';
+      case DioExceptionType.badCertificate:
+        return 'Ошибка сертификата.';
+      case DioExceptionType.cancel:
+        return 'Запрос отменен.';
+      case DioExceptionType.unknown:
+        return 'Произошла неизвестная ошибка.';
+    }
+  }
+  return error.toString();
 }

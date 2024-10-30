@@ -22,7 +22,11 @@ class SmsVerificationScreen extends StatelessWidget {
       future: _createAuthCubit(context),
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
-          return const Center(child: CircularProgressIndicator());
+          return Scaffold(
+              body: Center(
+                  child: CircularProgressIndicator(
+            color: Theme.of(context).colorScheme.primary,
+          )));
         } else if (snapshot.hasError) {
           return ErrorScreen(errorMessage: 'Error: ${snapshot.error}');
         } else if (snapshot.hasData) {
@@ -35,85 +39,32 @@ class SmsVerificationScreen extends StatelessWidget {
                   return Scaffold(
                     resizeToAvoidBottomInset: true,
                     appBar: AppBar(backgroundColor: Colors.transparent),
-                    body: Padding(
-                      padding: const EdgeInsets.all(24),
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        children: <Widget>[
-                          const SizedBox(height: 64),
-                          Center(
-                            child: Text(
-                              "We've sent a verification\n code to",
-                              textAlign: TextAlign.center,
-                              style: Theme.of(context).textTheme.displayLarge,
+                    body: SingleChildScrollView(
+                      child: Padding(
+                        padding: const EdgeInsets.all(24),
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: <Widget>[
+                            const SizedBox(height: 64),
+                            Center(
+                              child: Text(
+                                "We've sent a verification\n code to",
+                                textAlign: TextAlign.center,
+                                style: Theme.of(context).textTheme.displayLarge,
+                              ),
                             ),
-                          ),
-                          const SizedBox(height: 20),
-                          Center(
-                            child: Text(
-                              phoneNumber,
-                              textAlign: TextAlign.center,
-                              style: Theme.of(context).textTheme.titleLarge,
+                            const SizedBox(height: 20),
+                            Center(
+                              child: Text(
+                                phoneNumber,
+                                textAlign: TextAlign.center,
+                                style: Theme.of(context).textTheme.titleLarge,
+                              ),
                             ),
-                          ),
-                          const SizedBox(height: 40),
-                          if (state.codeStatus == CodeStatus.none)
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                for (var i = 0; i < 4; i++)
-                                  Padding(
-                                    padding:
-                                        EdgeInsets.only(right: i < 3 ? 12 : 0),
-                                    child: Container(
-                                      height: 56,
-                                      width: 56,
-                                      decoration: BoxDecoration(
-                                        color: Theme.of(context)
-                                            .scaffoldBackgroundColor,
-                                        borderRadius: BorderRadius.circular(16),
-                                        border: Border.all(
-                                            color: getContainerColor(
-                                                state.codeStatus, context)),
-                                      ),
-                                      child: TextFormField(
-                                        textAlign: TextAlign.center,
-                                        keyboardType: TextInputType.number,
-                                        maxLength: 1,
-                                        decoration: const InputDecoration(
-                                          counterText: "",
-                                          border: InputBorder.none,
-                                        ),
-                                        onChanged: (value) {
-                                          if (value.length == 1) {
-                                            _verificationCode[i] = value;
-                                            if (i < 3) {
-                                              FocusScope.of(context)
-                                                  .nextFocus();
-                                            } else {
-                                              // Когда заполнено последнее поле, проверяем код
-                                              String code =
-                                                  _verificationCode.join('');
-                                              context
-                                                  .read<AuthCubit>()
-                                                  .verifyCode(code);
-                                            }
-                                          } else if (value.isEmpty && i > 0) {
-                                            _verificationCode[i] = '';
-                                            FocusScope.of(context)
-                                                .previousFocus();
-                                          }
-                                        },
-                                      ),
-                                    ),
-                                  ),
-                              ],
-                            ),
-                          if (state.codeStatus == CodeStatus.invalid)
-                            Animate(
-                              effects: const [ShakeEffect()],
-                              child: Row(
+                            const SizedBox(height: 40),
+                            if (state.codeStatus == CodeStatus.none)
+                              Row(
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 children: [
                                   for (var i = 0; i < 4; i++)
@@ -133,7 +84,6 @@ class SmsVerificationScreen extends StatelessWidget {
                                                   state.codeStatus, context)),
                                         ),
                                         child: TextFormField(
-                                          initialValue: "",
                                           textAlign: TextAlign.center,
                                           keyboardType: TextInputType.number,
                                           maxLength: 1,
@@ -148,6 +98,11 @@ class SmsVerificationScreen extends StatelessWidget {
                                                 FocusScope.of(context)
                                                     .nextFocus();
                                               } else {
+                                                if (state.shakeKey) {
+                                                  context
+                                                      .read<AuthCubit>()
+                                                      .restoreShake();
+                                                }
                                                 String code =
                                                     _verificationCode.join('');
                                                 context
@@ -165,98 +120,166 @@ class SmsVerificationScreen extends StatelessWidget {
                                     ),
                                 ],
                               ),
-                            ),
-                          if (state.codeStatus == CodeStatus.correct)
-                            SvgPicture.asset('assets/images/icon_tick.svg'),
-                          const SizedBox(height: 40),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Text(
-                                "Can't receive a\nverification code",
-                                style: Theme.of(context).textTheme.bodyMedium,
-                              ),
-                              const SizedBox(width: 24),
-                              SvgPicture.asset(
-                                'assets/images/zippy_logo.svg',
-                                semanticsLabel: 'Zippy Motto',
-                              ),
-                            ],
-                          ),
-                          const Spacer(),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              GestureDetector(
-                                onTap: () =>
-                                    context.read<AuthCubit>().toggleTerms(),
-                                child: Container(
-                                  height: 32,
-                                  width: 32,
-                                  decoration: BoxDecoration(
-                                    color: Theme.of(context).primaryColor,
-                                    borderRadius: BorderRadius.circular(8),
-                                  ),
-                                  child: Column(
-                                    children: [
-                                      if (state.termsAccepted)
-                                        const Padding(
-                                          padding: EdgeInsets.only(top: 4.0),
-                                          child: Icon(
-                                            Icons.check,
-                                            color: Colors.white,
+                            if (state.codeStatus == CodeStatus.invalid &&
+                                state.shakeKey)
+                              Animate(
+                                effects: const [ShakeEffect()],
+                                child: Row(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    for (var i = 0; i < 4; i++)
+                                      Padding(
+                                        padding: EdgeInsets.only(
+                                            right: i < 3 ? 12 : 0),
+                                        child: Container(
+                                          height: 56,
+                                          width: 56,
+                                          decoration: BoxDecoration(
+                                            color: Theme.of(context)
+                                                .scaffoldBackgroundColor,
+                                            borderRadius:
+                                                BorderRadius.circular(16),
+                                            border: Border.all(
+                                                color: getContainerColor(
+                                                    state.codeStatus, context)),
+                                          ),
+                                          child: TextFormField(
+                                            initialValue: "",
+                                            textAlign: TextAlign.center,
+                                            keyboardType: TextInputType.number,
+                                            maxLength: 1,
+                                            decoration: const InputDecoration(
+                                              counterText: "",
+                                              border: InputBorder.none,
+                                            ),
+                                            onChanged: (value) {
+                                              if (value.length == 1) {
+                                                _verificationCode[i] = value;
+                                                if (i < 3) {
+                                                  FocusScope.of(context)
+                                                      .nextFocus();
+                                                } else {
+                                                  String code =
+                                                      _verificationCode
+                                                          .join('');
+                                                  context
+                                                      .read<AuthCubit>()
+                                                      .verifyCode(code);
+                                                }
+                                              } else if (value.isEmpty &&
+                                                  i > 0) {
+                                                _verificationCode[i] = '';
+                                                FocusScope.of(context)
+                                                    .previousFocus();
+                                              }
+                                            },
                                           ),
                                         ),
-                                    ],
-                                  ),
+                                      ),
+                                  ],
                                 ),
                               ),
-                              const SizedBox(width: 24),
-                              Text(
-                                "I agree to Terms of Use",
-                                style: Theme.of(context).textTheme.bodyMedium,
+                            if (state.codeStatus == CodeStatus.correct)
+                              Padding(
+                                padding: const EdgeInsets.all(12.0),
+                                child: SvgPicture.asset(
+                                    'assets/images/icon_tick.svg'),
                               ),
-                            ],
-                          ),
-                          const SizedBox(height: 16),
-                          Center(
-                            child: Text(
-                              "You will be redirected to Truora\nverification platform",
-                              style: Theme.of(context).textTheme.bodySmall,
-                              textAlign: TextAlign.center,
+                            const SizedBox(height: 40),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Text(
+                                  "Can't receive a\nverification code",
+                                  style: Theme.of(context).textTheme.bodyMedium,
+                                ),
+                                const SizedBox(width: 24),
+                                SvgPicture.asset(
+                                  'assets/images/zippy_logo.svg',
+                                  semanticsLabel: 'Zippy Motto',
+                                ),
+                              ],
                             ),
-                          ),
-                          const SizedBox(height: 16),
-                          Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: 40),
-                            child: RectangularButton(
-                              label: "Go",
-                              onPressed: state.termsAccepted &&
-                                      state.codeStatus == CodeStatus.correct
-                                  ? () {
-                                      context.go('/dashboard');
-                                    }
-                                  : () {
-                                      print("Enter code first");
-                                    },
-                              color: state.termsAccepted &&
-                                      state.codeStatus == CodeStatus.correct
-                                  ? Theme.of(context).primaryColor
-                                  : Colors.grey,
+                            const SizedBox(height: 128),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                GestureDetector(
+                                  onTap: () =>
+                                      context.read<AuthCubit>().toggleTerms(),
+                                  child: Container(
+                                    height: 32,
+                                    width: 32,
+                                    decoration: BoxDecoration(
+                                      color: Theme.of(context).primaryColor,
+                                      borderRadius: BorderRadius.circular(8),
+                                    ),
+                                    child: Column(
+                                      children: [
+                                        if (state.termsAccepted)
+                                          const Padding(
+                                            padding: EdgeInsets.only(top: 4.0),
+                                            child: Icon(
+                                              Icons.check,
+                                              color: Colors.white,
+                                            ),
+                                          ),
+                                      ],
+                                    ),
+                                  ),
+                                ),
+                                const SizedBox(width: 24),
+                                Text(
+                                  "I agree to Terms of Use",
+                                  style: Theme.of(context).textTheme.bodyMedium,
+                                ),
+                              ],
                             ),
-                          ),
-                          const SizedBox(height: 40),
-                        ],
+                            const SizedBox(height: 16),
+                            Center(
+                              child: Text(
+                                "You will be redirected to Truora\nverification platform",
+                                style: Theme.of(context).textTheme.bodySmall,
+                                textAlign: TextAlign.center,
+                              ),
+                            ),
+                            const SizedBox(height: 16),
+                            Padding(
+                              padding:
+                                  const EdgeInsets.symmetric(horizontal: 40),
+                              child: RectangularButton(
+                                label: "Go",
+                                onPressed: state.termsAccepted &&
+                                        state.codeStatus == CodeStatus.correct
+                                    ? () {
+                                        context.go('/dashboard');
+                                      }
+                                    : () {},
+                                color: state.termsAccepted &&
+                                        state.codeStatus == CodeStatus.correct
+                                    ? Theme.of(context).primaryColor
+                                    : Colors.grey,
+                              ),
+                            ),
+                            const SizedBox(height: 40),
+                          ],
+                        ),
                       ),
                     ),
                   );
                 }
-                return const SizedBox(); // Return an empty widget if the state does not match
+                return const ErrorScreen(
+                  errorMessage:
+                      'Verification code is not sent. We are working on this issue. Please try again later.',
+                );
               },
             ),
           );
         }
-        return const SizedBox(); // Return an empty widget if FutureBuilder has no data
+        return const ErrorScreen(
+          errorMessage:
+              'Verification code is not sent. We are working on this issue. Please try again later.',
+        );
       },
     );
   }

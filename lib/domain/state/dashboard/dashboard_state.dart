@@ -8,6 +8,7 @@ class DashboardStateLoaded extends DashboardState {
   final FilterType filterType;
   final String chosenMonth;
   final double balance;
+  final String? accessToken;
   final List<Transaction>? transactions;
   final List<Transaction>? filteredTransactions;
 
@@ -17,6 +18,7 @@ class DashboardStateLoaded extends DashboardState {
     required this.balance,
     required this.transactions,
     required this.filteredTransactions,
+    this.accessToken,
   });
 
   // Implementing the copyWith method
@@ -26,6 +28,7 @@ class DashboardStateLoaded extends DashboardState {
     double? balance,
     List<Transaction>? transactions,
     List<Transaction>? filteredTransactions,
+    String? accessToken,
   }) {
     return DashboardStateLoaded(
       filterType: filterType ?? this.filterType,
@@ -33,6 +36,7 @@ class DashboardStateLoaded extends DashboardState {
       balance: balance ?? this.balance,
       transactions: transactions ?? this.transactions,
       filteredTransactions: filteredTransactions ?? this.filteredTransactions,
+      accessToken: accessToken ?? this.accessToken,
     );
   }
 }
@@ -44,3 +48,5 @@ class DashboardStateError extends DashboardState {
     required this.errorMessage,
   });
 }
+
+class DashboardStateLoggedOut extends DashboardState {}

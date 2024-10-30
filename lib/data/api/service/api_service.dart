@@ -1,4 +1,5 @@
 import 'package:dio/dio.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:zippy/data/api/api_auth_initiate.dart';
 import 'package:zippy/data/api/api_auth_verify.dart';
 import 'package:zippy/data/api/api_balance.dart';
@@ -12,14 +13,16 @@ class ApiService {
   final Dio _dio = Dio();
 
   ApiService() {
-    // Добавление интерсептора для установки токена в заголовки
-    _dio.interceptors.add(InterceptorsWrapper(
-      onRequest: (options, handler) {
-        options.headers['Authorization'] =
-            'Bearer fake-user'; // Установка токена
-        return handler.next(options);
-      },
-    ));
+    _dio.interceptors.add(InterceptorsWrapper(onRequest:
+        (RequestOptions options, RequestInterceptorHandler handler) async {
+      String? accessToken = await getAccessToken();
+
+      if (accessToken != null) {
+        options.headers['Authorization'] = 'Bearer $accessToken';
+      }
+
+      return handler.next(options);
+    }));
   }
 
   Future<ApiTopUp> getTopUp(GetTopUpBody body) async {
@@ -55,7 +58,6 @@ class ApiService {
   Future<ApiAuthInitiate> initiateAuth(String phone) async {
     // Убираем все символы, кроме цифр
     String cleanedPhone = phone.replaceAll(RegExp(r'[^0-9]'), '');
-
     final response = await _dio.post(
       'https://auth-service-app-m9z4y.ondigitalocean.app/auth/initiate',
       data: {
@@ -63,7 +65,6 @@ class ApiService {
         'currency': 'CLP',
       },
     );
-    print(response);
     return ApiAuthInitiate.fromApi(response.data);
   }
 
@@ -79,7 +80,11 @@ class ApiService {
         'userId': userId,
       },
     );
-    print(response);
     return ApiAuthVerify.fromApi(response.data);
+  }
+
+  Future<String?> getAccessToken() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    return prefs.getString('accessToken');
   }
 }

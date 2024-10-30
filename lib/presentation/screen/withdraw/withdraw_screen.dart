@@ -105,7 +105,6 @@ class WithdrawScreen extends StatelessWidget {
     };
 
     // Print the transaction data
-    print(transactionData);
 
     // Pass the transactionData to the getWithdraw method
     context.read<WithdrawCubit>().getWithdraw(

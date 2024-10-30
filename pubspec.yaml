@@ -24,6 +24,7 @@ dependencies:
   flutter_screen_lock: ^9.1.0
   flutter_animate: ^4.5.0
   flutter_masked_text2: ^0.9.1
+  shared_preferences: ^2.3.2
 
 dev_dependencies:
   flutter_test:

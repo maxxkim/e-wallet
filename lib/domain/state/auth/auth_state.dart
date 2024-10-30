@@ -8,32 +8,40 @@ abstract class AuthState {}
 class AuthStateLoaded extends AuthState {
   final bool termsAccepted;
   final CodeStatus codeStatus;
-  final String? phone;
+  final String userId;
+  final String phone;
+  final bool shakeKey;
   final AuthInitiate? authInitiateResponse;
   final AuthVerify? authVerifyResponse;
 
   AuthStateLoaded({
     required this.termsAccepted,
     required this.codeStatus,
-    this.phone,
+    required this.userId,
+    required this.phone,
+    required this.shakeKey,
     this.authInitiateResponse,
     this.authVerifyResponse,
   });
 
   // Implementing the copyWith method
   AuthStateLoaded copyWith({
-    required final bool termsAccepted,
-    required final CodeStatus codeStatus,
-    final String? phone,
-    final AuthInitiate? authInitiateResponse,
-    final AuthVerify? authVerifyResponse,
+    bool? termsAccepted,
+    CodeStatus? codeStatus,
+    String? userId,
+    String? phone,
+    AuthInitiate? authInitiateResponse,
+    AuthVerify? authVerifyResponse,
+    bool? shakeKey,
   }) {
     return AuthStateLoaded(
-      termsAccepted: termsAccepted,
-      codeStatus: codeStatus,
-      phone: phone,
-      authInitiateResponse: authInitiateResponse,
-      authVerifyResponse: authVerifyResponse,
+      userId: userId ?? this.userId,
+      termsAccepted: termsAccepted ?? this.termsAccepted,
+      codeStatus: codeStatus ?? this.codeStatus,
+      phone: phone ?? this.phone,
+      shakeKey: shakeKey ?? this.shakeKey,
+      authInitiateResponse: authInitiateResponse ?? this.authInitiateResponse,
+      authVerifyResponse: authVerifyResponse ?? this.authVerifyResponse,
     );
   }
 }

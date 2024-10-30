@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:zippy/domain/repository/dashboard/dashboard_repository.dart';
 import 'package:zippy/domain/state/dashboard/dashboard_state.dart';
 import 'package:zippy/presentation/bloc/dashboard/dashboard_cubit.dart';
@@ -43,27 +44,24 @@ class DashboardScreen extends StatelessWidget {
               child: BlocBuilder<DashboardCubit, DashboardState>(
                 builder: (context, state) {
                   if (state is DashboardStateLoaded) {
+                    if (state.accessToken == null) {
+                      context.go('/');
+                    }
                     int currentIndex = months.indexOf(state.chosenMonth) + 1;
                     int startIndex = (currentIndex - 2).clamp(0, months.length);
                     int endIndex = (startIndex + 5).clamp(0, months.length);
-
+                    print(state.accessToken);
                     return Scaffold(
                       appBar: AppBar(
-                        leading: Padding(
-                          padding: const EdgeInsets.only(left: 12),
-                          child: IconButton(
-                            icon: const Icon(Icons.arrow_back),
-                            onPressed: () {
-                              Navigator.pop(context);
-                            },
-                          ),
-                        ),
                         actions: [
                           Padding(
                             padding: const EdgeInsets.only(right: 12),
                             child: IconButton(
-                              icon: const Icon(Icons.menu),
-                              onPressed: () {},
+                              icon: const Icon(Icons.exit_to_app),
+                              onPressed: () {
+                                logout(context);
+                                context.go('/');
+                              },
                             ),
                           ),
                         ],
@@ -311,7 +309,11 @@ class DashboardScreen extends StatelessWidget {
                       ),
                     );
                   } else if (state is DashboardStateError) {
+                    GoRouter.of(context).go('/'); // Redire
                     return ErrorScreen(errorMessage: state.errorMessage);
+                  } else if (state is DashboardStateLoggedOut) {
+                    GoRouter.of(context).go('/'); // Redire
+                    return ErrorScreen(errorMessage: "Sign in failed");
                   } else {
                     return const ErrorScreen(
                         errorMessage: "Неизвестная ошибка");
@@ -323,6 +325,10 @@ class DashboardScreen extends StatelessWidget {
             return const Center(child: Text("Пошел нахуй"));
           }
         });
+  }
+
+  void logout(BuildContext context) {
+    context.read<DashboardCubit>().logout();
   }
 
   Future<DashboardCubit> _createDashboardCubit(BuildContext context) async {
