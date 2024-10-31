@@ -60,8 +60,6 @@ class DashboardCubit extends Cubit<DashboardState> {
       final SharedPreferences prefs = await SharedPreferences.getInstance();
       await prefs.remove('accessToken');
       await prefs.remove('refreshToken');
-
-      emit(DashboardStateLoggedOut());
     } catch (e) {
       emit(DashboardStateError(
         errorMessage: _handleError(e),
