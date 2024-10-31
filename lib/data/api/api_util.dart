@@ -48,7 +48,10 @@ class ApiUtil {
   }
 
   Future<AuthVerify> verifyAuth(
-      String code, String phone, String userId) async {
+    String code,
+    String phone,
+    String userId,
+  ) async {
     final result = await _apiService.verifyAuth(code, phone, userId);
     return AuthVerifyMapper.fromApi(result);
   }

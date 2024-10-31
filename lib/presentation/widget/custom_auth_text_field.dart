@@ -50,7 +50,7 @@ class AuthTextField extends StatelessWidget {
                       color: switchValue
                           ? Theme.of(context).colorScheme.secondary
                           : Theme.of(context).colorScheme.primary,
-                    ), // Контур того же цвета, что и фон
+                    ),
                   ),
                   alignment: switchValue
                       ? Alignment.centerRight

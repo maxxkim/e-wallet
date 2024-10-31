@@ -123,7 +123,7 @@ class SmsVerificationScreen extends StatelessWidget {
                             if (state.codeStatus == CodeStatus.invalid &&
                                 state.shakeKey)
                               Animate(
-                                effects: const [ShakeEffect()],
+                                effects: const [ShakeEffect(), FadeEffect()],
                                 child: Row(
                                   mainAxisAlignment: MainAxisAlignment.center,
                                   children: [

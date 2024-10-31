@@ -56,7 +56,6 @@ class ApiService {
   }
 
   Future<ApiAuthInitiate> initiateAuth(String phone) async {
-    // Убираем все символы, кроме цифр
     String cleanedPhone = phone.replaceAll(RegExp(r'[^0-9]'), '');
     final response = await _dio.post(
       'https://auth-service-app-m9z4y.ondigitalocean.app/auth/initiate',

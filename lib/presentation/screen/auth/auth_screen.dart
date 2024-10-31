@@ -22,6 +22,7 @@ class AuthScreen extends StatelessWidget {
       resizeToAvoidBottomInset: false,
       appBar: AppBar(backgroundColor: Colors.transparent),
       body: SingleChildScrollView(
+        // Wrap your Scaffold body with SingleChildScrollView
         child: Padding(
           padding: const EdgeInsets.all(24),
           child: Column(
