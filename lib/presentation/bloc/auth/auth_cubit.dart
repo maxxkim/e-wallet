@@ -60,6 +60,9 @@ class AuthCubit extends Cubit<AuthState> {
           currentState.phone,
           currentState.userId,
         );
+        SharedPreferences prefs = await SharedPreferences.getInstance();
+        await prefs.setString('accessToken', authVerify.accessToken ?? '');
+        await prefs.setString('refreshToken', authVerify.refreshToken ?? '');
         emit(authVerify.isVerified
             ? currentState.copyWith(
                 codeStatus: CodeStatus.correct,
@@ -68,9 +71,6 @@ class AuthCubit extends Cubit<AuthState> {
                 codeStatus: CodeStatus.invalid,
                 shakeKey: true,
               ));
-        SharedPreferences prefs = await SharedPreferences.getInstance();
-        await prefs.setString('accessToken', authVerify.accessToken ?? '');
-        await prefs.setString('refreshToken', authVerify.refreshToken ?? '');
       } catch (e) {
         emit(AuthStateError(errorMessage: _handleError(e)));
       }

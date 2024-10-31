@@ -7,6 +7,7 @@ import 'package:zippy/domain/repository/auth/auth_repository.dart';
 import 'package:zippy/domain/state/auth/auth_state.dart';
 import 'package:zippy/presentation/bloc/auth/auth_cubit.dart';
 import 'package:zippy/presentation/screen/error_screen.dart';
+import 'package:zippy/presentation/session/session_cubit.dart';
 import 'package:zippy/presentation/widget/custom_rectangular_button.dart';
 
 class SmsVerificationScreen extends StatelessWidget {
@@ -84,38 +85,42 @@ class SmsVerificationScreen extends StatelessWidget {
                                                   state.codeStatus, context)),
                                         ),
                                         child: TextFormField(
-                                          textAlign: TextAlign.center,
-                                          keyboardType: TextInputType.number,
-                                          maxLength: 1,
-                                          decoration: const InputDecoration(
-                                            counterText: "",
-                                            border: InputBorder.none,
-                                          ),
-                                          onChanged: (value) {
-                                            if (value.length == 1) {
-                                              _verificationCode[i] = value;
-                                              if (i < 3) {
-                                                FocusScope.of(context)
-                                                    .nextFocus();
-                                              } else {
-                                                if (state.shakeKey) {
-                                                  context
+                                            textAlign: TextAlign.center,
+                                            keyboardType: TextInputType.number,
+                                            maxLength: 1,
+                                            decoration: const InputDecoration(
+                                              counterText: "",
+                                              border: InputBorder.none,
+                                            ),
+                                            onChanged: (value) async {
+                                              if (value.length == 1) {
+                                                _verificationCode[i] = value;
+                                                if (i < 3) {
+                                                  FocusScope.of(context)
+                                                      .nextFocus();
+                                                } else {
+                                                  if (state.shakeKey) {
+                                                    context
+                                                        .read<AuthCubit>()
+                                                        .restoreShake();
+                                                  }
+                                                  String code =
+                                                      _verificationCode
+                                                          .join('');
+                                                  await context
                                                       .read<AuthCubit>()
-                                                      .restoreShake();
+                                                      .verifyCode(code);
+                                                  await context
+                                                      .read<SessionCubit>()
+                                                      .checkAuthentication();
                                                 }
-                                                String code =
-                                                    _verificationCode.join('');
-                                                context
-                                                    .read<AuthCubit>()
-                                                    .verifyCode(code);
+                                              } else if (value.isEmpty &&
+                                                  i > 0) {
+                                                _verificationCode[i] = '';
+                                                FocusScope.of(context)
+                                                    .previousFocus();
                                               }
-                                            } else if (value.isEmpty && i > 0) {
-                                              _verificationCode[i] = '';
-                                              FocusScope.of(context)
-                                                  .previousFocus();
-                                            }
-                                          },
-                                        ),
+                                            }),
                                       ),
                                     ),
                                 ],
@@ -205,8 +210,12 @@ class SmsVerificationScreen extends StatelessWidget {
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
                                 GestureDetector(
-                                  onTap: () =>
-                                      context.read<AuthCubit>().toggleTerms(),
+                                  onTap: () {
+                                    context
+                                        .read<SessionCubit>()
+                                        .checkAuthentication();
+                                    context.read<AuthCubit>().toggleTerms();
+                                  },
                                   child: Container(
                                     height: 32,
                                     width: 32,

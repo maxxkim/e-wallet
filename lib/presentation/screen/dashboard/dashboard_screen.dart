@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:zippy/domain/repository/dashboard/dashboard_repository.dart';
 import 'package:zippy/domain/state/dashboard/dashboard_state.dart';
 import 'package:zippy/presentation/bloc/dashboard/dashboard_cubit.dart';
 import 'package:zippy/presentation/screen/error_screen.dart';
 import 'package:zippy/presentation/screen/history/widgets/transaction_tile.dart';
+import 'package:zippy/presentation/session/session_cubit.dart';
 import 'widgets/dashboard_display.dart';
 
 class DashboardScreen extends StatelessWidget {
@@ -50,7 +50,6 @@ class DashboardScreen extends StatelessWidget {
                     int currentIndex = months.indexOf(state.chosenMonth) + 1;
                     int startIndex = (currentIndex - 2).clamp(0, months.length);
                     int endIndex = (startIndex + 5).clamp(0, months.length);
-                    print(state.accessToken);
                     return Scaffold(
                       appBar: AppBar(
                         actions: [
@@ -329,6 +328,7 @@ class DashboardScreen extends StatelessWidget {
 
   void logout(BuildContext context) {
     context.read<DashboardCubit>().logout();
+    context.read<SessionCubit>().checkAuthentication();
   }
 
   Future<DashboardCubit> _createDashboardCubit(BuildContext context) async {

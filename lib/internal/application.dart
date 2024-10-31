@@ -6,6 +6,7 @@ import 'package:zippy/data/repository/dashboard/dashboard_data_repository.dart';
 import 'package:zippy/domain/repository/auth/auth_repository.dart';
 import 'package:zippy/domain/repository/dashboard/dashboard_repository.dart';
 import 'package:zippy/presentation/app_router.dart';
+import 'package:zippy/presentation/session/session_cubit.dart';
 import 'package:zippy/presentation/theme/app_theme.dart';
 import 'package:zippy/presentation/theme/app_theme_dark.dart';
 import 'package:zippy/domain/repository/top_up/top_up_repository.dart';
@@ -51,17 +52,19 @@ class ZippyApp extends StatelessWidget {
         child: MultiBlocProvider(
           providers: [
             BlocProvider(
-              create: (context) => ThemeCubit(), // Добавьте ThemeCubit
+              create: (context) => ThemeCubit(),
+            ),
+            BlocProvider(
+              create: (context) => SessionCubit(),
             ),
           ],
           child: BlocBuilder<ThemeCubit, AppTheme>(
             builder: (context, theme) {
+              context.read<SessionCubit>().checkAuthentication();
               return MaterialApp.router(
                 routerConfig: appRouter,
                 title: 'Zippy',
-                theme: (theme == AppTheme.light)
-                    ? appTheme
-                    : appThemeDark, // Выбор темы
+                theme: (theme == AppTheme.light) ? appTheme : appThemeDark,
               );
             },
           ),

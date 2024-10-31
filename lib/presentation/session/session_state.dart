@@ -1,0 +1,9 @@
+abstract class SessionState {}
+
+class Authenticated extends SessionState {
+  final String accessToken;
+
+  Authenticated(this.accessToken);
+}
+
+class Unauthenticated extends SessionState {}
