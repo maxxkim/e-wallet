@@ -55,7 +55,8 @@ class ZippyApp extends StatelessWidget {
               create: (context) => ThemeCubit(),
             ),
             BlocProvider(
-              create: (context) => SessionCubit(),
+              create: (context) =>
+                  SessionCubit(RepositoryProvider.of<AuthRepository>(context)),
             ),
           ],
           child: BlocBuilder<ThemeCubit, AppTheme>(

@@ -246,7 +246,7 @@ class _TransactionTileState extends State<TransactionTile> {
   }
 
   String getIcon(String type) {
-    if (type == "deposit") {
+    if (type == "payin") {
       return 'assets/images/icon_transaction_background.svg';
     } else {
       return 'assets/images/icon_transaction_out.svg';
@@ -254,7 +254,7 @@ class _TransactionTileState extends State<TransactionTile> {
   }
 
   String getText(String type, String text) {
-    if (type == "deposit") {
+    if (type == "payin") {
       return text;
     } else {
       return "-$text";
@@ -262,7 +262,7 @@ class _TransactionTileState extends State<TransactionTile> {
   }
 
   TextStyle? getColor(String type) {
-    if (type == "deposit") {
+    if (type == "payin") {
       return Theme.of(context).textTheme.inText;
     } else {
       return Theme.of(context).textTheme.outText;

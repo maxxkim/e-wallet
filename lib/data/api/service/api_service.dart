@@ -1,6 +1,7 @@
 import 'package:dio/dio.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:zippy/data/api/api_auth_initiate.dart';
+import 'package:zippy/data/api/api_auth_refresh.dart';
 import 'package:zippy/data/api/api_auth_verify.dart';
 import 'package:zippy/data/api/api_balance.dart';
 import 'package:zippy/data/api/api_top_up.dart';
@@ -18,7 +19,7 @@ class ApiService {
       String? accessToken = await getAccessToken();
 
       if (accessToken != null) {
-        options.headers['Authorization'] = 'Bearer $accessToken';
+        options.headers['Authorization'] = '$accessToken';
       }
 
       return handler.next(options);
@@ -43,14 +44,14 @@ class ApiService {
 
   Future<ApiBalance> getBalance() async {
     final response = await _dio.get(
-      'https://d2ef-51-159-97-191.ngrok-free.app/wallet/user122/balance',
+      'https://balance-service-app-sz8if.ondigitalocean.app/api/v1/wallet',
     );
     return ApiBalance.fromApi(response.data);
   }
 
   Future<ApiTransaction> getTransactions() async {
     final response = await _dio.get(
-      'https://d2ef-51-159-97-191.ngrok-free.app/transactions/all',
+      'https://lionfish-app-9ixm6.ondigitalocean.app/transactions/all',
     );
     return ApiTransaction.fromApi(response.data);
   }
@@ -82,8 +83,20 @@ class ApiService {
     return ApiAuthVerify.fromApi(response.data);
   }
 
+  Future<ApiAuthRefresh> refreshAuth(String refreshToken) async {
+    final response = await _dio.post(
+      'https://auth-service-app-m9z4y.ondigitalocean.app/auth/refresh',
+      data: {
+        'refreshToken': refreshToken,
+      },
+    );
+    print(response.statusCode);
+    return ApiAuthRefresh.fromApi(response.data);
+  }
+
   Future<String?> getAccessToken() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    return prefs.getString('accessToken');
+    final String? token = prefs.getString('accessToken');
+    return token;
   }
 }

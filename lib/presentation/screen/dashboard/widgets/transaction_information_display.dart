@@ -5,7 +5,8 @@ import 'package:zippy/domain/model/transaction/transaction_model.dart';
 import 'package:zippy/presentation/screen/history/widgets/transaction_tile.dart';
 
 class TransactionsInfoDisplay extends StatelessWidget {
-  const TransactionsInfoDisplay({super.key});
+  TransactionsInfoDisplay({super.key, required this.transactions});
+  List<Transaction> transactions;
 
   @override
   Widget build(BuildContext context) {
@@ -104,7 +105,7 @@ class TransactionsInfoDisplay extends StatelessWidget {
                           borderRadius: BorderRadius.zero,
                         ),
                         child: TransactionTile(
-                          transaction: Transaction.generateRandomTransaction(),
+                          transaction: transactions[index],
                           onIconTap: () =>
                               context.go('/dashboard/infoDashboard'),
                         ),

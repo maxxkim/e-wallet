@@ -37,8 +37,8 @@ class DashboardCubit extends Cubit<DashboardState> {
 
       //final balance = await _dashboardRepository.getBalance();
       //final transactions = await _dashboardRepository.getTransactions();
-      final balance = getRandomBalance();
-      final transactions = getRandomTransactions();
+      final balance = await _dashboardRepository.getBalance();
+      final transactions = await _dashboardRepository.getTransactions();
 
       emit(DashboardStateLoaded(
         filterType: FilterType.period,
@@ -98,11 +98,11 @@ class DashboardCubit extends Cubit<DashboardState> {
 
     if (filterType == FilterType.deposit) {
       return transactions
-          .where((transaction) => transaction.type == 'deposit')
+          .where((transaction) => transaction.type == 'payin')
           .toList();
     } else if (filterType == FilterType.withdrawal) {
       return transactions
-          .where((transaction) => transaction.type == 'withdraw')
+          .where((transaction) => transaction.type == 'payout')
           .toList();
     } else if (filterType == FilterType.period) {
       return transactions

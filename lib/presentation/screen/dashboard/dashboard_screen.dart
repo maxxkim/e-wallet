@@ -312,10 +312,9 @@ class DashboardScreen extends StatelessWidget {
                     return ErrorScreen(errorMessage: state.errorMessage);
                   } else if (state is DashboardStateLoggedOut) {
                     GoRouter.of(context).go('/'); // Redire
-                    return ErrorScreen(errorMessage: "Sign in failed");
+                    return const ErrorScreen(errorMessage: "Sign in failed");
                   } else {
-                    return const ErrorScreen(
-                        errorMessage: "Неизвестная ошибка");
+                    return const ErrorScreen(errorMessage: "Unknown error");
                   }
                 },
               ),

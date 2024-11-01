@@ -35,12 +35,33 @@ Widget _authGuard(BuildContext context, Widget child) {
   );
 }
 
+Widget _authGuard2(BuildContext context, Widget child) {
+  return BlocBuilder<SessionCubit, SessionState>(
+    builder: (context, state) {
+      if (state is Unauthenticated) {
+        return child;
+      } else {
+        Future.microtask(() async {
+          await Future.delayed(const Duration(seconds: 1));
+          GoRouter.of(context).go('/dashboard');
+        });
+        return Center(
+            child: Scaffold(
+                body: Center(
+                    child: CircularProgressIndicator(
+          color: Theme.of(context).colorScheme.primary,
+        ))));
+      }
+    },
+  );
+}
+
 final GoRouter appRouter = GoRouter(
   routes: <RouteBase>[
     GoRoute(
       path: '/',
       builder: (BuildContext context, GoRouterState state) {
-        return AuthScreen();
+        return _authGuard2(context, AuthScreen());
       },
       routes: <RouteBase>[
         GoRoute(
@@ -48,7 +69,8 @@ final GoRouter appRouter = GoRouter(
           builder: (context, state) {
             try {
               final String phoneNumber = state.pathParameters['phoneNumber']!;
-              return SmsVerificationScreen(phoneNumber: phoneNumber);
+              return _authGuard2(
+                  context, SmsVerificationScreen(phoneNumber: phoneNumber));
             } catch (e) {
               return ErrorScreen(errorMessage: _handleError(e));
             }
