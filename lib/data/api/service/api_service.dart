@@ -3,6 +3,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:zippy/data/api/api_auth_initiate.dart';
 import 'package:zippy/data/api/api_auth_refresh.dart';
 import 'package:zippy/data/api/api_auth_verify.dart';
+import 'package:zippy/data/api/api_auth_verify_token.dart';
 import 'package:zippy/data/api/api_balance.dart';
 import 'package:zippy/data/api/api_top_up.dart';
 import 'package:zippy/data/api/api_transaction.dart';
@@ -14,16 +15,7 @@ class ApiService {
   final Dio _dio = Dio();
 
   ApiService() {
-    _dio.interceptors.add(InterceptorsWrapper(onRequest:
-        (RequestOptions options, RequestInterceptorHandler handler) async {
-      String? accessToken = await getAccessToken();
-
-      if (accessToken != null) {
-        options.headers['Authorization'] = '$accessToken';
-      }
-
-      return handler.next(options);
-    }));
+    _addTokenInterceptor();
   }
 
   Future<ApiTopUp> getTopUp(GetTopUpBody body) async {
@@ -90,13 +82,36 @@ class ApiService {
         'refreshToken': refreshToken,
       },
     );
-    print(response.statusCode);
     return ApiAuthRefresh.fromApi(response.data);
   }
 
-  Future<String?> getAccessToken() async {
+  Future<ApiAuthVerifyToken> verifyToken(String token) async {
+    final response = await _dio.post(
+      'https://auth-service-app-m9z4y.ondigitalocean.app/auth/verify',
+      data: {
+        'token': token,
+      },
+    );
+    return ApiAuthVerifyToken.fromApi(response.data);
+  }
+
+  Future<String?> _getAccessToken() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     final String? token = prefs.getString('accessToken');
     return token;
+  }
+
+  void _addTokenInterceptor() {
+    _dio.interceptors.add(InterceptorsWrapper(onRequest:
+        (RequestOptions options, RequestInterceptorHandler handler) async {
+      String? accessToken = await _getAccessToken();
+
+      if (accessToken != null) {
+        options.headers['Authorization'] =
+            'Bearer $accessToken'; // Use 'Bearer' if needed
+      }
+
+      return handler.next(options);
+    }));
   }
 }

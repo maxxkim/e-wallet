@@ -7,7 +7,7 @@ abstract class DashboardState {}
 class DashboardStateLoaded extends DashboardState {
   final FilterType filterType;
   final String chosenMonth;
-  final double balance;
+  final int balance;
   final String? accessToken;
   final List<Transaction>? transactions;
   final List<Transaction>? filteredTransactions;
@@ -25,7 +25,7 @@ class DashboardStateLoaded extends DashboardState {
   DashboardStateLoaded copyWith({
     FilterType? filterType,
     String? chosenMonth,
-    double? balance,
+    int? balance,
     List<Transaction>? transactions,
     List<Transaction>? filteredTransactions,
     String? accessToken,

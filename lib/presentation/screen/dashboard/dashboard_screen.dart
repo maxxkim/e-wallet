@@ -33,7 +33,11 @@ class DashboardScreen extends StatelessWidget {
         future: _createDashboardCubit(context),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Center(child: CircularProgressIndicator());
+            return Scaffold(
+                body: Center(
+                    child: CircularProgressIndicator(
+              color: Theme.of(context).colorScheme.primary,
+            )));
           } else if (snapshot.hasError) {
             // Возвращаем ErrorScreen при возникновении ошибки
             return ErrorScreen(errorMessage: 'Error: ${snapshot.error}');

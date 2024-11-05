@@ -7,3 +7,5 @@ class Authenticated extends SessionState {
 }
 
 class Unauthenticated extends SessionState {}
+
+class RefreshingTokens extends SessionState {}

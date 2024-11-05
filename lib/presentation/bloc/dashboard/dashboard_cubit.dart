@@ -14,7 +14,7 @@ class DashboardCubit extends Cubit<DashboardState> {
       : super(DashboardStateLoaded(
           filterType: FilterType.period,
           chosenMonth: DateFormat('MMMM').format(DateTime.now()),
-          balance: 0.0,
+          balance: 0,
           transactions: [],
           filteredTransactions: [],
         ));
