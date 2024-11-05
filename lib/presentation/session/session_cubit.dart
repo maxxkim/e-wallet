@@ -16,7 +16,7 @@ class SessionCubit extends Cubit<SessionState> {
   }
 
   void _startAuthenticationTimer() async {
-    const duration = Duration(seconds: 30); // Adjust the duration as needed
+    const duration = Duration(minutes: 15); // Adjust the duration as needed
     _timer = Timer.periodic(duration, (timer) async {
       try {
         SharedPreferences prefs = await SharedPreferences.getInstance();

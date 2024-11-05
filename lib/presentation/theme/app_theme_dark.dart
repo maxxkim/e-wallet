@@ -1,55 +1,123 @@
 import 'package:flutter/material.dart';
 
-const Color blackColor = Colors.red;
-const Color aquamarineColor = Colors.pink;
-const Color bluePurpleColor = Colors.green;
-const Color darkGreyColor = Colors.orange;
-const Color lightGreyColor = Colors.black;
-const Color lightAquamarineColor = Colors.purple;
-const Color midLightAquamarineColor = Colors.yellow;
-const Color greenColor = Colors.teal;
-const Color redColor = Colors.lime;
-const Color whiteColor = Colors.amber;
+const Color blackColor = Color(0xFF1D1D1B); // Dark background color
+const Color aquamarineColor = Color(0xFF52DAC6); // Accent color
+const Color bluePurpleColor = Color(0xFF0F0A54); // Primary color
+const Color darkGreyColor = Color(0xFF878787); // Grey for borders/text
+const Color lightGreyColor = Color(0xFFEFEFEF); // Light grey for hints
+const Color midLightAquamarineColor =
+    Color(0xFF8BD8CD); // Lighter version of aquamarine
+const Color greenColor = Color(0xFF54C099); // Success color
+const Color redColor = Color(0xFFDC4949); // Error color
+const Color whiteColor = Color(0xFFFFFFFF); // Text color
+const Color lightAquamarineColor = Color(0xFFDDEEEB); // Backgrounds
+const Color lightRedColor = Color(0xFFEEDDDD); // Light red for errors
 
 final ThemeData appThemeDark = ThemeData(
-  primaryColor: aquamarineColor,
-  brightness: Brightness.light,
-  scaffoldBackgroundColor: whiteColor,
+  primaryColor: bluePurpleColor,
+  secondaryHeaderColor: aquamarineColor,
+  brightness: Brightness.dark,
+  scaffoldBackgroundColor: darkGreyColor, // Dark background
+  colorScheme: const ColorScheme.dark(
+    primary: bluePurpleColor,
+    secondary: aquamarineColor,
+    onPrimary: whiteColor, // Text on primary color
+    onSecondary: blackColor, // Text on secondary color
+    error: redColor,
+    scrim: greenColor,
+    surface: darkGreyColor,
+    onSurface: lightGreyColor,
+  ),
   textTheme: const TextTheme(
-    bodySmall: TextStyle(
-        color: whiteColor,
+    titleSmall: TextStyle(
+        color: aquamarineColor,
         fontSize: 12,
-        fontWeight: FontWeight.w300,
-        fontFamily: 'Roboto'),
-    bodyMedium: TextStyle(
+        fontWeight: FontWeight.bold,
+        fontFamily: 'RobotoFlex'),
+    titleMedium: TextStyle(
         color: whiteColor,
         fontSize: 14,
-        fontWeight: FontWeight.w300,
-        fontFamily: 'Roboto'),
-    bodyLarge: TextStyle(
-        color: whiteColor,
-        fontSize: 16,
-        fontWeight: FontWeight.w300,
-        fontFamily: 'Roboto'),
-    headlineSmall: TextStyle(
-        color: whiteColor,
-        fontSize: 16,
-        fontWeight: FontWeight.w300,
-        fontFamily: 'Roboto'),
-    headlineMedium: TextStyle(
-        color: whiteColor,
+        fontWeight: FontWeight.w600,
+        fontFamily: 'RobotoFlex'),
+    titleLarge: TextStyle(
+        color: aquamarineColor,
         fontSize: 20,
         fontWeight: FontWeight.bold,
-        fontFamily: 'Roboto'),
-    labelSmall:
-        TextStyle(color: whiteColor, fontSize: 12, fontWeight: FontWeight.w300),
-  ),
-  colorScheme: const ColorScheme.light(
-    primary: bluePurpleColor,
-    secondary: whiteColor,
+        fontFamily: 'RobotoFlex'),
+    bodySmall: TextStyle(
+        color: lightGreyColor,
+        fontSize: 14,
+        fontWeight: FontWeight.w300,
+        fontFamily: 'RobotoFlex'),
+    bodyMedium: TextStyle(
+        color: lightGreyColor,
+        fontSize: 14,
+        fontWeight: FontWeight.w300,
+        fontFamily: 'RobotoFlex'),
+    bodyLarge: TextStyle(
+        color: lightGreyColor,
+        fontSize: 16,
+        fontWeight: FontWeight.w300,
+        fontFamily: 'RobotoFlex'),
+    headlineSmall: TextStyle(
+        color: aquamarineColor,
+        fontSize: 16,
+        fontWeight: FontWeight.w600,
+        fontFamily: 'RobotoFlex'),
+    headlineMedium: TextStyle(
+        color: aquamarineColor,
+        fontSize: 20,
+        fontWeight: FontWeight.bold,
+        fontFamily: 'RobotoFlex'),
+    headlineLarge: TextStyle(
+        color: whiteColor,
+        fontSize: 12,
+        fontWeight: FontWeight.w400,
+        fontFamily: 'RobotoFlex'),
+    displaySmall: TextStyle(
+        color: blackColor,
+        fontSize: 14,
+        fontWeight: FontWeight.bold,
+        fontFamily: 'RobotoFlex'),
+    displayMedium: TextStyle(
+        color: blackColor,
+        fontSize: 16,
+        fontWeight: FontWeight.bold,
+        fontFamily: 'RobotoFlex'),
+    displayLarge: TextStyle(
+        color: lightGreyColor,
+        fontSize: 24,
+        fontWeight: FontWeight.w300,
+        fontFamily: 'RobotoFlex'),
+    labelSmall: TextStyle(
+        color: lightGreyColor,
+        fontSize: 12,
+        fontWeight: FontWeight.w300,
+        fontFamily: 'RobotoFlex'),
+    labelMedium: TextStyle(
+        color: lightGreyColor,
+        fontSize: 16,
+        fontWeight: FontWeight.w300,
+        fontFamily: 'RobotoFlex'),
+    labelLarge: TextStyle(
+        color: greenColor,
+        fontSize: 16,
+        fontWeight: FontWeight.bold,
+        fontFamily: 'RobotoFlex'),
+    inText: TextStyle(
+        color: greenColor,
+        fontSize: 16,
+        fontWeight: FontWeight.bold,
+        fontFamily: 'RobotoFlex'),
+    outText: TextStyle(
+        color: redColor,
+        fontSize: 16,
+        fontWeight: FontWeight.bold,
+        fontFamily: 'RobotoFlex'),
   ),
   appBarTheme: const AppBarTheme(
-    backgroundColor: bluePurpleColor,
+    toolbarHeight: 0,
+    color: whiteColor,
     foregroundColor: whiteColor,
   ),
   buttonTheme: ButtonThemeData(
@@ -131,77 +199,3 @@ final ThemeData appThemeDark = ThemeData(
   cardColor: lightAquamarineColor,
   dialogBackgroundColor: lightGreyColor,
 );
-
-// Основные цвета брендбука:
-// blackColor 1D1D1B
-// aquamarineColor 52DAC6
-// bluePurpleColor 0F0A54
-
-// Дополнительные цвета для светлой темы:
-// darkGreyColor 878787
-// lightGreyColor EFEFEF
-// lightAquamarineColor DDEEEB
-// greenColor 4DD0A1
-// redColor DC4949
-// midLightAquamarineColor 8BD8CD
-// whiteColor FFFFFF
-
-// Шрифты:
-// Roboto black w800, bold, light w300
-
-// Использование в интерфейсе:
-// Основной цвет фона: whiteColor
-// (Этот цвет используется в качестве фонового цвета для всех экранов и областей, где нет дополнительных акцентов)
-
-// Активная кнопка / важная кнопка: bluePurpleColor, font weight bold, font size 16, padding top and bottom 16px, text color whiteColor, border radius 15px
-
-// Неактивная кнопка: border color aquamarineColor, border size 1px, font weight w300, padding top and bottom 16px, text color aquamarineColor, border radius 15px
-
-// Поле ввода: border color darkGreyColor, border size 1px, font weight w300, padding top and bottom 16px, border radius 15px
-
-// Неправильный ввод: border color redColor, border size 1px, font weight w300, padding top and bottom 16px, border radius 15px
-
-// Правильный ввод: border color greenColor, border size 1px, font weight w300, padding top and bottom 16px, border radius 15px
-
-// Кнопки фильтров:
-// Активная кнопка / важная кнопка: bluePurpleColor, font weight bold, font size 12px, padding top and bottom 8px, text color whiteColor, border radius 15px
-
-// Неактивная кнопка: border color bluePurpleColor, border size 1px, font weight w300, padding top and bottom 8px, text color bluePurpleColor, border radius 15px
-
-// Текст:
-// Цвет текста по умолчанию: blackColor
-
-// Описание (маленький текст): font weight w300, font size 12px
-
-// Описание (обычный текст): font weight w300, font size 14px
-
-// Заголовки: font weight w300, font size 16px
-
-// Основные числа: font weight bold, font size 20px
-
-// Маленькие кнопки: font weight bold, font size 8px
-
-// Плейсхолдер в поле ввода: color lightGreyColor
-
-// Активное поле ввода: color blackColor
-
-// Неактивное поле ввода: darkGreyColor
-
-// Тексты транзакций:
-// Заголовок транзакции: font weight bold, font size 10px, color bluePurpleColor
-
-// Текст транзакции: font weight w300, font size 8px, color blackColor
-
-// Сумма дохода: weight bold, font size 12px, color greenColor
-
-// Сумма расходов: weight bold, font size 12px, color redColor
-
-// Слайдеры и скроллы:
-// Цвет фона: midLightAquamarineColor
-
-// Дашборды:
-// Цвет фона: lightAquamarineColor
-// (Фоновый цвет для информационных панелей и кнопок-виджетов)
-
-// Информационные блоки:
-// Цвет фона: lightGreyColor

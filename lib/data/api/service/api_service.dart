@@ -110,6 +110,7 @@ class ApiService {
         options.headers['Authorization'] =
             'Bearer $accessToken'; // Use 'Bearer' if needed
       }
+      print(accessToken);
 
       return handler.next(options);
     }));

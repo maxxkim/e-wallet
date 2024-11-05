@@ -71,6 +71,8 @@ class DashboardScreen extends StatelessWidget {
                         backgroundColor: Theme.of(context).colorScheme.primary,
                         toolbarHeight: 40,
                       ),
+                      floatingActionButton: OutlinedButton(
+                          onPressed: () => print("+"), child: Text("+")),
                       body: Padding(
                         padding: const EdgeInsets.all(16.0),
                         child: Column(
