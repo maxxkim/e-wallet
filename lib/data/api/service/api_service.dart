@@ -18,22 +18,6 @@ class ApiService {
     _addTokenInterceptor();
   }
 
-  Future<ApiTopUp> getTopUp(GetTopUpBody body) async {
-    final response = await _dio.post(
-      'https://payin-75jkb5hnza-uc.a.run.app/',
-      queryParameters: body.toApi(),
-    );
-    return ApiTopUp.fromApi(response.data);
-  }
-
-  Future<ApiWithdraw> getWithdraw(GetWithdrawBody body) async {
-    final response = await _dio.post(
-      'https://payin-75jkb5hnza-uc.a.run.app/',
-      queryParameters: body.toApi(),
-    );
-    return ApiWithdraw.fromApi(response.data);
-  }
-
   Future<ApiBalance> getBalance() async {
     final response = await _dio.get(
       'https://balance-service-app-sz8if.ondigitalocean.app/api/v1/wallet',

@@ -20,20 +20,6 @@ class ApiUtil {
 
   ApiUtil(this._apiService);
 
-  Future<TopUp> getTopUp({
-    required GetTopUpBody requestBody,
-  }) async {
-    final result = await _apiService.getTopUp(requestBody);
-    return TopUpMapper.fromApi(result);
-  }
-
-  Future<Withdraw> getWithdraw({
-    required GetWithdrawBody requestBody,
-  }) async {
-    final result = await _apiService.getWithdraw(requestBody);
-    return WithdrawMapper.fromApi(result);
-  }
-
   Future<List<Transaction>> getTransactions() async {
     final result = await _apiService.getTransactions();
     return TransactionMapper.fromApi(result);
