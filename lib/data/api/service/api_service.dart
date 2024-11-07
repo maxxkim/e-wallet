@@ -3,13 +3,9 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:zippy/data/api/api_auth_initiate.dart';
 import 'package:zippy/data/api/api_auth_refresh.dart';
 import 'package:zippy/data/api/api_auth_verify.dart';
-import 'package:zippy/data/api/api_auth_verify_token.dart';
 import 'package:zippy/data/api/api_balance.dart';
-import 'package:zippy/data/api/api_top_up.dart';
 import 'package:zippy/data/api/api_transaction.dart';
-import 'package:zippy/data/api/api_withdraw.dart';
-import 'package:zippy/data/api/request/get_top_up_body.dart';
-import 'package:zippy/data/api/request/get_withdraw_body.dart';
+import 'package:zippy/data/api/api_verify_token.dart';
 
 class ApiService {
   final Dio _dio = Dio();
@@ -69,14 +65,14 @@ class ApiService {
     return ApiAuthRefresh.fromApi(response.data);
   }
 
-  Future<ApiAuthVerifyToken> verifyToken(String token) async {
+  Future<ApiVerifyToken> verifyToken(String token) async {
     final response = await _dio.post(
-      'https://auth-service-app-m9z4y.ondigitalocean.app/auth/verify',
+      'https://auth-service-app-m9z4y.ondigitalocean.app/auth/validate-token',
       data: {
         'token': token,
       },
     );
-    return ApiAuthVerifyToken.fromApi(response.data);
+    return ApiVerifyToken.fromApi(response.data);
   }
 
   Future<String?> _getAccessToken() async {
@@ -94,7 +90,9 @@ class ApiService {
         options.headers['Authorization'] =
             'Bearer $accessToken'; // Use 'Bearer' if needed
       }
-      print(accessToken);
+
+      options.headers['x-api-key'] =
+          'BKC4X9KXCrsCpVZB7DvN4rkhrHZSu6sD'; // Add x-api-key header
 
       return handler.next(options);
     }));
