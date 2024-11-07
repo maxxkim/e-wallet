@@ -4,8 +4,9 @@ import 'package:go_router/go_router.dart';
 import 'package:zippy/domain/repository/dashboard/dashboard_repository.dart';
 import 'package:zippy/domain/state/dashboard/dashboard_state.dart';
 import 'package:zippy/presentation/bloc/dashboard/dashboard_cubit.dart';
+import 'package:zippy/presentation/screen/dashboard/widgets/filter_button_row.dart';
+import 'package:zippy/presentation/screen/dashboard/widgets/transaction_history_panel.dart';
 import 'package:zippy/presentation/screen/error_screen.dart';
-import 'package:zippy/presentation/screen/history/widgets/transaction_tile.dart';
 import 'package:zippy/presentation/session/session_cubit.dart';
 import 'widgets/dashboard_display.dart';
 
@@ -71,8 +72,6 @@ class DashboardScreen extends StatelessWidget {
                         backgroundColor: Theme.of(context).colorScheme.primary,
                         toolbarHeight: 40,
                       ),
-                      floatingActionButton: OutlinedButton(
-                          onPressed: () => print("+"), child: Text("+")),
                       body: Padding(
                         padding: const EdgeInsets.all(16.0),
                         child: Column(
@@ -80,112 +79,7 @@ class DashboardScreen extends StatelessWidget {
                           children: <Widget>[
                             DashboardDisplay(balance: state.balance),
                             const SizedBox(height: 16),
-                            Row(
-                              children: [
-                                FilledButton(
-                                  onPressed: () => context
-                                      .read<DashboardCubit>()
-                                      .selectFilter(FilterType.period),
-                                  style: ButtonStyle(
-                                    padding: WidgetStateProperty.all(
-                                        const EdgeInsets.symmetric(
-                                            horizontal: 24.0)),
-                                    backgroundColor: WidgetStateProperty.all(
-                                      state.filterType == FilterType.period
-                                          ? Theme.of(context)
-                                              .colorScheme
-                                              .primary
-                                          : Theme.of(context)
-                                              .colorScheme
-                                              .secondaryContainer,
-                                    ),
-                                    foregroundColor: WidgetStateProperty.all(
-                                      state.filterType == FilterType.period
-                                          ? Colors.white
-                                          : Colors.black,
-                                    ),
-                                    textStyle: WidgetStateProperty.all(
-                                        state.filterType == FilterType.period
-                                            ? Theme.of(context)
-                                                .textTheme
-                                                .displaySmall
-                                            : Theme.of(context)
-                                                .textTheme
-                                                .bodyMedium),
-                                  ),
-                                  child: const Text("Period"),
-                                ),
-                                const Spacer(),
-                                FilledButton(
-                                  onPressed: () => context
-                                      .read<DashboardCubit>()
-                                      .selectFilter(FilterType.deposit),
-                                  style: ButtonStyle(
-                                    padding: WidgetStateProperty.all(
-                                        const EdgeInsets.symmetric(
-                                            horizontal: 24.0)),
-                                    backgroundColor: WidgetStateProperty.all(
-                                      state.filterType == FilterType.deposit
-                                          ? Theme.of(context)
-                                              .colorScheme
-                                              .primary
-                                          : Theme.of(context)
-                                              .colorScheme
-                                              .secondaryContainer,
-                                    ),
-                                    foregroundColor: WidgetStateProperty.all(
-                                      state.filterType == FilterType.deposit
-                                          ? Colors.white
-                                          : Colors.black,
-                                    ),
-                                    textStyle: WidgetStateProperty.all(
-                                        state.filterType == FilterType.deposit
-                                            ? Theme.of(context)
-                                                .textTheme
-                                                .displaySmall
-                                            : Theme.of(context)
-                                                .textTheme
-                                                .bodyMedium),
-                                  ),
-                                  child: const Text("Deposit"),
-                                ),
-                                const Spacer(),
-                                FilledButton(
-                                  onPressed: () => context
-                                      .read<DashboardCubit>()
-                                      .selectFilter(FilterType.withdrawal),
-                                  style: ButtonStyle(
-                                    padding: WidgetStateProperty.all(
-                                        const EdgeInsets.symmetric(
-                                            horizontal: 24.0)),
-                                    backgroundColor: WidgetStateProperty.all(
-                                      state.filterType == FilterType.withdrawal
-                                          ? Theme.of(context)
-                                              .colorScheme
-                                              .primary
-                                          : Theme.of(context)
-                                              .colorScheme
-                                              .secondaryContainer,
-                                    ),
-                                    foregroundColor: WidgetStateProperty.all(
-                                      state.filterType == FilterType.withdrawal
-                                          ? Colors.white
-                                          : Colors.black,
-                                    ),
-                                    textStyle: WidgetStateProperty.all(
-                                        state.filterType ==
-                                                FilterType.withdrawal
-                                            ? Theme.of(context)
-                                                .textTheme
-                                                .displaySmall
-                                            : Theme.of(context)
-                                                .textTheme
-                                                .bodyMedium),
-                                  ),
-                                  child: const Text("Withdrawal"),
-                                ),
-                              ],
-                            ),
+                            FilterButtonRow(state: state),
                             const SizedBox(height: 16),
                             Expanded(
                               child: Container(
@@ -254,34 +148,8 @@ class DashboardScreen extends StatelessWidget {
                                         ),
                                       ),
                                     Expanded(
-                                      child: ListView.builder(
-                                        itemCount: state
-                                                .filteredTransactions?.length ??
-                                            0,
-                                        itemBuilder: (context, index) {
-                                          return Column(
-                                            children: [
-                                              TransactionTile(
-                                                transaction:
-                                                    state.filteredTransactions![
-                                                        index],
-                                                onIconTap: () {
-                                                  // Перейти к новому экрану с передачей данных транзакции
-                                                  context.go(
-                                                      '/dashboard/infoDashboard',
-                                                      extra: state
-                                                              .filteredTransactions![
-                                                          index]);
-                                                },
-                                              ),
-                                              Container(
-                                                height: 1,
-                                                color: Theme.of(context)
-                                                    .scaffoldBackgroundColor,
-                                              ),
-                                            ],
-                                          );
-                                        },
+                                      child: TransactionHistoryPanel(
+                                        state: state,
                                       ),
                                     ),
                                     Row(

@@ -28,6 +28,7 @@ class AuthDataRepository extends AuthRepository {
     return _apiUtil.refreshAuth(refreshToken);
   }
 
+  @override
   Future<bool> verifyToken(String accessToken) {
     return _apiUtil.verifyToken(accessToken);
   }

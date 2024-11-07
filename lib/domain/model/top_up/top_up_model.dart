@@ -1,9 +1,7 @@
 class TopUp {
-  final String status;
-  final String url;
+  final List<dynamic> providerList;
 
   TopUp({
-    required this.status,
-    required this.url,
+    required this.providerList,
   });
 }

@@ -18,15 +18,12 @@ class SessionCubit extends Cubit<SessionState> {
 
     if (accessToken != null && accessToken.isNotEmpty) {
       if (await _authRepository.verifyToken(accessToken)) {
-        print('Access token verified');
         emit(Authenticated(accessToken));
       } else {
-        print('Token expired. Removing...');
         prefs.remove('accessToken');
         emit(Unauthenticated());
       }
     } else {
-      print("No access token.");
       prefs.remove('accessToken');
       emit(Unauthenticated());
     }

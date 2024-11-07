@@ -1,8 +1,5 @@
 class ApiTopUp {
-  final String status;
-  final String url;
+  final List<dynamic> providerList;
 
-  ApiTopUp.fromApi(Map<String, dynamic> map)
-      : status = map['results']['status'],
-        url = map['results']['url'];
+  ApiTopUp.fromApi(Map<String, dynamic> map) : providerList = map['providers'];
 }
