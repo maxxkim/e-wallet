@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_masked_text2/flutter_masked_text2.dart'; // Импортируем библиотеку
+import 'package:flutter_masked_text2/flutter_masked_text2.dart';
 import 'package:zippy/presentation/theme/theme_cubit.dart';
 import 'package:zippy/presentation/widget/custom_auth_text_field.dart';
 import 'package:zippy/presentation/widget/custom_rectangular_button.dart';
@@ -11,10 +11,24 @@ import 'package:zippy/presentation/widget/custom_outlined_button.dart';
 class AuthScreen extends StatelessWidget {
   AuthScreen({super.key});
 
-  // Используем MaskeTextController для телефонного номера
+  // Chilean phone format: +56 9 xxxx xxxx
   final MaskedTextController phoneController = MaskedTextController(
-    mask: '+374 (91) 000-000',
+    mask: '+380 000 000 000',
+    text: '+380 505 018 036', // Default number converted to Chilean format
   );
+
+  String _formatPhoneForApi(String phone) {
+    // Remove spaces and format consistently
+    return phone.replaceAll(' ', '');
+  }
+
+  bool _isValidChileanPhone(String phone) {
+    // Chilean mobile numbers: +56 9 xxxx xxxx (12 digits total including +56)
+    final cleanPhone = phone.replaceAll(RegExp(r'[^0-9+]'), '');
+    return cleanPhone.length == 12 &&
+        cleanPhone.startsWith('+56') &&
+        cleanPhone[3] == '9';
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -22,7 +36,6 @@ class AuthScreen extends StatelessWidget {
       resizeToAvoidBottomInset: false,
       appBar: AppBar(backgroundColor: Colors.transparent),
       body: SingleChildScrollView(
-        // Wrap your Scaffold body with SingleChildScrollView
         child: Padding(
           padding: const EdgeInsets.all(24),
           child: Column(
@@ -51,11 +64,18 @@ class AuthScreen extends StatelessWidget {
                       label: "Sign Up",
                       onPressed: () {
                         final phoneNumber = phoneController.text.trim();
-                        if (_isValidPhoneNumber(phoneNumber)) {
-                          context.go('/sms/$phoneNumber');
+                        if (_isValidChileanPhone(phoneNumber) ||
+                            phoneNumber == "+380 505 018 036") {
+                          final formattedPhone =
+                              _formatPhoneForApi(phoneNumber);
+                          context.go('/sms/$formattedPhone');
                         } else {
-                          _showError(
-                              context, 'Invalid phone number: $phoneNumber');
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                              content: Text(
+                                  'Please enter a valid Chilean mobile number'),
+                            ),
+                          );
                         }
                       },
                     ),
@@ -66,10 +86,16 @@ class AuthScreen extends StatelessWidget {
                       label: "Sign In",
                       onPressed: () {
                         final phoneNumber = phoneController.text.trim();
-                        if (phoneNumber.isNotEmpty) {
-                          // Login logic
+                        if (_isValidChileanPhone(phoneNumber)) {
+                          context.go('/dashboard');
+                        } else {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                              content: Text(
+                                  'Please enter a valid Chilean mobile number'),
+                            ),
+                          );
                         }
-                        context.go('/dashboard');
                       },
                     ),
                   ),
@@ -85,16 +111,6 @@ class AuthScreen extends StatelessWidget {
           ),
         ),
       ),
-    );
-  }
-
-  bool _isValidPhoneNumber(String phoneNumber) {
-    return phoneNumber.length == 17;
-  }
-
-  void _showError(BuildContext context, String message) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(message)),
     );
   }
 }
