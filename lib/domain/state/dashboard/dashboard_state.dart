@@ -11,6 +11,7 @@ class DashboardStateLoaded extends DashboardState {
   final String? accessToken;
   final List<Transaction>? transactions;
   final List<Transaction>? filteredTransactions;
+  final String searchQuery;
 
   DashboardStateLoaded({
     required this.filterType,
@@ -19,6 +20,7 @@ class DashboardStateLoaded extends DashboardState {
     required this.transactions,
     required this.filteredTransactions,
     this.accessToken,
+    this.searchQuery = '',
   });
 
   DashboardStateLoaded copyWith({
@@ -28,6 +30,7 @@ class DashboardStateLoaded extends DashboardState {
     List<Transaction>? transactions,
     List<Transaction>? filteredTransactions,
     String? accessToken,
+    String? searchQuery,
   }) {
     return DashboardStateLoaded(
       filterType: filterType ?? this.filterType,
@@ -36,13 +39,13 @@ class DashboardStateLoaded extends DashboardState {
       transactions: transactions ?? this.transactions,
       filteredTransactions: filteredTransactions ?? this.filteredTransactions,
       accessToken: accessToken ?? this.accessToken,
+      searchQuery: searchQuery ?? this.searchQuery,
     );
   }
 }
 
 class DashboardStateError extends DashboardState {
   final String errorMessage;
-
   DashboardStateError({
     required this.errorMessage,
   });

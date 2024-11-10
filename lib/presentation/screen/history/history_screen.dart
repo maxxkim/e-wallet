@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -6,8 +8,36 @@ import 'package:zippy/presentation/bloc/dashboard/dashboard_cubit.dart';
 import 'package:zippy/presentation/screen/history/widgets/transaction_list.dart';
 import 'package:zippy/presentation/widget/custom_text_field.dart';
 
-class HistoryScreen extends StatelessWidget {
+class HistoryScreen extends StatefulWidget {
   const HistoryScreen({super.key});
+
+  @override
+  State<HistoryScreen> createState() => _HistoryScreenState();
+}
+
+class _HistoryScreenState extends State<HistoryScreen> {
+  final TextEditingController _searchController = TextEditingController();
+  Timer? _debounce;
+
+  @override
+  void initState() {
+    super.initState();
+    _searchController.addListener(_onSearchChanged);
+  }
+
+  @override
+  void dispose() {
+    _searchController.dispose();
+    _debounce?.cancel();
+    super.dispose();
+  }
+
+  void _onSearchChanged() {
+    if (_debounce?.isActive ?? false) _debounce!.cancel();
+    _debounce = Timer(const Duration(milliseconds: 500), () {
+      context.read<DashboardCubit>().searchTransactions(_searchController.text);
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -23,10 +53,7 @@ class HistoryScreen extends StatelessWidget {
               padding: const EdgeInsets.only(top: 16, left: 16, right: 16),
               child: Column(
                 children: <Widget>[
-                  CustomTextField(
-                    hintText: "Search",
-                    controller: TextEditingController(),
-                  ),
+                  _buildSearchField(),
                   const SizedBox(height: 16),
                   _buildHeader(context, state),
                   const SizedBox(height: 8),
@@ -47,6 +74,19 @@ class HistoryScreen extends StatelessWidget {
         return const Center(child: CircularProgressIndicator());
       },
     );
+  }
+
+  Widget _buildSearchField() {
+    return CustomTextField(
+      hintText: "Search by title, ID or amount",
+      controller: _searchController,
+      icon: const Padding(
+        padding: EdgeInsets.all(12.0),
+        child: Icon(Icons.search),
+      ),
+    ).animate().fadeIn(
+          duration: const Duration(milliseconds: 300),
+        );
   }
 
   Widget _buildHeader(BuildContext context, DashboardStateLoaded state) {
