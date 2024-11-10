@@ -1,5 +1,11 @@
-class ApiTopUp {
-  final List<dynamic> providerList;
+import 'package:zippy/domain/model/top_up/provider_model.dart';
 
-  ApiTopUp.fromApi(Map<String, dynamic> map) : providerList = map['providers'];
+class ApiTopUp {
+  final List<Provider> providerList;
+
+  ApiTopUp.fromApi(Map<String, dynamic> json)
+      : providerList = (json['providers'] as List<dynamic>?)
+                ?.map((providerMap) => Provider.fromJson(providerMap))
+                .toList() ??
+            [];
 }

@@ -7,10 +7,12 @@ class CustomTextField extends StatelessWidget {
   final bool? autofocus;
   final Widget? icon; // Иконка будет передаваться как параметр
   final TextInputType keyboardType;
+  final FormFieldValidator? validator;
 
   const CustomTextField({
     Key? key,
     required this.controller,
+    this.validator,
     this.labelText,
     this.autofocus,
     this.hintText,
@@ -44,8 +46,7 @@ class CustomTextField extends StatelessWidget {
         labelText: labelText,
         hintText: hintText,
         border: OutlineInputBorder(borderRadius: BorderRadius.circular(16)),
-        prefixIcon:
-            icon, // Используем prefixIcon для размещения иконки внутри поля
+        prefixIcon: icon,
       ),
       style: const TextStyle(
           color: Colors.black, fontSize: 14), // Уменьшение размера шрифта
