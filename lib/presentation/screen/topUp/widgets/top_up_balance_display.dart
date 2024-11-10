@@ -47,7 +47,7 @@ class TopUpBalanceDisplay extends StatelessWidget with FadeInAnimationMixin {
                 Align(
                   alignment: Alignment.centerLeft,
                   child: Text(
-                    "Select Top Up option:",
+                    "Select provider:",
                     style: Theme.of(context).textTheme.titleMedium,
                   ),
                 ),

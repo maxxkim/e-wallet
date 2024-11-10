@@ -19,6 +19,7 @@ class DashboardScreen extends StatelessWidget with FadeInAnimationMixin {
         if (state is DashboardStateLoaded) {
           return Scaffold(
             appBar: AppBar(
+              title: fadeIn(const Text('ZippyPay')),
               actions: [
                 fadeIn(
                   Padding(

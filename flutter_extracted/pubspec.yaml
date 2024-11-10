@@ -25,6 +25,7 @@ dependencies:
   flutter_animate: ^4.5.0
   flutter_masked_text2: ^0.9.1
   shared_preferences: ^2.3.2
+  share_plus: ^10.1.2
 
 dev_dependencies:
   flutter_test:

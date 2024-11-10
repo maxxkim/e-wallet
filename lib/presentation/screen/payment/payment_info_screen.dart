@@ -2,12 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:zippy/domain/model/transaction/transaction_model.dart';
+import 'package:zippy/domain/model/transaction/transaction_share_model.dart';
 import 'package:zippy/presentation/animation/fade_animation_mixin.dart';
+import 'package:zippy/presentation/screen/history/widgets/transaction_utils.dart';
 import 'package:zippy/presentation/widget/custom_rectangular_button.dart';
 
 class PaymentInfoScreen extends StatelessWidget with FadeInAnimationMixin {
   final Transaction transaction;
-
   const PaymentInfoScreen({required this.transaction, super.key});
 
   @override
@@ -100,18 +101,21 @@ class PaymentInfoScreen extends StatelessWidget with FadeInAnimationMixin {
                       context,
                       'assets/images/icon_support_lg.svg',
                       'Help',
+                      () => _showHelpDialog(context),
                     ),
                     const SizedBox(width: 32),
                     _buildActionButton(
                       context,
                       'assets/images/icon_copy_lg.svg',
                       'Copy',
+                      () => _copyTransactionDetails(context),
                     ),
                     const SizedBox(width: 32),
                     _buildActionButton(
                       context,
                       'assets/images/icon_share_lg.svg',
                       'Share',
+                      () => _shareTransaction(context),
                     ),
                   ],
                 ),
@@ -141,20 +145,75 @@ class PaymentInfoScreen extends StatelessWidget with FadeInAnimationMixin {
   }
 
   Widget _buildActionButton(
-      BuildContext context, String iconPath, String label) {
-    return Column(
-      children: [
-        SvgPicture.asset(
-          iconPath,
-          height: 40.0,
-          width: 40.0,
-        ),
-        const SizedBox(height: 4),
-        Text(
-          label,
-          style: Theme.of(context).textTheme.titleMedium,
-        ),
-      ],
+    BuildContext context,
+    String iconPath,
+    String label,
+    VoidCallback onTap,
+  ) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Column(
+        children: [
+          SvgPicture.asset(
+            iconPath,
+            height: 40.0,
+            width: 40.0,
+          ),
+          const SizedBox(height: 4),
+          Text(
+            label,
+            style: Theme.of(context).textTheme.titleMedium,
+          ),
+        ],
+      ),
+    );
+  }
+
+  Future<void> _copyTransactionDetails(BuildContext context) async {
+    await TransactionUtils.copyTransactionDetails(
+      id: transaction.id,
+      type: transaction.type,
+      currency: transaction.currency,
+      amount: transaction.amount,
+      date: transaction.date,
+      status: transaction.status,
+      context: context,
+    );
+  }
+
+  Future<void> _shareTransaction(BuildContext context) async {
+    await TransactionShare.shareTransaction(
+      id: transaction.id,
+      type: transaction.type,
+      currency: transaction.currency,
+      amount: transaction.amount,
+      date: transaction.date,
+      status: transaction.status,
+      context: context,
+    );
+  }
+
+  void _showHelpDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text(
+            'Need Help? 🤔',
+            style: Theme.of(context).textTheme.titleLarge,
+          ),
+          content: Text(
+            'Contact our support team for assistance with your transaction.',
+            style: Theme.of(context).textTheme.bodyMedium,
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(),
+              child: const Text('Close'),
+            ),
+          ],
+        );
+      },
     );
   }
 
@@ -167,7 +226,7 @@ class PaymentInfoScreen extends StatelessWidget with FadeInAnimationMixin {
   }
 
   Color getContainer(BuildContext context) {
-    if (transaction.status == "success") {
+    if (transaction.status == "completed") {
       return Theme.of(context).colorScheme.secondaryContainer;
     } else if (transaction.status == "pending") {
       return Theme.of(context).colorScheme.onTertiaryContainer;
@@ -177,7 +236,7 @@ class PaymentInfoScreen extends StatelessWidget with FadeInAnimationMixin {
   }
 
   Widget getIcon(BuildContext context) {
-    if (transaction.status == "success") {
+    if (transaction.status == "completed") {
       return SvgPicture.asset(
         'assets/images/icon_tick.svg',
         height: 48.0,
@@ -199,7 +258,7 @@ class PaymentInfoScreen extends StatelessWidget with FadeInAnimationMixin {
   }
 
   String getText(BuildContext context) {
-    if (transaction.status == "success") {
+    if (transaction.status == "completed") {
       return "Transaction was completed\nsuccessfully!";
     } else if (transaction.status == "pending") {
       return "Transaction is being\nprocessed!";
