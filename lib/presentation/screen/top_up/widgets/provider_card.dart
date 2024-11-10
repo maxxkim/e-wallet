@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:zippy/domain/model/top_up/parameter_model.dart';
 import 'package:zippy/domain/model/top_up/provider_model.dart';
 import 'package:zippy/presentation/bloc/topUp/top_up_cubit.dart';
 import 'package:zippy/domain/state/topUp/top_up_state.dart';
@@ -10,9 +11,9 @@ import 'package:zippy/presentation/widget/custom_text_field.dart';
 class ProviderCard extends StatefulWidget {
   final Provider provider;
   const ProviderCard({
-    super.key,
+    Key? key,
     required this.provider,
-  });
+  }) : super(key: key);
 
   @override
   State<ProviderCard> createState() => _ProviderCardState();
@@ -25,6 +26,8 @@ class _ProviderCardState extends State<ProviderCard>
   bool _isExpanded = false;
   bool _isLoading = false;
   final Map<String, TextEditingController> _controllers = {};
+  final Map<String, String?> _errors = {};
+  final _formKey = GlobalKey<FormState>();
 
   @override
   void initState() {
@@ -38,16 +41,15 @@ class _ProviderCardState extends State<ProviderCard>
       curve: Curves.easeInOut,
     );
 
-    // Initialize controllers for each parameter
     for (var param in widget.provider.parameters) {
       _controllers[param.name] = TextEditingController();
+      _errors[param.name] = null;
     }
   }
 
   @override
   void dispose() {
     _controller.dispose();
-    // Dispose all controllers
     for (var controller in _controllers.values) {
       controller.dispose();
     }
@@ -65,28 +67,68 @@ class _ProviderCardState extends State<ProviderCard>
     });
   }
 
+  String? _validateField(Parameter param, String? value) {
+    if (value == null || value.isEmpty) {
+      if (param.required == "true") {
+        return param.description?.error ?? 'This field is required';
+      }
+      return null;
+    }
+
+    if (param.type == "number") {
+      final number = double.tryParse(value);
+      if (number == null) {
+        return 'Please enter a valid number';
+      }
+      if (param.min != null && number < double.parse(param.min!)) {
+        return 'Value must be greater than ${param.min}';
+      }
+      if (param.max != null && number > double.parse(param.max!)) {
+        return 'Value must be less than ${param.max}';
+      }
+    }
+
+    if (param.pattern != null) {
+      final regex = RegExp(param.pattern!);
+      if (!regex.hasMatch(value)) {
+        return param.description?.error ?? 'Invalid format';
+      }
+    }
+
+    return null;
+  }
+
   Future<void> _handleSubmit() async {
-    if (_isLoading) return; // Prevent multiple submissions
+    if (_isLoading) return;
+
+    bool isValid = true;
+    setState(() {
+      for (var param in widget.provider.parameters) {
+        final error = _validateField(param, _controllers[param.name]?.text);
+        _errors[param.name] = error;
+        if (error != null) {
+          isValid = false;
+        }
+      }
+    });
+
+    if (!isValid) return;
 
     setState(() {
       _isLoading = true;
     });
 
     try {
-      // Create body Map from controllers
       final Map<String, dynamic> body = {};
       for (var param in widget.provider.parameters) {
         body[param.name] = _controllers[param.name]?.text ?? '';
       }
 
-      // Add provider ID to the body
       body['providerId'] = widget.provider.id;
 
-      // Get TopUpCubit and initialize top-up
       final topUpCubit = context.read<TopUpCubit>();
       await topUpCubit.initializeTopUp(body);
     } catch (e) {
-      // Handle error if needed
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('Error: ${e.toString()}')),
@@ -175,55 +217,62 @@ class _ProviderCardState extends State<ProviderCard>
                   ),
                   child: Padding(
                     padding: const EdgeInsets.all(16.0),
-                    child: Column(
-                      children: widget.provider.parameters.map((param) {
-                        bool isLastParam =
-                            widget.provider.parameters.last == param;
-                        return Padding(
-                          padding:
-                              EdgeInsets.only(bottom: isLastParam ? 0 : 16.0),
-                          child: Row(
-                            children: [
-                              Expanded(
-                                child: CustomTextField(
-                                  controller: _controllers[param.name]!,
-                                  labelText:
-                                      param.description?.label ?? param.name,
-                                  hintText: param.description?.placeholder,
-                                  keyboardType: _getKeyboardType(param.type),
-                                  enabled: !_isLoading,
+                    child: Form(
+                      key: _formKey,
+                      child: Column(
+                        children: widget.provider.parameters.map((param) {
+                          bool isLastParam =
+                              widget.provider.parameters.last == param;
+                          return Padding(
+                            padding:
+                                EdgeInsets.only(bottom: isLastParam ? 0 : 16.0),
+                            child: Row(
+                              children: [
+                                Expanded(
+                                  child: CustomTextField(
+                                    controller: _controllers[param.name]!,
+                                    labelText:
+                                        param.description?.label ?? param.name,
+                                    hintText: param.description?.placeholder,
+                                    keyboardType: _getKeyboardType(param.type),
+                                    enabled: !_isLoading,
+                                    errorText: _errors[param.name],
+                                    validator: (value) =>
+                                        _validateField(param, value),
+                                  ),
                                 ),
-                              ),
-                              if (isLastParam) ...[
-                                const SizedBox(width: 16),
-                                FilledButton(
-                                  onPressed: _isLoading ? null : _handleSubmit,
-                                  child: _isLoading
-                                      ? SizedBox(
-                                          height: 20,
-                                          width: 20,
-                                          child: CircularProgressIndicator(
-                                            strokeWidth: 2,
-                                            valueColor:
-                                                AlwaysStoppedAnimation<Color>(
-                                              Theme.of(context)
-                                                  .colorScheme
-                                                  .onPrimary,
+                                if (isLastParam) ...[
+                                  const SizedBox(width: 16),
+                                  FilledButton(
+                                    onPressed:
+                                        _isLoading ? null : _handleSubmit,
+                                    child: _isLoading
+                                        ? SizedBox(
+                                            height: 20,
+                                            width: 20,
+                                            child: CircularProgressIndicator(
+                                              strokeWidth: 2,
+                                              valueColor:
+                                                  AlwaysStoppedAnimation<Color>(
+                                                Theme.of(context)
+                                                    .colorScheme
+                                                    .onPrimary,
+                                              ),
                                             ),
+                                          )
+                                        : Text(
+                                            'Continue',
+                                            style: Theme.of(context)
+                                                .textTheme
+                                                .displaySmall,
                                           ),
-                                        )
-                                      : Text(
-                                          'Continue',
-                                          style: Theme.of(context)
-                                              .textTheme
-                                              .displaySmall,
-                                        ),
-                                ),
+                                  ),
+                                ],
                               ],
-                            ],
-                          ),
-                        );
-                      }).toList(),
+                            ),
+                          );
+                        }).toList(),
+                      ),
                     ),
                   ),
                 ),
