@@ -1,8 +1,11 @@
-class ApiWithdraw {
-  final String status;
-  final String url;
+import 'package:zippy/domain/model/top_up/provider_model.dart';
 
-  ApiWithdraw.fromApi(Map<String, dynamic> map)
-      : status = map['results']['status'],
-        url = map['results']['url'];
+class ApiWithdraw {
+  final List<Provider> providerList;
+
+  ApiWithdraw.fromApi(Map<String, dynamic> json)
+      : providerList = (json['providers'] as List<dynamic>?)
+                ?.map((providerMap) => Provider.fromJson(providerMap))
+                .toList() ??
+            [];
 }

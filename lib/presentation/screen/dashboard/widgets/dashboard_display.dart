@@ -86,8 +86,13 @@ class DashboardDisplay extends StatelessWidget {
                           child: Text("Top Up",
                               style: Theme.of(context).textTheme.displayMedium),
                         ),
-                        Text("Withdraw",
-                            style: Theme.of(context).textTheme.displayMedium),
+                        GestureDetector(
+                          onTap: () => context.go(
+                            '/dashboard/withdrawal',
+                          ),
+                          child: Text("Withdraw",
+                              style: Theme.of(context).textTheme.displayMedium),
+                        ),
                       ],
                     ),
                   ),

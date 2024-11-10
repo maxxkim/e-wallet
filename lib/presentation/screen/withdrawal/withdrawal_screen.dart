@@ -1,30 +1,30 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
-import 'package:zippy/domain/repository/top_up/top_up_repository.dart';
-import 'package:zippy/domain/state/topUp/top_up_state.dart';
-import 'package:zippy/presentation/bloc/topUp/top_up_cubit.dart';
+import 'package:zippy/domain/repository/withdrawal/withdrawal_repository.dart';
+import 'package:zippy/domain/state/withdrawal/withdrawal_state.dart';
+import 'package:zippy/presentation/bloc/withdrawal/withdrawal_cubit.dart';
 import 'package:zippy/presentation/screen/error_screen.dart';
-import 'package:zippy/presentation/screen/top_up/widgets/provider_list.dart';
-import 'package:zippy/presentation/screen/top_up/widgets/top_up_balance_display.dart';
+import 'package:zippy/presentation/screen/topUp/widgets/provider_list.dart';
+import 'package:zippy/presentation/screen/topUp/widgets/top_up_balance_display.dart';
 
-class TopUpScreen extends StatelessWidget {
-  const TopUpScreen({Key? key}) : super(key: key);
+class WithdrawalScreen extends StatelessWidget {
+  const WithdrawalScreen({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    return FutureBuilder<TopUpCubit>(
-      future: _createTopUpCubit(context),
+    return FutureBuilder<WithdrawalCubit>(
+      future: _createWithdrawalCubit(context),
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return _buildLoadingScaffold(context);
         } else if (snapshot.hasError) {
           return _buildErrorScreen(context, snapshot.error);
         } else if (snapshot.hasData) {
-          final topUpCubit = snapshot.data!;
+          final withdrawalCubit = snapshot.data!;
           return BlocProvider.value(
-            value: topUpCubit,
-            child: BlocBuilder<TopUpCubit, TopUpState>(
+            value: withdrawalCubit,
+            child: BlocBuilder<WithdrawalCubit, WithdrawalState>(
               builder: (context, state) {
                 return Scaffold(
                   appBar: _buildAppBar(context),
@@ -51,19 +51,19 @@ class TopUpScreen extends StatelessWidget {
         onPressed: () => context.go('/dashboard'),
       ),
       title: Text(
-        'Top Up',
+        'Withdrawal',
         style: Theme.of(context).textTheme.displaySmall,
       ),
       centerTitle: true,
     );
   }
 
-  Widget _buildBody(BuildContext context, TopUpState state) {
-    if (state is TopUpStateLoading) {
+  Widget _buildBody(BuildContext context, WithdrawalState state) {
+    if (state is WithdrawalStateLoading) {
       return _buildLoadingContent();
-    } else if (state is TopUpStateLoaded) {
+    } else if (state is WithdrawalStateLoaded) {
       return _buildLoadedContent(context, state);
-    } else if (state is TopUpStateError) {
+    } else if (state is WithdrawalStateError) {
       return _buildErrorContent(context, state.errorMessage);
     }
     return _buildErrorContent(context, "Unknown state");
@@ -83,20 +83,21 @@ class TopUpScreen extends StatelessWidget {
         children: [
           CircularProgressIndicator(),
           SizedBox(height: 16),
-          Text('Loading providers...'),
+          Text('Loading withdrawal options...'),
         ],
       ),
     );
   }
 
-  Widget _buildLoadedContent(BuildContext context, TopUpStateLoaded state) {
+  Widget _buildLoadedContent(
+      BuildContext context, WithdrawalStateLoaded state) {
     if (state.providers.isEmpty) {
       return Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Text(
-              'No providers available',
+              'No withdrawal methods available',
               style: Theme.of(context).textTheme.titleMedium,
             ),
             const SizedBox(height: 16),
@@ -118,7 +119,10 @@ class TopUpScreen extends StatelessWidget {
             const SizedBox(height: 56),
             const TopUpBalanceDisplay(),
             const SizedBox(height: 12),
-            ProviderList(providers: state.providers.sublist(1)),
+            ProviderList(
+              providers: state.providers.sublist(1),
+              isWithdrawal: true,
+            )
           ],
         ),
       ),
@@ -158,13 +162,14 @@ class TopUpScreen extends StatelessWidget {
   }
 
   Future<void> _handleRefresh(BuildContext context) async {
-    final cubit = context.read<TopUpCubit>();
+    final cubit = context.read<WithdrawalCubit>();
     await cubit.loadData();
   }
 
-  Future<TopUpCubit> _createTopUpCubit(BuildContext context) async {
-    final topUpRepository = RepositoryProvider.of<TopUpRepository>(context);
-    final cubit = await TopUpCubit.create(topUpRepository);
+  Future<WithdrawalCubit> _createWithdrawalCubit(BuildContext context) async {
+    final withdrawalRepository =
+        RepositoryProvider.of<WithdrawalRepository>(context);
+    final cubit = await WithdrawalCubit.create(withdrawalRepository);
     return cubit;
   }
 }
