@@ -115,25 +115,28 @@ class DashboardDisplay extends StatelessWidget {
                       ),
                     );*/
                 },
-                child: Container(
-                  height: 72,
-                  width: 72,
-                  decoration: BoxDecoration(
-                    color: Theme.of(context).colorScheme.secondaryContainer,
-                    borderRadius: BorderRadius.circular(16),
-                  ),
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      SvgPicture.asset(
-                        'assets/images/icon_scan.svg',
-                        height: 24.0,
-                        width: 24.0,
-                      ),
-                      const SizedBox(height: 4),
-                      Text("Scan",
-                          style: Theme.of(context).textTheme.bodyMedium),
-                    ],
+                child: GestureDetector(
+                  onTap: () => context.go('/dashboard/scan'),
+                  child: Container(
+                    height: 72,
+                    width: 72,
+                    decoration: BoxDecoration(
+                      color: Theme.of(context).colorScheme.secondaryContainer,
+                      borderRadius: BorderRadius.circular(16),
+                    ),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        SvgPicture.asset(
+                          'assets/images/icon_scan.svg',
+                          height: 24.0,
+                          width: 24.0,
+                        ),
+                        const SizedBox(height: 4),
+                        Text("Scan",
+                            style: Theme.of(context).textTheme.bodyMedium),
+                      ],
+                    ),
                   ),
                 ),
               ),

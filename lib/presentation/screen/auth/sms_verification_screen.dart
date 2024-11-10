@@ -5,16 +5,18 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
 import 'package:zippy/domain/repository/auth/auth_repository.dart';
 import 'package:zippy/domain/state/auth/auth_state.dart';
+import 'package:zippy/presentation/animation/fade_animation_mixin.dart';
 import 'package:zippy/presentation/bloc/auth/auth_cubit.dart';
 import 'package:zippy/presentation/screen/error_screen.dart';
 import 'package:zippy/presentation/session/session_cubit.dart';
 import 'package:zippy/presentation/widget/custom_rectangular_button.dart';
 
-class SmsVerificationScreen extends StatelessWidget {
+class SmsVerificationScreen extends StatelessWidget with FadeInAnimationMixin {
   final String phoneNumber;
 
   SmsVerificationScreen({Key? key, required this.phoneNumber})
       : super(key: key);
+
   final List<String> _verificationCode = ['', '', '', ''];
 
   @override
@@ -46,7 +48,7 @@ class SmsVerificationScreen extends StatelessWidget {
                         child: Column(
                           mainAxisAlignment: MainAxisAlignment.center,
                           crossAxisAlignment: CrossAxisAlignment.center,
-                          children: <Widget>[
+                          children: staggeredFadeIn([
                             const SizedBox(height: 64),
                             Center(
                               child: Text(
@@ -64,214 +66,62 @@ class SmsVerificationScreen extends StatelessWidget {
                               ),
                             ),
                             const SizedBox(height: 40),
-                            if (state.codeStatus == CodeStatus.none)
+                            _buildVerificationFields(context, state),
+                            const SizedBox(height: 40),
+                            fadeIn(
                               Row(
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 children: [
-                                  for (var i = 0; i < 4; i++)
-                                    Padding(
-                                      padding: EdgeInsets.only(
-                                          right: i < 3 ? 12 : 0),
-                                      child: Container(
-                                        height: 56,
-                                        width: 56,
-                                        decoration: BoxDecoration(
-                                          color: Theme.of(context)
-                                              .scaffoldBackgroundColor,
-                                          borderRadius:
-                                              BorderRadius.circular(16),
-                                          border: Border.all(
-                                              color: getContainerColor(
-                                                  state.codeStatus, context)),
-                                        ),
-                                        child: TextFormField(
-                                            textAlign: TextAlign.center,
-                                            keyboardType: TextInputType.number,
-                                            maxLength: 1,
-                                            decoration: const InputDecoration(
-                                              counterText: "",
-                                              border: InputBorder.none,
-                                            ),
-                                            onChanged: (value) async {
-                                              if (value.length == 1) {
-                                                _verificationCode[i] = value;
-                                                if (i < 3) {
-                                                  FocusScope.of(context)
-                                                      .nextFocus();
-                                                } else {
-                                                  if (state.shakeKey) {
-                                                    context
-                                                        .read<AuthCubit>()
-                                                        .restoreShake();
-                                                  }
-                                                  String code =
-                                                      _verificationCode
-                                                          .join('');
-                                                  await context
-                                                      .read<AuthCubit>()
-                                                      .verifyCode(code);
-                                                  await context
-                                                      .read<SessionCubit>()
-                                                      .checkAuthentication();
-                                                }
-                                              } else if (value.isEmpty &&
-                                                  i > 0) {
-                                                _verificationCode[i] = '';
-                                                FocusScope.of(context)
-                                                    .previousFocus();
-                                              }
-                                            }),
-                                      ),
-                                    ),
+                                  Text(
+                                    "Can't receive a\nverification code",
+                                    style:
+                                        Theme.of(context).textTheme.bodyMedium,
+                                  ),
+                                  const SizedBox(width: 24),
+                                  SvgPicture.asset(
+                                    'assets/images/zippy_logo.svg',
+                                    semanticsLabel: 'Zippy Motto',
+                                  ),
                                 ],
                               ),
-                            if (state.codeStatus == CodeStatus.invalid &&
-                                state.shakeKey)
-                              Animate(
-                                effects: const [ShakeEffect(), FadeEffect()],
-                                child: Row(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    for (var i = 0; i < 4; i++)
-                                      Padding(
-                                        padding: EdgeInsets.only(
-                                            right: i < 3 ? 12 : 0),
-                                        child: Container(
-                                          height: 56,
-                                          width: 56,
-                                          decoration: BoxDecoration(
-                                            color: Theme.of(context)
-                                                .scaffoldBackgroundColor,
-                                            borderRadius:
-                                                BorderRadius.circular(16),
-                                            border: Border.all(
-                                                color: getContainerColor(
-                                                    state.codeStatus, context)),
-                                          ),
-                                          child: TextFormField(
-                                            initialValue: "",
-                                            textAlign: TextAlign.center,
-                                            keyboardType: TextInputType.number,
-                                            maxLength: 1,
-                                            decoration: const InputDecoration(
-                                              counterText: "",
-                                              border: InputBorder.none,
-                                            ),
-                                            onChanged: (value) {
-                                              if (value.length == 1) {
-                                                _verificationCode[i] = value;
-                                                if (i < 3) {
-                                                  FocusScope.of(context)
-                                                      .nextFocus();
-                                                } else {
-                                                  String code =
-                                                      _verificationCode
-                                                          .join('');
-                                                  context
-                                                      .read<AuthCubit>()
-                                                      .verifyCode(code);
-                                                }
-                                              } else if (value.isEmpty &&
-                                                  i > 0) {
-                                                _verificationCode[i] = '';
-                                                FocusScope.of(context)
-                                                    .previousFocus();
-                                              }
-                                            },
-                                          ),
-                                        ),
-                                      ),
-                                  ],
-                                ),
-                              ),
-                            if (state.codeStatus == CodeStatus.correct)
-                              Padding(
-                                padding: const EdgeInsets.all(12.0),
-                                child: SvgPicture.asset(
-                                    'assets/images/icon_tick.svg'),
-                              ),
-                            const SizedBox(height: 40),
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Text(
-                                  "Can't receive a\nverification code",
-                                  style: Theme.of(context).textTheme.bodyMedium,
-                                ),
-                                const SizedBox(width: 24),
-                                SvgPicture.asset(
-                                  'assets/images/zippy_logo.svg',
-                                  semanticsLabel: 'Zippy Motto',
-                                ),
-                              ],
+                              delay: 300,
                             ),
                             const SizedBox(height: 128),
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                GestureDetector(
-                                  onTap: () {
-                                    context
-                                        .read<SessionCubit>()
-                                        .checkAuthentication();
-                                    context.read<AuthCubit>().toggleTerms();
-                                  },
-                                  child: Container(
-                                    height: 32,
-                                    width: 32,
-                                    decoration: BoxDecoration(
-                                      color: Theme.of(context).primaryColor,
-                                      borderRadius: BorderRadius.circular(8),
-                                    ),
-                                    child: Column(
-                                      children: [
-                                        if (state.termsAccepted)
-                                          const Padding(
-                                            padding: EdgeInsets.only(top: 4.0),
-                                            child: Icon(
-                                              Icons.check,
-                                              color: Colors.white,
-                                            ),
-                                          ),
-                                      ],
-                                    ),
-                                  ),
+                            _buildTermsSection(context, state),
+                            const SizedBox(height: 16),
+                            fadeIn(
+                              Center(
+                                child: Text(
+                                  "You will be redirected to Truora\nverification platform",
+                                  style: Theme.of(context).textTheme.bodySmall,
+                                  textAlign: TextAlign.center,
                                 ),
-                                const SizedBox(width: 24),
-                                Text(
-                                  "I agree to Terms of Use",
-                                  style: Theme.of(context).textTheme.bodyMedium,
-                                ),
-                              ],
+                              ),
+                              delay: 400,
                             ),
                             const SizedBox(height: 16),
-                            Center(
-                              child: Text(
-                                "You will be redirected to Truora\nverification platform",
-                                style: Theme.of(context).textTheme.bodySmall,
-                                textAlign: TextAlign.center,
+                            fadeIn(
+                              Padding(
+                                padding:
+                                    const EdgeInsets.symmetric(horizontal: 40),
+                                child: RectangularButton(
+                                  label: "Go",
+                                  onPressed: state.termsAccepted &&
+                                          state.codeStatus == CodeStatus.correct
+                                      ? () {
+                                          context.go('/dashboard');
+                                        }
+                                      : null,
+                                  color: state.termsAccepted &&
+                                          state.codeStatus == CodeStatus.correct
+                                      ? Theme.of(context).primaryColor
+                                      : Colors.grey,
+                                ),
                               ),
-                            ),
-                            const SizedBox(height: 16),
-                            Padding(
-                              padding:
-                                  const EdgeInsets.symmetric(horizontal: 40),
-                              child: RectangularButton(
-                                label: "Go",
-                                onPressed: state.termsAccepted &&
-                                        state.codeStatus == CodeStatus.correct
-                                    ? () {
-                                        context.go('/dashboard');
-                                      }
-                                    : () {},
-                                color: state.termsAccepted &&
-                                        state.codeStatus == CodeStatus.correct
-                                    ? Theme.of(context).primaryColor
-                                    : Colors.grey,
-                              ),
+                              delay: 500,
                             ),
                             const SizedBox(height: 40),
-                          ],
+                          ]),
                         ),
                       ),
                     ),
@@ -290,6 +140,125 @@ class SmsVerificationScreen extends StatelessWidget {
               'Verification code is not sent. We are working on this issue. Please try again later.',
         );
       },
+    );
+  }
+
+  Widget _buildVerificationFields(BuildContext context, AuthStateLoaded state) {
+    if (state.codeStatus == CodeStatus.none) {
+      return fadeIn(
+        Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children:
+              List.generate(4, (i) => _buildInputField(context, state, i)),
+        ),
+        delay: 200,
+      );
+    } else if (state.codeStatus == CodeStatus.invalid && state.shakeKey) {
+      return Animate(
+        effects: const [ShakeEffect(), FadeEffect()],
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children:
+              List.generate(4, (i) => _buildInputField(context, state, i)),
+        ),
+      );
+    } else if (state.codeStatus == CodeStatus.correct) {
+      return Padding(
+        padding: const EdgeInsets.all(12.0),
+        child: fadeIn(
+          SvgPicture.asset('assets/images/icon_tick.svg'),
+          delay: 100,
+        ),
+      );
+    }
+    return const SizedBox();
+  }
+
+  Widget _buildInputField(
+      BuildContext context, AuthStateLoaded state, int index) {
+    return Padding(
+      padding: EdgeInsets.only(right: index < 3 ? 12 : 0),
+      child: Container(
+        height: 56,
+        width: 56,
+        decoration: BoxDecoration(
+          color: Theme.of(context).scaffoldBackgroundColor,
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(
+            color: getContainerColor(state.codeStatus, context),
+          ),
+        ),
+        child: TextFormField(
+          initialValue: _verificationCode[index],
+          textAlign: TextAlign.center,
+          keyboardType: TextInputType.number,
+          maxLength: 1,
+          decoration: const InputDecoration(
+            counterText: "",
+            border: InputBorder.none,
+          ),
+          onChanged: (value) async {
+            if (value.length == 1) {
+              _verificationCode[index] = value;
+              if (index < 3) {
+                FocusScope.of(context).nextFocus();
+              } else {
+                if (state.shakeKey) {
+                  context.read<AuthCubit>().restoreShake();
+                }
+                String code = _verificationCode.join('');
+                await context.read<AuthCubit>().verifyCode(code);
+                await context.read<SessionCubit>().checkAuthentication();
+              }
+            } else if (value.isEmpty && index > 0) {
+              _verificationCode[index] = '';
+              FocusScope.of(context).previousFocus();
+            }
+          },
+        ),
+      ),
+    );
+  }
+
+  Widget _buildTermsSection(BuildContext context, AuthStateLoaded state) {
+    return fadeIn(
+      Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          GestureDetector(
+            onTap: () {
+              context.read<SessionCubit>().checkAuthentication();
+              context.read<AuthCubit>().toggleTerms();
+            },
+            child: Container(
+              height: 32,
+              width: 32,
+              decoration: BoxDecoration(
+                color: Theme.of(context).primaryColor,
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: Column(
+                children: [
+                  if (state.termsAccepted)
+                    const Padding(
+                      padding: EdgeInsets.only(top: 4.0),
+                      child: Icon(
+                        Icons.check,
+                        color: Colors.white,
+                      ),
+                    ),
+                ],
+              ),
+            ),
+          ),
+          const SizedBox(width: 24),
+          Text(
+            "I agree to Terms of Use",
+            style: Theme.of(context).textTheme.bodyMedium,
+          ),
+        ],
+      ),
+      delay: 350,
     );
   }
 

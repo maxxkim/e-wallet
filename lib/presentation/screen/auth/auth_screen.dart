@@ -3,6 +3,7 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_masked_text2/flutter_masked_text2.dart';
+import 'package:flutter_animate/flutter_animate.dart';
 import 'package:zippy/presentation/theme/theme_cubit.dart';
 import 'package:zippy/presentation/widget/custom_auth_text_field.dart';
 import 'package:zippy/presentation/widget/custom_rectangular_button.dart';
@@ -11,19 +12,16 @@ import 'package:zippy/presentation/widget/custom_outlined_button.dart';
 class AuthScreen extends StatelessWidget {
   AuthScreen({super.key});
 
-  // Chilean phone format: +56 9 xxxx xxxx
   final MaskedTextController phoneController = MaskedTextController(
     mask: '+380 000 000 000',
-    text: '+380 505 018 036', // Default number converted to Chilean format
+    text: '+380 505 018 036',
   );
 
   String _formatPhoneForApi(String phone) {
-    // Remove spaces and format consistently
     return phone.replaceAll(' ', '');
   }
 
   bool _isValidChileanPhone(String phone) {
-    // Chilean mobile numbers: +56 9 xxxx xxxx (12 digits total including +56)
     final cleanPhone = phone.replaceAll(RegExp(r'[^0-9+]'), '');
     return cleanPhone.length == 12 &&
         cleanPhone.startsWith('+56') &&
@@ -40,13 +38,17 @@ class AuthScreen extends StatelessWidget {
           padding: const EdgeInsets.all(24),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.start,
-            children: <Widget>[
+            children: [
               const SizedBox(height: 72),
-              SvgPicture.asset('assets/images/zippy_pay_logo.svg',
-                  semanticsLabel: 'Zippy Pay Logo'),
+              SvgPicture.asset(
+                'assets/images/zippy_pay_logo.svg',
+                semanticsLabel: 'Zippy Pay Logo',
+              ).animate().fadeIn(duration: const Duration(milliseconds: 1200)),
               const SizedBox(height: 40),
-              SvgPicture.asset('assets/images/zippy_motto.svg',
-                  semanticsLabel: 'Zippy Motto'),
+              SvgPicture.asset(
+                'assets/images/zippy_motto.svg',
+                semanticsLabel: 'Zippy Motto',
+              ).animate().fadeIn(duration: const Duration(milliseconds: 1200)),
               const SizedBox(height: 40),
               AuthTextField(
                 switchValue: !context.watch<ThemeCubit>().isDarkMode,
@@ -54,7 +56,12 @@ class AuthScreen extends StatelessWidget {
                   context.read<ThemeCubit>().toggleTheme();
                 },
                 controller: phoneController,
-              ),
+              ).animate().slideX(
+                    begin: -1,
+                    end: 0,
+                    duration: const Duration(milliseconds: 1000),
+                    curve: Curves.easeOutQuad,
+                  ),
               const SizedBox(height: 40),
               Row(
                 children: [
@@ -79,7 +86,12 @@ class AuthScreen extends StatelessWidget {
                         }
                       },
                     ),
-                  ),
+                  ).animate().slideY(
+                        begin: 1,
+                        end: 0,
+                        duration: const Duration(milliseconds: 1000),
+                        curve: Curves.easeOutQuad,
+                      ),
                   const SizedBox(width: 16),
                   Expanded(
                     child: OutlinedButtonCustom(
@@ -98,14 +110,20 @@ class AuthScreen extends StatelessWidget {
                         }
                       },
                     ),
-                  ),
+                  ).animate().slideY(
+                        begin: -1,
+                        end: 0,
+                        duration: const Duration(milliseconds: 1000),
+                        curve: Curves.easeOutQuad,
+                      ),
                   const SizedBox(width: 64),
                 ],
               ),
               const SizedBox(height: 156),
               const Align(
-                  alignment: Alignment.bottomCenter,
-                  child: Text("Terms of Use | Contact support")),
+                alignment: Alignment.bottomCenter,
+                child: Text("Terms of Use | Contact support"),
+              ).animate().fadeIn(duration: const Duration(milliseconds: 1200)),
               const SizedBox(height: 40),
             ],
           ),

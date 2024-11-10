@@ -2,166 +2,159 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:zippy/domain/model/transaction/transaction_model.dart';
+import 'package:zippy/presentation/animation/fade_animation_mixin.dart';
 import 'package:zippy/presentation/widget/custom_rectangular_button.dart';
-//import 'package:flutter_bloc/flutter_bloc.dart';
-//import 'package:zippy/presentation/bloc/dashboard/dashboard_cubit.dart';
 
-class PaymentInfoScreen extends StatelessWidget {
+class PaymentInfoScreen extends StatelessWidget with FadeInAnimationMixin {
   final Transaction transaction;
+
   const PaymentInfoScreen({required this.transaction, super.key});
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Payment info')),
+      appBar: AppBar(
+        title: fadeIn(const Text('Payment info')),
+      ),
       body: Padding(
         padding: const EdgeInsets.all(16),
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment
-              .center, // Убедитесь, что все элементы центрированы
-          children: <Widget>[
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: staggeredFadeIn([
             const SizedBox(height: 40),
             Center(
-              // Добавлено Center для текста
               child: Text(
                 getText(context),
-                textAlign: TextAlign.center, // Центрируем текст
+                textAlign: TextAlign.center,
                 style: Theme.of(context).textTheme.displayLarge,
               ),
             ),
             const SizedBox(height: 24),
             Padding(
               padding: const EdgeInsets.only(left: 32.0, right: 32.0),
-              child: Container(
-                padding: const EdgeInsets.all(16.0),
-                decoration: BoxDecoration(
-                  color: getContainer(context),
-                  borderRadius: BorderRadius.circular(16),
-                ),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    if (transaction.type == "deposit")
+              child: fadeInFromTop(
+                Container(
+                  padding: const EdgeInsets.all(16.0),
+                  decoration: BoxDecoration(
+                    color: getContainer(context),
+                    borderRadius: BorderRadius.circular(16),
+                  ),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      if (transaction.type == "deposit")
+                        Text(
+                          'Top Up',
+                          style: Theme.of(context).textTheme.titleMedium,
+                        ),
+                      if (transaction.type == "withdraw")
+                        Text(
+                          'Withdraw',
+                          style: Theme.of(context).textTheme.titleMedium,
+                        ),
+                      const SizedBox(height: 16),
+                      getIcon(context),
+                      const SizedBox(height: 16),
                       Text(
-                        'Top Up',
-                        style: Theme.of(context).textTheme.titleMedium,
+                        '${getSign(context)} ${transaction.amount} ${transaction.currency}',
+                        style: Theme.of(context).textTheme.titleLarge,
                       ),
-                    if (transaction.type == "withdraw")
-                      Text(
-                        'Withdraw',
-                        style: Theme.of(context).textTheme.titleMedium,
+                      const SizedBox(height: 12),
+                      Align(
+                        alignment: Alignment.center,
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Text("Balance: ",
+                                style: Theme.of(context).textTheme.titleMedium),
+                            Text(
+                              '${transaction.currency} 1356.32',
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .titleMedium
+                                  ?.copyWith(
+                                    decoration: TextDecoration.lineThrough,
+                                  ),
+                            ),
+                            Text(" → ",
+                                style: Theme.of(context).textTheme.titleMedium),
+                            Text(
+                              '${transaction.currency} ${1356.32 + transaction.amount.roundToDouble()}',
+                              style: Theme.of(context).textTheme.titleMedium,
+                            ),
+                          ],
+                        ),
                       ),
-                    const SizedBox(height: 16),
-                    getIcon(context),
-                    const SizedBox(height: 16),
-                    Text(
-                      '${getSign(context)} ${transaction.amount} ${transaction.currency}',
-                      style: Theme.of(context).textTheme.titleLarge,
-                    ),
-                    const SizedBox(height: 12),
-                    Align(
-                      alignment: Alignment.center, // Центрируем содержимое
-                      child: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Text("Balance: ",
-                              style: Theme.of(context).textTheme.titleMedium),
-                          Text(
-                            '${transaction.currency} 1356.32',
-                            style: Theme.of(context)
-                                .textTheme
-                                .titleMedium
-                                ?.copyWith(
-                                  decoration: TextDecoration.lineThrough,
-                                ),
-                          ),
-                          Text(" → ",
-                              style: Theme.of(context).textTheme.titleMedium),
-                          Text(
-                            '${transaction.currency} ${1356.32 + transaction.amount.roundToDouble()}',
-                            style: Theme.of(context).textTheme.titleMedium,
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
               ),
             ),
             const SizedBox(height: 32),
-            Center(
-              // Центрируем Row с иконками
-              child: Row(
-                mainAxisAlignment:
-                    MainAxisAlignment.center, // Центрируем содержимое Row
-                children: [
-                  Column(
-                    children: [
-                      SvgPicture.asset(
-                        'assets/images/icon_support_lg.svg',
-                        height: 40.0,
-                        width: 40.0,
-                      ),
-                      const SizedBox(
-                        height: 4,
-                      ),
-                      Text(
-                        'Help',
-                        style: Theme.of(context).textTheme.titleMedium,
-                      ),
-                    ],
-                  ),
-                  const SizedBox(width: 32),
-                  Column(
-                    children: [
-                      SvgPicture.asset(
-                        'assets/images/icon_copy_lg.svg',
-                        height: 40.0,
-                        width: 40.0,
-                      ),
-                      const SizedBox(
-                        height: 4,
-                      ),
-                      Text(
-                        'Copy',
-                        style: Theme.of(context).textTheme.titleMedium,
-                      ),
-                    ],
-                  ),
-                  const SizedBox(width: 32),
-                  Column(
-                    children: [
-                      SvgPicture.asset(
-                        'assets/images/icon_share_lg.svg',
-                        height: 40.0,
-                        width: 40.0,
-                      ),
-                      const SizedBox(
-                        height: 4,
-                      ),
-                      Text(
-                        'Share',
-                        style: Theme.of(context).textTheme.titleMedium,
-                      ),
-                    ],
-                  ),
-                ],
+            fadeIn(
+              Center(
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    _buildActionButton(
+                      context,
+                      'assets/images/icon_support_lg.svg',
+                      'Help',
+                    ),
+                    const SizedBox(width: 32),
+                    _buildActionButton(
+                      context,
+                      'assets/images/icon_copy_lg.svg',
+                      'Copy',
+                    ),
+                    const SizedBox(width: 32),
+                    _buildActionButton(
+                      context,
+                      'assets/images/icon_share_lg.svg',
+                      'Share',
+                    ),
+                  ],
+                ),
               ),
+              delay: 300,
             ),
-            const Spacer(),
+            const SizedBox(
+              height: 96,
+            ),
             Padding(
               padding: const EdgeInsets.only(right: 40, left: 40),
-              child: RectangularButton(
-                label: "Home",
-                onPressed: () {
-                  context.go('/dashboard');
-                },
+              child: fadeIn(
+                RectangularButton(
+                  label: "Home",
+                  onPressed: () {
+                    context.go('/dashboard');
+                  },
+                ),
+                delay: 400,
               ),
             ),
             const SizedBox(height: 88),
-          ],
+          ]),
         ),
       ),
+    );
+  }
+
+  Widget _buildActionButton(
+      BuildContext context, String iconPath, String label) {
+    return Column(
+      children: [
+        SvgPicture.asset(
+          iconPath,
+          height: 40.0,
+          width: 40.0,
+        ),
+        const SizedBox(height: 4),
+        Text(
+          label,
+          style: Theme.of(context).textTheme.titleMedium,
+        ),
+      ],
     );
   }
 
