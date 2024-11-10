@@ -3,12 +3,12 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
 
 class DashboardDisplay extends StatelessWidget {
-  final int? balance;
+  final num? balance;
   const DashboardDisplay({super.key, this.balance});
 
   @override
   Widget build(BuildContext context) {
-    int displayedBalance = balance ?? 0;
+    num displayedBalance = balance ?? 0;
     return Row(
       children: [
         // Левый контейнер с балансом

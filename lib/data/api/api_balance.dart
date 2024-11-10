@@ -1,5 +1,5 @@
 class ApiBalance {
-  final int balance;
+  final num balance;
 
   ApiBalance.fromApi(Map<String, dynamic> map)
       : balance = map['wallet']['balance'];

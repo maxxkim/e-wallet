@@ -13,24 +13,39 @@ import 'package:zippy/presentation/screen/topUp/top_up_screen.dart';
 import 'package:dio/dio.dart';
 import 'package:zippy/presentation/screen/withdrawal/withdrawal_screen.dart';
 import 'package:zippy/presentation/session/session_cubit.dart';
-import 'package:zippy/presentation/session/session_state.dart'; // Импортируйте Dio
+import 'package:zippy/presentation/session/session_state.dart';
+
+Widget _loadingScreen() {
+  return Scaffold(
+    body: Center(
+      child: Builder(
+        builder: (context) => CircularProgressIndicator(
+          color: Theme.of(context).colorScheme.primary,
+        ),
+      ),
+    ),
+  );
+}
 
 Widget _authGuard(BuildContext context, Widget child) {
   return BlocBuilder<SessionCubit, SessionState>(
     builder: (context, state) {
+      if (state is InitialLoading || state is RefreshingTokens) {
+        return _loadingScreen();
+      }
+
       if (state is Authenticated) {
         return child;
-      } else {
-        Future.microtask(() async {
+      }
+
+      if (state is Unauthenticated) {
+        WidgetsBinding.instance.addPostFrameCallback((_) {
           GoRouter.of(context).go('/');
         });
-        return Center(
-            child: Scaffold(
-                body: Center(
-                    child: CircularProgressIndicator(
-          color: Theme.of(context).colorScheme.primary,
-        ))));
+        return _loadingScreen();
       }
+
+      return _loadingScreen();
     },
   );
 }
@@ -38,24 +53,28 @@ Widget _authGuard(BuildContext context, Widget child) {
 Widget _authGuard2(BuildContext context, Widget child) {
   return BlocBuilder<SessionCubit, SessionState>(
     builder: (context, state) {
+      if (state is InitialLoading || state is RefreshingTokens) {
+        return _loadingScreen();
+      }
+
       if (state is Unauthenticated) {
         return child;
-      } else {
-        Future.microtask(() async {
+      }
+
+      if (state is Authenticated) {
+        WidgetsBinding.instance.addPostFrameCallback((_) {
           GoRouter.of(context).go('/dashboard');
         });
-        return Center(
-            child: Scaffold(
-                body: Center(
-                    child: CircularProgressIndicator(
-          color: Theme.of(context).colorScheme.primary,
-        ))));
+        return _loadingScreen();
       }
+
+      return _loadingScreen();
     },
   );
 }
 
 final GoRouter appRouter = GoRouter(
+  initialLocation: '/',
   routes: <RouteBase>[
     GoRoute(
       path: '/',
@@ -151,29 +170,28 @@ final GoRouter appRouter = GoRouter(
     ),
   ],
   errorBuilder: (BuildContext context, GoRouterState state) {
-    return const ErrorScreen(errorMessage: 'Произошла ошибка навигации');
+    return const ErrorScreen(errorMessage: 'Navigation error occurred');
   },
 );
-// Функция обработки ошибок
+
 String _handleError(dynamic error) {
   if (error is DioException) {
-    // Здесь вы можете обрабатывать различные типы DioException и возвращать соответствующие сообщения
     switch (error.type) {
       case DioExceptionType.connectionTimeout:
-        return 'Ошибка подключения. Попробуйте еще раз.';
+        return 'Connection error. Please try again.';
       case DioExceptionType.sendTimeout:
-        return 'Время ожидания отправки истекло.';
+        return 'Send timeout exceeded.';
       case DioExceptionType.receiveTimeout:
-        return 'Время ожидания получения ответа истекло.';
+        return 'Receive timeout exceeded.';
       case DioExceptionType.badResponse:
-        return 'Ошибка сервера: ${error.response?.statusCode}.';
+        return 'Server error: ${error.response?.statusCode}.';
       case DioExceptionType.cancel:
-        return 'Запрос отменен.';
+        return 'Request canceled.';
       case DioExceptionType.unknown:
-        return 'Произошла неизвестная ошибка.';
+        return 'Unknown error occurred.';
       default:
-        return 'Произошла ошибка.';
+        return 'An error occurred.';
     }
   }
-  return 'Произошла неизвестная ошибка.';
+  return 'Unknown error occurred.';
 }

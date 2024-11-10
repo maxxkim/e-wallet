@@ -28,7 +28,7 @@ class ApiUtil {
     return TransactionMapper.fromApi(result);
   }
 
-  Future<int> getBalance() async {
+  Future<num> getBalance() async {
     final result = await _apiService.getBalance();
     return BalanceMapper.fromApi(result);
   }
