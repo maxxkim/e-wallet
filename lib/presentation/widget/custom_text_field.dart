@@ -5,51 +5,75 @@ class CustomTextField extends StatelessWidget {
   final String? labelText;
   final String? hintText;
   final bool? autofocus;
-  final Widget? icon; // Иконка будет передаваться как параметр
+  final Widget? icon;
   final TextInputType keyboardType;
+  final FormFieldValidator? validator;
+  final bool? enabled;
+  final String? errorText;
 
   const CustomTextField({
     Key? key,
     required this.controller,
+    this.validator,
     this.labelText,
     this.autofocus,
     this.hintText,
     this.icon,
-    this.keyboardType = TextInputType.number,
+    this.enabled,
+    this.errorText,
+    this.keyboardType = TextInputType.text,
   }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    return TextField(
+    return TextFormField(
       controller: controller,
       autofocus: autofocus ?? false,
       decoration: InputDecoration(
-        contentPadding: const EdgeInsets.symmetric(
-            vertical: 8.0, horizontal: 12.0), // Устанавливаем отступы
+        contentPadding:
+            const EdgeInsets.symmetric(vertical: 8.0, horizontal: 12.0),
         labelStyle: const TextStyle(color: Colors.grey, fontSize: 16),
         floatingLabelStyle: const TextStyle(color: Colors.black, fontSize: 16),
         hintStyle: const TextStyle(color: Colors.grey, fontSize: 16),
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(16),
           borderSide: BorderSide(
-              color: Theme.of(context).colorScheme.primary, width: 0.5),
+            color: Theme.of(context).colorScheme.primary,
+            width: 0.5,
+          ),
         ),
-        fillColor: Colors.white, // Устанавливаем цвет фона поля ввода на белый
-        filled: true, // Включаем заполнение цвета
+        errorBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(16),
+          borderSide: BorderSide(
+            color: Theme.of(context).colorScheme.error,
+            width: 1.0,
+          ),
+        ),
+        focusedErrorBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(16),
+          borderSide: BorderSide(
+            color: Theme.of(context).colorScheme.error,
+            width: 1.0,
+          ),
+        ),
+        fillColor: Colors.white,
+        filled: true,
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(16),
           borderSide: BorderSide(
-              color: Theme.of(context).colorScheme.primary, width: 1.0),
+            color: Theme.of(context).colorScheme.primary,
+            width: 1.0,
+          ),
         ),
         labelText: labelText,
         hintText: hintText,
-        border: OutlineInputBorder(borderRadius: BorderRadius.circular(16)),
-        prefixIcon:
-            icon, // Используем prefixIcon для размещения иконки внутри поля
+        errorText: errorText,
+        prefixIcon: icon,
       ),
-      style: const TextStyle(
-          color: Colors.black, fontSize: 14), // Уменьшение размера шрифта
+      style: const TextStyle(color: Colors.black, fontSize: 14),
       keyboardType: keyboardType,
+      enabled: enabled,
+      validator: validator,
     );
   }
 }

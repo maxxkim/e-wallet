@@ -79,8 +79,13 @@ class DashboardDisplay extends StatelessWidget {
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                       children: [
-                        Text("Top Up",
-                            style: Theme.of(context).textTheme.displayMedium),
+                        GestureDetector(
+                          onTap: () => context.go(
+                            '/dashboard/topUp',
+                          ),
+                          child: Text("Top Up",
+                              style: Theme.of(context).textTheme.displayMedium),
+                        ),
                         Text("Withdraw",
                             style: Theme.of(context).textTheme.displayMedium),
                       ],

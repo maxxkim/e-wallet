@@ -21,7 +21,6 @@ Widget _authGuard(BuildContext context, Widget child) {
         return child;
       } else {
         Future.microtask(() async {
-          await Future.delayed(const Duration(seconds: 1));
           GoRouter.of(context).go('/');
         });
         return Center(
@@ -42,7 +41,6 @@ Widget _authGuard2(BuildContext context, Widget child) {
         return child;
       } else {
         Future.microtask(() async {
-          await Future.delayed(const Duration(seconds: 1));
           GoRouter.of(context).go('/dashboard');
         });
         return Center(

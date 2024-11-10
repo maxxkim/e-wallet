@@ -1,155 +1,170 @@
-import 'dart:convert';
-
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:zippy/presentation/screen/payment/widgets/provider_display.dart';
-import 'package:zippy/presentation/widget/custom_rectangular_button.dart';
-import 'package:zippy/presentation/widget/custom_text_field.dart';
-import 'package:zippy/domain/state/top_up/top_up_state.dart';
-import 'package:zippy/presentation/bloc/top_up/top_up_cubit.dart';
+import 'package:go_router/go_router.dart';
+import 'package:zippy/domain/repository/top_up/top_up_repository.dart';
+import 'package:zippy/domain/state/topUp/top_up_state.dart';
+import 'package:zippy/presentation/bloc/topUp/top_up_cubit.dart';
+import 'package:zippy/presentation/screen/error_screen.dart';
+import 'package:zippy/presentation/screen/top_up/widgets/provider_list.dart';
+import 'package:zippy/presentation/screen/top_up/widgets/top_up_balance_display.dart';
 
 class TopUpScreen extends StatelessWidget {
-  TopUpScreen({Key? key}) : super(key: key);
-
-  final TextEditingController emailController = TextEditingController();
-  final TextEditingController amountController = TextEditingController();
+  const TopUpScreen({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider(
-      create: (context) => TopUpCubit(context.read()),
-      child: BlocConsumer<TopUpCubit, TopUpState>(
-        listener: (context, state) {
-          if (state.isSuccess) {
-            context.go('/dashboard/TopUp/info');
-          } else if (state.message.isNotEmpty) {
-            _showErrorDialog(context, state.message);
-          }
-        },
-        builder: (context, state) {
-          return Scaffold(
-            appBar: AppBar(title: const Text('New TopUp')),
-            body: Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: Column(
-                children: <Widget>[
-                  const SizedBox(height: 8),
-                  const ProviderDisplay(title: 'Top Up', iconData: Icons.money),
-                  const SizedBox(height: 8),
-                  CustomTextField(
-                    controller: emailController,
-                    labelText: 'Email',
-                    hintText: 'Enter email',
-                    keyboardType: TextInputType.emailAddress,
+    return FutureBuilder<TopUpCubit>(
+      future: _createTopUpCubit(context),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return _buildLoadingScaffold(context);
+        } else if (snapshot.hasError) {
+          return _buildErrorScreen(context, snapshot.error);
+        } else if (snapshot.hasData) {
+          final topUpCubit = snapshot.data!;
+          return BlocProvider.value(
+            value: topUpCubit,
+            child: BlocBuilder<TopUpCubit, TopUpState>(
+              builder: (context, state) {
+                return Scaffold(
+                  appBar: _buildAppBar(context),
+                  body: RefreshIndicator(
+                    onRefresh: () => _handleRefresh(context),
+                    child: _buildBody(context, state),
                   ),
-                  const SizedBox(height: 8),
-                  CustomTextField(
-                    controller: amountController,
-                    labelText: 'Amount',
-                    hintText: 'Enter amount',
-                    keyboardType: TextInputType.number,
-                  ),
-                  const Spacer(),
-                  RectangularButton(
-                    label: 'Pay',
-                    onPressed: () => _sendTransaction(context),
-                  ),
-                  const SizedBox(height: 8),
-                ],
-              ),
+                );
+              },
             ),
           );
-        },
+        }
+        return _buildErrorScreen(context, 'Failed to initialize');
+      },
+    );
+  }
+
+  PreferredSizeWidget _buildAppBar(BuildContext context) {
+    return AppBar(
+      backgroundColor: Theme.of(context).colorScheme.primary,
+      toolbarHeight: 40,
+      leading: IconButton(
+        icon: const Icon(Icons.arrow_back, color: Colors.white),
+        onPressed: () => context.go('/dashboard'),
+      ),
+      title: Text(
+        'Top Up',
+        style: Theme.of(context).textTheme.displaySmall,
+      ),
+      centerTitle: true,
+    );
+  }
+
+  Widget _buildBody(BuildContext context, TopUpState state) {
+    if (state is TopUpStateLoading) {
+      return _buildLoadingContent();
+    } else if (state is TopUpStateLoaded) {
+      return _buildLoadedContent(context, state);
+    } else if (state is TopUpStateError) {
+      return _buildErrorContent(context, state.errorMessage);
+    }
+    return _buildErrorContent(context, "Unknown state");
+  }
+
+  Widget _buildLoadingScaffold(BuildContext context) {
+    return Scaffold(
+      appBar: _buildAppBar(context),
+      body: _buildLoadingContent(),
+    );
+  }
+
+  Widget _buildLoadingContent() {
+    return const Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          CircularProgressIndicator(),
+          SizedBox(height: 16),
+          Text('Loading providers...'),
+        ],
       ),
     );
   }
 
-  Future<void> _sendTransaction(BuildContext context) async {
-    String email = emailController.text;
-    String amount = amountController.text;
-
-    if (email.isEmpty || !RegExp(r'^[^@]+@[^@]+\.[^@]+').hasMatch(email)) {
-      _showErrorDialog(context, 'Invalid email address');
-      return;
-    }
-
-    if (amount.isEmpty ||
-        double.tryParse(amount) == null ||
-        double.parse(amount) <= 0) {
-      _showErrorDialog(
-          context, 'Please enter a valid amount greater than zero');
-      return;
-    }
-
-    // Create the objData as a Map and then convert it to a JSON string
-    final Map<String, dynamic> objDataMap = {};
-    final String objDataJson = jsonEncode(objDataMap);
-
-    // Create the transaction payload as a Map
-    final Map<String, dynamic> transactionData = {
-      'merchantId': "2020juegalopro-7j7g",
-      'transactionId': DateTime.now().millisecondsSinceEpoch.toString(),
-      'country': "CL",
-      'currency': "CLP",
-      'payMethod': "skin",
-      'documentId': "111111111",
-      'amount': "$amount.00",
-      'email': email,
-      'name':
-          "User Name", // You might want to add a name field or get it from user profile
-      'timestamp': DateTime.now().millisecondsSinceEpoch.toString(),
-      'urlOk': "https://www.yourSite.com/okUser",
-      'urlError': "https://www.yourSite.com/errorUser",
-      'objData': objDataJson, // Use the JSON string here
-    };
-
-    // Print the transaction data
-
-    // Pass the transactionData to the getTopUp method
-    context.read<TopUpCubit>().getTopUp(
-          merchantId: transactionData['merchantId'] ?? "",
-          transactionId: transactionData['transactionId'] ?? "",
-          country: transactionData['country'] ?? "",
-          currency: transactionData['currency'] ?? "",
-          payMethod: transactionData['payMethod'] ?? "",
-          documentId: transactionData['documentId'] ?? "",
-          amount: transactionData['amount'] ?? "",
-          email: transactionData['email'] ?? "",
-          name: transactionData['name'] ?? "",
-          timestamp: transactionData['timestamp'] ?? "",
-          urlOk: transactionData['urlOk'] ?? "",
-          urlError: transactionData['urlError'] ?? "",
-          objData: transactionData['objData'] ?? "{}",
-        );
-  }
-
-  void _showErrorDialog(BuildContext context, String text) {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: Text('Error',
-              style: TextStyle(
-                  fontSize: 24,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.indigo[900])),
-          content: Text(text),
-          actions: <Widget>[
-            TextButton(
-              child: Text('Ok',
-                  style: TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.indigo[900])),
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
+  Widget _buildLoadedContent(BuildContext context, TopUpStateLoaded state) {
+    if (state.providers.isEmpty) {
+      return Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Text(
+              'No providers available',
+              style: Theme.of(context).textTheme.titleMedium,
+            ),
+            const SizedBox(height: 16),
+            ElevatedButton(
+              onPressed: () => _handleRefresh(context),
+              child: const Text('Retry'),
             ),
           ],
-          shape: const RoundedRectangleBorder(borderRadius: BorderRadius.zero),
-        );
-      },
+        ),
+      );
+    }
+
+    return SingleChildScrollView(
+      physics: const AlwaysScrollableScrollPhysics(),
+      child: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          children: <Widget>[
+            const SizedBox(height: 56),
+            const TopUpBalanceDisplay(),
+            const SizedBox(height: 12),
+            ProviderList(providers: state.providers.sublist(1)),
+          ],
+        ),
+      ),
     );
+  }
+
+  Widget _buildErrorContent(BuildContext context, String message) {
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(
+            Icons.error_outline,
+            size: 48,
+            color: Theme.of(context).colorScheme.error,
+          ),
+          const SizedBox(height: 16),
+          Text(
+            message,
+            textAlign: TextAlign.center,
+            style: Theme.of(context).textTheme.titleMedium,
+          ),
+          const SizedBox(height: 16),
+          ElevatedButton(
+            onPressed: () => _handleRefresh(context),
+            child: const Text('Retry'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildErrorScreen(BuildContext context, Object? error) {
+    return ErrorScreen(
+      errorMessage: error?.toString() ?? 'Unknown error occurred',
+    );
+  }
+
+  Future<void> _handleRefresh(BuildContext context) async {
+    final cubit = context.read<TopUpCubit>();
+    await cubit.loadData();
+  }
+
+  Future<TopUpCubit> _createTopUpCubit(BuildContext context) async {
+    final topUpRepository = RepositoryProvider.of<TopUpRepository>(context);
+    final cubit = await TopUpCubit.create(topUpRepository);
+    return cubit;
   }
 }

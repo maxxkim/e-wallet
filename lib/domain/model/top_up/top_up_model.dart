@@ -1,9 +1,9 @@
+import 'package:zippy/domain/model/top_up/provider_model.dart';
+
 class TopUp {
-  final String status;
-  final String url;
+  final List<Provider> providerList;
 
   TopUp({
-    required this.status,
-    required this.url,
+    required this.providerList,
   });
 }

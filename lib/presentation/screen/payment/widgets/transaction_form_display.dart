@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:go_router/go_router.dart';
 import 'package:zippy/presentation/widget/custom_text_field.dart';
 
 class TransactionFormDisplay extends StatelessWidget {
@@ -63,7 +64,7 @@ class TransactionFormDisplay extends StatelessWidget {
                 ),
                 const SizedBox(width: 8),
                 FilledButton(
-                  onPressed: () => print("hui"),
+                  onPressed: () => context.go('/dashboard'),
                   child: Text(
                     "Continue",
                     style: Theme.of(context).textTheme.displaySmall,
