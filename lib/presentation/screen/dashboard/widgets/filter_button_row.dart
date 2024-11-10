@@ -5,7 +5,7 @@ import 'package:zippy/presentation/bloc/dashboard/dashboard_cubit.dart';
 
 class FilterButtonRow extends StatelessWidget {
   final DashboardStateLoaded state;
-  FilterButtonRow({
+  const FilterButtonRow({
     super.key,
     required this.state,
   });

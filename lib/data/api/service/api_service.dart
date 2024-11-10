@@ -8,6 +8,8 @@ import 'package:zippy/data/api/api_top_up.dart';
 import 'package:zippy/data/api/api_top_up_initiate.dart';
 import 'package:zippy/data/api/api_transaction.dart';
 import 'package:zippy/data/api/api_verify_token.dart';
+import 'package:zippy/data/api/api_withdraw.dart';
+import 'package:zippy/data/api/api_withdrawal_initiate.dart';
 
 class ApiService {
   final Dio _dio = Dio();
@@ -104,6 +106,30 @@ class ApiService {
       },
     );
     return ApiTopUpInitiate.fromApi(response.data);
+  }
+
+  Future<ApiWithdraw> getWithdrawalProviders() async {
+    final response = await _dio.get(
+      'https://lionfish-app-9ixm6.ondigitalocean.app/providers/all',
+    );
+    return ApiWithdraw.fromApi(response.data);
+  }
+
+  Future<ApiWithdrawalInitiate> initiateWithdrawal(
+      Map<String, dynamic> data) async {
+    final response = await _dio.post(
+      'https://lionfish-app-9ixm6.ondigitalocean.app/transactions/initiate-payout',
+      data: {
+        "provider": "zippyBankCard",
+        "currency": "CLP",
+        "amount": 3,
+        "userData": {
+          "email": "user20@example.com",
+          "documentId": "111111111",
+        }
+      },
+    );
+    return ApiWithdrawalInitiate.fromApi(response.data);
   }
 
   void _addTokenInterceptor() {
