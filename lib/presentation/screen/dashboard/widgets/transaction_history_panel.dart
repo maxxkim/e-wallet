@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:go_router/go_router.dart';
+import 'package:zippy/domain/model/transaction/transaction_model.dart';
 import 'package:zippy/domain/state/dashboard/dashboard_state.dart';
 import 'package:zippy/presentation/animation/fade_animation_mixin.dart';
 import 'package:zippy/presentation/screen/history/widgets/transaction_tile.dart';
@@ -27,16 +28,13 @@ class TransactionHistoryPanel extends StatelessWidget
             itemCount:
                 _getDisplayedItemCount(state.filteredTransactions!.length),
             itemBuilder: (context, index) {
+              final transaction = state.filteredTransactions![index];
               return Column(
                 children: [
                   TransactionTile(
-                    transaction: state.filteredTransactions![index],
-                    onIconTap: () {
-                      context.go(
-                        '/dashboard/history/info',
-                        extra: state.filteredTransactions![index],
-                      );
-                    },
+                    transaction: transaction,
+                    onIconTap: () =>
+                        _navigateToTransactionDetails(context, transaction),
                   ).animate().fadeIn(
                         duration: const Duration(milliseconds: 300),
                         delay: Duration(milliseconds: index * 50),
@@ -51,35 +49,47 @@ class TransactionHistoryPanel extends StatelessWidget
           ),
         ),
         if (state.filteredTransactions!.length > 5)
-          InkWell(
-            onTap: () => context.go('/dashboard/history'),
-            child: Container(
-              width: double.infinity,
-              height: 56,
-              decoration: BoxDecoration(
-                color: Theme.of(context).colorScheme.tertiaryContainer,
-                border: Border(
-                  top: BorderSide(
-                    color: Theme.of(context).scaffoldBackgroundColor,
-                    width: 1,
-                  ),
-                ),
-              ),
-              child: Center(
-                child: Text(
-                  "View All",
-                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                        color: Theme.of(context).colorScheme.primary,
-                      ),
-                ),
-              ),
-            ),
-          ).animate().fadeIn(
-                duration: const Duration(milliseconds: 300),
-                delay: const Duration(milliseconds: 150),
-              ),
+          _buildViewAllButton(context),
       ],
     );
+  }
+
+  void _navigateToTransactionDetails(
+      BuildContext context, Transaction transaction) {
+    context.go(
+      '/dashboard/transaction-details',
+      extra: transaction,
+    );
+  }
+
+  Widget _buildViewAllButton(BuildContext context) {
+    return InkWell(
+      onTap: () => context.go('/dashboard/history'),
+      child: Container(
+        width: double.infinity,
+        height: 56,
+        decoration: BoxDecoration(
+          color: Theme.of(context).colorScheme.tertiaryContainer,
+          border: Border(
+            top: BorderSide(
+              color: Theme.of(context).scaffoldBackgroundColor,
+              width: 1,
+            ),
+          ),
+        ),
+        child: Center(
+          child: Text(
+            "View All",
+            style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                  color: Theme.of(context).colorScheme.primary,
+                ),
+          ),
+        ),
+      ),
+    ).animate().fadeIn(
+          duration: const Duration(milliseconds: 300),
+          delay: const Duration(milliseconds: 150),
+        );
   }
 
   Widget _buildEmptyState(BuildContext context) {
@@ -105,7 +115,6 @@ class TransactionHistoryPanel extends StatelessWidget
   }
 
   int _getDisplayedItemCount(int totalItems) {
-    // Show max 5 items on dashboard, the rest will be visible in history
     return totalItems > 5 ? 5 : totalItems;
   }
 }

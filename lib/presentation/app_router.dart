@@ -128,11 +128,12 @@ final GoRouter appRouter = GoRouter(
             return _authGuard(context, const WithdrawalScreen());
           },
         ),
+        // Add new route for transaction details
         GoRoute(
-          path: 'infoDashboard',
+          path: 'transaction-details',
           builder: (context, state) {
             try {
-              Transaction transaction = state.extra as Transaction;
+              final transaction = state.extra as Transaction;
               return _authGuard(
                 context,
                 PaymentInfoScreen(transaction: transaction),
@@ -147,44 +148,12 @@ final GoRouter appRouter = GoRouter(
           builder: (BuildContext context, GoRouterState state) {
             return _authGuard(context, const HistoryScreen());
           },
-          routes: <RouteBase>[
-            GoRoute(
-              path: 'info',
-              builder: (context, state) {
-                try {
-                  Transaction transaction = state.extra as Transaction;
-                  return _authGuard(
-                    context,
-                    PaymentInfoScreen(transaction: transaction),
-                  );
-                } catch (e) {
-                  return ErrorScreen(errorMessage: _handleError(e));
-                }
-              },
-            ),
-          ],
         ),
         GoRoute(
           path: 'payment',
           builder: (BuildContext context, GoRouterState state) {
             return _authGuard(context, PaymentScreen());
           },
-          routes: <RouteBase>[
-            GoRoute(
-              path: 'info',
-              builder: (context, state) {
-                try {
-                  Transaction transaction = state.extra as Transaction;
-                  return _authGuard(
-                    context,
-                    PaymentInfoScreen(transaction: transaction),
-                  );
-                } catch (e) {
-                  return ErrorScreen(errorMessage: _handleError(e));
-                }
-              },
-            ),
-          ],
         ),
       ],
     ),

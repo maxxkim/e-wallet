@@ -2,22 +2,26 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:intl/intl.dart';
 import 'package:zippy/domain/model/transaction/transaction_model.dart';
+import 'package:zippy/presentation/animation/fade_animation_mixin.dart';
 
 class TransactionTile extends StatefulWidget {
   final Transaction transaction;
   final VoidCallback onIconTap;
+  final String? routePrefix;
 
   const TransactionTile({
     Key? key,
     required this.transaction,
     required this.onIconTap,
+    this.routePrefix,
   }) : super(key: key);
 
   @override
   _TransactionTileState createState() => _TransactionTileState();
 }
 
-class _TransactionTileState extends State<TransactionTile> {
+class _TransactionTileState extends State<TransactionTile>
+    with FadeInAnimationMixin {
   bool _isExpanded = false;
 
   void _toggleExpansion() {
@@ -80,14 +84,14 @@ class _TransactionTileState extends State<TransactionTile> {
               ),
             ),
             AnimatedContainer(
-              duration: const Duration(milliseconds: 500), // Animation duration
+              duration: const Duration(milliseconds: 500),
               curve: Curves.easeInOut,
-              height: _isExpanded ? 132 : 0, // Adjust height based on expansion
+              height: _isExpanded ? 132 : 0,
               child: SingleChildScrollView(
                 child: ClipRect(
                   child: Align(
                     alignment: Alignment.topCenter,
-                    heightFactor: _isExpanded ? 1 : 0, // Adjust based on state
+                    heightFactor: _isExpanded ? 1 : 0,
                     child: Container(
                       padding: const EdgeInsets.all(12),
                       color: Theme.of(context).scaffoldBackgroundColor,
@@ -179,52 +183,22 @@ class _TransactionTileState extends State<TransactionTile> {
                                   Row(
                                     mainAxisAlignment: MainAxisAlignment.end,
                                     children: [
-                                      Column(
-                                        children: [
-                                          SvgPicture.asset(
-                                            'assets/images/icon_support.svg',
-                                            height: 24.0,
-                                            width: 24.0,
-                                          ),
-                                          Text(
-                                            'Help',
-                                            style: Theme.of(context)
-                                                .textTheme
-                                                .headlineLarge,
-                                          ),
-                                        ],
+                                      _buildActionButton(
+                                        context,
+                                        'assets/images/icon_support.svg',
+                                        'Help',
                                       ),
                                       const SizedBox(width: 16.0),
-                                      Column(
-                                        children: [
-                                          SvgPicture.asset(
-                                            'assets/images/icon_copy.svg',
-                                            height: 24.0,
-                                            width: 24.0,
-                                          ),
-                                          Text(
-                                            'Copy',
-                                            style: Theme.of(context)
-                                                .textTheme
-                                                .headlineLarge,
-                                          ),
-                                        ],
+                                      _buildActionButton(
+                                        context,
+                                        'assets/images/icon_copy.svg',
+                                        'Copy',
                                       ),
                                       const SizedBox(width: 16.0),
-                                      Column(
-                                        children: [
-                                          SvgPicture.asset(
-                                            'assets/images/icon_share.svg',
-                                            height: 24.0,
-                                            width: 24.0,
-                                          ),
-                                          Text(
-                                            'Share',
-                                            style: Theme.of(context)
-                                                .textTheme
-                                                .headlineLarge,
-                                          ),
-                                        ],
+                                      _buildActionButton(
+                                        context,
+                                        'assets/images/icon_share.svg',
+                                        'Share',
                                       ),
                                     ],
                                   ),
@@ -242,6 +216,23 @@ class _TransactionTileState extends State<TransactionTile> {
           ],
         ),
       ),
+    );
+  }
+
+  Widget _buildActionButton(
+      BuildContext context, String iconPath, String label) {
+    return Column(
+      children: [
+        SvgPicture.asset(
+          iconPath,
+          height: 24.0,
+          width: 24.0,
+        ),
+        Text(
+          label,
+          style: Theme.of(context).textTheme.headlineLarge,
+        ),
+      ],
     );
   }
 
