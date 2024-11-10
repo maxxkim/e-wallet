@@ -119,12 +119,11 @@ class AuthScreen extends StatelessWidget {
                   const SizedBox(width: 64),
                 ],
               ),
-              const SizedBox(height: 156),
+              const SizedBox(height: 132),
               const Align(
                 alignment: Alignment.bottomCenter,
                 child: Text("Terms of Use | Contact support"),
               ).animate().fadeIn(duration: const Duration(milliseconds: 1200)),
-              const SizedBox(height: 40),
             ],
           ),
         ),
