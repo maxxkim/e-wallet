@@ -8,6 +8,7 @@ class CustomTextField extends StatelessWidget {
   final Widget? icon; // Иконка будет передаваться как параметр
   final TextInputType keyboardType;
   final FormFieldValidator? validator;
+  final bool? enabled;
 
   const CustomTextField({
     Key? key,
@@ -17,6 +18,7 @@ class CustomTextField extends StatelessWidget {
     this.autofocus,
     this.hintText,
     this.icon,
+    this.enabled,
     this.keyboardType = TextInputType.number,
   }) : super(key: key);
 
@@ -51,6 +53,7 @@ class CustomTextField extends StatelessWidget {
       style: const TextStyle(
           color: Colors.black, fontSize: 14), // Уменьшение размера шрифта
       keyboardType: keyboardType,
+      enabled: enabled,
     );
   }
 }
