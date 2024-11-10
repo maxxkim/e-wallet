@@ -10,7 +10,6 @@ import 'package:zippy/presentation/screen/history/widgets/transaction_tile.dart'
 
 class TransactionList extends StatelessWidget {
   final List<Transaction> transactions;
-
   const TransactionList({
     super.key,
     required this.transactions,
@@ -67,7 +66,6 @@ class TransactionList extends StatelessWidget {
           final month = DateFormat('MMMM')
               .format(DateTime(DateTime.now().year, index + 1));
           final isSelected = month == state.chosenMonth;
-
           return GestureDetector(
             onTap: () => context.read<DashboardCubit>().selectMonth(month),
             child: Padding(
@@ -118,7 +116,7 @@ class TransactionList extends StatelessWidget {
             TransactionTile(
               transaction: transactions[index],
               onIconTap: () => context.go(
-                '/dashboard/infoHistory',
+                '/dashboard/transaction-details',
                 extra: transactions[index],
               ),
             ).animate().fadeIn(

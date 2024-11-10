@@ -10,12 +10,13 @@ import 'package:zippy/presentation/screen/history/history_screen.dart';
 import 'package:zippy/presentation/screen/payment/payment_info_screen.dart';
 import 'package:zippy/presentation/screen/payment/payment_screen.dart';
 import 'package:zippy/presentation/screen/topUp/top_up_screen.dart';
-import 'package:dio/dio.dart';
 import 'package:zippy/presentation/screen/withdrawal/withdrawal_screen.dart';
 import 'package:zippy/presentation/session/session_cubit.dart';
 import 'package:zippy/presentation/session/session_state.dart';
 import 'package:zippy/domain/repository/dashboard/dashboard_repository.dart';
 import 'package:zippy/presentation/bloc/dashboard/dashboard_cubit.dart';
+import 'package:dio/dio.dart';
+import 'package:zippy/presentation/widget/barcode_scanner_simple.dart';
 
 Widget _loadingScreen() {
   return Scaffold(
@@ -29,6 +30,15 @@ Widget _loadingScreen() {
   );
 }
 
+Widget _withDashboardProvider(BuildContext context, Widget child) {
+  return BlocProvider<DashboardCubit>(
+    create: (context) => DashboardCubit(
+      RepositoryProvider.of<DashboardRepository>(context),
+    )..loadData(),
+    child: child,
+  );
+}
+
 Widget _authGuard(BuildContext context, Widget child) {
   return BlocBuilder<SessionCubit, SessionState>(
     builder: (context, state) {
@@ -36,7 +46,7 @@ Widget _authGuard(BuildContext context, Widget child) {
         return _loadingScreen();
       }
       if (state is Authenticated) {
-        return child;
+        return _withDashboardProvider(context, child);
       }
       if (state is Unauthenticated) {
         WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -69,15 +79,6 @@ Widget _authGuard2(BuildContext context, Widget child) {
   );
 }
 
-Widget _withDashboardCubit(BuildContext context, Widget child) {
-  return BlocProvider(
-    create: (context) =>
-        DashboardCubit(RepositoryProvider.of<DashboardRepository>(context))
-          ..loadData(),
-    child: child,
-  );
-}
-
 final GoRouter appRouter = GoRouter(
   initialLocation: '/',
   routes: <RouteBase>[
@@ -93,7 +94,9 @@ final GoRouter appRouter = GoRouter(
             try {
               final String phoneNumber = state.pathParameters['phoneNumber']!;
               return _authGuard2(
-                  context, SmsVerificationScreen(phoneNumber: phoneNumber));
+                context,
+                SmsVerificationScreen(phoneNumber: phoneNumber),
+              );
             } catch (e) {
               return ErrorScreen(errorMessage: _handleError(e));
             }
@@ -104,12 +107,15 @@ final GoRouter appRouter = GoRouter(
     GoRoute(
       path: '/dashboard',
       builder: (BuildContext context, GoRouterState state) {
-        return _authGuard(
-          context,
-          _withDashboardCubit(context, const DashboardScreen()),
-        );
+        return _authGuard(context, const DashboardScreen());
       },
       routes: <RouteBase>[
+        GoRoute(
+          path: 'scan',
+          builder: (BuildContext context, GoRouterState state) {
+            return _authGuard(context, const BarcodeScannerSimple());
+          },
+        ),
         GoRoute(
           path: 'topUp',
           builder: (BuildContext context, GoRouterState state) {
@@ -122,13 +128,16 @@ final GoRouter appRouter = GoRouter(
             return _authGuard(context, const WithdrawalScreen());
           },
         ),
+        // Add new route for transaction details
         GoRoute(
-          path: 'infoDashboard',
+          path: 'transaction-details',
           builder: (context, state) {
             try {
-              Transaction transaction = state.extra as Transaction;
+              final transaction = state.extra as Transaction;
               return _authGuard(
-                  context, PaymentInfoScreen(transaction: transaction));
+                context,
+                PaymentInfoScreen(transaction: transaction),
+              );
             } catch (e) {
               return ErrorScreen(errorMessage: _handleError(e));
             }
@@ -137,45 +146,14 @@ final GoRouter appRouter = GoRouter(
         GoRoute(
           path: 'history',
           builder: (BuildContext context, GoRouterState state) {
-            return _authGuard(
-              context,
-              _withDashboardCubit(context, const HistoryScreen()),
-            );
+            return _authGuard(context, const HistoryScreen());
           },
-          routes: <RouteBase>[
-            GoRoute(
-              path: 'infoHistory',
-              builder: (context, state) {
-                try {
-                  Transaction transaction = state.extra as Transaction;
-                  return _authGuard(
-                      context, PaymentInfoScreen(transaction: transaction));
-                } catch (e) {
-                  return ErrorScreen(errorMessage: _handleError(e));
-                }
-              },
-            ),
-          ],
         ),
         GoRoute(
           path: 'payment',
           builder: (BuildContext context, GoRouterState state) {
             return _authGuard(context, PaymentScreen());
           },
-          routes: <RouteBase>[
-            GoRoute(
-              path: 'info',
-              builder: (context, state) {
-                try {
-                  Transaction transaction = state.extra as Transaction;
-                  return _authGuard(
-                      context, PaymentInfoScreen(transaction: transaction));
-                } catch (e) {
-                  return ErrorScreen(errorMessage: _handleError(e));
-                }
-              },
-            ),
-          ],
         ),
       ],
     ),
@@ -189,20 +167,23 @@ String _handleError(dynamic error) {
   if (error is DioException) {
     switch (error.type) {
       case DioExceptionType.connectionTimeout:
-        return 'Connection error. Please try again.';
+        return 'Connection timeout occurred. Please check your internet connection.';
       case DioExceptionType.sendTimeout:
-        return 'Send timeout exceeded.';
+        return 'Send timeout exceeded. Please try again.';
       case DioExceptionType.receiveTimeout:
-        return 'Receive timeout exceeded.';
+        return 'Receive timeout exceeded. Please try again.';
       case DioExceptionType.badResponse:
-        return 'Server error: ${error.response?.statusCode}.';
+        return 'Server error: ${error.response?.statusCode}. Please try again later.';
       case DioExceptionType.cancel:
-        return 'Request canceled.';
+        return 'Request was cancelled. Please try again.';
       case DioExceptionType.unknown:
-        return 'Unknown error occurred.';
+        if (error.error is String) {
+          return error.error as String;
+        }
+        return 'An unexpected error occurred. Please try again.';
       default:
-        return 'An error occurred.';
+        return 'An error occurred. Please try again.';
     }
   }
-  return 'Unknown error occurred.';
+  return error.toString();
 }
