@@ -30,13 +30,11 @@ class DashboardCubit extends Cubit<DashboardState> {
     try {
       final SharedPreferences prefs = await SharedPreferences.getInstance();
       final String accessToken = prefs.getString('accessToken') ?? '';
-
       if (accessToken.isEmpty) {
         emit(DashboardStateError(errorMessage: 'Sign in token is missing'));
+        return;
       }
 
-      //final balance = await _dashboardRepository.getBalance();
-      //final transactions = await _dashboardRepository.getTransactions();
       final balance = await _dashboardRepository.getBalance();
       final transactions = await _dashboardRepository.getTransactions();
 
@@ -60,6 +58,7 @@ class DashboardCubit extends Cubit<DashboardState> {
       final SharedPreferences prefs = await SharedPreferences.getInstance();
       await prefs.remove('accessToken');
       await prefs.remove('refreshToken');
+      emit(DashboardStateLoggedOut());
     } catch (e) {
       emit(DashboardStateError(
         errorMessage: _handleError(e),
@@ -83,8 +82,7 @@ class DashboardCubit extends Cubit<DashboardState> {
     if (state is DashboardStateLoaded) {
       var currentState = state as DashboardStateLoaded;
       List<Transaction>? filteredTransactions = filterTransactions(
-          FilterType.period, currentState.transactions, month);
-
+          currentState.filterType, currentState.transactions, month);
       emit(currentState.copyWith(
         chosenMonth: month,
         filteredTransactions: filteredTransactions,
@@ -114,45 +112,22 @@ class DashboardCubit extends Cubit<DashboardState> {
   }
 
   String _handleError(dynamic error) {
-    // Здесь вы можете обрабатывать различные типы ошибок и возвращать соответствующие сообщения
     if (error is DioException) {
       switch (error.type) {
         case DioExceptionType.connectionTimeout:
-          return 'Ошибка подключения. Попробуйте еще раз.';
-        case DioExceptionType.connectionError:
-          return 'Ошибка подключения. Попробуйте еще раз.';
+          return 'Connection error. Please try again.';
         case DioExceptionType.sendTimeout:
-          return 'Время ожидания отправки истекло.';
+          return 'Send timeout exceeded.';
         case DioExceptionType.receiveTimeout:
-          return 'Время ожидания получения ответа истекло.';
+          return 'Receive timeout exceeded.';
         case DioExceptionType.badResponse:
-          return 'Ошибка сервера: ${error.response?.statusCode}.';
-        case DioExceptionType.badCertificate:
-          return 'Ошибка сертификата.';
+          return 'Server error: ${error.response?.statusCode}.';
         case DioExceptionType.cancel:
-          return 'Запрос отменен.';
-        case DioExceptionType.unknown:
-          return 'Произошла неизвестная ошибка.';
+          return 'Request cancelled.';
+        default:
+          return 'An unknown error occurred.';
       }
     }
     return error.toString();
-  }
-
-  static double getRandomBalance() {
-    final Random random = Random();
-    return (random.nextDouble() * 1000000).roundToDouble(); // Случайная сумма
-  }
-
-  static List<Transaction> getRandomTransactions() {
-    final Random random = Random();
-    int numberOfTransactions =
-        20 + random.nextInt(31); // Генерирует число от 20 до 50
-
-    List<Transaction> transactions = [];
-
-    for (int i = 0; i < numberOfTransactions; i++) {
-      transactions.add(Transaction.generateRandomTransaction());
-    }
-    return transactions;
   }
 }

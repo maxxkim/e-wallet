@@ -8,7 +8,7 @@ class DashboardDataRepository extends DashboardRepository {
   DashboardDataRepository(this._apiUtil);
 
   @override
-  Future<int> getBalance() {
+  Future<num> getBalance() {
     return _apiUtil.getBalance();
   }
 
