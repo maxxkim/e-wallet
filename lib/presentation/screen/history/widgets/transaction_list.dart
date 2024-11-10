@@ -1,122 +1,137 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_animate/flutter_animate.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 import 'package:zippy/domain/model/transaction/transaction_model.dart';
+import 'package:zippy/domain/state/dashboard/dashboard_state.dart';
+import 'package:zippy/presentation/bloc/dashboard/dashboard_cubit.dart';
 import 'package:zippy/presentation/screen/history/widgets/transaction_tile.dart';
 
 class TransactionList extends StatelessWidget {
-  const TransactionList({super.key});
+  final List<Transaction> transactions;
+
+  const TransactionList({
+    super.key,
+    required this.transactions,
+  });
 
   @override
   Widget build(BuildContext context) {
-    DateTime now = DateTime.now();
-    String currentMonth = DateFormat('MMMM yy').format(now);
-
-    final List<String> months = [
-      "January 24",
-      "February 24",
-      "March 24",
-      "April 24",
-      "May 24",
-      "June 24",
-      "July 24",
-      "August 24",
-      "September 24",
-      "October 24",
-      "November 24",
-      "December 24",
-    ];
-
-    int currentIndex = months.indexOf(currentMonth);
-    int startIndex = (currentIndex - 2).clamp(0, months.length);
-    int endIndex = (startIndex + 5).clamp(0, months.length);
-
-    int itemCount = 77;
-
-    return Expanded(
-      child: Container(
-        decoration: BoxDecoration(
-          color: Theme.of(context).colorScheme.tertiaryContainer,
-          borderRadius: BorderRadius.circular(32),
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              children: [
-                Expanded(
-                  child: Container(
-                    height: 48.0,
-                    decoration: BoxDecoration(
-                      color: Theme.of(context).scaffoldBackgroundColor,
-                      border: Border.all(
-                        color: Theme.of(context).colorScheme.primary,
-                        width: 1.0,
-                      ),
-                      borderRadius: const BorderRadius.vertical(
-                        top: Radius.circular(16),
-                        bottom: Radius.circular(16),
-                      ),
-                    ),
-                    child: Padding(
-                      padding:
-                          const EdgeInsets.only(top: 16, left: 16, right: 16),
-                      child: Center(
-                        child: ListView.builder(
-                          scrollDirection: Axis.horizontal,
-                          itemCount: endIndex - startIndex,
-                          itemBuilder: (context, index) {
-                            String month = months[startIndex + index];
-                            bool isCurrentMonth = month == currentMonth;
-                            return Padding(
-                              padding:
-                                  const EdgeInsets.symmetric(horizontal: 6.0),
-                              child: Text(
-                                month,
-                                style: isCurrentMonth
-                                    ? Theme.of(context).textTheme.headlineSmall
-                                    : Theme.of(context).textTheme.bodyMedium,
-                              ),
-                            );
-                          },
-                        ),
-                      ),
-                    ),
+    return BlocBuilder<DashboardCubit, DashboardState>(
+      builder: (context, state) {
+        if (state is DashboardStateLoaded) {
+          return Expanded(
+            child: Container(
+              decoration: BoxDecoration(
+                color: Theme.of(context).colorScheme.tertiaryContainer,
+                borderRadius: BorderRadius.circular(32),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  _buildMonthSelector(context, state),
+                  Expanded(
+                    child: transactions.isEmpty
+                        ? _buildEmptyState(context)
+                        : _buildTransactionsList(context),
                   ),
-                ),
-              ],
-            ),
-            Expanded(
-              child: ListView.builder(
-                itemCount: itemCount,
-                itemBuilder: (context, index) {
-                  return Column(
-                    children: [
-                      if (index < itemCount)
-                        Container(
-                          decoration: BoxDecoration(
-                            color:
-                                Theme.of(context).colorScheme.tertiaryContainer,
-                            borderRadius: BorderRadius.zero,
-                          ),
-                          child: TransactionTile(
-                            transaction:
-                                Transaction.generateRandomTransaction(),
-                            onIconTap: () =>
-                                context.go('/dashboard/infoDashboard'),
-                          ),
-                        ),
-                      Container(
-                          height: 1,
-                          color: Theme.of(context).scaffoldBackgroundColor),
-                    ],
-                  );
-                },
+                ],
               ),
             ),
-          ],
+          );
+        }
+        return const Center(child: CircularProgressIndicator());
+      },
+    );
+  }
+
+  Widget _buildMonthSelector(BuildContext context, DashboardStateLoaded state) {
+    return Container(
+      height: 48.0,
+      decoration: BoxDecoration(
+        color: Theme.of(context).scaffoldBackgroundColor,
+        border: Border.all(
+          color: Theme.of(context).colorScheme.primary,
+          width: 1.0,
+        ),
+        borderRadius: const BorderRadius.vertical(
+          top: Radius.circular(16),
+          bottom: Radius.circular(16),
         ),
       ),
+      child: ListView.builder(
+        scrollDirection: Axis.horizontal,
+        itemCount: 12,
+        itemBuilder: (context, index) {
+          final month = DateFormat('MMMM')
+              .format(DateTime(DateTime.now().year, index + 1));
+          final isSelected = month == state.chosenMonth;
+
+          return GestureDetector(
+            onTap: () => context.read<DashboardCubit>().selectMonth(month),
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16.0),
+              child: Center(
+                child: Text(
+                  month,
+                  style: isSelected
+                      ? Theme.of(context).textTheme.headlineSmall
+                      : Theme.of(context).textTheme.bodyMedium,
+                ),
+              ),
+            ),
+          );
+        },
+      ),
+    );
+  }
+
+  Widget _buildEmptyState(BuildContext context) {
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(
+            Icons.receipt_long_outlined,
+            size: 64,
+            color: Theme.of(context).colorScheme.primary.withOpacity(0.5),
+          ),
+          const SizedBox(height: 16),
+          Text(
+            'No transactions for this period',
+            style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                  color: Theme.of(context).colorScheme.primary.withOpacity(0.5),
+                ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildTransactionsList(BuildContext context) {
+    return ListView.builder(
+      itemCount: transactions.length,
+      itemBuilder: (context, index) {
+        return Column(
+          children: [
+            TransactionTile(
+              transaction: transactions[index],
+              onIconTap: () => context.go(
+                '/dashboard/infoHistory',
+                extra: transactions[index],
+              ),
+            ).animate().fadeIn(
+                  duration: const Duration(milliseconds: 300),
+                  delay: Duration(milliseconds: index * 50),
+                ),
+            Container(
+              height: 1,
+              color: Theme.of(context).scaffoldBackgroundColor,
+            ),
+          ],
+        );
+      },
     );
   }
 }

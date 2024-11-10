@@ -14,6 +14,8 @@ import 'package:dio/dio.dart';
 import 'package:zippy/presentation/screen/withdrawal/withdrawal_screen.dart';
 import 'package:zippy/presentation/session/session_cubit.dart';
 import 'package:zippy/presentation/session/session_state.dart';
+import 'package:zippy/domain/repository/dashboard/dashboard_repository.dart';
+import 'package:zippy/presentation/bloc/dashboard/dashboard_cubit.dart';
 
 Widget _loadingScreen() {
   return Scaffold(
@@ -33,18 +35,15 @@ Widget _authGuard(BuildContext context, Widget child) {
       if (state is InitialLoading || state is RefreshingTokens) {
         return _loadingScreen();
       }
-
       if (state is Authenticated) {
         return child;
       }
-
       if (state is Unauthenticated) {
         WidgetsBinding.instance.addPostFrameCallback((_) {
           GoRouter.of(context).go('/');
         });
         return _loadingScreen();
       }
-
       return _loadingScreen();
     },
   );
@@ -56,20 +55,26 @@ Widget _authGuard2(BuildContext context, Widget child) {
       if (state is InitialLoading || state is RefreshingTokens) {
         return _loadingScreen();
       }
-
       if (state is Unauthenticated) {
         return child;
       }
-
       if (state is Authenticated) {
         WidgetsBinding.instance.addPostFrameCallback((_) {
           GoRouter.of(context).go('/dashboard');
         });
         return _loadingScreen();
       }
-
       return _loadingScreen();
     },
+  );
+}
+
+Widget _withDashboardCubit(BuildContext context, Widget child) {
+  return BlocProvider(
+    create: (context) =>
+        DashboardCubit(RepositoryProvider.of<DashboardRepository>(context))
+          ..loadData(),
+    child: child,
   );
 }
 
@@ -99,7 +104,10 @@ final GoRouter appRouter = GoRouter(
     GoRoute(
       path: '/dashboard',
       builder: (BuildContext context, GoRouterState state) {
-        return _authGuard(context, const DashboardScreen());
+        return _authGuard(
+          context,
+          _withDashboardCubit(context, const DashboardScreen()),
+        );
       },
       routes: <RouteBase>[
         GoRoute(
@@ -129,7 +137,10 @@ final GoRouter appRouter = GoRouter(
         GoRoute(
           path: 'history',
           builder: (BuildContext context, GoRouterState state) {
-            return _authGuard(context, const HistoryScreen());
+            return _authGuard(
+              context,
+              _withDashboardCubit(context, const HistoryScreen()),
+            );
           },
           routes: <RouteBase>[
             GoRoute(
