@@ -7,6 +7,7 @@ import 'package:zippy/data/mapper/dashboard/balance_mapper.dart';
 import 'package:zippy/data/mapper/dashboard/transaction_mapper.dart';
 import 'package:zippy/data/mapper/topUp/top_up_initiate_mapper.dart';
 import 'package:zippy/data/mapper/topUp/top_up_mapper.dart';
+import 'package:zippy/data/mapper/transfer/transfer_initiate_mapper.dart';
 import 'package:zippy/data/mapper/withdrawal/withdrawal_initiate.dart';
 import 'package:zippy/data/mapper/withdrawal/withdrawal_mapper.dart';
 import 'package:zippy/domain/model/auth/auth_inititate_model.dart';
@@ -15,6 +16,7 @@ import 'package:zippy/domain/model/auth/auth_verify_model.dart';
 import 'package:zippy/domain/model/top_up/top_up_initiate_model.dart';
 import 'package:zippy/domain/model/top_up/top_up_model.dart';
 import 'package:zippy/domain/model/transaction/transaction_model.dart';
+import 'package:zippy/domain/model/transfer/transfer_model.dart';
 import 'package:zippy/domain/model/withdrawal/withdrawal_initiate_model.dart';
 import 'package:zippy/domain/model/withdrawal/withdrawal_model.dart';
 
@@ -76,5 +78,10 @@ class ApiUtil {
       Map<String, dynamic> data) async {
     final result = await _apiService.initiateWithdrawal(data);
     return WithdrawalInitiateMapper.fromApi(result);
+  }
+
+  Future<TransferInitiate> initiateTransfer(Map<String, dynamic> data) async {
+    final result = await _apiService.initiateTransfer(data);
+    return TransferInitiateMapper.fromApi(result);
   }
 }

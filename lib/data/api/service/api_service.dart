@@ -7,6 +7,7 @@ import 'package:zippy/data/api/api_balance.dart';
 import 'package:zippy/data/api/api_top_up.dart';
 import 'package:zippy/data/api/api_top_up_initiate.dart';
 import 'package:zippy/data/api/api_transaction.dart';
+import 'package:zippy/data/api/api_transfer_initiate.dart';
 import 'package:zippy/data/api/api_verify_token.dart';
 import 'package:zippy/data/api/api_withdraw.dart';
 import 'package:zippy/data/api/api_withdrawal_initiate.dart';
@@ -130,6 +131,45 @@ class ApiService {
       },
     );
     return ApiWithdrawalInitiate.fromApi(response.data);
+  }
+
+  Future<ApiTransferInitiate> initiateTransfer(
+      Map<String, dynamic> data) async {
+    final response = await _dio.post(
+      'https://lionfish-app-9ixm6.ondigitalocean.app/transfers/initiate-transfer',
+      data: {
+        "transferHash": "fbc05f0b-3357-4e46-99b3-d1235fa3f835",
+        "currency": "CLP",
+        "amount": data['amount'],
+        "senderData": {
+          "typeDocumentId": "1",
+          "documentId": "111111111",
+          "bankId": "2222323232323",
+          "fullName": "John Doe",
+          "email": "john@example.com",
+          "phoneNumber": "+56912345678",
+          "userMetaData": {
+            "fingerprint": "1234567890",
+            "city": "New York",
+            "device": "mobile"
+          }
+        },
+        "recipientData": {
+          "typeDocumentId": "1",
+          "documentId": "111111111",
+          "bankId": "2222323232323",
+          "fullName": "John Doe",
+          "email": "john@example.com",
+          "phoneNumber": "+56912345678",
+          "userMetaData": {
+            "fingerprint": "1234567890",
+            "city": "New York",
+            "device": "mobile"
+          }
+        },
+      },
+    );
+    return ApiTransferInitiate.fromApi(response.data);
   }
 
   void _addTokenInterceptor() {

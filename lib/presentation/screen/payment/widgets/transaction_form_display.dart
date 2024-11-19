@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:go_router/go_router.dart';
+import 'package:zippy/presentation/bloc/transfer/transfer_cubit.dart';
 import 'package:zippy/presentation/widget/custom_text_field.dart';
 
 class TransactionFormDisplay extends StatelessWidget {
@@ -49,22 +50,21 @@ class TransactionFormDisplay extends StatelessWidget {
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 24),
             child: Row(
-              mainAxisAlignment: MainAxisAlignment
-                  .spaceBetween, // Равномерное распределение пространства между текстом и кнопкой
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Expanded(
-                  // Используем Expanded для того, чтобы текст занимал доступное пространство
                   child: Text(
                     "To transfer the amount of (amount)\nto the number (number), press continue.",
                     style: Theme.of(context).textTheme.bodySmall,
-                    maxLines: 6, // Ограничиваем количество строк
-                    overflow: TextOverflow
-                        .ellipsis, // Добавляем многоточие, если текст слишком длинный
+                    maxLines: 6,
+                    overflow: TextOverflow.ellipsis,
                   ),
                 ),
                 const SizedBox(width: 8),
                 FilledButton(
-                  onPressed: () => context.go('/dashboard'),
+                  onPressed: () => context
+                      .read<TransferCubit>()
+                      .initializeTransfer({"amount": 3}),
                   child: Text(
                     "Continue",
                     style: Theme.of(context).textTheme.displaySmall,

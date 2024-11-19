@@ -19,63 +19,67 @@ class PaymentScreen extends StatelessWidget with FadeInAnimationMixin {
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
-        child: SingleChildScrollView(
-          child: Column(
-            children: staggeredFadeIn([
-              fadeInFromTop(const BalanceDisplay()),
-              const SizedBox(height: 16),
-              Center(
-                child: fadeIn(
-                  ContactButtonRow(
-                    buttons: [
-                      ContactButton(
-                        color: Theme.of(context).colorScheme.primary,
-                        icon: Icons.add,
-                        subtitle: 'New\nContact',
-                      ),
-                      ContactButton(
-                        color: Theme.of(context).colorScheme.primary,
-                        icon: Icons.arrow_right_alt,
-                        subtitle: 'New\nTransaction',
-                      ),
-                      ContactButton(
-                        color: Theme.of(context).colorScheme.tertiaryContainer,
-                        icon: Icons.person,
-                        subtitle: 'Enrique\nIglesias',
-                      ),
-                      ContactButton(
-                        color: Theme.of(context).colorScheme.tertiaryContainer,
-                        icon: Icons.person,
-                        subtitle: 'Lionel\nMessi',
-                      ),
-                      ContactButton(
-                        color: Theme.of(context).colorScheme.tertiaryContainer,
-                        icon: Icons.person,
-                        subtitle: 'Juan\nPeron',
-                      ),
-                      ContactButton(
-                        color: Theme.of(context).colorScheme.tertiaryContainer,
-                        icon: Icons.person,
-                        subtitle: 'John\nDoe',
-                      ),
-                      ContactButton(
-                        color: Theme.of(context).colorScheme.tertiaryContainer,
-                        icon: Icons.person,
-                        subtitle: 'Ximena\nMerino',
-                      ),
-                    ],
+        child: _buildLoadedContent(context),
+      ),
+    );
+  }
+
+  Widget _buildLoadedContent(BuildContext context) {
+    return SingleChildScrollView(
+      child: Column(
+        children: staggeredFadeIn([
+          fadeInFromTop(const BalanceDisplay()),
+          const SizedBox(height: 16),
+          Center(
+            child: fadeIn(
+              ContactButtonRow(
+                buttons: [
+                  ContactButton(
+                    color: Theme.of(context).colorScheme.primary,
+                    icon: Icons.add,
+                    subtitle: 'New\nContact',
                   ),
-                ),
+                  ContactButton(
+                    color: Theme.of(context).colorScheme.primary,
+                    icon: Icons.arrow_right_alt,
+                    subtitle: 'New\nTransaction',
+                  ),
+                  ContactButton(
+                    color: Theme.of(context).colorScheme.tertiaryContainer,
+                    icon: Icons.person,
+                    subtitle: 'Enrique\nIglesias',
+                  ),
+                  ContactButton(
+                    color: Theme.of(context).colorScheme.tertiaryContainer,
+                    icon: Icons.person,
+                    subtitle: 'Lionel\nMessi',
+                  ),
+                  ContactButton(
+                    color: Theme.of(context).colorScheme.tertiaryContainer,
+                    icon: Icons.person,
+                    subtitle: 'Juan\nPeron',
+                  ),
+                  ContactButton(
+                    color: Theme.of(context).colorScheme.tertiaryContainer,
+                    icon: Icons.person,
+                    subtitle: 'John\nDoe',
+                  ),
+                  ContactButton(
+                    color: Theme.of(context).colorScheme.tertiaryContainer,
+                    icon: Icons.person,
+                    subtitle: 'Ximena\nMerino',
+                  ),
+                ],
               ),
-              const SizedBox(height: 16),
-              fadeIn(
-                const TransactionFormDisplay(),
-                delay: 200,
-              ),
-              const SizedBox(height: 4),
-            ]),
+            ),
           ),
-        ),
+          const SizedBox(height: 16),
+          fadeIn(
+            const TransactionFormDisplay(),
+            delay: 200,
+          ),
+          const SizedBox(height: 4),
+        ]),
       ),
     );
   }
