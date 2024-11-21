@@ -10,6 +10,7 @@ import 'package:zippy/presentation/screen/history/history_screen.dart';
 import 'package:zippy/presentation/screen/payment/payment_info_screen.dart';
 import 'package:zippy/presentation/screen/payment/payment_screen.dart';
 import 'package:zippy/presentation/screen/topUp/top_up_screen.dart';
+import 'package:zippy/presentation/screen/transfer/transfer_screen.dart';
 import 'package:zippy/presentation/screen/withdrawal/withdrawal_screen.dart';
 import 'package:zippy/presentation/session/session_cubit.dart';
 import 'package:zippy/presentation/session/session_state.dart';
@@ -153,6 +154,12 @@ final GoRouter appRouter = GoRouter(
           path: 'payment',
           builder: (BuildContext context, GoRouterState state) {
             return _authGuard(context, PaymentScreen());
+          },
+        ),
+        GoRoute(
+          path: 'transfer',
+          builder: (BuildContext context, GoRouterState state) {
+            return _authGuard(context, const TransferScreen());
           },
         ),
       ],

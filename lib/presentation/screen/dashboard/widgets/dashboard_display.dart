@@ -142,7 +142,7 @@ class DashboardDisplay extends StatelessWidget {
               ),
               const SizedBox(height: 16),
               GestureDetector(
-                onTap: () => context.go('/dashboard/payment'),
+                onTap: () => context.go('/dashboard/transfer'),
                 child: Container(
                   height: 72,
                   width: 72,

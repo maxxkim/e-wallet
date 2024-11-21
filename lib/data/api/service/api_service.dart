@@ -7,6 +7,7 @@ import 'package:zippy/data/api/api_balance.dart';
 import 'package:zippy/data/api/api_top_up.dart';
 import 'package:zippy/data/api/api_top_up_initiate.dart';
 import 'package:zippy/data/api/api_transaction.dart';
+import 'package:zippy/data/api/api_transfer_initiate.dart';
 import 'package:zippy/data/api/api_verify_token.dart';
 import 'package:zippy/data/api/api_withdraw.dart';
 import 'package:zippy/data/api/api_withdrawal_initiate.dart';
@@ -130,6 +131,19 @@ class ApiService {
       },
     );
     return ApiWithdrawalInitiate.fromApi(response.data);
+  }
+
+  Future<ApiTransferInitiate> initiateTransfer(
+      Map<String, dynamic> data) async {
+    final response = await _dio.post(
+      'https://transfer-service-2on2u.ondigitalocean.app/api/v1/transfer',
+      data: {
+        "recipientId": "279df215-14bc-439a-b4ad-cfafc03c8914",
+        "currency": "CLP",
+        "amount": data['amount'],
+      },
+    );
+    return ApiTransferInitiate.fromApi(response.data);
   }
 
   void _addTokenInterceptor() {
