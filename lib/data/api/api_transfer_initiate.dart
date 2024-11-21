@@ -1,14 +1,10 @@
 class ApiTransferInitiate {
   final String transferHash;
-  final String currency;
-  final int amount;
-  final Map<String, dynamic> senderData;
-  final Map<String, dynamic> recipientData;
+  final String status;
+  final Map<String, dynamic> wallet;
 
   ApiTransferInitiate.fromApi(Map<String, dynamic> map)
-      : transferHash = map['transferHash'],
-        currency = map['currency'],
-        amount = map['amount'],
-        senderData = map['senderData'],
-        recipientData = map['recipientData'];
+      : transferHash = map['transfer_hash'],
+        wallet = map['wallet'],
+        status = map['status'];
 }

@@ -5,10 +5,8 @@ class TransferInitiateMapper {
   static TransferInitiate fromApi(ApiTransferInitiate transferInitiate) {
     return TransferInitiate(
       transferHash: transferInitiate.transferHash,
-      currency: transferInitiate.currency,
-      amount: transferInitiate.amount,
-      senderData: transferInitiate.senderData,
-      recipientData: transferInitiate.recipientData,
+      wallet: transferInitiate.wallet,
+      status: transferInitiate.status,
     );
   }
 }

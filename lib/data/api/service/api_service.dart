@@ -136,37 +136,11 @@ class ApiService {
   Future<ApiTransferInitiate> initiateTransfer(
       Map<String, dynamic> data) async {
     final response = await _dio.post(
-      'https://lionfish-app-9ixm6.ondigitalocean.app/transfers/initiate-transfer',
+      'https://transfer-service-2on2u.ondigitalocean.app/api/v1/transfer',
       data: {
-        "transferHash": "fbc05f0b-3357-4e46-99b3-d1235fa3f835",
+        "recipientId": "279df215-14bc-439a-b4ad-cfafc03c8914",
         "currency": "CLP",
         "amount": data['amount'],
-        "senderData": {
-          "typeDocumentId": "1",
-          "documentId": "111111111",
-          "bankId": "2222323232323",
-          "fullName": "John Doe",
-          "email": "john@example.com",
-          "phoneNumber": "+56912345678",
-          "userMetaData": {
-            "fingerprint": "1234567890",
-            "city": "New York",
-            "device": "mobile"
-          }
-        },
-        "recipientData": {
-          "typeDocumentId": "1",
-          "documentId": "111111111",
-          "bankId": "2222323232323",
-          "fullName": "John Doe",
-          "email": "john@example.com",
-          "phoneNumber": "+56912345678",
-          "userMetaData": {
-            "fingerprint": "1234567890",
-            "city": "New York",
-            "device": "mobile"
-          }
-        },
       },
     );
     return ApiTransferInitiate.fromApi(response.data);
