@@ -70,6 +70,10 @@ class TransactionHistoryPanel extends StatelessWidget
         height: 56,
         decoration: BoxDecoration(
           color: Theme.of(context).colorScheme.tertiaryContainer,
+          borderRadius: const BorderRadius.only(
+            bottomLeft: Radius.circular(16),
+            bottomRight: Radius.circular(16),
+          ),
           border: Border(
             top: BorderSide(
               color: Theme.of(context).scaffoldBackgroundColor,

@@ -10,7 +10,7 @@ class BarcodeScannerSimple extends StatefulWidget {
 
 class _BarcodeScannerSimpleState extends State<BarcodeScannerSimple> {
   Barcode? _barcode;
-  bool _isScannerInitialized = false;
+  final bool _isScannerInitialized = false;
   final MobileScannerController _controller = MobileScannerController(
     detectionSpeed: DetectionSpeed.normal,
     facing: CameraFacing.back,

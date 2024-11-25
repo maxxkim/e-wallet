@@ -119,18 +119,18 @@ class _TransactionTileState extends State<TransactionTile>
                 children: [
                   Text(
                     getText(widget.transaction.type,
-                        '${widget.transaction.currency} ${widget.transaction.amount.toStringAsFixed(2)}'),
+                        widget.transaction.amount.toStringAsFixed(2)),
                     style: getColor(widget.transaction.type),
                   ),
                   const SizedBox(width: 8.0),
-                  GestureDetector(
+                  /*GestureDetector(
                     onTap: widget.onIconTap,
                     child: SvgPicture.asset(
                       'assets/images/icon_receipt.svg',
                       height: 24.0,
                       width: 24.0,
                     ),
-                  ),
+                  ),*/
                 ],
               ),
             ),
@@ -155,7 +155,7 @@ class _TransactionTileState extends State<TransactionTile>
                               ),
                               Text(
                                 '${widget.transaction.id.substring(0, 8)}...',
-                                style: Theme.of(context).textTheme.bodySmall,
+                                style: Theme.of(context).textTheme.bodyMedium,
                               ),
                             ],
                           ),
@@ -168,7 +168,7 @@ class _TransactionTileState extends State<TransactionTile>
                               ),
                               Text(
                                 '${widget.transaction.currency} ${widget.transaction.amount.toString()}',
-                                style: Theme.of(context).textTheme.bodySmall,
+                                style: Theme.of(context).textTheme.bodyMedium,
                               ),
                             ],
                           ),
@@ -182,7 +182,7 @@ class _TransactionTileState extends State<TransactionTile>
                               Text(
                                 DateFormat('MMMM d, yyyy')
                                     .format(widget.transaction.date),
-                                style: Theme.of(context).textTheme.bodySmall,
+                                style: Theme.of(context).textTheme.bodyMedium,
                               ),
                             ],
                           ),
@@ -196,7 +196,7 @@ class _TransactionTileState extends State<TransactionTile>
                               Text(
                                 DateFormat('hh:mm a')
                                     .format(widget.transaction.date),
-                                style: Theme.of(context).textTheme.bodySmall,
+                                style: Theme.of(context).textTheme.bodyMedium,
                               ),
                             ],
                           ),
@@ -300,7 +300,7 @@ class _TransactionTileState extends State<TransactionTile>
 
   String getIcon(String type) {
     if (type == "payin") {
-      return 'assets/images/icon_transaction_background.svg';
+      return 'assets/images/icon_transaction.svg';
     } else {
       return 'assets/images/icon_transaction_out.svg';
     }
@@ -308,7 +308,7 @@ class _TransactionTileState extends State<TransactionTile>
 
   String getText(String type, String text) {
     if (type == "payin") {
-      return text;
+      return "+$text";
     } else {
       return "-$text";
     }

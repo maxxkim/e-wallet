@@ -6,7 +6,6 @@ import 'package:zippy/presentation/animation/fade_animation_mixin.dart';
 import 'package:zippy/presentation/bloc/dashboard/dashboard_cubit.dart';
 import 'package:zippy/presentation/screen/dashboard/widgets/filter_button_row.dart';
 import 'package:zippy/presentation/screen/dashboard/widgets/transaction_history_panel.dart';
-import 'package:zippy/presentation/session/session_cubit.dart';
 import 'widgets/dashboard_display.dart';
 
 class DashboardScreen extends StatelessWidget with FadeInAnimationMixin {
@@ -18,28 +17,13 @@ class DashboardScreen extends StatelessWidget with FadeInAnimationMixin {
       builder: (context, state) {
         if (state is DashboardStateLoaded) {
           return Scaffold(
-            appBar: AppBar(
-              title: fadeIn(const Text('ZippyPay')),
-              actions: [
-                fadeIn(
-                  Padding(
-                    padding: const EdgeInsets.only(right: 12),
-                    child: IconButton(
-                      icon: const Icon(Icons.exit_to_app),
-                      onPressed: () {
-                        logout(context);
-                        context.go('/');
-                      },
-                    ),
-                  ),
-                  delay: 300,
-                ),
-              ],
-              backgroundColor: Theme.of(context).colorScheme.primary,
-              toolbarHeight: 40,
-            ),
             body: Padding(
-              padding: const EdgeInsets.all(16.0),
+              padding: const EdgeInsets.only(
+                left: 16.0,
+                right: 16.0,
+                bottom: 16.0,
+                top: 60.0,
+              ),
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.start,
                 children: staggeredFadeIn([
@@ -116,16 +100,16 @@ class DashboardScreen extends StatelessWidget with FadeInAnimationMixin {
     final endIndex = (startIndex + 5).clamp(0, months.length);
 
     return Container(
-      height: 48.0,
+      height: 56.0,
       decoration: BoxDecoration(
         color: Theme.of(context).scaffoldBackgroundColor,
         border: Border.all(
-          color: Theme.of(context).colorScheme.primary,
+          color: Theme.of(context).colorScheme.secondary,
           width: 1.0,
         ),
         borderRadius: const BorderRadius.vertical(
-          top: Radius.circular(16),
-          bottom: Radius.circular(16),
+          top: Radius.circular(32),
+          bottom: Radius.circular(32),
         ),
       ),
       child: ListView.builder(
@@ -152,10 +136,5 @@ class DashboardScreen extends StatelessWidget with FadeInAnimationMixin {
         },
       ),
     );
-  }
-
-  void logout(BuildContext context) {
-    context.read<DashboardCubit>().logout();
-    context.read<SessionCubit>().checkAuthentication();
   }
 }

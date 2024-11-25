@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:zippy/domain/state/dashboard/dashboard_state.dart';
 import 'package:zippy/presentation/bloc/dashboard/dashboard_cubit.dart';
+import 'package:zippy/presentation/theme/app_theme.dart';
 
 class FilterButtonRow extends StatelessWidget {
   final DashboardStateLoaded state;
@@ -14,79 +15,81 @@ class FilterButtonRow extends StatelessWidget {
   Widget build(BuildContext context) {
     return Row(
       children: [
-        FilledButton(
-          onPressed: () =>
-              context.read<DashboardCubit>().selectFilter(FilterType.period),
-          style: ButtonStyle(
-            padding: WidgetStateProperty.all(
-                const EdgeInsets.symmetric(horizontal: 24.0)),
-            backgroundColor: WidgetStateProperty.all(
-              state.filterType == FilterType.period
-                  ? Theme.of(context).colorScheme.primary
-                  : Theme.of(context).colorScheme.secondaryContainer,
-            ),
-            foregroundColor: WidgetStateProperty.all(
-              state.filterType == FilterType.period
-                  ? Colors.white
-                  : Colors.black,
-            ),
-            textStyle: WidgetStateProperty.all(
-                state.filterType == FilterType.period
-                    ? Theme.of(context).textTheme.displaySmall
-                    : Theme.of(context).textTheme.bodyMedium),
-          ),
-          child: const Text("Period"),
+        _buildFilterButton(
+          context: context,
+          type: FilterType.period,
+          label: "Period",
         ),
         const Spacer(),
-        FilledButton(
-          onPressed: () =>
-              context.read<DashboardCubit>().selectFilter(FilterType.deposit),
-          style: ButtonStyle(
-            padding: WidgetStateProperty.all(
-                const EdgeInsets.symmetric(horizontal: 24.0)),
-            backgroundColor: WidgetStateProperty.all(
-              state.filterType == FilterType.deposit
-                  ? Theme.of(context).colorScheme.primary
-                  : Theme.of(context).colorScheme.secondaryContainer,
-            ),
-            foregroundColor: WidgetStateProperty.all(
-              state.filterType == FilterType.deposit
-                  ? Colors.white
-                  : Colors.black,
-            ),
-            textStyle: WidgetStateProperty.all(
-                state.filterType == FilterType.deposit
-                    ? Theme.of(context).textTheme.displaySmall
-                    : Theme.of(context).textTheme.bodyMedium),
-          ),
-          child: const Text("Deposit"),
+        _buildFilterButton(
+          context: context,
+          type: FilterType.deposit,
+          label: "Deposit",
         ),
         const Spacer(),
-        FilledButton(
-          onPressed: () => context
-              .read<DashboardCubit>()
-              .selectFilter(FilterType.withdrawal),
-          style: ButtonStyle(
-            padding: WidgetStateProperty.all(
-                const EdgeInsets.symmetric(horizontal: 24.0)),
-            backgroundColor: WidgetStateProperty.all(
-              state.filterType == FilterType.withdrawal
-                  ? Theme.of(context).colorScheme.primary
-                  : Theme.of(context).colorScheme.secondaryContainer,
-            ),
-            foregroundColor: WidgetStateProperty.all(
-              state.filterType == FilterType.withdrawal
-                  ? Colors.white
-                  : Colors.black,
-            ),
-            textStyle: WidgetStateProperty.all(
-                state.filterType == FilterType.withdrawal
-                    ? Theme.of(context).textTheme.displaySmall
-                    : Theme.of(context).textTheme.bodyMedium),
-          ),
-          child: const Text("Withdrawal"),
+        _buildFilterButton(
+          context: context,
+          type: FilterType.withdrawal,
+          label: "Withdrawal",
         ),
       ],
+    );
+  }
+
+  Widget _buildFilterButton({
+    required BuildContext context,
+    required FilterType type,
+    required String label,
+  }) {
+    final isSelected = state.filterType == type;
+
+    return Container(
+      height: 40, // Smaller height ✨
+      decoration: BoxDecoration(
+        gradient: isSelected
+            ? Theme.of(context).extension<ThemeGradients>()?.darkBlueGradient
+            : null,
+        borderRadius: BorderRadius.circular(32),
+        border: !isSelected
+            ? Border.all(
+                color: deepBlueColor,
+                width: 1.5,
+              )
+            : null,
+        color: !isSelected ? Colors.white : null,
+      ),
+      child: FilledButton(
+        onPressed: () => context.read<DashboardCubit>().selectFilter(type),
+        style: ButtonStyle(
+          padding: WidgetStateProperty.all(
+            const EdgeInsets.symmetric(
+                horizontal: 24.0, vertical: 0), // Reduced vertical padding
+          ),
+          minimumSize:
+              WidgetStateProperty.all(const Size(0, 32)), // Set minimum height
+          maximumSize: WidgetStateProperty.all(
+              const Size(double.infinity, 32)), // Set maximum height
+          backgroundColor: WidgetStateProperty.all(Colors.transparent),
+          foregroundColor: WidgetStateProperty.all(
+            isSelected ? Colors.white : deepBlueColor,
+          ),
+          textStyle: WidgetStateProperty.all(
+            isSelected
+                ? Theme.of(context).textTheme.displaySmall
+                : Theme.of(context).textTheme.bodyMedium?.copyWith(
+                      color: deepBlueColor,
+                    ),
+          ),
+          elevation: WidgetStateProperty.all(0),
+          shadowColor: WidgetStateProperty.all(Colors.transparent),
+          shape: WidgetStateProperty.all(
+            RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(32), // Match container radius
+            ),
+          ),
+        ),
+        child: Text(label),
+      ),
     );
   }
 }

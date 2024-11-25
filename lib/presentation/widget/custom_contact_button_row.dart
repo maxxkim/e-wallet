@@ -11,13 +11,13 @@ class ContactButtonRow extends StatelessWidget {
     return SingleChildScrollView(
       scrollDirection: Axis.horizontal,
       child: SizedBox(
-        height: 88,
+        height: 92,
         child: Row(
           mainAxisAlignment: MainAxisAlignment
               .spaceEvenly, // Центрируем элементы с равномерным пространством
           children: buttons.map((button) {
             return SizedBox(
-              height: 88, // Устанавливаем высоту равной общей высоте
+              height: 92, // Устанавливаем высоту равной общей высоте
               width: 64,
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
@@ -38,7 +38,7 @@ class ContactButtonRow extends StatelessWidget {
                       child: Text(
                         textAlign: TextAlign.center,
                         button.subtitle,
-                        style: Theme.of(context).textTheme.bodySmall,
+                        style: Theme.of(context).textTheme.bodyMedium,
                       ),
                     ),
                   ),

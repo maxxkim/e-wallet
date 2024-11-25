@@ -55,13 +55,22 @@ class TransactionFormDisplay extends StatelessWidget {
                 Expanded(
                   child: Text(
                     "To transfer the amount of (amount)\nto the number (number), press continue.",
-                    style: Theme.of(context).textTheme.bodySmall,
+                    style: Theme.of(context).textTheme.bodyMedium,
                     maxLines: 6,
                     overflow: TextOverflow.ellipsis,
                   ),
                 ),
                 const SizedBox(width: 8),
                 FilledButton(
+                  style: ButtonStyle(
+                    padding: WidgetStateProperty.all(
+                      const EdgeInsets.symmetric(
+                          horizontal: 24.0,
+                          vertical: 0), // Reduced vertical padding
+                    ),
+                    backgroundColor:
+                        WidgetStateProperty.all(Colors.transparent),
+                  ),
                   onPressed: () => context
                       .read<TransferCubit>()
                       .initializeTransfer({"amount": 3}),
