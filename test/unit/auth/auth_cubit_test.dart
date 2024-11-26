@@ -54,24 +54,16 @@ void main() {
     blocTest<AuthCubit, AuthState>(
       'emits correct states when verifyCode is called successfully',
       setUp: () async {
-        print('\nSetting up test:');
-        // Initialize SharedPreferences for this test
         SharedPreferences.setMockInitialValues({});
       },
       build: () {
-        print('\nSetting up mock:');
         when(mockAuthRepository.verifyAuth(testCode, testPhone, testUserId))
             .thenAnswer((_) async {
-          print('Mock returning AuthVerify with:');
-          print('isVerified: ${testAuthVerify.isVerified}');
-          print('accessToken: ${testAuthVerify.accessToken}');
-          print('refreshToken: ${testAuthVerify.refreshToken}');
           return testAuthVerify;
         });
         return authCubit;
       },
       seed: () {
-        print('\nSetting initial state:');
         final initialState = AuthStateLoaded(
           termsAccepted: false,
           codeStatus: CodeStatus.none,
@@ -84,12 +76,9 @@ void main() {
             walletId: 'test-wallet',
           ),
         );
-        print('userId: ${initialState.userId}');
-        print('phone: ${initialState.phone}');
         return initialState;
       },
       act: (cubit) async {
-        print('\nExecuting verifyCode with: $testCode');
         await cubit.verifyCode(testCode);
       },
       expect: () => [

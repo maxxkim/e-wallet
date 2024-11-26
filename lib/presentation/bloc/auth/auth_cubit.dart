@@ -22,10 +22,6 @@ class AuthCubit extends Cubit<AuthState> {
     if (state is AuthStateLoaded) {
       final currentState = state as AuthStateLoaded;
 
-      print('Current state before verification:');
-      print('userId: ${currentState.userId}');
-      print('phone: ${currentState.phone}');
-
       try {
         final AuthVerify authVerify = await _authRepository.verifyAuth(
           code,
@@ -33,24 +29,17 @@ class AuthCubit extends Cubit<AuthState> {
           currentState.userId,
         );
 
-        print('Verification response:');
-        print('isVerified: ${authVerify.isVerified}');
-        print('accessToken: ${authVerify.accessToken}');
-        print('refreshToken: ${authVerify.refreshToken}');
-
         if (authVerify.isVerified) {
           final SharedPreferences prefs = await SharedPreferences.getInstance();
           await prefs.setString('accessToken', authVerify.accessToken ?? '');
           await prefs.setString('refreshToken', authVerify.refreshToken ?? '');
 
-          print('Emitting new state with CodeStatus.correct');
           emit(currentState.copyWith(
             codeStatus: CodeStatus.correct,
             authVerifyResponse: authVerify,
             shakeKey: false,
           ));
         } else {
-          print('Emitting new state with CodeStatus.invalid');
           emit(currentState.copyWith(
             codeStatus: CodeStatus.invalid,
             authVerifyResponse: authVerify,
@@ -58,7 +47,6 @@ class AuthCubit extends Cubit<AuthState> {
           ));
         }
       } catch (e) {
-        print('Error during verification: $e');
         emit(currentState.copyWith(
           codeStatus: CodeStatus.invalid,
           shakeKey: true,

@@ -144,6 +144,19 @@ class DashboardCubit extends Cubit<DashboardState> {
     }
   }
 
+  Future<void> logout() async {
+    try {
+      final SharedPreferences prefs = await SharedPreferences.getInstance();
+      await prefs.remove('accessToken');
+      await prefs.remove('refreshToken');
+      emit(DashboardStateLoggedOut());
+    } catch (e) {
+      emit(DashboardStateError(
+        errorMessage: _handleError(e),
+      ));
+    }
+  }
+
   String _handleError(dynamic error) {
     if (error is DioException) {
       switch (error.type) {
