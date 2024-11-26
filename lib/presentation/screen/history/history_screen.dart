@@ -117,7 +117,10 @@ class _HistoryScreenState extends State<HistoryScreen> {
               children: [
                 const Text('Expense'),
                 Text('\$ ${_calculateExpense(state).toStringAsFixed(2)}',
-                    style: Theme.of(context).textTheme.titleLarge),
+                    style: Theme.of(context)
+                        .textTheme
+                        .outText
+                        ?.copyWith(fontSize: 20)),
               ],
             ),
           ),
@@ -135,7 +138,10 @@ class _HistoryScreenState extends State<HistoryScreen> {
               children: [
                 const Text('Income'),
                 Text('\$ ${_calculateIncome(state).toStringAsFixed(2)}',
-                    style: Theme.of(context).textTheme.titleLarge),
+                    style: Theme.of(context)
+                        .textTheme
+                        .inText
+                        ?.copyWith(fontSize: 20)),
               ],
             ),
           ),

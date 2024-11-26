@@ -3,10 +3,12 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:keyboard_dismisser/keyboard_dismisser.dart';
 import 'package:zippy/data/repository/auth/auth_data_repository.dart';
 import 'package:zippy/data/repository/dashboard/dashboard_data_repository.dart';
+import 'package:zippy/data/repository/qr/qr_payment_data_repository.dart';
 import 'package:zippy/data/repository/transfer/transfer_data_repository.dart';
 import 'package:zippy/data/repository/withdrawal/withdrawal_data_repository.dart';
 import 'package:zippy/domain/repository/auth/auth_repository.dart';
 import 'package:zippy/domain/repository/dashboard/dashboard_repository.dart';
+import 'package:zippy/domain/repository/qr/qr_payment_repository.dart';
 import 'package:zippy/domain/repository/transfer/transfer_repository.dart';
 import 'package:zippy/domain/repository/withdrawal/withdrawal_repository.dart';
 import 'package:zippy/presentation/app_router.dart';
@@ -59,6 +61,11 @@ class ZippyApp extends StatelessWidget {
           ),
           RepositoryProvider<TransferRepository>(
             create: (context) => TransferDataRepository(
+              RepositoryProvider.of<ApiUtil>(context),
+            ),
+          ),
+          RepositoryProvider<QrPaymentRepository>(
+            create: (context) => QrPaymentDataRepository(
               RepositoryProvider.of<ApiUtil>(context),
             ),
           ),

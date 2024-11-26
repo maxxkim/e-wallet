@@ -149,17 +149,53 @@ class ApiService {
   void _addTokenInterceptor() {
     _dio.interceptors.add(InterceptorsWrapper(onRequest:
         (RequestOptions options, RequestInterceptorHandler handler) async {
-      String? accessToken = await _getAccessToken();
+      // Always add x-api-key header for all requests
+      options.headers['x-api-key'] = 'BKC4X9KXCrsCpVZB7DvN4rkhrHZSu6sD';
 
-      if (accessToken != null) {
-        options.headers['Authorization'] =
-            'Bearer $accessToken'; // Use 'Bearer' if needed
+      // Check if it's a merchant service endpoint
+      if (options.path.contains('merchant-service')) {
+        // For QR code existence check endpoint use ApiKey
+        if (!options.path.contains('payment')) {
+          options.headers['Authorization'] =
+              'ApiKey BKC4X9KXCrsCpVZB7DvN4rkhrHZSu6sD';
+        }
+        // For payment endpoint use Bearer token
+        else {
+          String? accessToken = await _getAccessToken();
+          if (accessToken != null) {
+            options.headers['Authorization'] = 'Bearer $accessToken';
+          }
+        }
       }
-
-      options.headers['x-api-key'] =
-          'BKC4X9KXCrsCpVZB7DvN4rkhrHZSu6sD'; // Add x-api-key header
+      // For all other non-merchant endpoints use Bearer token
+      else {
+        String? accessToken = await _getAccessToken();
+        if (accessToken != null) {
+          options.headers['Authorization'] = 'Bearer $accessToken';
+        }
+      }
 
       return handler.next(options);
     }));
+  }
+
+  Future<Map<String, dynamic>> checkQrCode(String hash) async {
+    final response = await _dio.post(
+      'https://merchant-service-a5ja2.ondigitalocean.app/api/v1/qr_code/exist',
+      data: {
+        'hash': hash,
+      },
+    );
+    return response.data;
+  }
+
+  Future<void> processPayment(String hash, double amount) async {
+    await _dio.post(
+      'https://merchant-service-a5ja2.ondigitalocean.app/api/v1/payment',
+      data: {
+        'qr_code_hash': hash,
+        'amount': amount,
+      },
+    );
   }
 }
