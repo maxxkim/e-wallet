@@ -13,6 +13,7 @@ import 'package:zippy/data/mapper/withdrawal/withdrawal_mapper.dart';
 import 'package:zippy/domain/model/auth/auth_inititate_model.dart';
 import 'package:zippy/domain/model/auth/auth_refresh_mode.dart';
 import 'package:zippy/domain/model/auth/auth_verify_model.dart';
+import 'package:zippy/domain/model/qr/qr_payment_model.dart';
 import 'package:zippy/domain/model/top_up/top_up_initiate_model.dart';
 import 'package:zippy/domain/model/top_up/top_up_model.dart';
 import 'package:zippy/domain/model/transaction/transaction_model.dart';
@@ -83,5 +84,14 @@ class ApiUtil {
   Future<TransferInitiate> initiateTransfer(Map<String, dynamic> data) async {
     final result = await _apiService.initiateTransfer(data);
     return TransferInitiateMapper.fromApi(result);
+  }
+
+  Future<QrPaymentResponse> checkQrCode(String hash) async {
+    final result = await _apiService.checkQrCode(hash);
+    return QrPaymentResponse.fromJson(result);
+  }
+
+  Future<void> processPayment(String hash, double amount) async {
+    await _apiService.processPayment(hash, amount);
   }
 }

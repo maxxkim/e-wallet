@@ -44,7 +44,7 @@ class SmsVerificationScreen extends StatelessWidget with FadeInAnimationMixin {
                     appBar: AppBar(backgroundColor: Colors.transparent),
                     body: SingleChildScrollView(
                       child: Padding(
-                        padding: const EdgeInsets.all(24),
+                        padding: const EdgeInsets.all(16),
                         child: Column(
                           mainAxisAlignment: MainAxisAlignment.center,
                           crossAxisAlignment: CrossAxisAlignment.center,
@@ -69,31 +69,20 @@ class SmsVerificationScreen extends StatelessWidget with FadeInAnimationMixin {
                             _buildVerificationFields(context, state),
                             const SizedBox(height: 40),
                             fadeIn(
-                              Row(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  Text(
-                                    "Can't receive a\nverification code",
-                                    style:
-                                        Theme.of(context).textTheme.bodyMedium,
-                                  ),
-                                  const SizedBox(width: 24),
-                                  SvgPicture.asset(
-                                    'assets/images/zippy_logo.svg',
-                                    semanticsLabel: 'Zippy Motto',
-                                  ),
-                                ],
+                              Text(
+                                "Can't receive a verification code?",
+                                style: Theme.of(context).textTheme.bodyMedium,
                               ),
                               delay: 300,
                             ),
-                            const SizedBox(height: 128),
+                            const SizedBox(height: 184),
                             _buildTermsSection(context, state),
                             const SizedBox(height: 16),
                             fadeIn(
                               Center(
                                 child: Text(
-                                  "You will be redirected to Truora\nverification platform",
-                                  style: Theme.of(context).textTheme.bodySmall,
+                                  "You will be redirected to Truora verification platform",
+                                  style: Theme.of(context).textTheme.bodyMedium,
                                   textAlign: TextAlign.center,
                                 ),
                               ),
@@ -112,15 +101,10 @@ class SmsVerificationScreen extends StatelessWidget with FadeInAnimationMixin {
                                           context.go('/dashboard');
                                         }
                                       : null,
-                                  color: state.termsAccepted &&
-                                          state.codeStatus == CodeStatus.correct
-                                      ? Theme.of(context).primaryColor
-                                      : Colors.grey,
                                 ),
                               ),
                               delay: 500,
                             ),
-                            const SizedBox(height: 40),
                           ]),
                         ),
                       ),
@@ -186,6 +170,7 @@ class SmsVerificationScreen extends StatelessWidget with FadeInAnimationMixin {
           borderRadius: BorderRadius.circular(16),
           border: Border.all(
             color: getContainerColor(state.codeStatus, context),
+            width: 1,
           ),
         ),
         child: TextFormField(
@@ -195,8 +180,16 @@ class SmsVerificationScreen extends StatelessWidget with FadeInAnimationMixin {
           maxLength: 1,
           decoration: const InputDecoration(
             counterText: "",
-            border: InputBorder.none,
+            border: InputBorder.none, // Hide border ✨
+            enabledBorder: InputBorder.none,
+            focusedBorder: InputBorder.none,
+            errorBorder: InputBorder.none,
+            focusedErrorBorder: InputBorder.none,
+            disabledBorder: InputBorder.none,
           ),
+          style: Theme.of(context).textTheme.headlineMedium?.copyWith(
+                fontWeight: FontWeight.bold,
+              ),
           onChanged: (value) async {
             if (value.length == 1) {
               _verificationCode[index] = value;
@@ -234,27 +227,41 @@ class SmsVerificationScreen extends StatelessWidget with FadeInAnimationMixin {
               height: 32,
               width: 32,
               decoration: BoxDecoration(
-                color: Theme.of(context).primaryColor,
-                borderRadius: BorderRadius.circular(8),
+                color: Theme.of(context).scaffoldBackgroundColor,
+                border: Border.all(
+                  color: getContainerColor(state.codeStatus, context),
+                ),
+                borderRadius: BorderRadius.circular(12),
               ),
               child: Column(
                 children: [
                   if (state.termsAccepted)
-                    const Padding(
-                      padding: EdgeInsets.only(top: 4.0),
+                    Padding(
+                      padding: const EdgeInsets.only(top: 4.0),
                       child: Icon(
                         Icons.check,
-                        color: Colors.white,
+                        color: Theme.of(context).colorScheme.secondary,
                       ),
                     ),
                 ],
               ),
             ),
           ),
-          const SizedBox(width: 24),
-          Text(
-            "I agree to Terms of Use",
-            style: Theme.of(context).textTheme.bodyMedium,
+          const SizedBox(width: 16),
+          Row(
+            children: [
+              Text(
+                "I agree to ",
+                style: Theme.of(context).textTheme.displayLarge,
+              ),
+              Text(
+                "Terms of Use",
+                style: Theme.of(context)
+                    .textTheme
+                    .displayLarge
+                    ?.copyWith(fontWeight: FontWeight.w600),
+              ),
+            ],
           ),
         ],
       ),
@@ -274,7 +281,7 @@ class SmsVerificationScreen extends StatelessWidget with FadeInAnimationMixin {
     } else if (status == CodeStatus.invalid) {
       return Theme.of(context).colorScheme.error;
     } else {
-      return Theme.of(context).colorScheme.primary;
+      return Theme.of(context).colorScheme.secondary;
     }
   }
 }

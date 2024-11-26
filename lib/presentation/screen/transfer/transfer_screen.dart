@@ -37,9 +37,9 @@ class TransferScreen extends StatelessWidget with FadeInAnimationMixin {
 
   PreferredSizeWidget _buildAppBar(BuildContext context) {
     return AppBar(
-      backgroundColor: Theme.of(context).colorScheme.primary,
-      toolbarHeight: 40,
-      leading: fadeIn(
+      backgroundColor: Colors.transparent,
+      toolbarHeight: 24,
+      /*leading: fadeIn(
         IconButton(
           icon: const Icon(Icons.arrow_back, color: Colors.white),
           onPressed: () => context.go('/dashboard'),
@@ -51,7 +51,7 @@ class TransferScreen extends StatelessWidget with FadeInAnimationMixin {
           style: Theme.of(context).textTheme.displaySmall,
         ),
       ),
-      centerTitle: true,
+      centerTitle: true,*/
     );
   }
 
@@ -94,12 +94,10 @@ class TransferScreen extends StatelessWidget with FadeInAnimationMixin {
               ContactButtonRow(
                 buttons: [
                   ContactButton(
-                    color: Theme.of(context).colorScheme.primary,
                     icon: Icons.add,
                     subtitle: 'New\nContact',
                   ),
                   ContactButton(
-                    color: Theme.of(context).colorScheme.primary,
                     icon: Icons.arrow_right_alt,
                     subtitle: 'New\nTransaction',
                   ),

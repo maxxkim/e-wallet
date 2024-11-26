@@ -161,10 +161,14 @@ class _ProviderCardState extends State<ProviderCard>
               height: 64.0,
               width: double.infinity,
               decoration: BoxDecoration(
-                color: Theme.of(context).colorScheme.secondaryContainer,
+                color: Theme.of(context).scaffoldBackgroundColor,
+                border: Border.all(
+                    color: _isExpanded
+                        ? Theme.of(context).colorScheme.secondary
+                        : Theme.of(context).colorScheme.primary),
                 borderRadius: BorderRadius.vertical(
                   top: const Radius.circular(16),
-                  bottom: Radius.circular(_isExpanded ? 0 : 16),
+                  bottom: Radius.circular(16),
                 ),
               ),
               child: Padding(
@@ -207,7 +211,8 @@ class _ProviderCardState extends State<ProviderCard>
               child: Container(
                 decoration: BoxDecoration(
                   color: Theme.of(context).colorScheme.tertiaryContainer,
-                  borderRadius: const BorderRadius.vertical(
+                  borderRadius: BorderRadius.vertical(
+                    top: _isExpanded ? Radius.zero : Radius.circular(16),
                     bottom: Radius.circular(16),
                   ),
                 ),

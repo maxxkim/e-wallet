@@ -51,12 +51,12 @@ class TransactionList extends StatelessWidget {
       decoration: BoxDecoration(
         color: Theme.of(context).scaffoldBackgroundColor,
         border: Border.all(
-          color: Theme.of(context).colorScheme.primary,
+          color: Theme.of(context).colorScheme.secondary,
           width: 1.0,
         ),
         borderRadius: const BorderRadius.vertical(
-          top: Radius.circular(16),
-          bottom: Radius.circular(16),
+          top: Radius.circular(32),
+          bottom: Radius.circular(32),
         ),
       ),
       child: ListView.builder(

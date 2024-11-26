@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:zippy/presentation/widget/custom_contact_button.dart';
+import 'package:zippy/presentation/theme/app_theme.dart';
 
 class ContactButtonRow extends StatelessWidget {
   final List<ContactButton> buttons;
@@ -8,44 +9,65 @@ class ContactButtonRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return SingleChildScrollView(
-      scrollDirection: Axis.horizontal,
-      child: SizedBox(
-        height: 88,
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment
-              .spaceEvenly, // Центрируем элементы с равномерным пространством
-          children: buttons.map((button) {
-            return SizedBox(
-              height: 88, // Устанавливаем высоту равной общей высоте
-              width: 64,
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  CircleAvatar(
-                    radius:
-                        24, // Увеличиваем радиус, чтобы иконка не была слишком маленькой
-                    backgroundColor: button.color,
-                    child: Icon(button.icon,
-                        size: 32,
-                        color: Colors
-                            .white), // Увеличиваем иконку для лучшей видимости
-                  ),
-                  const SizedBox(height: 4), // Отступ между кнопкой и подписью
-                  Flexible(
-                    // Используем Flexible, чтобы текст мог занимать доступное пространство
-                    child: Center(
-                      child: Text(
-                        textAlign: TextAlign.center,
-                        button.subtitle,
-                        style: Theme.of(context).textTheme.bodySmall,
+    return Container(
+      decoration: BoxDecoration(
+        borderRadius:
+            BorderRadius.circular(16.0), // Optional: Add some corner rounding
+      ),
+      child: SingleChildScrollView(
+        scrollDirection: Axis.horizontal,
+        child: SizedBox(
+          height: 92,
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment
+                .spaceEvenly, // Center items with equal spacing
+            children: buttons.map((button) {
+              return SizedBox(
+                height: 92, // Set height to match overall height
+                width: 64,
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    // Using a Container to create a gradient circle background
+                    Container(
+                      decoration: BoxDecoration(
+                        gradient: button.color != null
+                            ? null // If button has a color, don't use gradient
+                            : Theme.of(context)
+                                .extension<ThemeGradients>()
+                                ?.darkBlueGradient, // Use gradient as default
+                        shape: BoxShape.circle,
+                      ),
+                      child: CircleAvatar(
+                        radius: 24, // Increase radius for better visibility
+                        backgroundColor: button.color ??
+                            Colors
+                                .transparent, // Keep it transparent if a color is provided
+                        child: Icon(
+                          button.icon,
+                          size: 32,
+                          color: Colors
+                              .white, // Make the icon white for visibility
+                        ),
                       ),
                     ),
-                  ),
-                ],
-              ),
-            );
-          }).toList(),
+                    const SizedBox(
+                        height: 4), // Space between button and caption
+                    Flexible(
+                      // Use Flexible so text can take available space
+                      child: Center(
+                        child: Text(
+                          textAlign: TextAlign.center,
+                          button.subtitle,
+                          style: Theme.of(context).textTheme.bodyMedium,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              );
+            }).toList(),
+          ),
         ),
       ),
     );

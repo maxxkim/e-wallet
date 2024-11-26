@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:zippy/presentation/theme/app_theme.dart';
 
 class RectangularButton extends StatelessWidget {
   final String label;
@@ -14,18 +15,33 @@ class RectangularButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ElevatedButton(
-      onPressed: onPressed,
-      style: ElevatedButton.styleFrom(
-        minimumSize: const Size(double.infinity, 50),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(16.0), // Закругление углов
-        ),
-        backgroundColor: color ?? Theme.of(context).primaryColor,
+    return Container(
+      // Wrap with Container to apply gradient ✨
+      decoration: BoxDecoration(
+        gradient: color != null
+            ? null
+            : Theme.of(context).extension<ThemeGradients>()?.darkBlueGradient,
+        borderRadius: BorderRadius.circular(16.0),
       ),
-      child: Text(
-        label,
-        style: const TextStyle(color: Colors.white, fontSize: 12),
+      child: ElevatedButton(
+        onPressed: onPressed,
+        style: ElevatedButton.styleFrom(
+          minimumSize: const Size(double.infinity, 50),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16.0),
+          ),
+          // Make button transparent to show gradient UwU
+          backgroundColor: color ?? Colors.transparent,
+          // Remove elevation and shadow
+          elevation: 0,
+          shadowColor: Colors.transparent,
+          // Add splash effect
+          foregroundColor: Colors.white.withOpacity(0.2),
+        ),
+        child: Text(
+          label,
+          style: Theme.of(context).textTheme.displaySmall,
+        ),
       ),
     );
   }

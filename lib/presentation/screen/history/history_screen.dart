@@ -6,6 +6,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:zippy/domain/state/dashboard/dashboard_state.dart';
 import 'package:zippy/presentation/bloc/dashboard/dashboard_cubit.dart';
 import 'package:zippy/presentation/screen/history/widgets/transaction_list.dart';
+import 'package:zippy/presentation/theme/app_theme.dart';
 import 'package:zippy/presentation/widget/custom_text_field.dart';
 
 class HistoryScreen extends StatefulWidget {
@@ -107,7 +108,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
         Expanded(
           child: Container(
             decoration: BoxDecoration(
-              color: Theme.of(context).colorScheme.secondaryContainer,
+              color: Theme.of(context).colorScheme.tertiaryContainer,
               borderRadius: BorderRadius.circular(16),
             ),
             padding: const EdgeInsets.all(16.0),
@@ -116,7 +117,10 @@ class _HistoryScreenState extends State<HistoryScreen> {
               children: [
                 const Text('Expense'),
                 Text('\$ ${_calculateExpense(state).toStringAsFixed(2)}',
-                    style: Theme.of(context).textTheme.titleLarge),
+                    style: Theme.of(context)
+                        .textTheme
+                        .outText
+                        ?.copyWith(fontSize: 20)),
               ],
             ),
           ),
@@ -125,7 +129,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
         Expanded(
           child: Container(
             decoration: BoxDecoration(
-              color: Theme.of(context).colorScheme.tertiaryFixed,
+              color: Theme.of(context).colorScheme.tertiaryContainer,
               borderRadius: BorderRadius.circular(16),
             ),
             padding: const EdgeInsets.all(16.0),
@@ -134,7 +138,10 @@ class _HistoryScreenState extends State<HistoryScreen> {
               children: [
                 const Text('Income'),
                 Text('\$ ${_calculateIncome(state).toStringAsFixed(2)}',
-                    style: Theme.of(context).textTheme.titleLarge),
+                    style: Theme.of(context)
+                        .textTheme
+                        .inText
+                        ?.copyWith(fontSize: 20)),
               ],
             ),
           ),
@@ -152,6 +159,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
 
   Widget _buildFilterButtons(BuildContext context, DashboardStateLoaded state) {
     return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceEvenly, // Adjust alignment here
       children: [
         _buildFilterButton(
           context,
@@ -159,17 +167,15 @@ class _HistoryScreenState extends State<HistoryScreen> {
           FilterType.period,
           state.filterType == FilterType.period,
         ),
-        const Spacer(),
         _buildFilterButton(
           context,
           "Deposit",
           FilterType.deposit,
           state.filterType == FilterType.deposit,
         ),
-        const Spacer(),
         _buildFilterButton(
           context,
-          "Withdrawal",
+          "Withdraw",
           FilterType.withdrawal,
           state.filterType == FilterType.withdrawal,
         ),
@@ -185,23 +191,51 @@ class _HistoryScreenState extends State<HistoryScreen> {
     FilterType type,
     bool isSelected,
   ) {
-    return FilledButton(
-      onPressed: () => context.read<DashboardCubit>().selectFilter(type),
-      style: ButtonStyle(
-        padding: WidgetStateProperty.all(
-            const EdgeInsets.symmetric(horizontal: 24.0)),
-        backgroundColor: WidgetStateProperty.all(
-          isSelected
-              ? Theme.of(context).colorScheme.primary
-              : Theme.of(context).colorScheme.secondaryContainer,
-        ),
-      ),
-      child: Text(
-        label,
-        style: isSelected
-            ? Theme.of(context).textTheme.displaySmall
-            : Theme.of(context).textTheme.bodyMedium,
-      ),
+    const double buttonHeight =
+        40.0; // Set a consistent height for both buttons
+    const double buttonWidth = 116.0; // Set a consistent width for both buttons
+
+    return SizedBox(
+      width: buttonWidth,
+      height: buttonHeight,
+      child: isSelected
+          ? Container(
+              decoration: BoxDecoration(
+                gradient: Theme.of(context)
+                    .extension<ThemeGradients>()
+                    ?.darkBlueGradient,
+                borderRadius:
+                    BorderRadius.circular(32.0), // Adjust based on your design
+              ),
+              child: FilledButton(
+                onPressed: () =>
+                    context.read<DashboardCubit>().selectFilter(type),
+                style: ButtonStyle(
+                  padding: MaterialStateProperty.all(
+                    const EdgeInsets.symmetric(horizontal: 20.0),
+                  ),
+                  backgroundColor: MaterialStateProperty.all(Colors
+                      .transparent), // Ensure transparency if using gradient
+                ),
+                child: Text(
+                  label,
+                  style: Theme.of(context).textTheme.displaySmall,
+                ),
+              ),
+            )
+          : OutlinedButton(
+              style: ButtonStyle(
+                side: MaterialStateProperty.all(
+                  BorderSide(color: Theme.of(context).colorScheme.secondary),
+                ),
+              ),
+              onPressed: () =>
+                  context.read<DashboardCubit>().selectFilter(type),
+              child: Text(
+                label,
+                style: Theme.of(context).textTheme.bodySmall,
+              ),
+            ),
     );
   }
 

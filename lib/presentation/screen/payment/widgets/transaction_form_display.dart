@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:zippy/presentation/bloc/transfer/transfer_cubit.dart';
+import 'package:zippy/presentation/theme/app_theme.dart';
 import 'package:zippy/presentation/widget/custom_text_field.dart';
 
 class TransactionFormDisplay extends StatelessWidget {
@@ -13,7 +14,7 @@ class TransactionFormDisplay extends StatelessWidget {
     TextEditingController amountController = TextEditingController();
 
     return Container(
-      height: 240,
+      height: 252,
       decoration: BoxDecoration(
         color: Theme.of(context).colorScheme.tertiaryContainer,
         borderRadius: BorderRadius.circular(16),
@@ -37,7 +38,7 @@ class TransactionFormDisplay extends StatelessWidget {
                   icon: Padding(
                     padding: const EdgeInsets.all(12.0),
                     child: SvgPicture.asset(
-                      'assets/images/icon_coins.svg',
+                      'assets/images/icon_coin.svg',
                       width: 8,
                       height: 8,
                     ),
@@ -55,22 +56,39 @@ class TransactionFormDisplay extends StatelessWidget {
                 Expanded(
                   child: Text(
                     "To transfer the amount of (amount)\nto the number (number), press continue.",
-                    style: Theme.of(context).textTheme.bodySmall,
+                    style: Theme.of(context).textTheme.bodyMedium,
                     maxLines: 6,
                     overflow: TextOverflow.ellipsis,
                   ),
                 ),
-                const SizedBox(width: 8),
-                FilledButton(
-                  onPressed: () => context
-                      .read<TransferCubit>()
-                      .initializeTransfer({"amount": 3}),
-                  child: Text(
+              ],
+            ),
+          ),
+          SizedBox(height: 8),
+          Container(
+            height: 48.0,
+            width: double.infinity,
+            decoration: BoxDecoration(
+              gradient: Theme.of(context)
+                  .extension<ThemeGradients>()
+                  ?.darkBlueGradient,
+              borderRadius: const BorderRadius.vertical(
+                bottom: Radius.circular(16),
+              ),
+            ),
+            child: GestureDetector(
+              onTap: () => context
+                  .read<TransferCubit>()
+                  .initializeTransfer({"amount": 3}),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(
                     "Continue",
                     style: Theme.of(context).textTheme.displaySmall,
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
           ),
         ],

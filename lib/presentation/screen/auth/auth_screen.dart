@@ -41,15 +41,23 @@ class AuthScreen extends StatelessWidget {
             children: [
               const SizedBox(height: 72),
               SvgPicture.asset(
-                'assets/images/zippy_pay_logo.svg',
-                semanticsLabel: 'Zippy Pay Logo',
+                width: 256,
+                'assets/images/zentro_logo.svg',
+                semanticsLabel: 'Zentro Logo',
               ).animate().fadeIn(duration: const Duration(milliseconds: 1200)),
-              const SizedBox(height: 40),
-              SvgPicture.asset(
-                'assets/images/zippy_motto.svg',
-                semanticsLabel: 'Zippy Motto',
+              const SizedBox(height: 8),
+              const Row(
+                children: [
+                  SizedBox(width: 72),
+                  Text("Simple"),
+                  Spacer(),
+                  Text("Fast"),
+                  Spacer(),
+                  Text("Secure"),
+                  SizedBox(width: 72),
+                ],
               ).animate().fadeIn(duration: const Duration(milliseconds: 1200)),
-              const SizedBox(height: 40),
+              const SizedBox(height: 32),
               AuthTextField(
                 switchValue: !context.watch<ThemeCubit>().isDarkMode,
                 onSwitchChanged: (value) {

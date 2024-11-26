@@ -1,10 +1,14 @@
 import 'package:flutter/material.dart';
 
-const Color blackColor = Color(0xFF1D1D1B);
-const Color aquamarineColor = Color(0xFF52DAC6);
 const Color bluePurpleColor = Color(0xFF0F0A54);
+// Gradient colors for darkBlueGradient
+const Color darkBlueGradientStartColor = Color(0xFF0b3eb4);
+const Color darkBlueGradientEndColor = Color(0xFF0B3597);
+// Gradient colors for deepBlueGradient
+const Color aquaBlueColor = Color(0xFF7BE7D7);
+const Color deepBlueColor = Color(0xFF1258FD);
 const Color darkGreyColor = Color(0xFF878787);
-const Color lightGreyColor = Color(0xFFEFEFEF);
+const Color lightGreyColor = Color(0xFFF8F8F8);
 const Color lightAquamarineColor = Color(0xFFDDEEEB);
 const Color midLightAquamarineColor = Color(0xFF8BD8CD);
 const Color greenColor = Color(0xFF54C099);
@@ -14,52 +18,80 @@ const Color whiteColor = Color(0xFFFFFFFF);
 const Color lightYellowColor = Color(0xFFFFF7E3);
 const Color yellowColor = Color(0xFFFFAB6D);
 
+// Define the gradients UwU
+const LinearGradient darkBlueGradient = LinearGradient(
+  begin: Alignment.topCenter,
+  end: Alignment.bottomCenter,
+  colors: [
+    darkBlueGradientStartColor,
+    darkBlueGradientEndColor,
+  ],
+);
+
+// Pretty new gradient with multiple color stops ✨
+const LinearGradient deepBlueGradient = LinearGradient(
+  begin: Alignment.topLeft,
+  end: Alignment.bottomRight,
+  colors: [
+    aquaBlueColor,
+    deepBlueColor,
+  ],
+);
+
 final ThemeData appTheme = ThemeData(
   primaryColor: bluePurpleColor,
-  secondaryHeaderColor: aquamarineColor,
+  secondaryHeaderColor: bluePurpleColor,
   brightness: Brightness.light,
   scaffoldBackgroundColor: whiteColor,
   colorScheme: const ColorScheme.light(
-      primary: bluePurpleColor,
-      secondary: aquamarineColor,
-      secondaryFixed:
-          midLightAquamarineColor, // Установка аквамаринового цвета как вторичного
-      secondaryContainer: lightAquamarineColor,
-      tertiary: whiteColor,
-      tertiaryContainer: lightGreyColor,
-      tertiaryFixed: lightRedColor,
-      error: redColor,
-      scrim: greenColor,
-      onErrorContainer: lightRedColor,
-      onTertiaryContainer: lightYellowColor),
+    primary: bluePurpleColor,
+    secondary: deepBlueColor,
+    secondaryFixed: midLightAquamarineColor,
+    secondaryContainer: lightAquamarineColor,
+    tertiary: whiteColor,
+    tertiaryContainer: lightGreyColor,
+    tertiaryFixed: lightRedColor,
+    error: redColor,
+    scrim: greenColor,
+    onErrorContainer: lightRedColor,
+    onTertiaryContainer: lightYellowColor,
+    surface: darkBlueGradientStartColor,
+    background: darkBlueGradientEndColor,
+  ),
+  extensions: const [
+    ThemeGradients(
+      darkBlueGradient: darkBlueGradient,
+      deepBlueGradient: deepBlueGradient,
+    ),
+  ],
   textTheme: const TextTheme(
     titleSmall: TextStyle(
         color: bluePurpleColor,
         fontSize: 12,
-        fontWeight: FontWeight.bold,
+        fontWeight: FontWeight.w600,
         fontFamily: 'RobotoFlex'),
     titleMedium: TextStyle(
-        color: blackColor,
+        color: bluePurpleColor,
         fontSize: 14,
         fontWeight: FontWeight.w600,
         fontFamily: 'RobotoFlex'),
     titleLarge: TextStyle(
         color: bluePurpleColor,
         fontSize: 20,
-        fontWeight: FontWeight.bold,
+        fontWeight: FontWeight.w600,
         fontFamily: 'RobotoFlex'),
     bodySmall: TextStyle(
-        color: blackColor,
+        color: deepBlueColor,
         fontSize: 14,
         fontWeight: FontWeight.w300,
         fontFamily: 'RobotoFlex'),
     bodyMedium: TextStyle(
-        color: blackColor,
+        color: bluePurpleColor,
         fontSize: 14,
         fontWeight: FontWeight.w300,
         fontFamily: 'RobotoFlex'),
     bodyLarge: TextStyle(
-        color: blackColor,
+        color: bluePurpleColor,
         fontSize: 16,
         fontWeight: FontWeight.w300,
         fontFamily: 'RobotoFlex'),
@@ -71,7 +103,7 @@ final ThemeData appTheme = ThemeData(
     headlineMedium: TextStyle(
         color: bluePurpleColor,
         fontSize: 20,
-        fontWeight: FontWeight.bold,
+        fontWeight: FontWeight.w600,
         fontFamily: 'RobotoFlex'),
     headlineLarge: TextStyle(
         color: bluePurpleColor,
@@ -81,16 +113,16 @@ final ThemeData appTheme = ThemeData(
     displaySmall: TextStyle(
         color: whiteColor,
         fontSize: 14,
-        fontWeight: FontWeight.bold,
+        fontWeight: FontWeight.w600,
         fontFamily: 'RobotoFlex'),
     displayMedium: TextStyle(
         color: whiteColor,
         fontSize: 16,
-        fontWeight: FontWeight.bold,
+        fontWeight: FontWeight.w600,
         fontFamily: 'RobotoFlex'),
     displayLarge: TextStyle(
-        color: blackColor,
-        fontSize: 24,
+        color: bluePurpleColor,
+        fontSize: 20,
         fontWeight: FontWeight.w300,
         fontFamily: 'RobotoFlex'),
     labelSmall: TextStyle(
@@ -106,17 +138,17 @@ final ThemeData appTheme = ThemeData(
     labelLarge: TextStyle(
         color: greenColor,
         fontSize: 16,
-        fontWeight: FontWeight.bold,
+        fontWeight: FontWeight.w600,
         fontFamily: 'RobotoFlex'),
     inText: TextStyle(
         color: greenColor,
         fontSize: 16,
-        fontWeight: FontWeight.bold,
+        fontWeight: FontWeight.w600,
         fontFamily: 'RobotoFlex'),
     outText: TextStyle(
         color: redColor,
         fontSize: 16,
-        fontWeight: FontWeight.bold,
+        fontWeight: FontWeight.w600,
         fontFamily: 'RobotoFlex'),
   ),
   appBarTheme: const AppBarTheme(
@@ -139,7 +171,7 @@ final ThemeData appTheme = ThemeData(
           WidgetStateProperty.all(const EdgeInsets.symmetric(vertical: 16.0)),
       textStyle: WidgetStateProperty.all(
         const TextStyle(
-          fontWeight: FontWeight.bold,
+          fontWeight: FontWeight.w600,
           fontSize: 16,
           color: whiteColor,
         ),
@@ -182,7 +214,7 @@ final ThemeData appTheme = ThemeData(
           WidgetStateProperty.all(const EdgeInsets.symmetric(vertical: 8.0)),
       textStyle: WidgetStateProperty.all(
         const TextStyle(
-          fontWeight: FontWeight.bold,
+          fontWeight: FontWeight.w600,
           fontSize: 12,
         ),
       ),
@@ -204,76 +236,60 @@ final ThemeData appTheme = ThemeData(
   dialogBackgroundColor: lightGreyColor,
 );
 
-// Основные цвета брендбука:
-// blackColor 1D1D1B
-// aquamarineColor 52DAC6
-// bluePurpleColor 0F0A54
+class ThemeGradients extends ThemeExtension<ThemeGradients> {
+  final LinearGradient darkBlueGradient;
+  final LinearGradient deepBlueGradient;
 
-// Дополнительные цвета для светлой темы:
-// darkGreyColor 878787
-// lightGreyColor EFEFEF
-// lightAquamarineColor DDEEEB
-// greenColor 4DD0A1
-// redColor DC4949
-// midLightAquamarineColor 8BD8CD
-// whiteColor FFFFFF
+  const ThemeGradients({
+    required this.darkBlueGradient,
+    required this.deepBlueGradient,
+  });
 
-// Шрифты:
-// Roboto black w800, bold, light w300
+  @override
+  ThemeExtension<ThemeGradients> copyWith({
+    LinearGradient? darkBlueGradient,
+    LinearGradient? deepBlueGradient,
+  }) {
+    return ThemeGradients(
+      darkBlueGradient: darkBlueGradient ?? this.darkBlueGradient,
+      deepBlueGradient: deepBlueGradient ?? this.deepBlueGradient,
+    );
+  }
 
-// Использование в интерфейсе:
-// Основной цвет фона: whiteColor
-// (Этот цвет используется в качестве фонового цвета для всех экранов и областей, где нет дополнительных акцентов)
-
-// Активная кнопка / важная кнопка: bluePurpleColor, font weight bold, font size 16, padding top and bottom 16px, text color whiteColor, border radius 15px
-
-// Неактивная кнопка: border color aquamarineColor, border size 1px, font weight w300, padding top and bottom 16px, text color aquamarineColor, border radius 15px
-
-// Поле ввода: border color darkGreyColor, border size 1px, font weight w300, padding top and bottom 16px, border radius 15px
-
-// Неправильный ввод: border color redColor, border size 1px, font weight w300, padding top and bottom 16px, border radius 15px
-
-// Правильный ввод: border color greenColor, border size 1px, font weight w300, padding top and bottom 16px, border radius 15px
-
-// Кнопки фильтров:
-// Активная кнопка / важная кнопка: bluePurpleColor, font weight bold, font size 12px, padding top and bottom 8px, text color whiteColor, border radius 15px
-
-// Неактивная кнопка: border color bluePurpleColor, border size 1px, font weight w300, padding top and bottom 8px, text color bluePurpleColor, border radius 15px
-
-// Текст:
-// Цвет текста по умолчанию: blackColor
-
-// Описание (маленький текст): font weight w300, font size 12px
-
-// Описание (обычный текст): font weight w300, font size 14px
-
-// Заголовки: font weight w300, font size 16px
-
-// Основные числа: font weight bold, font size 20px
-
-// Маленькие кнопки: font weight bold, font size 8px
-
-// Плейсхолдер в поле ввода: color lightGreyColor
-
-// Активное поле ввода: color blackColor
-
-// Неактивное поле ввода: darkGreyColor
-
-// Тексты транзакций:
-// Заголовок транзакции: font weight bold, font size 10px, color bluePurpleColor
-
-// Текст транзакции: font weight w300, font size 8px, color blackColor
-
-// Сумма дохода: weight bold, font size 12px, color greenColor
-
-// Сумма расходов: weight bold, font size 12px, color redColor
-
-// Слайдеры и скроллы:
-// Цвет фона: midLightAquamarineColor
-
-// Дашборды:
-// Цвет фона: lightAquamarineColor
-// (Фоновый цвет для информационных панелей и кнопок-виджетов)
-
-// Информационные блоки:
-// Цвет фона: lightGreyColor
+  @override
+  ThemeExtension<ThemeGradients> lerp(
+    covariant ThemeExtension<ThemeGradients>? other,
+    double t,
+  ) {
+    if (other is! ThemeGradients) {
+      return this;
+    }
+    return ThemeGradients(
+      darkBlueGradient: LinearGradient(
+        begin: Alignment.topLeft,
+        end: Alignment.bottomRight,
+        colors: [
+          Color.lerp(
+              darkBlueGradient.colors[0], other.darkBlueGradient.colors[0], t)!,
+          Color.lerp(
+              darkBlueGradient.colors[1], other.darkBlueGradient.colors[1], t)!,
+        ],
+      ),
+      deepBlueGradient: LinearGradient(
+        begin: Alignment.centerLeft,
+        end: Alignment.centerRight,
+        colors: [
+          Color.lerp(
+              deepBlueGradient.colors[0], other.deepBlueGradient.colors[0], t)!,
+          Color.lerp(
+              deepBlueGradient.colors[1], other.deepBlueGradient.colors[1], t)!,
+          Color.lerp(
+              deepBlueGradient.colors[2], other.deepBlueGradient.colors[2], t)!,
+          Color.lerp(
+              deepBlueGradient.colors[3], other.deepBlueGradient.colors[3], t)!,
+        ],
+        stops: deepBlueGradient.stops,
+      ),
+    );
+  }
+}
