@@ -18,18 +18,10 @@ class DashboardCubit extends Cubit<DashboardState> {
           filteredTransactions: [],
         ));
 
-  static Future<DashboardCubit> create(
-      DashboardRepository dashboardRepository) async {
-    final cubit = DashboardCubit(dashboardRepository);
-    await cubit.loadData();
-    return cubit;
-  }
-
   Future<void> loadData() async {
     try {
       final SharedPreferences prefs = await SharedPreferences.getInstance();
       final String accessToken = prefs.getString('accessToken') ?? '';
-
       if (accessToken.isEmpty) {
         emit(DashboardStateError(errorMessage: 'Sign in token is missing'));
         return;
@@ -52,7 +44,7 @@ class DashboardCubit extends Cubit<DashboardState> {
           chosenMonth: currentState.chosenMonth,
           balance: balance,
           transactions: transactions,
-          filteredTransactions: filteredTransactions,
+          filteredTransactions: filteredTransactions ?? [],
           accessToken: accessToken,
           searchQuery: currentState.searchQuery,
         ));
@@ -75,7 +67,7 @@ class DashboardCubit extends Cubit<DashboardState> {
       );
 
       emit(currentState.copyWith(
-        filteredTransactions: filteredTransactions,
+        filteredTransactions: filteredTransactions ?? [],
         searchQuery: query,
       ));
     }
@@ -89,48 +81,33 @@ class DashboardCubit extends Cubit<DashboardState> {
   ) {
     if (transactions == null) return null;
 
-    var filtered = transactions.where((transaction) {
-      bool matchesFilter = true;
-      bool matchesSearch = true;
+    List<Transaction> filtered = [...transactions]; // Create a copy
 
-      // Apply type filter
-      if (filterType == FilterType.deposit) {
-        matchesFilter = transaction.type == 'payin';
-      } else if (filterType == FilterType.withdrawal) {
-        matchesFilter = transaction.type == 'payout';
-      } else if (filterType == FilterType.period) {
-        matchesFilter = DateFormat('MMMM').format(transaction.date) == month;
-      }
+    // Apply filter type
+    if (filterType == FilterType.deposit) {
+      filtered = filtered.where((t) => t.type == 'payin').toList();
+    } else if (filterType == FilterType.withdrawal) {
+      filtered = filtered.where((t) => t.type == 'payout').toList();
+    } else if (filterType == FilterType.period) {
+      filtered = filtered
+          .where((t) => DateFormat('MMMM').format(t.date) == month)
+          .toList();
+    }
 
-      // Apply search filter if query is not empty
-      if (searchQuery.isNotEmpty) {
-        final lowercaseQuery = searchQuery.toLowerCase();
-        matchesSearch =
-            transaction.title.toLowerCase().contains(lowercaseQuery) ||
-                transaction.id.toLowerCase().contains(lowercaseQuery) ||
-                transaction.amount.toString().contains(lowercaseQuery);
-      }
-
-      return matchesFilter && matchesSearch;
-    }).toList();
+    // Apply search
+    if (searchQuery.isNotEmpty) {
+      final lowercaseQuery = searchQuery.toLowerCase();
+      filtered = filtered.where((t) {
+        return t.title.toLowerCase().contains(lowercaseQuery) ||
+            t.id.toLowerCase().contains(lowercaseQuery) ||
+            t.amount.toString().contains(lowercaseQuery);
+      }).toList();
+    }
 
     // Sort by date
     filtered.sort((a, b) => b.date.compareTo(a.date));
 
     return filtered;
-  }
-
-  Future<void> logout() async {
-    try {
-      final SharedPreferences prefs = await SharedPreferences.getInstance();
-      await prefs.remove('accessToken');
-      await prefs.remove('refreshToken');
-      emit(DashboardStateLoggedOut());
-    } catch (e) {
-      emit(DashboardStateError(
-        errorMessage: _handleError(e),
-      ));
-    }
   }
 
   void selectFilter(FilterType filterType) {
@@ -145,7 +122,7 @@ class DashboardCubit extends Cubit<DashboardState> {
 
       emit(currentState.copyWith(
         filterType: filterType,
-        filteredTransactions: filteredTransactions,
+        filteredTransactions: filteredTransactions ?? [],
       ));
     }
   }
@@ -162,7 +139,7 @@ class DashboardCubit extends Cubit<DashboardState> {
 
       emit(currentState.copyWith(
         chosenMonth: month,
-        filteredTransactions: filteredTransactions,
+        filteredTransactions: filteredTransactions ?? [],
       ));
     }
   }
