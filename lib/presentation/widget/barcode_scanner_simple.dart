@@ -1,9 +1,9 @@
-// lib/presentation/widget/barcode_scanner_simple.dart
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
 import 'package:zippy/domain/repository/qr/qr_payment_repository.dart';
 import 'package:zippy/domain/model/qr/qr_payment_model.dart';
+import 'package:zippy/presentation/screen/payment/payment_confirmation_screen.dart';
 
 class BarcodeScannerSimple extends StatefulWidget {
   const BarcodeScannerSimple({super.key});
@@ -13,9 +13,10 @@ class BarcodeScannerSimple extends StatefulWidget {
 }
 
 class _BarcodeScannerSimpleState extends State<BarcodeScannerSimple> {
-  Barcode? _barcode;
   bool _processing = false;
-  final TextEditingController _amountController = TextEditingController();
+  bool _hasScanned = false;
+  bool _hasError = false;
+  String? _errorMessage;
   final MobileScannerController _controller = MobileScannerController(
     detectionSpeed: DetectionSpeed.normal,
     facing: CameraFacing.back,
@@ -23,120 +24,159 @@ class _BarcodeScannerSimpleState extends State<BarcodeScannerSimple> {
   );
 
   @override
-  void dispose() {
-    _controller.dispose();
-    _amountController.dispose();
-    super.dispose();
+  void initState() {
+    super.initState();
+    _initializeScanner();
   }
 
-  Future<void> _processQrCode(String code) async {
-    if (_processing) return;
-
-    setState(() {
-      _processing = true;
-    });
-
+  Future<void> _initializeScanner() async {
     try {
-      final repository = RepositoryProvider.of<QrPaymentRepository>(context);
-      final response = await repository.checkQrCode(code);
-
+      await _controller.start();
       if (mounted) {
-        if (response.qrCode.type == 'FIXED') {
-          await _processFixedPayment(repository, response.qrCode);
-        } else {
-          await _showAmountDialog(repository, response.qrCode);
-        }
+        setState(() {
+          _hasError = false;
+          _errorMessage = null;
+        });
+      }
+    } on MobileScannerException catch (e) {
+      if (mounted) {
+        setState(() {
+          _hasError = true;
+          _errorMessage = 'Camera permission is required';
+        });
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error: ${e.toString()}')),
-        );
-      }
-    } finally {
-      if (mounted) {
         setState(() {
-          _processing = false;
+          _hasError = true;
+          _errorMessage = 'Failed to initialize camera: ${e.toString()}';
         });
       }
     }
   }
 
-  Future<void> _processFixedPayment(
-      QrPaymentRepository repository, QrCode qrCode) async {
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  Future<void> _processQrCode(String code) async {
+    if (_processing || _hasScanned) return;
+
+    setState(() {
+      _processing = true;
+      _hasScanned = true;
+    });
+
     try {
-      await repository.processPayment(qrCode.hash, qrCode.amount);
+      await _controller.stop();
+
+      final repository = RepositoryProvider.of<QrPaymentRepository>(context);
+      final response = await repository.checkQrCode(code);
+
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Payment processed successfully!')),
-        );
-        Navigator.of(context).pop();
+        setState(() {
+          _processing = false;
+        });
+        _showPaymentConfirmation(repository, response);
       }
     } catch (e) {
       if (mounted) {
+        setState(() {
+          _processing = false;
+          _hasScanned = false;
+        });
+
+        _controller.start();
+
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Payment failed: ${e.toString()}')),
+          SnackBar(content: Text('Error: ${e.toString()}')),
         );
       }
     }
   }
 
-  Future<void> _showAmountDialog(
-      QrPaymentRepository repository, QrCode qrCode) async {
-    return showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Enter Amount'),
-        content: TextField(
-          controller: _amountController,
-          keyboardType: TextInputType.number,
-          decoration: const InputDecoration(
-            hintText: "Enter amount",
-          ),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () {
-              Navigator.of(context).pop();
-            },
-            child: const Text('Cancel'),
-          ),
-          TextButton(
-            onPressed: () async {
-              final amount = double.tryParse(_amountController.text);
-              if (amount != null) {
-                try {
-                  await repository.processPayment(qrCode.hash, amount);
-                  if (mounted) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(
-                          content: Text('Payment processed successfully!')),
-                    );
-                    Navigator.of(context).pop(); // Close dialog
-                    Navigator.of(context).pop(); // Close scanner
-                  }
-                } catch (e) {
-                  if (mounted) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(
-                          content: Text('Payment failed: ${e.toString()}')),
-                    );
-                  }
-                }
+  void _showPaymentConfirmation(
+    QrPaymentRepository repository,
+    QrPaymentResponse paymentDetails,
+  ) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => QrPaymentConfirmation(
+          paymentDetails: paymentDetails,
+          onConfirm: (amount) async {
+            try {
+              await repository.processPayment(
+                paymentDetails.qrCode.hash,
+                amount,
+              );
+              if (mounted) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(
+                      content: Text('Payment processed successfully!')),
+                );
+                Navigator.of(context).pop(); // Close confirmation
+                Navigator.of(context).pop(); // Close scanner
               }
-            },
-            child: const Text('Pay'),
-          ),
-        ],
+            } catch (e) {
+              if (mounted) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(content: Text('Payment failed: ${e.toString()}')),
+                );
+              }
+            }
+          },
+          onCancel: () {
+            setState(() {
+              _hasScanned = false;
+            });
+            _controller.start();
+            Navigator.of(context).pop();
+          },
+        ),
       ),
     );
   }
 
   void _handleBarcode(BarcodeCapture barcodes) {
+    if (_hasError) return;
+
     final code = barcodes.barcodes.firstOrNull?.rawValue;
-    if (code != null && !_processing) {
+    if (code != null) {
       _processQrCode(code);
     }
+  }
+
+  Widget _buildErrorScreen() {
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.all(24.0),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(
+              Icons.error_outline,
+              color: Colors.white,
+              size: 48,
+            ),
+            SizedBox(height: 16),
+            Text(
+              _errorMessage ?? 'An error occurred',
+              style: TextStyle(color: Colors.white),
+              textAlign: TextAlign.center,
+            ),
+            SizedBox(height: 24),
+            ElevatedButton.icon(
+              onPressed: _initializeScanner,
+              icon: Icon(Icons.refresh),
+              label: Text('Retry'),
+            ),
+          ],
+        ),
+      ),
+    );
   }
 
   @override
@@ -146,30 +186,25 @@ class _BarcodeScannerSimpleState extends State<BarcodeScannerSimple> {
       body: SafeArea(
         child: Stack(
           children: [
-            MobileScanner(
-              controller: _controller,
-              onDetect: _handleBarcode,
-              errorBuilder: (context, error, child) {
-                return Center(
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      const Text(
-                        'Camera permission is required',
-                        style: TextStyle(color: Colors.white),
-                      ),
-                      const SizedBox(height: 16),
-                      ElevatedButton(
-                        onPressed: () async {
-                          await _controller.start();
-                        },
-                        child: const Text('Open Settings'),
-                      ),
-                    ],
-                  ),
-                );
-              },
-            ),
+            if (!_hasError)
+              MobileScanner(
+                controller: _controller,
+                onDetect: _handleBarcode,
+                errorBuilder: (context, error, child) {
+                  // Only update error state if it's a permission error
+                  if (error.errorCode ==
+                      MobileScannerErrorCode.permissionDenied) {
+                    WidgetsBinding.instance.addPostFrameCallback((_) {
+                      setState(() {
+                        _hasError = true;
+                        _errorMessage = 'Camera permission is required';
+                      });
+                    });
+                  }
+                  return const SizedBox();
+                },
+              ),
+            if (_hasError) _buildErrorScreen(),
             Positioned(
               top: 16,
               left: 16,
