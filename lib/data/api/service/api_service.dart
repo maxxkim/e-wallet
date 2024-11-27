@@ -95,11 +95,11 @@ class ApiService {
 
   Future<ApiTopUpInitiate> initiateTopUp(Map<String, dynamic> data) async {
     final response = await _dio.post(
-      'https://lionfish-app-9ixm6.ondigitalocean.app/transactions/initiate-payment',
+      'https://lionfish-app-9ixm6.ondigitalocean.app/transactions/initiate-deposit',
       data: {
         "provider": "zippyBankCard",
         "currency": "CLP",
-        "amount": 3,
+        "amount": data['amount'],
         "userData": {
           "email": "user20@example.com",
           "documentId": "111111111",

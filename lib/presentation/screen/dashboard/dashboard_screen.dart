@@ -28,7 +28,7 @@ class DashboardScreen extends StatelessWidget with FadeInAnimationMixin {
                 mainAxisAlignment: MainAxisAlignment.start,
                 children: staggeredFadeIn([
                   fadeInFromTop(
-                    DashboardDisplay(balance: state.balance),
+                    BalanceDisplay(balance: state.balance),
                   ),
                   const SizedBox(height: 16),
                   fadeIn(
