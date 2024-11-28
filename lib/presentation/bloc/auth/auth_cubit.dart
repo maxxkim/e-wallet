@@ -9,9 +9,8 @@ import 'package:zippy/domain/state/auth/auth_state.dart';
 class AuthCubit extends Cubit<AuthState> {
   final AuthRepository _authRepository;
 
-  AuthCubit(
-    this._authRepository,
-  ) : super(AuthStateLoaded(
+  AuthCubit(this._authRepository)
+      : super(AuthStateLoaded(
           termsAccepted: false,
           codeStatus: CodeStatus.none,
           shakeKey: false,
@@ -19,16 +18,47 @@ class AuthCubit extends Cubit<AuthState> {
           phone: "",
         ));
 
+  Future<void> verifyCode(String code) async {
+    if (state is AuthStateLoaded) {
+      final currentState = state as AuthStateLoaded;
+
+      try {
+        final AuthVerify authVerify = await _authRepository.verifyAuth(
+          code,
+          currentState.phone,
+          currentState.userId,
+        );
+
+        if (authVerify.isVerified) {
+          final SharedPreferences prefs = await SharedPreferences.getInstance();
+          await prefs.setString('accessToken', authVerify.accessToken ?? '');
+          await prefs.setString('refreshToken', authVerify.refreshToken ?? '');
+
+          emit(currentState.copyWith(
+            codeStatus: CodeStatus.correct,
+            authVerifyResponse: authVerify,
+            shakeKey: false,
+          ));
+        } else {
+          emit(currentState.copyWith(
+            codeStatus: CodeStatus.invalid,
+            authVerifyResponse: authVerify,
+            shakeKey: true,
+          ));
+        }
+      } catch (e) {
+        emit(currentState.copyWith(
+          codeStatus: CodeStatus.invalid,
+          shakeKey: true,
+        ));
+      }
+    }
+  }
+
   static Future<AuthCubit> create(
-    AuthRepository authRepository,
-    String phone,
-  ) async {
-    final cubit = AuthCubit(
-      authRepository,
-    );
-    await cubit.loadData(
-      phone,
-    );
+      AuthRepository authRepository, String phone) async {
+    final cubit = AuthCubit(authRepository);
+    await cubit.loadData(phone);
     return cubit;
   }
 
@@ -45,87 +75,45 @@ class AuthCubit extends Cubit<AuthState> {
         shakeKey: false,
       ));
     } catch (e) {
-      emit(AuthStateError(
-        errorMessage: _handleError(e),
-      ));
-    }
-  }
-
-  Future<void> verifyCode(String code) async {
-    if (state is AuthStateLoaded) {
-      try {
-        var currentState = state as AuthStateLoaded;
-        final AuthVerify authVerify = await _authRepository.verifyAuth(
-          code,
-          currentState.phone,
-          currentState.userId,
-        );
-        SharedPreferences prefs = await SharedPreferences.getInstance();
-        await prefs.setString('accessToken', authVerify.accessToken ?? '');
-        await prefs.setString('refreshToken', authVerify.refreshToken ?? '');
-        emit(authVerify.isVerified
-            ? currentState.copyWith(
-                codeStatus: CodeStatus.correct,
-              )
-            : currentState.copyWith(
-                codeStatus: CodeStatus.invalid,
-                shakeKey: true,
-              ));
-      } catch (e) {
-        emit(AuthStateError(errorMessage: _handleError(e)));
-      }
+      emit(AuthStateError(errorMessage: _handleError(e)));
     }
   }
 
   Future<void> restoreShake() async {
     if (state is AuthStateLoaded) {
-      try {
-        var currentState = state as AuthStateLoaded;
-        emit(currentState.copyWith(
-          shakeKey: false,
-        ));
-      } catch (e) {
-        emit(AuthStateError(errorMessage: _handleError(e)));
-      }
+      final currentState = state as AuthStateLoaded;
+      emit(currentState.copyWith(shakeKey: false));
     }
   }
 
   Future<void> toggleTerms() async {
     if (state is AuthStateLoaded) {
-      try {
-        var currentState = state as AuthStateLoaded;
-        emit(currentState.copyWith(
-          termsAccepted: !currentState.termsAccepted,
-        ));
-      } catch (e) {
-        emit(AuthStateError(
-          errorMessage: _handleError(e),
-        ));
+      final currentState = state as AuthStateLoaded;
+      emit(currentState.copyWith(termsAccepted: !currentState.termsAccepted));
+    }
+  }
+
+  String _handleError(dynamic error) {
+    if (error is DioException) {
+      switch (error.type) {
+        case DioExceptionType.connectionTimeout:
+          return 'Connection timeout occurred';
+        case DioExceptionType.sendTimeout:
+          return 'Send timeout exceeded';
+        case DioExceptionType.receiveTimeout:
+          return 'Receive timeout exceeded';
+        case DioExceptionType.badResponse:
+          return 'Server error: ${error.response?.statusCode}';
+        case DioExceptionType.cancel:
+          return 'Request cancelled';
+        case DioExceptionType.unknown:
+          return 'Unknown error occurred';
+        case DioExceptionType.badCertificate:
+        // TODO: Handle this case.
+        case DioExceptionType.connectionError:
+        // TODO: Handle this case.
       }
     }
+    return error.toString();
   }
-}
-
-String _handleError(dynamic error) {
-  if (error is DioException) {
-    switch (error.type) {
-      case DioExceptionType.connectionTimeout:
-        return 'Ошибка подключения. Попробуйте еще раз.';
-      case DioExceptionType.connectionError:
-        return 'Ошибка подключения. Попробуйте еще раз.';
-      case DioExceptionType.sendTimeout:
-        return 'Время ожидания отправки истекло.';
-      case DioExceptionType.receiveTimeout:
-        return 'Время ожидания получения ответа истекло.';
-      case DioExceptionType.badResponse:
-        return 'Ошибка сервера: ${error.response?.statusCode}.';
-      case DioExceptionType.badCertificate:
-        return 'Ошибка сертификата.';
-      case DioExceptionType.cancel:
-        return 'Запрос отменен.';
-      case DioExceptionType.unknown:
-        return 'Произошла неизвестная ошибка.';
-    }
-  }
-  return error.toString();
 }

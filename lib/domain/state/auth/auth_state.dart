@@ -24,26 +24,44 @@ class AuthStateLoaded extends AuthState {
     this.authVerifyResponse,
   });
 
-  // Implementing the copyWith method
   AuthStateLoaded copyWith({
     bool? termsAccepted,
     CodeStatus? codeStatus,
     String? userId,
     String? phone,
+    bool? shakeKey,
     AuthInitiate? authInitiateResponse,
     AuthVerify? authVerifyResponse,
-    bool? shakeKey,
   }) {
     return AuthStateLoaded(
-      userId: userId ?? this.userId,
       termsAccepted: termsAccepted ?? this.termsAccepted,
       codeStatus: codeStatus ?? this.codeStatus,
+      userId: userId ?? this.userId,
       phone: phone ?? this.phone,
       shakeKey: shakeKey ?? this.shakeKey,
       authInitiateResponse: authInitiateResponse ?? this.authInitiateResponse,
       authVerifyResponse: authVerifyResponse ?? this.authVerifyResponse,
     );
   }
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is AuthStateLoaded &&
+          runtimeType == other.runtimeType &&
+          termsAccepted == other.termsAccepted &&
+          codeStatus == other.codeStatus &&
+          userId == other.userId &&
+          phone == other.phone &&
+          shakeKey == other.shakeKey;
+
+  @override
+  int get hashCode =>
+      termsAccepted.hashCode ^
+      codeStatus.hashCode ^
+      userId.hashCode ^
+      phone.hashCode ^
+      shakeKey.hashCode;
 }
 
 class AuthStateError extends AuthState {
