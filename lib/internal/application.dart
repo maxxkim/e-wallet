@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:keyboard_dismisser/keyboard_dismisser.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:zippy/l10n/l10n.dart';
 import 'package:zippy/data/repository/auth/auth_data_repository.dart';
 import 'package:zippy/data/repository/dashboard/dashboard_data_repository.dart';
 import 'package:zippy/data/repository/qr/qr_payment_data_repository.dart';
@@ -12,6 +15,7 @@ import 'package:zippy/domain/repository/qr/qr_payment_repository.dart';
 import 'package:zippy/domain/repository/transfer/transfer_repository.dart';
 import 'package:zippy/domain/repository/withdrawal/withdrawal_repository.dart';
 import 'package:zippy/presentation/app_router.dart';
+import 'package:zippy/presentation/bloc/locale/locale_cubit.dart';
 import 'package:zippy/presentation/session/session_cubit.dart';
 import 'package:zippy/presentation/theme/app_theme.dart';
 import 'package:zippy/presentation/theme/app_theme_dark.dart';
@@ -79,14 +83,34 @@ class ZippyApp extends StatelessWidget {
               create: (context) =>
                   SessionCubit(RepositoryProvider.of<AuthRepository>(context)),
             ),
+            BlocProvider(
+              create: (context) => LocaleCubit(),
+            ),
           ],
-          child: BlocBuilder<ThemeCubit, AppTheme>(
-            builder: (context, theme) {
+          child: Builder(
+            builder: (context) {
               context.read<SessionCubit>().checkAuthentication();
-              return MaterialApp.router(
-                routerConfig: appRouter,
-                title: 'Zippy',
-                theme: (theme == AppTheme.light) ? appTheme : appThemeDark,
+              return BlocBuilder<ThemeCubit, AppTheme>(
+                builder: (context, theme) {
+                  return BlocBuilder<LocaleCubit, Locale>(
+                    builder: (context, locale) {
+                      return MaterialApp.router(
+                        routerConfig: appRouter,
+                        title: 'Zippy',
+                        locale: locale,
+                        theme:
+                            (theme == AppTheme.light) ? appTheme : appThemeDark,
+                        localizationsDelegates: const [
+                          AppLocalizations.delegate,
+                          GlobalMaterialLocalizations.delegate,
+                          GlobalWidgetsLocalizations.delegate,
+                          GlobalCupertinoLocalizations.delegate,
+                        ],
+                        supportedLocales: L10n.all,
+                      );
+                    },
+                  );
+                },
               );
             },
           ),

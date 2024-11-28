@@ -1,8 +1,8 @@
 import 'dart:async';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:zippy/domain/state/dashboard/dashboard_state.dart';
 import 'package:zippy/presentation/bloc/dashboard/dashboard_cubit.dart';
 import 'package:zippy/presentation/screen/history/widgets/transaction_list.dart';
@@ -42,6 +42,8 @@ class _HistoryScreenState extends State<HistoryScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+
     return BlocBuilder<DashboardCubit, DashboardState>(
       builder: (context, state) {
         if (state is DashboardStateLoaded) {
@@ -54,18 +56,21 @@ class _HistoryScreenState extends State<HistoryScreen> {
               padding: const EdgeInsets.only(top: 16, left: 16, right: 16),
               child: Column(
                 children: <Widget>[
-                  _buildSearchField(),
+                  _buildSearchField(l10n),
                   const SizedBox(height: 16),
-                  _buildHeader(context, state),
+                  _buildHeader(context, state, l10n),
                   const SizedBox(height: 8),
-                  _buildStatistics(context, state),
+                  _buildStatistics(context, state, l10n),
                   const SizedBox(height: 16),
-                  _buildTransactionHeader(context),
+                  _buildTransactionHeader(context, l10n),
                   const SizedBox(height: 8),
-                  _buildFilterButtons(context, state),
+                  _buildFilterButtons(context, state, l10n),
                   const SizedBox(height: 16),
                   TransactionList(
                     transactions: state.filteredTransactions ?? [],
+                    translations: TransactionListTranslations(
+                      noTransactions: l10n.historyNoTransactions,
+                    ),
                   ),
                 ],
               ),
@@ -77,9 +82,9 @@ class _HistoryScreenState extends State<HistoryScreen> {
     );
   }
 
-  Widget _buildSearchField() {
+  Widget _buildSearchField(AppLocalizations l10n) {
     return CustomTextField(
-      hintText: "Search by title, ID or amount",
+      hintText: l10n.historySearchHint,
       controller: _searchController,
       icon: const Padding(
         padding: EdgeInsets.all(12.0),
@@ -90,19 +95,21 @@ class _HistoryScreenState extends State<HistoryScreen> {
         );
   }
 
-  Widget _buildHeader(BuildContext context, DashboardStateLoaded state) {
+  Widget _buildHeader(
+      BuildContext context, DashboardStateLoaded state, AppLocalizations l10n) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
         Text(state.chosenMonth, style: Theme.of(context).textTheme.titleSmall),
         const SizedBox(width: 8),
-        Text("Total: \$ ${state.balance.toStringAsFixed(2)}",
+        Text("${l10n.historyTotal}: \$ ${state.balance.toStringAsFixed(2)}",
             style: Theme.of(context).textTheme.titleSmall),
       ],
     );
   }
 
-  Widget _buildStatistics(BuildContext context, DashboardStateLoaded state) {
+  Widget _buildStatistics(
+      BuildContext context, DashboardStateLoaded state, AppLocalizations l10n) {
     return Row(
       children: [
         Expanded(
@@ -115,7 +122,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text('Expense'),
+                Text(l10n.historyExpense),
                 Text('\$ ${_calculateExpense(state).toStringAsFixed(2)}',
                     style: Theme.of(context)
                         .textTheme
@@ -136,7 +143,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text('Income'),
+                Text(l10n.historyIncome),
                 Text('\$ ${_calculateIncome(state).toStringAsFixed(2)}',
                     style: Theme.of(context)
                         .textTheme
@@ -150,32 +157,34 @@ class _HistoryScreenState extends State<HistoryScreen> {
     );
   }
 
-  Widget _buildTransactionHeader(BuildContext context) {
+  Widget _buildTransactionHeader(BuildContext context, AppLocalizations l10n) {
     return Align(
-        alignment: Alignment.centerLeft,
-        child: Text("Transaction history",
-            style: Theme.of(context).textTheme.titleSmall));
+      alignment: Alignment.centerLeft,
+      child: Text(l10n.dashboardTransactionHistory,
+          style: Theme.of(context).textTheme.titleSmall),
+    );
   }
 
-  Widget _buildFilterButtons(BuildContext context, DashboardStateLoaded state) {
+  Widget _buildFilterButtons(
+      BuildContext context, DashboardStateLoaded state, AppLocalizations l10n) {
     return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceEvenly, // Adjust alignment here
+      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
       children: [
         _buildFilterButton(
           context,
-          "Period",
+          l10n.dashboardPeriod,
           FilterType.period,
           state.filterType == FilterType.period,
         ),
         _buildFilterButton(
           context,
-          "Deposit",
+          l10n.dashboardDeposit,
           FilterType.deposit,
           state.filterType == FilterType.deposit,
         ),
         _buildFilterButton(
           context,
-          "Withdraw",
+          l10n.dashboardWithdrawal,
           FilterType.withdrawal,
           state.filterType == FilterType.withdrawal,
         ),
@@ -191,9 +200,8 @@ class _HistoryScreenState extends State<HistoryScreen> {
     FilterType type,
     bool isSelected,
   ) {
-    const double buttonHeight =
-        40.0; // Set a consistent height for both buttons
-    const double buttonWidth = 116.0; // Set a consistent width for both buttons
+    const double buttonHeight = 40.0;
+    const double buttonWidth = 116.0;
 
     return SizedBox(
       width: buttonWidth,
@@ -204,8 +212,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
                 gradient: Theme.of(context)
                     .extension<ThemeGradients>()
                     ?.darkBlueGradient,
-                borderRadius:
-                    BorderRadius.circular(32.0), // Adjust based on your design
+                borderRadius: BorderRadius.circular(32.0),
               ),
               child: FilledButton(
                 onPressed: () =>
@@ -214,8 +221,8 @@ class _HistoryScreenState extends State<HistoryScreen> {
                   padding: MaterialStateProperty.all(
                     const EdgeInsets.symmetric(horizontal: 20.0),
                   ),
-                  backgroundColor: MaterialStateProperty.all(Colors
-                      .transparent), // Ensure transparency if using gradient
+                  backgroundColor:
+                      MaterialStateProperty.all(Colors.transparent),
                 ),
                 child: Text(
                   label,
@@ -252,4 +259,12 @@ class _HistoryScreenState extends State<HistoryScreen> {
             .fold(0.0, (sum, t) => sum! + t.amount) ??
         0.0;
   }
+}
+
+class TransactionListTranslations {
+  final String noTransactions;
+
+  TransactionListTranslations({
+    required this.noTransactions,
+  });
 }

@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_masked_text2/flutter_masked_text2.dart';
 import 'package:flutter_animate/flutter_animate.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:zippy/presentation/theme/theme_cubit.dart';
 import 'package:zippy/presentation/widget/custom_auth_text_field.dart';
 import 'package:zippy/presentation/widget/custom_rectangular_button.dart';
@@ -30,6 +31,8 @@ class AuthScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+
     return Scaffold(
       resizeToAvoidBottomInset: false,
       appBar: AppBar(backgroundColor: Colors.transparent),
@@ -52,13 +55,14 @@ class AuthScreen extends StatelessWidget {
                   Text("Simple"),
                   Spacer(),
                   Text("Fast"),
-                  Spacer(),
+                  const Spacer(),
                   Text("Secure"),
                   SizedBox(width: 72),
                 ],
               ).animate().fadeIn(duration: const Duration(milliseconds: 1200)),
               const SizedBox(height: 32),
               AuthTextField(
+                label: l10n.mobileNumberLabel,
                 switchValue: !context.watch<ThemeCubit>().isDarkMode,
                 onSwitchChanged: (value) {
                   context.read<ThemeCubit>().toggleTheme();
@@ -76,7 +80,7 @@ class AuthScreen extends StatelessWidget {
                   const SizedBox(width: 64),
                   Expanded(
                     child: RectangularButton(
-                      label: "Sign Up",
+                      label: l10n.signUpButton,
                       onPressed: () {
                         final phoneNumber = phoneController.text.trim();
                         if (_isValidChileanPhone(phoneNumber) ||
@@ -86,9 +90,8 @@ class AuthScreen extends StatelessWidget {
                           context.go('/sms/$formattedPhone');
                         } else {
                           ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(
-                              content: Text(
-                                  'Please enter a valid Chilean mobile number'),
+                            SnackBar(
+                              content: Text(l10n.invalidPhoneError),
                             ),
                           );
                         }
@@ -103,16 +106,15 @@ class AuthScreen extends StatelessWidget {
                   const SizedBox(width: 16),
                   Expanded(
                     child: OutlinedButtonCustom(
-                      label: "Sign In",
+                      label: l10n.signInButton,
                       onPressed: () {
                         final phoneNumber = phoneController.text.trim();
                         if (_isValidChileanPhone(phoneNumber)) {
                           context.go('/dashboard');
                         } else {
                           ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(
-                              content: Text(
-                                  'Please enter a valid Chilean mobile number'),
+                            SnackBar(
+                              content: Text(l10n.invalidPhoneError),
                             ),
                           );
                         }
@@ -128,9 +130,9 @@ class AuthScreen extends StatelessWidget {
                 ],
               ),
               const SizedBox(height: 132),
-              const Align(
+              Align(
                 alignment: Alignment.bottomCenter,
-                child: Text("Terms of Use | Contact support"),
+                child: Text(l10n.termsAndSupport),
               ).animate().fadeIn(duration: const Duration(milliseconds: 1200)),
             ],
           ),

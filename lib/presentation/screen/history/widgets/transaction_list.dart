@@ -6,13 +6,17 @@ import 'package:intl/intl.dart';
 import 'package:zippy/domain/model/transaction/transaction_model.dart';
 import 'package:zippy/domain/state/dashboard/dashboard_state.dart';
 import 'package:zippy/presentation/bloc/dashboard/dashboard_cubit.dart';
+import 'package:zippy/presentation/screen/history/history_screen.dart';
 import 'package:zippy/presentation/screen/history/widgets/transaction_tile.dart';
 
 class TransactionList extends StatelessWidget {
   final List<Transaction> transactions;
+  final TransactionListTranslations translations;
+
   const TransactionList({
     super.key,
     required this.transactions,
+    required this.translations,
   });
 
   @override
@@ -97,7 +101,7 @@ class TransactionList extends StatelessWidget {
           ),
           const SizedBox(height: 16),
           Text(
-            'No transactions for this period',
+            translations.noTransactions,
             style: Theme.of(context).textTheme.titleMedium?.copyWith(
                   color: Theme.of(context).colorScheme.primary.withOpacity(0.5),
                 ),

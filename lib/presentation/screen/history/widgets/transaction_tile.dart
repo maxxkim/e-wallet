@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:intl/intl.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:zippy/domain/model/transaction/transaction_model.dart';
 import 'package:zippy/domain/model/transaction/transaction_share_model.dart';
 import 'package:zippy/presentation/animation/fade_animation_mixin.dart';
@@ -10,6 +11,7 @@ class TransactionTile extends StatefulWidget {
   final Transaction transaction;
   final VoidCallback onIconTap;
   final String? routePrefix;
+
   const TransactionTile({
     Key? key,
     required this.transaction,
@@ -57,32 +59,10 @@ class _TransactionTileState extends State<TransactionTile>
     });
   }
 
-  Future<void> _shareTransaction() async {
-    await TransactionShare.shareTransaction(
-      id: widget.transaction.id,
-      type: widget.transaction.type,
-      currency: widget.transaction.currency,
-      amount: widget.transaction.amount,
-      date: widget.transaction.date,
-      status: widget.transaction.status,
-      context: context,
-    );
-  }
-
-  Future<void> _copyTransaction() async {
-    await TransactionUtils.copyTransactionDetails(
-      id: widget.transaction.id,
-      type: widget.transaction.type,
-      currency: widget.transaction.currency,
-      amount: widget.transaction.amount,
-      date: widget.transaction.date,
-      status: widget.transaction.status,
-      context: context,
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+
     return GestureDetector(
       onTap: _toggleExpansion,
       child: Container(
@@ -123,14 +103,6 @@ class _TransactionTileState extends State<TransactionTile>
                     style: getColor(widget.transaction.type),
                   ),
                   const SizedBox(width: 8.0),
-                  /*GestureDetector(
-                    onTap: widget.onIconTap,
-                    child: SvgPicture.asset(
-                      'assets/images/icon_receipt.svg',
-                      height: 24.0,
-                      width: 24.0,
-                    ),
-                  ),*/
                 ],
               ),
             ),
@@ -150,7 +122,7 @@ class _TransactionTileState extends State<TransactionTile>
                           Row(
                             children: [
                               Text(
-                                'Transaction ID: ',
+                                '${l10n.transactionId}: ',
                                 style: Theme.of(context).textTheme.titleMedium,
                               ),
                               Text(
@@ -163,11 +135,11 @@ class _TransactionTileState extends State<TransactionTile>
                           Row(
                             children: [
                               Text(
-                                'Amount: ',
+                                '${l10n.transactionAmount}: ',
                                 style: Theme.of(context).textTheme.titleMedium,
                               ),
                               Text(
-                                '${widget.transaction.currency} ${widget.transaction.amount.toString()}',
+                                '${widget.transaction.currency} ${widget.transaction.amount}',
                                 style: Theme.of(context).textTheme.bodyMedium,
                               ),
                             ],
@@ -176,7 +148,7 @@ class _TransactionTileState extends State<TransactionTile>
                           Row(
                             children: [
                               Text(
-                                'Date: ',
+                                '${l10n.transactionDate}: ',
                                 style: Theme.of(context).textTheme.titleMedium,
                               ),
                               Text(
@@ -190,7 +162,7 @@ class _TransactionTileState extends State<TransactionTile>
                           Row(
                             children: [
                               Text(
-                                'Time: ',
+                                '${l10n.transactionTime}: ',
                                 style: Theme.of(context).textTheme.titleMedium,
                               ),
                               Text(
@@ -207,7 +179,7 @@ class _TransactionTileState extends State<TransactionTile>
                           crossAxisAlignment: CrossAxisAlignment.end,
                           children: [
                             Text(
-                              'Status: ${widget.transaction.status}',
+                              '${l10n.transactionStatus}: ${widget.transaction.status}',
                               style: Theme.of(context).textTheme.titleMedium,
                             ),
                             const Spacer(),
@@ -217,22 +189,22 @@ class _TransactionTileState extends State<TransactionTile>
                                 _buildActionButton(
                                   context,
                                   'assets/images/icon_support.svg',
-                                  'Help',
-                                  () => _showHelpDialog(context),
+                                  l10n.transactionHelp,
+                                  () => _showHelpDialog(context, l10n),
                                 ),
                                 const SizedBox(width: 16.0),
                                 _buildActionButton(
                                   context,
                                   'assets/images/icon_copy.svg',
-                                  'Copy',
-                                  _copyTransaction,
+                                  l10n.transactionCopy,
+                                  () => _copyTransaction(context, l10n),
                                 ),
                                 const SizedBox(width: 16.0),
                                 _buildActionButton(
                                   context,
                                   'assets/images/icon_share.svg',
-                                  'Share',
-                                  _shareTransaction,
+                                  l10n.transactionShare,
+                                  () => _shareTransaction(context, l10n),
                                 ),
                               ],
                             ),
@@ -265,6 +237,7 @@ class _TransactionTileState extends State<TransactionTile>
             height: 24.0,
             width: 24.0,
           ),
+          SizedBox(height: 4),
           Text(
             label,
             style: Theme.of(context).textTheme.headlineLarge,
@@ -274,27 +247,69 @@ class _TransactionTileState extends State<TransactionTile>
     );
   }
 
-  void _showHelpDialog(BuildContext context) {
+  void _showHelpDialog(BuildContext context, AppLocalizations l10n) {
     showDialog(
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
           title: Text(
-            'Need Help? 🤔',
+            l10n.transactionNeedHelp,
             style: Theme.of(context).textTheme.titleLarge,
           ),
           content: Text(
-            'Contact our support team for assistance with your transaction.',
+            l10n.transactionSupportMessage,
             style: Theme.of(context).textTheme.bodyMedium,
           ),
           actions: [
             TextButton(
               onPressed: () => Navigator.of(context).pop(),
-              child: const Text('Close'),
+              child: Text(l10n.transactionClose),
             ),
           ],
         );
       },
+    );
+  }
+
+  Future<void> _copyTransaction(
+      BuildContext context, AppLocalizations l10n) async {
+    try {
+      await TransactionUtils.copyTransactionDetails(
+        id: widget.transaction.id,
+        type: widget.transaction.type,
+        currency: widget.transaction.currency,
+        amount: widget.transaction.amount,
+        date: widget.transaction.date,
+        status: widget.transaction.status,
+        context: context,
+      );
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(l10n.transactionCopiedSuccess)),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(l10n.transactionCopyError(e.toString())),
+            backgroundColor: Theme.of(context).colorScheme.error,
+          ),
+        );
+      }
+    }
+  }
+
+  Future<void> _shareTransaction(
+      BuildContext context, AppLocalizations l10n) async {
+    await TransactionShare.shareTransaction(
+      id: widget.transaction.id,
+      type: widget.transaction.type,
+      currency: widget.transaction.currency,
+      amount: widget.transaction.amount,
+      date: widget.transaction.date,
+      status: widget.transaction.status,
+      context: context,
     );
   }
 

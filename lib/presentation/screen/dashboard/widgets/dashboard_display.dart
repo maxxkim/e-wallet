@@ -5,11 +5,18 @@ import 'package:go_router/go_router.dart';
 import 'package:zippy/domain/state/dashboard/dashboard_state.dart';
 import 'package:zippy/presentation/animation/fade_animation_mixin.dart';
 import 'package:zippy/presentation/bloc/dashboard/dashboard_cubit.dart';
+import 'package:zippy/presentation/screen/dashboard/dashboard_screen.dart';
 import 'package:zippy/presentation/theme/app_theme.dart';
 
 class BalanceDisplay extends StatefulWidget {
   final num? balance;
-  const BalanceDisplay({super.key, this.balance});
+  final DashboardTranslations translations;
+
+  const BalanceDisplay({
+    super.key,
+    this.balance,
+    required this.translations,
+  });
 
   @override
   State<BalanceDisplay> createState() => _BalanceDisplayState();
@@ -23,7 +30,6 @@ class _BalanceDisplayState extends State<BalanceDisplay>
     setState(() {
       _isUpdating = true;
     });
-
     try {
       await context.read<DashboardCubit>().loadData();
     } finally {
@@ -80,7 +86,7 @@ class _BalanceDisplayState extends State<BalanceDisplay>
                                 ),
                                 const SizedBox(width: 8.0),
                                 Text(
-                                  state.balance.toStringAsFixed(2),
+                                  widget.balance?.toStringAsFixed(2) ?? '0.00',
                                   style: Theme.of(context)
                                       .textTheme
                                       .headlineMedium
@@ -129,7 +135,7 @@ class _BalanceDisplayState extends State<BalanceDisplay>
                                       ),
                                     const SizedBox(width: 4),
                                     Text(
-                                      "Update",
+                                      widget.translations.totalBalance,
                                       style: Theme.of(context)
                                           .textTheme
                                           .titleSmall
@@ -159,7 +165,7 @@ class _BalanceDisplayState extends State<BalanceDisplay>
                               GestureDetector(
                                 onTap: () => context.go('/dashboard/topUp'),
                                 child: Text(
-                                  "Top Up",
+                                  widget.translations.topUp,
                                   style:
                                       Theme.of(context).textTheme.displayMedium,
                                 ),
@@ -168,7 +174,7 @@ class _BalanceDisplayState extends State<BalanceDisplay>
                                 onTap: () =>
                                     context.go('/dashboard/withdrawal'),
                                 child: Text(
-                                  "Withdraw",
+                                  widget.translations.withdraw,
                                   style:
                                       Theme.of(context).textTheme.displayMedium,
                                 ),
@@ -195,10 +201,6 @@ class _BalanceDisplayState extends State<BalanceDisplay>
                           color:
                               Theme.of(context).colorScheme.tertiaryContainer,
                           borderRadius: BorderRadius.circular(16),
-                          border: Border.all(
-                            color: deepBlueColor,
-                            width: 1.5,
-                          ),
                         ),
                         child: Column(
                           mainAxisAlignment: MainAxisAlignment.center,
@@ -210,8 +212,11 @@ class _BalanceDisplayState extends State<BalanceDisplay>
                             ),
                             const SizedBox(height: 4),
                             Text(
-                              "Scan",
-                              style: Theme.of(context).textTheme.bodySmall,
+                              widget.translations.scan,
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .bodySmall
+                                  ?.copyWith(fontSize: 12),
                             ),
                           ],
                         ),
@@ -227,10 +232,6 @@ class _BalanceDisplayState extends State<BalanceDisplay>
                           color:
                               Theme.of(context).colorScheme.tertiaryContainer,
                           borderRadius: BorderRadius.circular(16),
-                          border: Border.all(
-                            color: deepBlueColor,
-                            width: 1.5,
-                          ),
                         ),
                         child: Column(
                           mainAxisAlignment: MainAxisAlignment.center,
@@ -242,8 +243,11 @@ class _BalanceDisplayState extends State<BalanceDisplay>
                             ),
                             const SizedBox(height: 4),
                             Text(
-                              "Transfer",
-                              style: Theme.of(context).textTheme.bodySmall,
+                              widget.translations.transfer,
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .bodySmall
+                                  ?.copyWith(fontSize: 12),
                             ),
                           ],
                         ),

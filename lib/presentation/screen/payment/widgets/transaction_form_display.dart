@@ -14,7 +14,7 @@ class TransactionFormDisplay extends StatelessWidget {
     TextEditingController amountController = TextEditingController();
 
     return Container(
-      height: 252,
+      height: 320,
       decoration: BoxDecoration(
         color: Theme.of(context).colorScheme.tertiaryContainer,
         borderRadius: BorderRadius.circular(16),
@@ -47,7 +47,7 @@ class TransactionFormDisplay extends StatelessWidget {
               ],
             ),
           ),
-          const SizedBox(height: 8.0),
+          const SizedBox(height: 80.0),
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 24),
             child: Row(
@@ -55,7 +55,7 @@ class TransactionFormDisplay extends StatelessWidget {
               children: [
                 Expanded(
                   child: Text(
-                    "To transfer the amount of (amount)\nto the number (number), press continue.",
+                    "To transfer the amount of ${amountController.text} \nto the number ${emailController.text}, press continue.",
                     style: Theme.of(context).textTheme.bodyMedium,
                     maxLines: 6,
                     overflow: TextOverflow.ellipsis,
