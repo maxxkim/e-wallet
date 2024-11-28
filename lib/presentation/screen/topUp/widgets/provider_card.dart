@@ -8,6 +8,7 @@ import 'package:zippy/presentation/bloc/topUp/top_up_cubit.dart';
 import 'package:zippy/presentation/bloc/withdrawal/withdrawal_cubit.dart';
 import 'package:zippy/domain/state/topUp/top_up_state.dart';
 import 'package:zippy/domain/state/withdrawal/withdrawal_state.dart';
+import 'package:zippy/presentation/theme/app_theme.dart';
 import 'package:zippy/presentation/widget/custom_text_field.dart';
 
 class ProviderCard extends StatefulWidget {
@@ -246,27 +247,47 @@ class _ProviderCardState extends State<ProviderCard>
                                 const SizedBox(width: 16),
                                 FilledButton(
                                   onPressed: _isLoading ? null : _handleSubmit,
-                                  child: _isLoading
-                                      ? SizedBox(
-                                          height: 20,
-                                          width: 20,
-                                          child: CircularProgressIndicator(
-                                            strokeWidth: 2,
-                                            valueColor:
-                                                AlwaysStoppedAnimation<Color>(
-                                              Theme.of(context)
-                                                  .colorScheme
-                                                  .onPrimary,
+                                  style: ButtonStyle(
+                                    padding: WidgetStateProperty.all(
+                                      const EdgeInsets.symmetric(
+                                          horizontal: 24),
+                                    ),
+                                    backgroundColor: WidgetStateProperty.all(
+                                        Colors.transparent),
+                                  ),
+                                  child: Container(
+                                    height: 40,
+                                    width: 96,
+                                    decoration: BoxDecoration(
+                                      gradient: Theme.of(context)
+                                          .extension<ThemeGradients>()
+                                          ?.darkBlueGradient,
+                                      borderRadius: BorderRadius.circular(32),
+                                    ),
+                                    child: _isLoading
+                                        ? SizedBox(
+                                            height: 20,
+                                            width: 20,
+                                            child: CircularProgressIndicator(
+                                              strokeWidth: 2,
+                                              valueColor:
+                                                  AlwaysStoppedAnimation<Color>(
+                                                Theme.of(context)
+                                                    .colorScheme
+                                                    .onPrimary,
+                                              ),
+                                            ),
+                                          )
+                                        : Center(
+                                            child: Text(
+                                              'Continue',
+                                              style: Theme.of(context)
+                                                  .textTheme
+                                                  .displaySmall,
                                             ),
                                           ),
-                                        )
-                                      : Text(
-                                          'Continue',
-                                          style: Theme.of(context)
-                                              .textTheme
-                                              .displaySmall,
-                                        ),
-                                ),
+                                  ),
+                                )
                               ],
                             ],
                           ),

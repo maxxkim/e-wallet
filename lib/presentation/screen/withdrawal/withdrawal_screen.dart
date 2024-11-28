@@ -20,7 +20,7 @@ class WithdrawalScreen extends StatelessWidget with FadeInAnimationMixin {
       child: BlocBuilder<WithdrawalCubit, WithdrawalState>(
         builder: (context, state) {
           return Scaffold(
-            appBar: _buildAppBar(context),
+            //  appBar: _buildAppBar(context),
             body: RefreshIndicator(
               onRefresh: () => _handleRefresh(context),
               child: _buildBody(context, state),

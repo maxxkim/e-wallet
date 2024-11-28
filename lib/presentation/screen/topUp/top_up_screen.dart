@@ -20,7 +20,7 @@ class TopUpScreen extends StatelessWidget with FadeInAnimationMixin {
       child: BlocBuilder<TopUpCubit, TopUpState>(
         builder: (context, state) {
           return Scaffold(
-            appBar: _buildAppBar(context),
+            //  appBar: _buildAppBar(context),
             body: RefreshIndicator(
               onRefresh: () => _handleRefresh(context),
               child: _buildBody(context, state),
