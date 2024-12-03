@@ -55,7 +55,7 @@ class AuthScreen extends StatelessWidget {
                   Text("Simple"),
                   Spacer(),
                   Text("Fast"),
-                  const Spacer(),
+                  Spacer(),
                   Text("Secure"),
                   SizedBox(width: 72),
                 ],

@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
-import 'package:intl/intl.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:zippy/domain/model/transaction/transaction_model.dart';
 import 'package:zippy/domain/state/dashboard/dashboard_state.dart';
 import 'package:zippy/presentation/bloc/dashboard/dashboard_cubit.dart';
@@ -50,6 +50,22 @@ class TransactionList extends StatelessWidget {
   }
 
   Widget _buildMonthSelector(BuildContext context, DashboardStateLoaded state) {
+    final l10n = AppLocalizations.of(context)!;
+    final List<MonthData> months = [
+      MonthData(1, l10n.monthJanuary),
+      MonthData(2, l10n.monthFebruary),
+      MonthData(3, l10n.monthMarch),
+      MonthData(4, l10n.monthApril),
+      MonthData(5, l10n.monthMay),
+      MonthData(6, l10n.monthJune),
+      MonthData(7, l10n.monthJuly),
+      MonthData(8, l10n.monthAugust),
+      MonthData(9, l10n.monthSeptember),
+      MonthData(10, l10n.monthOctober),
+      MonthData(11, l10n.monthNovember),
+      MonthData(12, l10n.monthDecember),
+    ];
+
     return Container(
       height: 48.0,
       decoration: BoxDecoration(
@@ -65,18 +81,18 @@ class TransactionList extends StatelessWidget {
       ),
       child: ListView.builder(
         scrollDirection: Axis.horizontal,
-        itemCount: 12,
+        itemCount: months.length,
         itemBuilder: (context, index) {
-          final month = DateFormat('MMMM')
-              .format(DateTime(DateTime.now().year, index + 1));
-          final isSelected = month == state.chosenMonth;
+          final month = months[index];
+          final isSelected = month.number == state.selectedMonthNumber;
           return GestureDetector(
-            onTap: () => context.read<DashboardCubit>().selectMonth(month),
+            onTap: () =>
+                context.read<DashboardCubit>().selectMonth(month.number),
             child: Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16.0),
               child: Center(
                 child: Text(
-                  month,
+                  month.localizedName,
                   style: isSelected
                       ? Theme.of(context).textTheme.headlineSmall
                       : Theme.of(context).textTheme.bodyMedium,
@@ -112,28 +128,37 @@ class TransactionList extends StatelessWidget {
   }
 
   Widget _buildTransactionsList(BuildContext context) {
-    return ListView.builder(
-      itemCount: transactions.length,
-      itemBuilder: (context, index) {
-        return Column(
-          children: [
-            TransactionTile(
-              transaction: transactions[index],
-              onIconTap: () => context.go(
-                '/dashboard/transaction-details',
-                extra: transactions[index],
-              ),
-            ).animate().fadeIn(
-                  duration: const Duration(milliseconds: 300),
-                  delay: Duration(milliseconds: index * 50),
+    return RefreshIndicator(
+      onRefresh: () => context.read<DashboardCubit>().loadData(),
+      child: ListView.builder(
+        itemCount: transactions.length,
+        itemBuilder: (context, index) {
+          return Column(
+            children: [
+              TransactionTile(
+                transaction: transactions[index],
+                onIconTap: () => context.go(
+                  '/dashboard/transaction-details',
+                  extra: transactions[index],
                 ),
-            Container(
-              height: 1,
-              color: Theme.of(context).scaffoldBackgroundColor,
-            ),
-          ],
-        );
-      },
+              ).animate().fadeIn(
+                    duration: const Duration(milliseconds: 300),
+                    delay: Duration(milliseconds: index * 50),
+                  ),
+              Container(
+                height: 1,
+                color: Theme.of(context).scaffoldBackgroundColor,
+              ),
+            ],
+          );
+        },
+      ),
     );
   }
+}
+
+class MonthData {
+  final int number;
+  final String localizedName;
+  MonthData(this.number, this.localizedName);
 }

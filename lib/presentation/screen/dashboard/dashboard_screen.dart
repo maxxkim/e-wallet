@@ -1,6 +1,7 @@
+// ./lib/presentation/screen/dashboard/dashboard_screen.dart
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:go_router/go_router.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:zippy/domain/state/dashboard/dashboard_state.dart';
 import 'package:zippy/presentation/animation/fade_animation_mixin.dart';
@@ -15,7 +16,6 @@ class DashboardScreen extends StatelessWidget with FadeInAnimationMixin {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
-
     return BlocBuilder<DashboardCubit, DashboardState>(
       builder: (context, state) {
         if (state is DashboardStateLoaded) {
@@ -34,7 +34,7 @@ class DashboardScreen extends StatelessWidget with FadeInAnimationMixin {
                     BalanceDisplay(
                       balance: state.balance,
                       translations: DashboardTranslations(
-                        totalBalance: l10n.dashboardTotalBalance,
+                        totalBalance: l10n.refresh,
                         topUp: l10n.dashboardTopUp,
                         withdraw: l10n.dashboardWithdraw,
                         scan: l10n.dashboardScan,
@@ -101,9 +101,39 @@ class DashboardScreen extends StatelessWidget with FadeInAnimationMixin {
     );
   }
 
+  String getMonthName(int monthNumber, AppLocalizations l10n) {
+    switch (monthNumber) {
+      case 1:
+        return l10n.monthJanuary;
+      case 2:
+        return l10n.monthFebruary;
+      case 3:
+        return l10n.monthMarch;
+      case 4:
+        return l10n.monthApril;
+      case 5:
+        return l10n.monthMay;
+      case 6:
+        return l10n.monthJune;
+      case 7:
+        return l10n.monthJuly;
+      case 8:
+        return l10n.monthAugust;
+      case 9:
+        return l10n.monthSeptember;
+      case 10:
+        return l10n.monthOctober;
+      case 11:
+        return l10n.monthNovember;
+      case 12:
+        return l10n.monthDecember;
+      default:
+        return l10n.monthJanuary;
+    }
+  }
+
   Widget _buildMonthSelector(BuildContext context, DashboardStateLoaded state) {
     final l10n = AppLocalizations.of(context)!;
-
     final List<MonthData> months = [
       MonthData(1, l10n.monthJanuary),
       MonthData(2, l10n.monthFebruary),
@@ -119,11 +149,12 @@ class DashboardScreen extends StatelessWidget with FadeInAnimationMixin {
       MonthData(12, l10n.monthDecember),
     ];
 
-    final currentMonth = state.chosenMonth;
+    final currentMonthNumber = state.selectedMonthNumber;
     final currentMonthData = months.firstWhere(
-      (m) => m.localizedName == currentMonth,
+      (m) => m.number == currentMonthNumber,
       orElse: () => months[DateTime.now().month - 1],
     );
+
     final currentIndex = months.indexOf(currentMonthData);
     final startIndex = (currentIndex - 2).clamp(0, months.length - 1);
     final endIndex = (startIndex + 5).clamp(0, months.length);
@@ -146,10 +177,10 @@ class DashboardScreen extends StatelessWidget with FadeInAnimationMixin {
         itemCount: endIndex - startIndex,
         itemBuilder: (context, index) {
           final month = months[startIndex + index];
-          final isSelected = month.localizedName == currentMonth;
+          final isSelected = month.number == currentMonthNumber;
           return GestureDetector(
             onTap: () =>
-                context.read<DashboardCubit>().selectMonth(month.localizedName),
+                context.read<DashboardCubit>().selectMonth(month.number),
             child: Container(
               width: 112.0,
               alignment: Alignment.center,
@@ -168,7 +199,12 @@ class DashboardScreen extends StatelessWidget with FadeInAnimationMixin {
   }
 }
 
-// Add these classes to handle translations for widgets
+class MonthData {
+  final int number;
+  final String localizedName;
+  MonthData(this.number, this.localizedName);
+}
+
 class DashboardTranslations {
   final String totalBalance;
   final String topUp;
@@ -207,11 +243,4 @@ class TransactionHistoryTranslations {
     required this.noTransactions,
     required this.viewAll,
   });
-}
-
-class MonthData {
-  final int number;
-  final String localizedName;
-
-  MonthData(this.number, this.localizedName);
 }

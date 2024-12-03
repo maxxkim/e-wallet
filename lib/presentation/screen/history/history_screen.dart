@@ -43,7 +43,6 @@ class _HistoryScreenState extends State<HistoryScreen> {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
-
     return BlocBuilder<DashboardCubit, DashboardState>(
       builder: (context, state) {
         if (state is DashboardStateLoaded) {
@@ -100,12 +99,44 @@ class _HistoryScreenState extends State<HistoryScreen> {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        Text(state.chosenMonth, style: Theme.of(context).textTheme.titleSmall),
+        Text(getMonthName(state.selectedMonthNumber, l10n),
+            style: Theme.of(context).textTheme.titleSmall),
         const SizedBox(width: 8),
         Text("${l10n.historyTotal}: \$ ${state.balance.toStringAsFixed(2)}",
             style: Theme.of(context).textTheme.titleSmall),
       ],
     );
+  }
+
+  String getMonthName(int monthNumber, AppLocalizations l10n) {
+    switch (monthNumber) {
+      case 1:
+        return l10n.monthJanuary;
+      case 2:
+        return l10n.monthFebruary;
+      case 3:
+        return l10n.monthMarch;
+      case 4:
+        return l10n.monthApril;
+      case 5:
+        return l10n.monthMay;
+      case 6:
+        return l10n.monthJune;
+      case 7:
+        return l10n.monthJuly;
+      case 8:
+        return l10n.monthAugust;
+      case 9:
+        return l10n.monthSeptember;
+      case 10:
+        return l10n.monthOctober;
+      case 11:
+        return l10n.monthNovember;
+      case 12:
+        return l10n.monthDecember;
+      default:
+        return l10n.monthJanuary;
+    }
   }
 
   Widget _buildStatistics(
@@ -202,7 +233,6 @@ class _HistoryScreenState extends State<HistoryScreen> {
   ) {
     const double buttonHeight = 40.0;
     const double buttonWidth = 116.0;
-
     return SizedBox(
       width: buttonWidth,
       height: buttonHeight,
@@ -218,11 +248,10 @@ class _HistoryScreenState extends State<HistoryScreen> {
                 onPressed: () =>
                     context.read<DashboardCubit>().selectFilter(type),
                 style: ButtonStyle(
-                  padding: MaterialStateProperty.all(
+                  padding: WidgetStateProperty.all(
                     const EdgeInsets.symmetric(horizontal: 20.0),
                   ),
-                  backgroundColor:
-                      MaterialStateProperty.all(Colors.transparent),
+                  backgroundColor: WidgetStateProperty.all(Colors.transparent),
                 ),
                 child: Text(
                   label,
@@ -232,7 +261,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
             )
           : OutlinedButton(
               style: ButtonStyle(
-                side: MaterialStateProperty.all(
+                side: WidgetStateProperty.all(
                   BorderSide(color: Theme.of(context).colorScheme.secondary),
                 ),
               ),

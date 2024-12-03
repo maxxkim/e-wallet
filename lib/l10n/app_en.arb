@@ -1,17 +1,22 @@
 {
+    "@_AUTHENTICATION": {},
     "mobileNumberLabel": "Mobile number",
     "signUpButton": "Sign Up",
     "signInButton": "Sign In",
-    "termsAndSupport": "Terms of Use | Contact support",
-    "invalidPhoneError": "Please enter a valid Chilean mobile number",
-    "verificationTitle": "We've sent a verification code to",
-    "cantReceiveCode": "Can't receive a verification code?",
-    "redirectMessage": "You will be redirected to Truora verification platform",
-    "goButton": "Go",
-    "termsPrefix": "I agree to ",
-    "termsText": "Terms of Use",
+    "invalidPhoneError": "Please enter a valid phone number",
+    "termsAndSupport": "Terms & Conditions | Support",
+    
+    "@_SMS_VERIFICATION": {},
+    "smsVerificationSent": "We've sent a verification\ncode to",
+    "smsVerificationCantReceive": "Can't receive a verification code?",
+    "smsVerificationTruoraRedirect": "You will be redirected to Truora verification platform",
+    "smsVerificationError": "Verification code is not sent. We are working on this issue. Please try again later.",
+    "iAgree": "I agree to ",
+    "termsOfUse": "Terms of Use",
+    "continueButton": "Continue",
 
-    "dashboardTotalBalance": "Total balance",
+    "@_DASHBOARD": {},
+    "refresh": "Refresh",
     "dashboardTopUp": "Top Up",
     "dashboardWithdraw": "Withdraw",
     "dashboardScan": "Scan",
@@ -20,51 +25,11 @@
     "dashboardPeriod": "Period",
     "dashboardDeposit": "Deposit",
     "dashboardWithdrawal": "Withdrawal",
-    "dashboardTransactionHistory": "Transaction history",
+    "dashboardTransactionHistory": "Transaction History",
+    "dashboardNoTransactions": "No transactions available",
     "dashboardViewAll": "View All",
-    "dashboardNoTransactions": "No transactions found",
 
-    "historyTitle": "History",
-    "historySearchHint": "Search by title, ID or amount",
-    "historyExpense": "Expense",
-    "historyIncome": "Income",
-    "historyTotal": "Total",
-    "historyNoTransactions": "No transactions for this period",
-
-    "paymentInfoTitle": "Payment info",
-    "paymentInfoTopUp": "Top Up",
-    "paymentInfoWithdraw": "Withdraw",
-    "paymentInfoBalance": "Balance",
-    "paymentInfoSuccess": "Transaction was completed successfully!",
-    "paymentInfoPending": "Transaction is being processed!",
-    "paymentInfoFailed": "Transaction was not complete!",
-    "paymentInfoHelp": "Help",
-    "paymentInfoCopy": "Copy",
-    "paymentInfoShare": "Share",
-    "paymentInfoHome": "Home",
-
-    "transferTitle": "New payment",
-    "transferNewContact": "New\nContact",
-    "transferNewTransaction": "New\nTransaction",
-    "transferMobileOrEmail": "Mobile number or Email",
-    "transferAmount": "Amount",
-    "transferContinue": "Continue",
-    "transferConfirmMessage": "To transfer the amount of {amount} to the number {number}, press continue",
-
-    "topUpTitle": "Top Up",
-    "topUpLoading": "Loading providers...",
-    "topUpNoProviders": "No providers available",
-    "topUpRetry": "Retry",
-    "topUpSelectProvider": "Select provider:",
-
-    "withdrawalTitle": "Withdrawal",
-    "withdrawalLoading": "Loading withdrawal options...",
-    "withdrawalNoMethods": "No withdrawal methods available",
-
-    "scannerTitle": "Scan QR Code",
-    "qrConfirmationTitle": "Payment Confirmation",
-    "qrProcessing": "Processing Payment...",
-
+    "@_MONTHS": {},
     "monthJanuary": "January",
     "monthFebruary": "February",
     "monthMarch": "March",
@@ -78,18 +43,114 @@
     "monthNovember": "November",
     "monthDecember": "December",
 
-    "transactionHelp": "Help",
-    "transactionCopy": "Copy",
-    "transactionShare": "Share",
-    "transactionId": "Transaction ID",
+    "@_HISTORY": {},
+    "historySearchHint": "Search transactions",
+    "historyTotal": "Total",
+    "historyExpense": "Expense",
+    "historyIncome": "Income",
+    "historyNoTransactions": "No transactions available",
+
+    "@_TRANSACTIONS": {},
+    "transactionId": "ID",
     "transactionAmount": "Amount",
     "transactionDate": "Date",
     "transactionTime": "Time",
     "transactionStatus": "Status",
+    "transactionHelp": "Help",
+    "transactionCopy": "Copy",
+    "transactionShare": "Share",
     "transactionNeedHelp": "Need Help? 🤔",
     "transactionSupportMessage": "Contact our support team for assistance with your transaction.",
     "transactionClose": "Close",
     "transactionCopiedSuccess": "Transaction details copied to clipboard! 📋",
+    "@transactionCopyError": {
+        "placeholders": {
+            "error": {
+                "type": "String"
+            }
+        }
+    },
     "transactionCopyError": "Failed to copy: {error}",
-    "transactionError": "An error occurred: {error}"
+    "transferLoading": "Loading Transfer options...",
+    "transferUnknownError": "Unknown error occurred",
+    "transferNewContact": "New\nContact",
+    "transferNewTransaction": "New\nTransaction",
+    "retry": "Retry",
+    "contactEnrique": "Enrique\nIglesias",
+    "contactLionel": "Lionel\nMessi",
+    "contactJuan": "Juan\nPeron",
+    "contactJohn": "John\nDoe",
+    "contactXimena": "Ximena\nMerino",
+    "transferRecipientLabel": "Mobile number or Email",
+    "transferAmountLabel": "Amount",
+    "@transferConfirmMessage": {
+        "placeholders": {
+            "amount": {
+                "type": "String"
+            },
+            "recipient": {
+                "type": "String"
+            }
+        }
+    },
+    "transferConfirmMessage": "To transfer the amount of {amount} to the number {recipient}, press continue.",
+    "topUpTitle": "Top Up",
+    "topUpLoading": "Loading providers...",
+    "topUpNoProviders": "No providers available",
+    "retry": "Retry",
+    "unknownError": "Unknown error occurred",
+    "topUpAmount": "Amount",
+    "topUpContinue": "Continue",
+    "topUpSelectProvider": "Select provider:",
+    "topUpError": "Error: {error}",
+    "@topUpError": {
+        "placeholders": {
+            "error": {
+                "type": "String"
+            }
+        }
+    },
+    "withdrawalTitle": "Withdrawal",
+    "withdrawalLoading": "Loading withdrawal options...",
+    "withdrawalNoMethods": "No withdrawal methods available",
+    "withdrawalAmount": "Amount",
+    "withdrawalContinue": "Continue",
+    "withdrawalSelectMethod": "Select withdrawal method:",
+    "withdrawalError": "Error: {error}",
+    "@withdrawalError": {
+        "placeholders": {
+            "error": {
+                "type": "String"
+            }
+        }
+    },
+    "@_FORM_VALIDATION": {},
+    "fieldRequired": "This field is required",
+    "invalidNumber": "Please enter a valid number",
+    "invalidFormat": "Invalid format",
+    "@valueTooSmall": {
+        "placeholders": {
+            "min": {
+                "type": "String"
+            }
+        }
+    },
+    "valueTooSmall": "Value must be greater than {min}",
+    "@valueTooLarge": {
+        "placeholders": {
+            "max": {
+                "type": "String"
+            }
+        }
+    },
+    "valueTooLarge": "Value must be less than {max}",
+    "@operationError": {
+        "placeholders": {
+            "error": {
+                "type": "String"
+            }
+        }
+    },
+    "operationError": "Operation failed: {error}",
+    "totalBalance":  "Total balance"
 }

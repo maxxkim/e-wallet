@@ -56,7 +56,6 @@ final ThemeData appTheme = ThemeData(
     onErrorContainer: lightRedColor,
     onTertiaryContainer: lightYellowColor,
     surface: darkBlueGradientStartColor,
-    background: darkBlueGradientEndColor,
   ),
   extensions: const [
     ThemeGradients(

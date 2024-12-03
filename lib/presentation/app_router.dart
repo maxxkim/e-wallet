@@ -114,7 +114,7 @@ final GoRouter appRouter = GoRouter(
         GoRoute(
           path: 'scan',
           builder: (BuildContext context, GoRouterState state) {
-            return _authGuard(context, BarcodeScannerSimple());
+            return _authGuard(context, const BarcodeScannerSimple());
           },
         ),
         GoRoute(

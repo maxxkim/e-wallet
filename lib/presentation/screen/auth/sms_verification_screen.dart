@@ -3,6 +3,7 @@ import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:zippy/domain/repository/auth/auth_repository.dart';
 import 'package:zippy/domain/state/auth/auth_state.dart';
 import 'package:zippy/presentation/animation/fade_animation_mixin.dart';
@@ -13,7 +14,6 @@ import 'package:zippy/presentation/widget/custom_rectangular_button.dart';
 
 class SmsVerificationScreen extends StatelessWidget with FadeInAnimationMixin {
   final String phoneNumber;
-
   SmsVerificationScreen({Key? key, required this.phoneNumber})
       : super(key: key);
 
@@ -21,6 +21,8 @@ class SmsVerificationScreen extends StatelessWidget with FadeInAnimationMixin {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+
     return FutureBuilder<AuthCubit>(
       future: _createAuthCubit(context),
       builder: (context, snapshot) {
@@ -52,7 +54,7 @@ class SmsVerificationScreen extends StatelessWidget with FadeInAnimationMixin {
                             const SizedBox(height: 64),
                             Center(
                               child: Text(
-                                "We've sent a verification\n code to",
+                                l10n.smsVerificationSent,
                                 textAlign: TextAlign.center,
                                 style: Theme.of(context).textTheme.displayLarge,
                               ),
@@ -70,18 +72,18 @@ class SmsVerificationScreen extends StatelessWidget with FadeInAnimationMixin {
                             const SizedBox(height: 40),
                             fadeIn(
                               Text(
-                                "Can't receive a verification code?",
+                                l10n.smsVerificationCantReceive,
                                 style: Theme.of(context).textTheme.bodyMedium,
                               ),
                               delay: 300,
                             ),
                             const SizedBox(height: 184),
-                            _buildTermsSection(context, state),
+                            _buildTermsSection(context, state, l10n),
                             const SizedBox(height: 16),
                             fadeIn(
                               Center(
                                 child: Text(
-                                  "You will be redirected to Truora verification platform",
+                                  l10n.smsVerificationTruoraRedirect,
                                   style: Theme.of(context).textTheme.bodyMedium,
                                   textAlign: TextAlign.center,
                                 ),
@@ -94,7 +96,7 @@ class SmsVerificationScreen extends StatelessWidget with FadeInAnimationMixin {
                                 padding:
                                     const EdgeInsets.symmetric(horizontal: 40),
                                 child: RectangularButton(
-                                  label: "Go",
+                                  label: l10n.continueButton,
                                   onPressed: state.termsAccepted &&
                                           state.codeStatus == CodeStatus.correct
                                       ? () {
@@ -111,17 +113,15 @@ class SmsVerificationScreen extends StatelessWidget with FadeInAnimationMixin {
                     ),
                   );
                 }
-                return const ErrorScreen(
-                  errorMessage:
-                      'Verification code is not sent. We are working on this issue. Please try again later.',
+                return ErrorScreen(
+                  errorMessage: l10n.smsVerificationError,
                 );
               },
             ),
           );
         }
-        return const ErrorScreen(
-          errorMessage:
-              'Verification code is not sent. We are working on this issue. Please try again later.',
+        return ErrorScreen(
+          errorMessage: l10n.smsVerificationError,
         );
       },
     );
@@ -180,16 +180,17 @@ class SmsVerificationScreen extends StatelessWidget with FadeInAnimationMixin {
           maxLength: 1,
           decoration: const InputDecoration(
             counterText: "",
-            border: InputBorder.none, // Hide border ✨
+            border: InputBorder.none,
             enabledBorder: InputBorder.none,
             focusedBorder: InputBorder.none,
             errorBorder: InputBorder.none,
             focusedErrorBorder: InputBorder.none,
             disabledBorder: InputBorder.none,
           ),
-          style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                fontWeight: FontWeight.bold,
-              ),
+          style: Theme.of(context)
+              .textTheme
+              .headlineMedium
+              ?.copyWith(fontWeight: FontWeight.bold),
           onChanged: (value) async {
             if (value.length == 1) {
               _verificationCode[index] = value;
@@ -213,10 +214,15 @@ class SmsVerificationScreen extends StatelessWidget with FadeInAnimationMixin {
     );
   }
 
-  Widget _buildTermsSection(BuildContext context, AuthStateLoaded state) {
+  Widget _buildTermsSection(
+      BuildContext context, AuthStateLoaded state, AppLocalizations l10n) {
     return fadeIn(
-      Row(
-        mainAxisAlignment: MainAxisAlignment.center,
+      Wrap(
+        // Changed from Row to Wrap
+        alignment: WrapAlignment.center,
+        crossAxisAlignment: WrapCrossAlignment.center,
+        spacing: 16, // Horizontal spacing
+        runSpacing: 8, // Vertical spacing between lines
         children: [
           GestureDetector(
             onTap: () {
@@ -247,15 +253,15 @@ class SmsVerificationScreen extends StatelessWidget with FadeInAnimationMixin {
               ),
             ),
           ),
-          const SizedBox(width: 16),
-          Row(
+          Wrap(
+            // Use another Wrap for the text part
             children: [
               Text(
-                "I agree to ",
+                l10n.iAgree,
                 style: Theme.of(context).textTheme.displayLarge,
               ),
               Text(
-                "Terms of Use",
+                l10n.termsOfUse,
                 style: Theme.of(context)
                     .textTheme
                     .displayLarge

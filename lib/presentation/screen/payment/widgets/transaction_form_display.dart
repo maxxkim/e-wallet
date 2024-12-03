@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:zippy/presentation/bloc/transfer/transfer_cubit.dart';
 import 'package:zippy/presentation/theme/app_theme.dart';
 import 'package:zippy/presentation/widget/custom_text_field.dart';
@@ -10,11 +11,12 @@ class TransactionFormDisplay extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     TextEditingController emailController = TextEditingController();
     TextEditingController amountController = TextEditingController();
 
     return Container(
-      height: 320,
+      height: 324,
       decoration: BoxDecoration(
         color: Theme.of(context).colorScheme.tertiaryContainer,
         borderRadius: BorderRadius.circular(16),
@@ -29,12 +31,13 @@ class TransactionFormDisplay extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 CustomTextField(
-                    controller: emailController,
-                    labelText: 'Mobile number or Email'),
+                  controller: emailController,
+                  labelText: l10n.transferRecipientLabel,
+                ),
                 const SizedBox(height: 16),
                 CustomTextField(
                   controller: amountController,
-                  labelText: 'Amount',
+                  labelText: l10n.transferAmountLabel,
                   icon: Padding(
                     padding: const EdgeInsets.all(12.0),
                     child: SvgPicture.asset(
@@ -55,7 +58,10 @@ class TransactionFormDisplay extends StatelessWidget {
               children: [
                 Expanded(
                   child: Text(
-                    "To transfer the amount of ${amountController.text} \nto the number ${emailController.text}, press continue.",
+                    l10n.transferConfirmMessage(
+                      amountController.text,
+                      emailController.text,
+                    ),
                     style: Theme.of(context).textTheme.bodyMedium,
                     maxLines: 6,
                     overflow: TextOverflow.ellipsis,
@@ -64,7 +70,7 @@ class TransactionFormDisplay extends StatelessWidget {
               ],
             ),
           ),
-          SizedBox(height: 8),
+          const SizedBox(height: 8),
           Container(
             height: 48.0,
             width: double.infinity,
@@ -84,7 +90,7 @@ class TransactionFormDisplay extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Text(
-                    "Continue",
+                    l10n.continueButton,
                     style: Theme.of(context).textTheme.displaySmall,
                   ),
                 ],

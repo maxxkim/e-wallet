@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:zippy/domain/repository/withdrawal/withdrawal_repository.dart';
 import 'package:zippy/domain/state/withdrawal/withdrawal_state.dart';
 import 'package:zippy/presentation/animation/fade_animation_mixin.dart';
@@ -13,6 +14,7 @@ class WithdrawalScreen extends StatelessWidget with FadeInAnimationMixin {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return BlocProvider(
       create: (context) => WithdrawalCubit(
         RepositoryProvider.of<WithdrawalRepository>(context),
@@ -20,10 +22,10 @@ class WithdrawalScreen extends StatelessWidget with FadeInAnimationMixin {
       child: BlocBuilder<WithdrawalCubit, WithdrawalState>(
         builder: (context, state) {
           return Scaffold(
-            //  appBar: _buildAppBar(context),
+            appBar: _buildAppBar(context, l10n),
             body: RefreshIndicator(
               onRefresh: () => _handleRefresh(context),
-              child: _buildBody(context, state),
+              child: _buildBody(context, state, l10n),
             ),
           );
         },
@@ -31,7 +33,8 @@ class WithdrawalScreen extends StatelessWidget with FadeInAnimationMixin {
     );
   }
 
-  PreferredSizeWidget _buildAppBar(BuildContext context) {
+  PreferredSizeWidget _buildAppBar(
+      BuildContext context, AppLocalizations l10n) {
     return AppBar(
       backgroundColor: Theme.of(context).colorScheme.primary,
       toolbarHeight: 40,
@@ -43,7 +46,7 @@ class WithdrawalScreen extends StatelessWidget with FadeInAnimationMixin {
       ),
       title: fadeIn(
         Text(
-          'Withdrawal',
+          l10n.withdrawalTitle,
           style: Theme.of(context).textTheme.displaySmall,
         ),
       ),
@@ -51,34 +54,35 @@ class WithdrawalScreen extends StatelessWidget with FadeInAnimationMixin {
     );
   }
 
-  Widget _buildBody(BuildContext context, WithdrawalState state) {
+  Widget _buildBody(
+      BuildContext context, WithdrawalState state, AppLocalizations l10n) {
     if (state is WithdrawalStateLoading) {
-      return _buildLoadingContent();
+      return _buildLoadingContent(l10n);
     } else if (state is WithdrawalStateLoaded) {
-      return _buildLoadedContent(context, state);
+      return _buildLoadedContent(context, state, l10n);
     } else if (state is WithdrawalStateError) {
-      return _buildErrorContent(context, state.errorMessage);
+      return _buildErrorContent(context, state.errorMessage, l10n);
     }
-    return _buildErrorContent(context, "Unknown state");
+    return _buildErrorContent(context, l10n.unknownError, l10n);
   }
 
-  Widget _buildLoadingContent() {
+  Widget _buildLoadingContent(AppLocalizations l10n) {
     return fadeIn(
-      const Center(
+      Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            CircularProgressIndicator(),
-            SizedBox(height: 16),
-            Text('Loading withdrawal options...'),
+            const CircularProgressIndicator(),
+            const SizedBox(height: 16),
+            Text(l10n.withdrawalLoading),
           ],
         ),
       ),
     );
   }
 
-  Widget _buildLoadedContent(
-      BuildContext context, WithdrawalStateLoaded state) {
+  Widget _buildLoadedContent(BuildContext context, WithdrawalStateLoaded state,
+      AppLocalizations l10n) {
     if (state.providers.isEmpty) {
       return fadeIn(
         Center(
@@ -86,13 +90,13 @@ class WithdrawalScreen extends StatelessWidget with FadeInAnimationMixin {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Text(
-                'No withdrawal methods available',
+                l10n.withdrawalNoMethods,
                 style: Theme.of(context).textTheme.titleMedium,
               ),
               const SizedBox(height: 16),
               ElevatedButton(
                 onPressed: () => _handleRefresh(context),
-                child: const Text('Retry'),
+                child: Text(l10n.retry),
               ),
             ],
           ),
@@ -122,7 +126,8 @@ class WithdrawalScreen extends StatelessWidget with FadeInAnimationMixin {
     );
   }
 
-  Widget _buildErrorContent(BuildContext context, String message) {
+  Widget _buildErrorContent(
+      BuildContext context, String message, AppLocalizations l10n) {
     return fadeIn(
       Center(
         child: Column(
@@ -142,7 +147,7 @@ class WithdrawalScreen extends StatelessWidget with FadeInAnimationMixin {
             const SizedBox(height: 16),
             ElevatedButton(
               onPressed: () => _handleRefresh(context),
-              child: const Text('Retry'),
+              child: Text(l10n.retry),
             ),
           ],
         ),

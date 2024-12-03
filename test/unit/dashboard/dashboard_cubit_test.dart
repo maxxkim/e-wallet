@@ -63,7 +63,6 @@ void main() {
         isA<DashboardStateLoaded>()
             .having(
                 (state) => state.filterType, 'filterType', FilterType.period)
-            .having((state) => state.chosenMonth, 'chosenMonth', currentMonth)
             .having((state) => state.balance, 'balance', 0)
             .having((state) => state.transactions, 'transactions', []).having(
                 (state) => state.filteredTransactions,

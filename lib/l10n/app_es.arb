@@ -1,17 +1,22 @@
 {
+    "@_AUTHENTICATION": {},
     "mobileNumberLabel": "Número móvil",
     "signUpButton": "Registrarse",
-    "signInButton": "Iniciar Sesión",
-    "termsAndSupport": "Términos de Uso | Contactar soporte",
-    "invalidPhoneError": "Por favor ingrese un número de teléfono chileno válido",
-    "verificationTitle": "Hemos enviado un código de verificación a",
-    "cantReceiveCode": "¿No puede recibir el código de verificación?",
-    "redirectMessage": "Serás redirigido a la plataforma de verificación Truora",
-    "goButton": "Continuar",
-    "termsPrefix": "Acepto los ",
-    "termsText": "Términos de Uso",
+    "signInButton": "Iniciar sesión",
+    "invalidPhoneError": "Por favor ingrese un número de teléfono válido",
+    "termsAndSupport": "Términos y condiciones | Soporte",
+    
+    "@_SMS_VERIFICATION": {},
+    "smsVerificationSent": "Hemos enviado un código\nde verificación a",
+    "smsVerificationCantReceive": "¿No puedes recibir el código?",
+    "smsVerificationTruoraRedirect": "Serás redirigido a la plataforma de verificación de Truora",
+    "smsVerificationError": "El código de verificación no fue enviado. Estamos trabajando en este problema. Por favor, inténtalo de nuevo más tarde.",
+    "iAgree": "Estoy de acuerdo con los ",
+    "termsOfUse": "Términos de uso",
+    "continueButton": "Continuar",
 
-    "dashboardTotalBalance": "Balance total",
+    "@_DASHBOARD": {},
+    "refresh": "Actualizar",
     "dashboardTopUp": "Recargar",
     "dashboardWithdraw": "Retirar",
     "dashboardScan": "Escanear",
@@ -21,50 +26,10 @@
     "dashboardDeposit": "Depósito",
     "dashboardWithdrawal": "Retiro",
     "dashboardTransactionHistory": "Historial de transacciones",
+    "dashboardNoTransactions": "No hay transacciones disponibles",
     "dashboardViewAll": "Ver todo",
-    "dashboardNoTransactions": "No se encontraron transacciones",
 
-    "historyTitle": "Historial",
-    "historySearchHint": "Buscar por título, ID o monto",
-    "historyExpense": "Gastos",
-    "historyIncome": "Ingresos",
-    "historyTotal": "Total",
-    "historyNoTransactions": "No hay transacciones para este período",
-
-    "paymentInfoTitle": "Información de pago",
-    "paymentInfoTopUp": "Recarga",
-    "paymentInfoWithdraw": "Retiro",
-    "paymentInfoBalance": "Balance",
-    "paymentInfoSuccess": "¡La transacción se completó con éxito!",
-    "paymentInfoPending": "¡La transacción está siendo procesada!",
-    "paymentInfoFailed": "¡La transacción no se completó!",
-    "paymentInfoHelp": "Ayuda",
-    "paymentInfoCopy": "Copiar",
-    "paymentInfoShare": "Compartir",
-    "paymentInfoHome": "Inicio",
-
-    "transferTitle": "Nuevo pago",
-    "transferNewContact": "Nuevo\nContacto",
-    "transferNewTransaction": "Nueva\nTransacción",
-    "transferMobileOrEmail": "Número móvil o Email",
-    "transferAmount": "Monto",
-    "transferContinue": "Continuar",
-    "transferConfirmMessage": "Para transferir el monto de {amount} al número {number}, presione continuar",
-
-    "topUpTitle": "Recargar",
-    "topUpLoading": "Cargando proveedores...",
-    "topUpNoProviders": "No hay proveedores disponibles",
-    "topUpRetry": "Reintentar",
-    "topUpSelectProvider": "Seleccionar proveedor:",
-
-    "withdrawalTitle": "Retiro",
-    "withdrawalLoading": "Cargando opciones de retiro...",
-    "withdrawalNoMethods": "No hay métodos de retiro disponibles",
-
-    "scannerTitle": "Escanear código QR",
-    "qrConfirmationTitle": "Confirmación de pago",
-    "qrProcessing": "Procesando pago...",
-
+    "@_MONTHS": {},
     "monthJanuary": "Enero",
     "monthFebruary": "Febrero",
     "monthMarch": "Marzo",
@@ -78,18 +43,117 @@
     "monthNovember": "Noviembre",
     "monthDecember": "Diciembre",
 
-    "transactionHelp": "Ayuda",
-    "transactionCopy": "Copiar",
-    "transactionShare": "Compartir", 
-    "transactionId": "ID de Transacción",
+    "@_HISTORY": {},
+    "historySearchHint": "Buscar transacciones",
+    "historyTotal": "Total",
+    "historyExpense": "Gastos",
+    "historyIncome": "Ingresos",
+    "historyNoTransactions": "No hay transacciones disponibles",
+
+    "@_TRANSACTIONS": {},
+    "transactionId": "ID",
     "transactionAmount": "Monto",
     "transactionDate": "Fecha",
     "transactionTime": "Hora",
     "transactionStatus": "Estado",
-    "transactionNeedHelp": "¿Necesitas Ayuda? 🤔",
-    "transactionSupportMessage": "Contacta a nuestro equipo de soporte para ayuda con tu transacción.",
+    "transactionHelp": "Ayuda",
+    "transactionCopy": "Copiar",
+    "transactionShare": "Compartir",
+    "transactionNeedHelp": "¿Necesitas ayuda? 🤔",
+    "transactionSupportMessage": "Contacta a nuestro equipo de soporte para asistencia con tu transacción.",
     "transactionClose": "Cerrar",
     "transactionCopiedSuccess": "¡Detalles de la transacción copiados al portapapeles! 📋",
+    "@transactionCopyError": {
+        "placeholders": {
+            "error": {
+                "type": "String"
+            }
+        }
+    },
     "transactionCopyError": "Error al copiar: {error}",
-    "transactionError": "Ocurrió un error: {error}"
+    "transferLoading": "Cargando opciones de transferencia...",
+    "transferUnknownError": "Ocurrió un error desconocido",
+    "transferNewContact": "Nuevo\nContacto",
+    "transferNewTransaction": "Nueva\nTransferencia",
+    "retry": "Reintentar",
+    "contactEnrique": "Enrique\nIglesias",
+    "contactLionel": "Lionel\nMessi",
+    "contactJuan": "Juan\nPeron",
+    "contactJohn": "John\nDoe",
+    "contactXimena": "Ximena\nMerino",
+    "transferRecipientLabel": "Número móvil o correo electrónico",
+    "transferAmountLabel": "Monto",
+    "@transferConfirmMessage": {
+        "placeholders": {
+            "amount": {
+                "type": "String"
+            },
+            "recipient": {
+                "type": "String"
+            }
+        }
+    },
+    "transferConfirmMessage": "Para transferir el monto de {amount} al número {recipient}, presiona continuar.",
+    "@_TOPUP": {},
+    "topUpTitle": "Recargar",
+    "topUpLoading": "Cargando proveedores...",
+    "topUpNoProviders": "No hay proveedores disponibles",
+    "retry": "Reintentar",
+    "unknownError": "Ocurrió un error desconocido",
+    "topUpAmount": "Monto",
+    "topUpContinue": "Continuar",
+    "topUpSelectProvider": "Seleccionar proveedor:",
+    "topUpError": "Error: {error}",
+    "@topUpError": {
+        "placeholders": {
+            "error": {
+                "type": "String"
+            }
+        }
+    },
+
+    "@_WITHDRAWAL": {},
+    "withdrawalTitle": "Retiro",
+    "withdrawalLoading": "Cargando opciones de retiro...",
+    "withdrawalNoMethods": "No hay métodos de retiro disponibles",
+    "withdrawalAmount": "Monto",
+    "withdrawalContinue": "Continuar",
+    "withdrawalSelectMethod": "Seleccionar método de retiro:",
+    "withdrawalError": "Error: {error}",
+    "@withdrawalError": {
+        "placeholders": {
+            "error": {
+                "type": "String"
+            }
+        }
+    },
+    "@_FORM_VALIDATION": {},
+    "fieldRequired": "Este campo es obligatorio",
+    "invalidNumber": "Por favor ingrese un número válido",
+    "invalidFormat": "Formato inválido",
+    "@valueTooSmall": {
+        "placeholders": {
+            "min": {
+                "type": "String"
+            }
+        }
+    },
+    "valueTooSmall": "El valor debe ser mayor que {min}",
+    "@valueTooLarge": {
+        "placeholders": {
+            "max": {
+                "type": "String"
+            }
+        }
+    },
+    "valueTooLarge": "El valor debe ser menor que {max}",
+    "@operationError": {
+        "placeholders": {
+            "error": {
+                "type": "String"
+            }
+        }
+    },
+    "operationError": "La operación falló: {error}",
+    "totalBalance":  "Equilibrio"
 }
