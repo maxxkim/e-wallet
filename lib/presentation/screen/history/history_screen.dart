@@ -232,7 +232,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
     bool isSelected,
   ) {
     const double buttonHeight = 40.0;
-    const double buttonWidth = 116.0;
+    const double buttonWidth = 114.0;
     return SizedBox(
       width: buttonWidth,
       height: buttonHeight,

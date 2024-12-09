@@ -21,7 +21,7 @@
     "dashboardWithdraw": "Retirar",
     "dashboardScan": "Escanear",
     "dashboardTransfer": "Transferir",
-    "dashboardSelectFromContacts": "Seleccionar de contactos",
+    "dashboardSelectFromContacts": "Seleccionar contacto",
     "dashboardPeriod": "Período",
     "dashboardDeposit": "Depósito",
     "dashboardWithdrawal": "Retiro",
@@ -155,5 +155,5 @@
         }
     },
     "operationError": "La operación falló: {error}",
-    "totalBalance":  "Equilibrio"
+    "totalBalance":  "Balance Total"
 }

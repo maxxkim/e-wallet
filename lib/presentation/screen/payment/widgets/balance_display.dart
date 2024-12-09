@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:zippy/domain/state/dashboard/dashboard_state.dart';
 import 'package:zippy/presentation/animation/fade_animation_mixin.dart';
 import 'package:zippy/presentation/bloc/dashboard/dashboard_cubit.dart';
@@ -11,6 +12,7 @@ class BalanceDisplay extends StatelessWidget with FadeInAnimationMixin {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return BlocBuilder<DashboardCubit, DashboardState>(
       builder: (context, state) {
         if (state is DashboardStateLoaded) {
@@ -36,7 +38,7 @@ class BalanceDisplay extends StatelessWidget with FadeInAnimationMixin {
                     children: [
                       fadeIn(
                         Text(
-                          "Total balance",
+                          l10n.totalBalance,
                           style: Theme.of(context).textTheme.bodyLarge,
                         ),
                       ),
@@ -78,7 +80,7 @@ class BalanceDisplay extends StatelessWidget with FadeInAnimationMixin {
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         Text(
-                          "Select from contacts",
+                          l10n.dashboardSelectFromContacts,
                           style: Theme.of(context).textTheme.displaySmall,
                         ),
                         const SizedBox(width: 8),

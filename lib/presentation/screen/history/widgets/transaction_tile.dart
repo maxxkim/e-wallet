@@ -237,11 +237,11 @@ class _TransactionTileState extends State<TransactionTile>
             height: 24.0,
             width: 24.0,
           ),
-          SizedBox(height: 4),
+          /*        SizedBox(height: 4),
           Text(
             label,
             style: Theme.of(context).textTheme.headlineLarge,
-          ),
+          ),*/
         ],
       ),
     );

@@ -15,6 +15,7 @@ class DashboardScreen extends StatelessWidget with FadeInAnimationMixin {
 
   @override
   Widget build(BuildContext context) {
+    context.read<DashboardCubit>().loadData();
     final l10n = AppLocalizations.of(context)!;
     return BlocBuilder<DashboardCubit, DashboardState>(
       builder: (context, state) {
