@@ -16,6 +16,7 @@ import 'package:zippy/domain/repository/transfer/transfer_repository.dart';
 import 'package:zippy/domain/repository/withdrawal/withdrawal_repository.dart';
 import 'package:zippy/presentation/app_router.dart';
 import 'package:zippy/presentation/bloc/locale/locale_cubit.dart';
+import 'package:zippy/presentation/bloc/navigation/navigation_cubit.dart';
 import 'package:zippy/presentation/session/session_cubit.dart';
 import 'package:zippy/presentation/theme/app_theme.dart';
 import 'package:zippy/presentation/theme/app_theme_dark.dart';
@@ -76,6 +77,7 @@ class ZippyApp extends StatelessWidget {
         ],
         child: MultiBlocProvider(
           providers: [
+            BlocProvider(create: (context) => NavigationCubit()),
             BlocProvider(
               create: (context) => ThemeCubit(),
             ),

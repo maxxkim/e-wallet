@@ -155,5 +155,9 @@
         }
     },
     "operationError": "La operación falló: {error}",
-    "totalBalance":  "Balance Total"
+    "totalBalance":  "Balance Total",
+    "navHistory": "Historial",
+    "navTransfer": "Transferir",
+    "navOffers": "Ofertas", 
+    "navSupport": "Ayuda"
 }

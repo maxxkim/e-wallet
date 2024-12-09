@@ -7,6 +7,7 @@ import 'package:zippy/domain/state/dashboard/dashboard_state.dart';
 import 'package:zippy/presentation/bloc/dashboard/dashboard_cubit.dart';
 import 'package:zippy/presentation/screen/history/widgets/transaction_list.dart';
 import 'package:zippy/presentation/theme/app_theme.dart';
+import 'package:zippy/presentation/widget/custom_bottom_nav_bar.dart';
 import 'package:zippy/presentation/widget/custom_text_field.dart';
 
 class HistoryScreen extends StatefulWidget {
@@ -74,6 +75,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
                 ],
               ),
             ),
+            bottomNavigationBar: const CustomBottomNavBar(),
           );
         }
         return const Center(child: CircularProgressIndicator());

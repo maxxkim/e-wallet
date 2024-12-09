@@ -1,5 +1,6 @@
 import 'package:dio/dio.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:intl/intl.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:zippy/domain/model/transaction/transaction_model.dart';
 import 'package:zippy/domain/repository/dashboard/dashboard_repository.dart';
@@ -11,11 +12,21 @@ class DashboardCubit extends Cubit<DashboardState> {
   DashboardCubit(this._dashboardRepository)
       : super(DashboardStateLoaded(
           filterType: FilterType.period,
-          selectedMonthNumber: DateTime.now().month,
+          chosenMonth: DateFormat('MMMM').format(DateTime.now()),
           balance: 0,
           transactions: [],
           filteredTransactions: [],
+          selectedTab: NavigationTab.home,
         ));
+
+  void selectTab(int index) {
+    if (state is DashboardStateLoaded) {
+      final currentState = state as DashboardStateLoaded;
+      emit(currentState.copyWith(
+        selectedTab: NavigationTab.values[index],
+      ));
+    }
+  }
 
   Future<void> loadData() async {
     try {
@@ -35,18 +46,19 @@ class DashboardCubit extends Cubit<DashboardState> {
         final filteredTransactions = _applyFilters(
           transactions,
           currentState.filterType,
-          currentState.selectedMonthNumber,
+          currentState.chosenMonth,
           currentState.searchQuery,
         );
 
         emit(DashboardStateLoaded(
           filterType: currentState.filterType,
-          selectedMonthNumber: currentState.selectedMonthNumber,
+          chosenMonth: currentState.chosenMonth,
           balance: balance,
           transactions: transactions,
           filteredTransactions: filteredTransactions ?? [],
           accessToken: accessToken,
           searchQuery: currentState.searchQuery,
+          selectedTab: currentState.selectedTab,
         ));
       }
     } catch (e) {
@@ -62,10 +74,9 @@ class DashboardCubit extends Cubit<DashboardState> {
       final filteredTransactions = _applyFilters(
         currentState.transactions,
         currentState.filterType,
-        currentState.selectedMonthNumber,
+        currentState.chosenMonth,
         query,
       );
-
       emit(currentState.copyWith(
         filteredTransactions: filteredTransactions ?? [],
         searchQuery: query,
@@ -76,21 +87,25 @@ class DashboardCubit extends Cubit<DashboardState> {
   List<Transaction>? _applyFilters(
     List<Transaction>? transactions,
     FilterType filterType,
-    int monthNumber,
+    String month,
     String searchQuery,
   ) {
     if (transactions == null) return null;
 
     List<Transaction> filtered = [...transactions];
 
+    // Apply type filter
     if (filterType == FilterType.deposit) {
       filtered = filtered.where((t) => t.type == 'payin').toList();
     } else if (filterType == FilterType.withdrawal) {
       filtered = filtered.where((t) => t.type == 'payout').toList();
     } else if (filterType == FilterType.period) {
-      filtered = filtered.where((t) => t.date.month == monthNumber).toList();
+      filtered = filtered
+          .where((t) => DateFormat('MMMM').format(t.date) == month)
+          .toList();
     }
 
+    // Apply search filter
     if (searchQuery.isNotEmpty) {
       final lowercaseQuery = searchQuery.toLowerCase();
       filtered = filtered.where((t) {
@@ -100,6 +115,7 @@ class DashboardCubit extends Cubit<DashboardState> {
       }).toList();
     }
 
+    // Sort by date
     filtered.sort((a, b) => b.date.compareTo(a.date));
     return filtered;
   }
@@ -110,10 +126,9 @@ class DashboardCubit extends Cubit<DashboardState> {
       final filteredTransactions = _applyFilters(
         currentState.transactions,
         filterType,
-        currentState.selectedMonthNumber,
+        currentState.chosenMonth,
         currentState.searchQuery,
       );
-
       emit(currentState.copyWith(
         filterType: filterType,
         filteredTransactions: filteredTransactions ?? [],
@@ -121,18 +136,17 @@ class DashboardCubit extends Cubit<DashboardState> {
     }
   }
 
-  void selectMonth(int monthNumber) {
+  void selectMonth(String month) {
     if (state is DashboardStateLoaded) {
       var currentState = state as DashboardStateLoaded;
       final filteredTransactions = _applyFilters(
         currentState.transactions,
         currentState.filterType,
-        monthNumber,
+        month,
         currentState.searchQuery,
       );
-
       emit(currentState.copyWith(
-        selectedMonthNumber: monthNumber,
+        chosenMonth: month,
         filteredTransactions: filteredTransactions ?? [],
       ));
     }

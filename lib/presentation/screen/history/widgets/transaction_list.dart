@@ -86,8 +86,9 @@ class TransactionList extends StatelessWidget {
           final month = months[index];
           final isSelected = month.number == state.selectedMonthNumber;
           return GestureDetector(
-            onTap: () =>
-                context.read<DashboardCubit>().selectMonth(month.number),
+            onTap: () => context
+                .read<DashboardCubit>()
+                .selectMonth(month.number.toString()),
             child: Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16.0),
               child: Center(

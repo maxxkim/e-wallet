@@ -8,6 +8,7 @@ import 'package:zippy/presentation/animation/fade_animation_mixin.dart';
 import 'package:zippy/presentation/bloc/dashboard/dashboard_cubit.dart';
 import 'package:zippy/presentation/screen/dashboard/widgets/filter_button_row.dart';
 import 'package:zippy/presentation/screen/dashboard/widgets/transaction_history_panel.dart';
+import 'package:zippy/presentation/widget/custom_bottom_nav_bar.dart';
 import 'widgets/dashboard_display.dart';
 
 class DashboardScreen extends StatelessWidget with FadeInAnimationMixin {
@@ -95,6 +96,7 @@ class DashboardScreen extends StatelessWidget with FadeInAnimationMixin {
                 ]),
               ),
             ),
+            bottomNavigationBar: const CustomBottomNavBar(),
           );
         }
         return const Center(child: CircularProgressIndicator());
@@ -180,8 +182,9 @@ class DashboardScreen extends StatelessWidget with FadeInAnimationMixin {
           final month = months[startIndex + index];
           final isSelected = month.number == currentMonthNumber;
           return GestureDetector(
-            onTap: () =>
-                context.read<DashboardCubit>().selectMonth(month.number),
+            onTap: () => context
+                .read<DashboardCubit>()
+                .selectMonth(month.number.toString()),
             child: Container(
               width: 112.0,
               alignment: Alignment.center,

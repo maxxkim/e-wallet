@@ -8,6 +8,7 @@ import 'package:zippy/presentation/animation/fade_animation_mixin.dart';
 import 'package:zippy/presentation/bloc/transfer/transfer_cubit.dart';
 import 'package:zippy/presentation/screen/payment/widgets/balance_display.dart';
 import 'package:zippy/presentation/screen/payment/widgets/transaction_form_display.dart';
+import 'package:zippy/presentation/widget/custom_bottom_nav_bar.dart';
 import 'package:zippy/presentation/widget/custom_contact_button.dart';
 import 'package:zippy/presentation/widget/custom_contact_button_row.dart';
 
@@ -25,14 +26,16 @@ class TransferScreen extends StatelessWidget with FadeInAnimationMixin {
       child: BlocBuilder<TransferCubit, TransferState>(
         builder: (context, state) {
           return Scaffold(
-              appBar: _buildAppBar(context, l10n),
-              body: Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: RefreshIndicator(
-                  onRefresh: () => _handleRefresh(context),
-                  child: _buildBody(context, state, l10n),
-                ),
-              ));
+            appBar: _buildAppBar(context, l10n),
+            body: Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: RefreshIndicator(
+                onRefresh: () => _handleRefresh(context),
+                child: _buildBody(context, state, l10n),
+              ),
+            ),
+            bottomNavigationBar: const CustomBottomNavBar(),
+          );
         },
       ),
     );

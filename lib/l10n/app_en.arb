@@ -152,5 +152,10 @@
         }
     },
     "operationError": "Operation failed: {error}",
-    "totalBalance":  "Total balance"
+    "totalBalance":  "Total balance",
+
+    "navHistory": "History",
+    "navTransfer": "Transfer",
+    "navOffers": "Offers",
+    "navSupport": "Support"
 }
