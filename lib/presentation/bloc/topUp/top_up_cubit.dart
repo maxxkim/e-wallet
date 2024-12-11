@@ -1,4 +1,5 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
 import 'package:zippy/domain/repository/top_up/top_up_repository.dart';
 import 'package:zippy/domain/state/topUp/top_up_state.dart';
 
@@ -22,10 +23,16 @@ class TopUpCubit extends Cubit<TopUpState> {
     }
   }
 
-  Future<void> initializeTopUp(Map<String, dynamic> data) async {
+  Future<void> initializeTopUp(
+      Map<String, dynamic> data, GoRouter router) async {
     try {
       final topUpInitiate = await _topUpRepository.initiateTopUp(data);
       emit(TopUpStateInitiated(url: topUpInitiate.paymentUrl));
+
+      // After 1 second, navigate back to dashboard
+      Future.delayed(const Duration(seconds: 1), () {
+        router.go('/dashboard');
+      });
     } catch (e) {
       emit(TopUpStateError(errorMessage: e.toString()));
     }

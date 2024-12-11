@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:go_router/go_router.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
@@ -14,7 +15,8 @@ import 'package:zippy/presentation/widget/custom_text_field.dart';
 
 class ProviderCard extends StatefulWidget {
   final Provider provider;
-  final Future<void> Function(Map<String, dynamic> data) onSubmit;
+  final Future<void> Function(Map<String, dynamic> data, GoRouter router)
+      onSubmit;
   final bool isWithdrawal;
 
   const ProviderCard({
@@ -110,7 +112,6 @@ class _ProviderCardState extends State<ProviderCard>
   Future<void> _handleSubmit() async {
     if (_isLoading) return;
     final l10n = AppLocalizations.of(context)!;
-
     bool isValid = true;
     setState(() {
       for (var param in widget.provider.parameters) {
@@ -121,7 +122,6 @@ class _ProviderCardState extends State<ProviderCard>
         }
       }
     });
-
     if (!isValid) return;
 
     setState(() {
@@ -134,7 +134,9 @@ class _ProviderCardState extends State<ProviderCard>
         body[param.name] = _controllers[param.name]?.text ?? '';
       }
       body['providerId'] = widget.provider.id;
-      await widget.onSubmit(body);
+
+      final router = GoRouter.of(context);
+      await widget.onSubmit(body, router);
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(

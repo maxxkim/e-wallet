@@ -1,4 +1,5 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
 import 'package:zippy/domain/repository/withdrawal/withdrawal_repository.dart';
 import 'package:zippy/domain/state/withdrawal/withdrawal_state.dart';
 
@@ -23,11 +24,17 @@ class WithdrawalCubit extends Cubit<WithdrawalState> {
     }
   }
 
-  Future<void> initializeWithdrawal(Map<String, dynamic> data) async {
+  Future<void> initializeWithdrawal(
+      Map<String, dynamic> data, GoRouter router) async {
     try {
       final withdrawalInitiate =
           await _withdrawalRepository.initiateWithdrawal(data);
       emit(WithdrawalStateInitiated(url: withdrawalInitiate.paymentUrl));
+
+      // After 1 second, navigate back to dashboard
+      Future.delayed(const Duration(seconds: 1), () {
+        router.go('/dashboard');
+      });
     } catch (e) {
       emit(WithdrawalStateError(errorMessage: e.toString()));
     }
