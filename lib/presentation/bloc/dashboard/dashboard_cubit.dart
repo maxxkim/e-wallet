@@ -1,5 +1,6 @@
 import 'package:dio/dio.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:zippy/domain/model/transaction/transaction_model.dart';
@@ -30,17 +31,19 @@ class DashboardCubit extends Cubit<DashboardState> {
 
   Future<void> loadData() async {
     try {
+      if (state is DashboardStateLoggedOut) {
+        return;
+      }
+
       final SharedPreferences prefs = await SharedPreferences.getInstance();
       final String accessToken = prefs.getString('accessToken') ?? '';
 
       if (accessToken.isEmpty) {
-        emit(DashboardStateError(errorMessage: 'Sign in token is missing'));
+        emit(DashboardStateLoggedOut());
         return;
       }
-
       final balance = await _dashboardRepository.getBalance();
       final transactions = await _dashboardRepository.getTransactions();
-
       if (state is DashboardStateLoaded) {
         final currentState = state as DashboardStateLoaded;
         final filteredTransactions = _applyFilters(
@@ -49,7 +52,6 @@ class DashboardCubit extends Cubit<DashboardState> {
           currentState.chosenMonth,
           currentState.searchQuery,
         );
-
         emit(DashboardStateLoaded(
           filterType: currentState.filterType,
           chosenMonth: currentState.chosenMonth,
@@ -94,7 +96,6 @@ class DashboardCubit extends Cubit<DashboardState> {
 
     List<Transaction> filtered = [...transactions];
 
-    // Apply type filter
     if (filterType == FilterType.deposit) {
       filtered = filtered.where((t) => t.type == 'payin').toList();
     } else if (filterType == FilterType.withdrawal) {
@@ -105,7 +106,6 @@ class DashboardCubit extends Cubit<DashboardState> {
           .toList();
     }
 
-    // Apply search filter
     if (searchQuery.isNotEmpty) {
       final lowercaseQuery = searchQuery.toLowerCase();
       filtered = filtered.where((t) {
@@ -115,7 +115,6 @@ class DashboardCubit extends Cubit<DashboardState> {
       }).toList();
     }
 
-    // Sort by date
     filtered.sort((a, b) => b.date.compareTo(a.date));
     return filtered;
   }
@@ -152,7 +151,7 @@ class DashboardCubit extends Cubit<DashboardState> {
     }
   }
 
-  Future<void> logout() async {
+  Future<void> logout(GoRouter router) async {
     try {
       final SharedPreferences prefs = await SharedPreferences.getInstance();
       await prefs.remove('accessToken');

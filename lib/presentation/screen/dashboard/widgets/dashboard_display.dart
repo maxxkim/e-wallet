@@ -12,11 +12,7 @@ class BalanceDisplay extends StatefulWidget {
   final num? balance;
   final DashboardTranslations translations;
 
-  const BalanceDisplay({
-    super.key,
-    this.balance,
-    required this.translations,
-  });
+  BalanceDisplay({super.key, this.balance, required this.translations, v});
 
   @override
   State<BalanceDisplay> createState() => _BalanceDisplayState();
@@ -25,6 +21,7 @@ class BalanceDisplay extends StatefulWidget {
 class _BalanceDisplayState extends State<BalanceDisplay>
     with FadeInAnimationMixin {
   bool _isUpdating = false;
+  bool _isLoggingOut = false;
 
   Future<void> _updateBalance(BuildContext context) async {
     setState(() {
@@ -38,6 +35,19 @@ class _BalanceDisplayState extends State<BalanceDisplay>
           _isUpdating = false;
         });
       }
+    }
+  }
+
+  Future<void> _handleLogout(BuildContext context) async {
+    setState(() {
+      _isLoggingOut = true;
+    });
+
+    final router = GoRouter.of(context);
+    try {
+      await context.read<DashboardCubit>().logout(router);
+    } catch (e) {
+      print(e);
     }
   }
 
@@ -97,13 +107,23 @@ class _BalanceDisplayState extends State<BalanceDisplay>
                                 ),
                                 const Spacer(),
                                 IconButton(
-                                  icon: const Icon(Icons.exit_to_app),
+                                  icon: _isLoggingOut
+                                      ? const SizedBox(
+                                          width: 24,
+                                          height: 24,
+                                          child: CircularProgressIndicator(
+                                            strokeWidth: 2,
+                                            valueColor:
+                                                AlwaysStoppedAnimation<Color>(
+                                                    Colors.white),
+                                          ),
+                                        )
+                                      : const Icon(Icons.exit_to_app),
                                   color:
                                       Theme.of(context).scaffoldBackgroundColor,
-                                  onPressed: () {
-                                    context.read<DashboardCubit>().logout();
-                                    context.go('/');
-                                  },
+                                  onPressed: _isLoggingOut
+                                      ? null
+                                      : () => _handleLogout(context),
                                 ),
                               ],
                             ),

@@ -3,11 +3,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:go_router/go_router.dart';
 import 'package:zippy/domain/state/dashboard/dashboard_state.dart';
 import 'package:zippy/presentation/animation/fade_animation_mixin.dart';
 import 'package:zippy/presentation/bloc/dashboard/dashboard_cubit.dart';
 import 'package:zippy/presentation/screen/dashboard/widgets/filter_button_row.dart';
 import 'package:zippy/presentation/screen/dashboard/widgets/transaction_history_panel.dart';
+import 'package:zippy/presentation/screen/error_screen.dart';
 import 'package:zippy/presentation/widget/custom_bottom_nav_bar.dart';
 import 'widgets/dashboard_display.dart';
 
@@ -16,10 +18,14 @@ class DashboardScreen extends StatelessWidget with FadeInAnimationMixin {
 
   @override
   Widget build(BuildContext context) {
-    context.read<DashboardCubit>().loadData();
+    print("build");
     final l10n = AppLocalizations.of(context)!;
     return BlocBuilder<DashboardCubit, DashboardState>(
       builder: (context, state) {
+        if (state is DashboardStateLoggedOut) {
+          print("logegeed out");
+          context.go('/');
+        }
         if (state is DashboardStateLoaded) {
           return Scaffold(
             body: Padding(
@@ -98,8 +104,14 @@ class DashboardScreen extends StatelessWidget with FadeInAnimationMixin {
             ),
             bottomNavigationBar: const CustomBottomNavBar(),
           );
+        } else if (state is DashboardStateError) {
+          return ErrorScreen(errorMessage: state.errorMessage);
         }
-        return const Center(child: CircularProgressIndicator());
+        return const Scaffold(
+          body: Center(
+            child: CircularProgressIndicator(),
+          ),
+        );
       },
     );
   }
