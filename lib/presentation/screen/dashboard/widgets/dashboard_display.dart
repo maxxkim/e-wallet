@@ -6,6 +6,7 @@ import 'package:zippy/domain/state/dashboard/dashboard_state.dart';
 import 'package:zippy/presentation/animation/fade_animation_mixin.dart';
 import 'package:zippy/presentation/bloc/dashboard/dashboard_cubit.dart';
 import 'package:zippy/presentation/screen/dashboard/dashboard_screen.dart';
+import 'package:zippy/presentation/session/session_cubit.dart';
 import 'package:zippy/presentation/theme/app_theme.dart';
 
 class BalanceDisplay extends StatefulWidget {
@@ -39,21 +40,35 @@ class _BalanceDisplayState extends State<BalanceDisplay>
   }
 
   Future<void> _handleLogout(BuildContext context) async {
+    if (_isLoggingOut) return;
+
     setState(() {
       _isLoggingOut = true;
     });
 
-    final router = GoRouter.of(context);
     try {
-      await context.read<DashboardCubit>().logout(router);
+      await context.read<SessionCubit>().logout();
+      if (mounted) {
+        context.read<DashboardCubit>().reset();
+      }
     } catch (e) {
       print(e);
+      if (mounted) {
+        setState(() {
+          _isLoggingOut = false;
+        });
+      }
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<DashboardCubit, DashboardState>(
+    return BlocConsumer<DashboardCubit, DashboardState>(
+      listener: (context, state) {
+        if (state is DashboardStateLoggedOut && mounted) {
+          GoRouter.of(context).go('/');
+        }
+      },
       builder: (context, state) {
         if (state is DashboardStateLoaded) {
           return Row(

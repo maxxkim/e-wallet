@@ -41,42 +41,44 @@ Widget _withDashboardProvider(BuildContext context, Widget child) {
 }
 
 Widget _authGuard(BuildContext context, Widget child) {
-  return BlocBuilder<SessionCubit, SessionState>(
-    builder: (context, state) {
-      if (state is InitialLoading || state is RefreshingTokens) {
-        return _loadingScreen();
-      }
-      if (state is Authenticated) {
-        return _withDashboardProvider(context, child);
-      }
+  return BlocListener<SessionCubit, SessionState>(
+    listener: (context, state) {
       if (state is Unauthenticated) {
-        WidgetsBinding.instance.addPostFrameCallback((_) {
-          GoRouter.of(context).go('/');
-        });
-        return _loadingScreen();
+        context.go('/');
       }
-      return _loadingScreen();
     },
+    child: BlocBuilder<SessionCubit, SessionState>(
+      builder: (context, state) {
+        if (state is InitialLoading || state is RefreshingTokens) {
+          return _loadingScreen();
+        }
+        if (state is Authenticated) {
+          return _withDashboardProvider(context, child);
+        }
+        return _loadingScreen();
+      },
+    ),
   );
 }
 
 Widget _authGuard2(BuildContext context, Widget child) {
-  return BlocBuilder<SessionCubit, SessionState>(
-    builder: (context, state) {
-      if (state is InitialLoading || state is RefreshingTokens) {
-        return _loadingScreen();
-      }
-      if (state is Unauthenticated) {
-        return child;
-      }
+  return BlocListener<SessionCubit, SessionState>(
+    listener: (context, state) {
       if (state is Authenticated) {
-        WidgetsBinding.instance.addPostFrameCallback((_) {
-          GoRouter.of(context).go('/dashboard');
-        });
-        return _loadingScreen();
+        context.go('/dashboard');
       }
-      return _loadingScreen();
     },
+    child: BlocBuilder<SessionCubit, SessionState>(
+      builder: (context, state) {
+        if (state is InitialLoading || state is RefreshingTokens) {
+          return _loadingScreen();
+        }
+        if (state is Unauthenticated) {
+          return child;
+        }
+        return _loadingScreen();
+      },
+    ),
   );
 }
 
@@ -129,7 +131,6 @@ final GoRouter appRouter = GoRouter(
             return _authGuard(context, const WithdrawalScreen());
           },
         ),
-        // Add new route for transaction details
         GoRoute(
           path: 'transaction-details',
           builder: (context, state) {

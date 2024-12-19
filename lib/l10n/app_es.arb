@@ -81,7 +81,7 @@
     "contactJuan": "Juan\nPeron",
     "contactJohn": "John\nDoe",
     "contactXimena": "Ximena\nMerino",
-    "transferRecipientLabel": "Número móvil o correo electrónico",
+    "transferRecipientLabel": "Número móvil",
     "transferAmountLabel": "Monto",
     "@transferConfirmMessage": {
         "placeholders": {

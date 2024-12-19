@@ -138,7 +138,7 @@ class ApiService {
     final response = await _dio.post(
       'https://transfer-service-2on2u.ondigitalocean.app/api/v1/transfer',
       data: {
-        "recipientId": "279df215-14bc-439a-b4ad-cfafc03c8914",
+        "recipient": data['recipient'],
         "currency": "CLP",
         "amount": data['amount'],
       },

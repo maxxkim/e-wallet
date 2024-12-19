@@ -18,14 +18,10 @@ class DashboardScreen extends StatelessWidget with FadeInAnimationMixin {
 
   @override
   Widget build(BuildContext context) {
-    print("build");
     final l10n = AppLocalizations.of(context)!;
     return BlocBuilder<DashboardCubit, DashboardState>(
       builder: (context, state) {
-        if (state is DashboardStateLoggedOut) {
-          print("logegeed out");
-          context.go('/');
-        }
+        if (state is DashboardStateLoggedOut) {}
         if (state is DashboardStateLoaded) {
           return Scaffold(
             body: Padding(

@@ -31,9 +31,7 @@ class DashboardCubit extends Cubit<DashboardState> {
 
   Future<void> loadData() async {
     try {
-      if (state is DashboardStateLoggedOut) {
-        return;
-      }
+      if (state is DashboardStateLoggedOut) return;
 
       final SharedPreferences prefs = await SharedPreferences.getInstance();
       final String accessToken = prefs.getString('accessToken') ?? '';
@@ -42,8 +40,10 @@ class DashboardCubit extends Cubit<DashboardState> {
         emit(DashboardStateLoggedOut());
         return;
       }
+
       final balance = await _dashboardRepository.getBalance();
       final transactions = await _dashboardRepository.getTransactions();
+
       if (state is DashboardStateLoaded) {
         final currentState = state as DashboardStateLoaded;
         final filteredTransactions = _applyFilters(
@@ -52,6 +52,7 @@ class DashboardCubit extends Cubit<DashboardState> {
           currentState.chosenMonth,
           currentState.searchQuery,
         );
+
         emit(DashboardStateLoaded(
           filterType: currentState.filterType,
           chosenMonth: currentState.chosenMonth,
@@ -117,6 +118,17 @@ class DashboardCubit extends Cubit<DashboardState> {
 
     filtered.sort((a, b) => b.date.compareTo(a.date));
     return filtered;
+  }
+
+  void reset() {
+    emit(DashboardStateLoaded(
+      filterType: FilterType.period,
+      chosenMonth: DateFormat('MMMM').format(DateTime.now()),
+      balance: 0,
+      transactions: [],
+      filteredTransactions: [],
+      selectedTab: NavigationTab.home,
+    ));
   }
 
   void selectFilter(FilterType filterType) {

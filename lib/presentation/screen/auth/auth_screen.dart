@@ -14,8 +14,10 @@ class AuthScreen extends StatelessWidget {
   AuthScreen({super.key});
 
   final MaskedTextController phoneController = MaskedTextController(
-    mask: '+380 000 000 000',
-    text: '+380 505 018 036',
+    mask: '+7 967 055 3338',
+    //mask: '+380 000 000 000',
+    text: '+7 967 055 3338',
+    //text: '+380 505 018 036',
   );
 
   String _formatPhoneForApi(String phone) {
@@ -84,7 +86,8 @@ class AuthScreen extends StatelessWidget {
                       onPressed: () {
                         final phoneNumber = phoneController.text.trim();
                         if (_isValidChileanPhone(phoneNumber) ||
-                            phoneNumber == "+380 505 018 036") {
+                            phoneNumber == "+380 505 018 036" ||
+                            phoneNumber == "+7 967 055 3338") {
                           final formattedPhone =
                               _formatPhoneForApi(phoneNumber);
                           context.go('/sms/$formattedPhone');

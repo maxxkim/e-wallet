@@ -13,16 +13,16 @@ class SessionCubit extends Cubit<SessionState> {
   }
 
   Future<void> checkAuthentication() async {
-    // Start with initial loading state
-    if (state is! InitialLoading) {
-      emit(InitialLoading());
-    }
-
     try {
       SharedPreferences prefs = await SharedPreferences.getInstance();
       final String? accessToken = prefs.getString('accessToken');
 
-      if (accessToken != null && accessToken.isNotEmpty) {
+      if (accessToken == null || accessToken.isEmpty) {
+        emit(Unauthenticated());
+        return;
+      }
+
+      try {
         final bool isValid = await _authRepository.verifyToken(accessToken);
         if (isValid) {
           emit(Authenticated(accessToken));
@@ -30,11 +30,23 @@ class SessionCubit extends Cubit<SessionState> {
           await prefs.remove('accessToken');
           emit(Unauthenticated());
         }
-      } else {
+      } catch (e) {
         await prefs.remove('accessToken');
         emit(Unauthenticated());
       }
     } catch (e) {
+      emit(Unauthenticated());
+    }
+  }
+
+  Future<void> logout() async {
+    try {
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      await prefs.remove('accessToken');
+      await prefs.remove('refreshToken');
+      emit(Unauthenticated());
+    } catch (e) {
+      // Still try to emit unauthenticated even if prefs fail
       emit(Unauthenticated());
     }
   }
