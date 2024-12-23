@@ -29,10 +29,7 @@ class TopUpCubit extends Cubit<TopUpState> {
       final topUpInitiate = await _topUpRepository.initiateTopUp(data);
       emit(TopUpStateInitiated(url: topUpInitiate.paymentUrl));
 
-      // After 1 second, navigate back to dashboard
-      Future.delayed(const Duration(seconds: 1), () {
-        router.go('/dashboard');
-      });
+      router.go('/dashboard');
     } catch (e) {
       emit(TopUpStateError(errorMessage: e.toString()));
     }

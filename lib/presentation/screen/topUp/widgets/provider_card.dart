@@ -133,7 +133,7 @@ class _ProviderCardState extends State<ProviderCard>
       for (var param in widget.provider.parameters) {
         body[param.name] = _controllers[param.name]?.text ?? '';
       }
-      body['providerId'] = widget.provider.id;
+      body['provider'] = widget.provider.name;
 
       final router = GoRouter.of(context);
       await widget.onSubmit(body, router);

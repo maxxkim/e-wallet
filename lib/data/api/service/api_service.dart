@@ -97,13 +97,10 @@ class ApiService {
     final response = await _dio.post(
       'https://lionfish-app-9ixm6.ondigitalocean.app/transactions/initiate-deposit',
       data: {
-        "provider": "zippyBankCard",
+        "provider": data['provider'],
         "currency": "CLP",
         "amount": data['amount'],
-        "userData": {
-          "email": "user20@example.com",
-          "documentId": "111111111",
-        }
+        "userData": data
       },
     );
     return ApiTopUpInitiate.fromApi(response.data);
@@ -121,13 +118,10 @@ class ApiService {
     final response = await _dio.post(
       'https://lionfish-app-9ixm6.ondigitalocean.app/transactions/initiate-payout',
       data: {
-        "provider": "zippyBankCard",
+        "provider": data['provider'],
         "currency": "CLP",
-        "amount": 3,
-        "userData": {
-          "email": "user20@example.com",
-          "documentId": "111111111",
-        }
+        "amount": data['amount'],
+        "userData": data
       },
     );
     return ApiWithdrawalInitiate.fromApi(response.data);

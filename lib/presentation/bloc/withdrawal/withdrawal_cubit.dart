@@ -31,10 +31,7 @@ class WithdrawalCubit extends Cubit<WithdrawalState> {
           await _withdrawalRepository.initiateWithdrawal(data);
       emit(WithdrawalStateInitiated(url: withdrawalInitiate.paymentUrl));
 
-      // After 1 second, navigate back to dashboard
-      Future.delayed(const Duration(seconds: 1), () {
-        router.go('/dashboard');
-      });
+      router.go('/dashboard');
     } catch (e) {
       emit(WithdrawalStateError(errorMessage: e.toString()));
     }
