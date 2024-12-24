@@ -25,7 +25,8 @@ class TransferCubit extends Cubit<TransferState> {
   Future<void> initializeTransfer(Map<String, dynamic> data) async {
     try {
       await transferRepository.initiateTransfer(data);
-      emit(TransferStateSent());
+      // Instead of directly emitting TransferStateSent, emit a success state
+      emit(TransferStateSuccess());
     } catch (e) {
       emit(TransferStateError(errorMessage: e.toString()));
     }
