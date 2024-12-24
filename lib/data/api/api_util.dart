@@ -13,6 +13,7 @@ import 'package:zippy/data/mapper/withdrawal/withdrawal_mapper.dart';
 import 'package:zippy/domain/model/auth/auth_inititate_model.dart';
 import 'package:zippy/domain/model/auth/auth_refresh_mode.dart';
 import 'package:zippy/domain/model/auth/auth_verify_model.dart';
+import 'package:zippy/domain/model/qr/payment_response_model.dart';
 import 'package:zippy/domain/model/qr/qr_payment_model.dart';
 import 'package:zippy/domain/model/top_up/top_up_initiate_model.dart';
 import 'package:zippy/domain/model/top_up/top_up_model.dart';
@@ -91,7 +92,8 @@ class ApiUtil {
     return QrPaymentResponse.fromJson(result);
   }
 
-  Future<void> processPayment(String hash, double amount) async {
-    await _apiService.processPayment(hash, amount);
+  Future<PaymentResponse> processPayment(String hash, double amount) async {
+    final result = await _apiService.processPayment(hash, amount);
+    return PaymentResponse.fromJson(result); // Now we can parse the result
   }
 }

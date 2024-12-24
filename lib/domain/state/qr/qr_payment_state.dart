@@ -1,3 +1,4 @@
+import 'package:zippy/domain/model/qr/payment_response_model.dart';
 import 'package:zippy/domain/model/qr/qr_payment_model.dart';
 
 abstract class QrPaymentState {}
@@ -44,4 +45,8 @@ class QrPaymentProcessError extends QrPaymentState {
   QrPaymentProcessError(this.message);
 }
 
-class QrPaymentSuccess extends QrPaymentState {}
+class QrPaymentSuccess extends QrPaymentState {
+  final PaymentResponse paymentResponse;
+
+  QrPaymentSuccess({required this.paymentResponse});
+}

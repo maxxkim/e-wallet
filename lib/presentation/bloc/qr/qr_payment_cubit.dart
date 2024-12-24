@@ -1,4 +1,5 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:url_launcher/url_launcher.dart';
 import 'package:zippy/domain/model/qr/qr_payment_model.dart';
 import 'package:zippy/domain/repository/qr/qr_payment_repository.dart';
 import 'package:zippy/domain/state/qr/qr_payment_state.dart';
@@ -25,21 +26,7 @@ class QrPaymentCubit extends Cubit<QrPaymentState> {
   Future<void> processPayment(QrPaymentResponse response, String amount) async {
     if (state is QrPaymentScanSuccess) {
       final currentState = state as QrPaymentScanSuccess;
-
       if (currentState.isProcessing) return;
-
-      if (response.qrCode.type != 'FIXED') {
-        final parsedAmount = double.tryParse(amount);
-        if (amount.isEmpty) {
-          emit(currentState.copyWith(amountError: 'Please enter an amount'));
-          return;
-        }
-        if (parsedAmount == null || parsedAmount <= 0) {
-          emit(currentState.copyWith(
-              amountError: 'Please enter a valid amount'));
-          return;
-        }
-      }
 
       try {
         emit(currentState.copyWith(isProcessing: true, amountError: null));
@@ -48,12 +35,12 @@ class QrPaymentCubit extends Cubit<QrPaymentState> {
             ? response.qrCode.amount
             : double.parse(amount);
 
-        await _repository.processPayment(
+        final paymentResponse = await _repository.processPayment(
           response.qrCode.hash,
           paymentAmount,
         );
 
-        emit(QrPaymentSuccess());
+        emit(QrPaymentSuccess(paymentResponse: paymentResponse));
       } catch (e) {
         emit(QrPaymentProcessError(e.toString()));
         emit(currentState.copyWith(isProcessing: false));

@@ -116,7 +116,7 @@ class ApiService {
   Future<ApiWithdrawalInitiate> initiateWithdrawal(
       Map<String, dynamic> data) async {
     final response = await _dio.post(
-      'https://lionfish-app-9ixm6.ondigitalocean.app/transactions/initiate-payout',
+      'https://lionfish-app-9ixm6.ondigitalocean.app/transactions/initiate-deposit',
       data: {
         "provider": data['provider'],
         "currency": "CLP",
@@ -183,13 +183,15 @@ class ApiService {
     return response.data;
   }
 
-  Future<void> processPayment(String hash, double amount) async {
-    await _dio.post(
+  Future<Map<String, dynamic>> processPayment(
+      String hash, double amount) async {
+    final response = await _dio.post(
       'https://merchant-service-a5ja2.ondigitalocean.app/api/v1/payment',
       data: {
         'qr_code_hash': hash,
         'amount': amount,
       },
     );
+    return response.data;
   }
 }
