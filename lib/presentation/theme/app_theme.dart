@@ -155,6 +155,18 @@ final ThemeData appTheme = ThemeData(
     color: whiteColor,
     foregroundColor: whiteColor,
   ),
+  snackBarTheme: SnackBarThemeData(
+    backgroundColor: lightGreyColor, // kawaii background color! (｡♥‿♥｡)
+    contentTextStyle: const TextStyle(
+        color: darkGreyColor,
+        fontSize: 14,
+        fontWeight: FontWeight.w500,
+        fontFamily: 'RobotoFlex'),
+    shape: RoundedRectangleBorder(
+      borderRadius: BorderRadius.circular(16), // Make it round nya~
+    ),
+    behavior: SnackBarBehavior.floating, // Floating snackbars are so cute! >w
+  ),
   buttonTheme: ButtonThemeData(
     buttonColor: bluePurpleColor,
     textTheme: ButtonTextTheme.primary,
