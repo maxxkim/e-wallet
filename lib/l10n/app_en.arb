@@ -83,6 +83,7 @@
     "contactXimena": "Ximena\nMerino",
     "transferRecipientLabel": "Mobile number",
     "transferAmountLabel": "Amount",
+    "transferRecipientNotFound": "Could not find the recipient",
     "@transferConfirmMessage": {
         "placeholders": {
             "amount": {

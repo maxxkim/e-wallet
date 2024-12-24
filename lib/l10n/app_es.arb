@@ -74,6 +74,7 @@
     "transferLoading": "Cargando opciones de transferencia...",
     "transferUnknownError": "Ocurrió un error desconocido",
     "transferNewContact": "Nuevo\nContacto",
+    "transferRecipientNotFound": "No se pudo encontrar al destinatario",
     "transferNewTransaction": "Nueva\nTransferencia",
     "retry": "Reintentar",
     "contactEnrique": "Enrique\nIglesias",

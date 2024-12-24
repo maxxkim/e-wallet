@@ -56,9 +56,18 @@ class TransferScreen extends StatelessWidget with FadeInAnimationMixin {
     } else if (state is TransferStateLoaded) {
       return _buildLoadedContent(context, l10n);
     } else if (state is TransferStateError) {
+      if (state.isRecipientNotFound) {
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(l10n.transferRecipientNotFound),
+              backgroundColor: Theme.of(context).colorScheme.error,
+            ),
+          );
+        });
+      }
       return _buildErrorContent(context, state.errorMessage, l10n);
     } else if (state is TransferStateSuccess) {
-      // Use addPostFrameCallback to navigate after the build phase
       WidgetsBinding.instance.addPostFrameCallback((_) {
         context.go('/dashboard');
       });

@@ -1,3 +1,4 @@
+import 'package:dio/dio.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:zippy/domain/repository/transfer/transfer_repository.dart';
 import 'package:zippy/domain/state/transfer/transfer_state.dart';
@@ -25,10 +26,20 @@ class TransferCubit extends Cubit<TransferState> {
   Future<void> initializeTransfer(Map<String, dynamic> data) async {
     try {
       await transferRepository.initiateTransfer(data);
-      // Instead of directly emitting TransferStateSent, emit a success state
       emit(TransferStateSuccess());
     } catch (e) {
-      emit(TransferStateError(errorMessage: e.toString()));
+      if (e is DioException) {
+        if (e.response?.statusCode == 400 || e.response?.statusCode == 404) {
+          emit(TransferStateError(
+            errorMessage: e.toString(),
+            isRecipientNotFound: true,
+          ));
+        } else {
+          emit(TransferStateError(errorMessage: e.toString()));
+        }
+      } else {
+        emit(TransferStateError(errorMessage: e.toString()));
+      }
     }
   }
 }

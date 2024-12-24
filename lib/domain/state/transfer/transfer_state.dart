@@ -8,5 +8,10 @@ class TransferStateSuccess extends TransferState {}
 
 class TransferStateError extends TransferState {
   final String errorMessage;
-  TransferStateError({required this.errorMessage});
+  final bool isRecipientNotFound;
+
+  TransferStateError({
+    required this.errorMessage,
+    this.isRecipientNotFound = false,
+  });
 }
