@@ -6,7 +6,7 @@ class Provider {
   final String description;
   final String? logo;
   final String? title;
-  final List<Parameter> parameters;
+  final List<Parameter>? parameters;
   final String status;
   final DateTime createdAt;
   final DateTime updatedAt;
@@ -17,7 +17,7 @@ class Provider {
     required this.description,
     this.logo,
     this.title,
-    required this.parameters,
+    this.parameters,
     required this.status,
     required this.createdAt,
     required this.updatedAt,
@@ -30,8 +30,8 @@ class Provider {
       name: json['name'] as String,
       description: json['description'] as String,
       logo: json['logo'] as String?,
-      parameters: (json['parameters'] as List<dynamic>)
-          .map((paramMap) => Parameter.fromJson(paramMap))
+      parameters: (json['parameters'] as List<dynamic>?)
+          ?.map((paramMap) => Parameter.fromJson(paramMap))
           .toList(),
       status: json['status'] as String,
       createdAt: DateTime.parse(json['createdAt'] as String),

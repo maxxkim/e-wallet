@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_masked_text2/flutter_masked_text2.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:zippy/presentation/theme/theme_cubit.dart';
@@ -13,12 +12,7 @@ import 'package:zippy/presentation/widget/custom_outlined_button.dart';
 class AuthScreen extends StatelessWidget {
   AuthScreen({super.key});
 
-  final MaskedTextController phoneController = MaskedTextController(
-    mask: '+7 967 055 3338',
-    //mask: '+380 000 000 000',
-    text: '+7 967 055 3338',
-    //text: '+380 505 018 036',
-  );
+  final TextEditingController phoneController = TextEditingController();
 
   String _formatPhoneForApi(String phone) {
     return phone.replaceAll(' ', '');
@@ -86,8 +80,8 @@ class AuthScreen extends StatelessWidget {
                       onPressed: () {
                         final phoneNumber = phoneController.text.trim();
                         if (_isValidChileanPhone(phoneNumber) ||
-                            phoneNumber == "+380 505 018 036" ||
-                            phoneNumber == "+7 967 055 3338") {
+                            phoneNumber == "+380505018036" ||
+                            phoneNumber == "+79670553338") {
                           final formattedPhone =
                               _formatPhoneForApi(phoneNumber);
                           context.go('/sms/$formattedPhone');

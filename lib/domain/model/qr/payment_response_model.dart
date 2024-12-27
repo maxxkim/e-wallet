@@ -22,14 +22,14 @@ class Payment {
   final String hash;
   final String currency;
   final double amount;
-  final String returnUrl;
+  final String? returnUrl;
   final String status;
 
   Payment({
     required this.hash,
     required this.currency,
     required this.amount,
-    required this.returnUrl,
+    this.returnUrl,
     required this.status,
   });
 
@@ -38,7 +38,7 @@ class Payment {
       hash: json['hash'] as String,
       currency: json['currency'] as String,
       amount: (json['amount'] as num).toDouble(),
-      returnUrl: json['return_url'] as String,
+      returnUrl: json['return_url'] as String?,
       status: json['status'] as String,
     );
   }

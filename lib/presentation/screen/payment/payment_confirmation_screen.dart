@@ -30,7 +30,7 @@ class QrPaymentConfirmation extends StatelessWidget with FadeInAnimationMixin {
         if (state is QrPaymentSuccess && state.paymentResponse != null) {
           // Launch return URL
           final returnUrl = state.paymentResponse.payment.returnUrl;
-          if (returnUrl.isNotEmpty) {
+          if (returnUrl != null) {
             final url = Uri.parse(returnUrl);
             if (!await launchUrl(url, mode: LaunchMode.externalApplication)) {
               ScaffoldMessenger.of(context).showSnackBar(

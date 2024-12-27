@@ -40,6 +40,10 @@ class _ProviderCardState extends State<ProviderCard>
   final Map<String, String?> _errors = {};
   final _formKey = GlobalKey<FormState>();
 
+  List<Parameter> get _validParameters =>
+      widget.provider.parameters?.where((param) => param != null).toList() ??
+      [];
+
   @override
   void initState() {
     super.initState();
@@ -51,7 +55,9 @@ class _ProviderCardState extends State<ProviderCard>
       parent: _controller,
       curve: Curves.easeInOut,
     );
-    for (var param in widget.provider.parameters) {
+
+    // Only initialize controllers for non-null parameters
+    for (var param in _validParameters) {
       _controllers[param.name] = TextEditingController();
       _errors[param.name] = null;
     }
@@ -113,8 +119,9 @@ class _ProviderCardState extends State<ProviderCard>
     if (_isLoading) return;
     final l10n = AppLocalizations.of(context)!;
     bool isValid = true;
+
     setState(() {
-      for (var param in widget.provider.parameters) {
+      for (var param in _validParameters) {
         final error = _validateField(param, _controllers[param.name]?.text);
         _errors[param.name] = error;
         if (error != null) {
@@ -130,7 +137,7 @@ class _ProviderCardState extends State<ProviderCard>
 
     try {
       final Map<String, dynamic> body = {};
-      for (var param in widget.provider.parameters) {
+      for (var param in _validParameters) {
         body[param.name] = _controllers[param.name]?.text ?? '';
       }
       body['provider'] = widget.provider.name;
@@ -168,6 +175,11 @@ class _ProviderCardState extends State<ProviderCard>
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
+
+    // If parameters is null or empty, don't build the card
+    if (_validParameters.isEmpty) {
+      return const SizedBox.shrink();
+    }
 
     Widget content = Padding(
       padding: const EdgeInsets.only(bottom: 12.0),
@@ -250,8 +262,8 @@ class _ProviderCardState extends State<ProviderCard>
             child: Form(
               key: _formKey,
               child: Column(
-                children: widget.provider.parameters.map((param) {
-                  bool isLastParam = widget.provider.parameters.last == param;
+                children: _validParameters.map((param) {
+                  bool isLastParam = _validParameters.last == param;
                   return _buildParameterRow(param, isLastParam, l10n);
                 }).toList(),
               ),
