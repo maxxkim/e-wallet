@@ -2,7 +2,6 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:bloc_test/bloc_test.dart';
 import 'package:mockito/mockito.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:intl/intl.dart';
 import 'package:zippy/domain/model/transaction/transaction_model.dart';
 import 'package:zippy/domain/state/dashboard/dashboard_state.dart';
 import 'package:zippy/presentation/bloc/dashboard/dashboard_cubit.dart';
@@ -15,7 +14,6 @@ void main() {
 
   // Get current month for test data
   final currentDate = DateTime.now();
-  final currentMonth = DateFormat('MMMM').format(currentDate);
 
   final testTransactions = [
     Transaction(

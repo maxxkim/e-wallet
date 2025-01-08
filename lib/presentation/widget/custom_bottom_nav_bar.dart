@@ -5,7 +5,6 @@ import 'package:go_router/go_router.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:zippy/domain/state/navigation/navigation_state.dart';
 import 'package:zippy/presentation/bloc/navigation/navigation_cubit.dart';
-import 'package:zippy/presentation/theme/app_theme.dart';
 
 class CustomBottomNavBar extends StatelessWidget {
   const CustomBottomNavBar({Key? key}) : super(key: key);

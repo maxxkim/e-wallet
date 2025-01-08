@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:go_router/go_router.dart';
 import 'package:zippy/domain/model/top_up/provider_model.dart';
 import 'package:zippy/presentation/screen/topUp/widgets/provider_card.dart';
 import 'package:zippy/presentation/bloc/topUp/top_up_cubit.dart';
@@ -18,8 +17,6 @@ class ProviderList extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final router = GoRouter.of(context);
-
     return ListView.builder(
       shrinkWrap: true,
       physics: const NeverScrollableScrollPhysics(),

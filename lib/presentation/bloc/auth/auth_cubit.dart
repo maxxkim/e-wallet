@@ -109,9 +109,7 @@ class AuthCubit extends Cubit<AuthState> {
         case DioExceptionType.unknown:
           return 'Unknown error occurred';
         case DioExceptionType.badCertificate:
-        // TODO: Handle this case.
         case DioExceptionType.connectionError:
-        // TODO: Handle this case.
       }
     }
     return error.toString();
