@@ -8,12 +8,19 @@ class LocaleCubit extends Cubit<Locale> {
   }
 
   static const String _localeKey = 'selected_locale';
+  static const List<String> _supportedLocales = ['en', 'es'];
 
   Future<void> _loadSavedLocale() async {
     final prefs = await SharedPreferences.getInstance();
     final savedLocale = prefs.getString(_localeKey);
-    if (savedLocale != null) {
+
+    // Check if saved locale is supported
+    if (savedLocale != null && _supportedLocales.contains(savedLocale)) {
       emit(Locale(savedLocale));
+    } else {
+      // Default to 'en' for invalid locales
+      await prefs.setString(_localeKey, 'en');
+      emit(const Locale('en'));
     }
   }
 

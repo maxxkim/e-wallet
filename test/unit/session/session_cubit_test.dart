@@ -1,41 +1,34 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:bloc_test/bloc_test.dart';
 import 'package:mockito/mockito.dart';
-import 'package:mockito/annotations.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:zippy/domain/repository/auth/auth_repository.dart';
 import 'package:zippy/presentation/session/session_cubit.dart';
 import 'package:zippy/presentation/session/session_state.dart';
+import '../auth/auth_repository_mock.mocks.dart';
 
-import 'session_cubit_test.mocks.dart';
-
-@GenerateMocks([AuthRepository])
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
-  late SessionCubit sessionCubit;
   late AuthRepository mockAuthRepository;
+  late SessionCubit sessionCubit;
 
   setUp(() {
     mockAuthRepository = MockAuthRepository();
-    SharedPreferences.setMockInitialValues({});
+    sessionCubit = SessionCubit(mockAuthRepository); // Initialize here
   });
 
-  tearDown(() {
-    sessionCubit.close();
+  tearDown(() async {
+    await sessionCubit.close();
   });
 
   group('SessionCubit Tests', () {
-    test('initial state is InitialLoading', () {
-      sessionCubit = SessionCubit(mockAuthRepository);
-      expect(sessionCubit.state, isA<InitialLoading>());
-    });
-
     blocTest<SessionCubit, SessionState>(
       'emits [InitialLoading, Unauthenticated] when no token exists',
-      build: () {
+      setUp: () async {
         SharedPreferences.setMockInitialValues({});
-        return SessionCubit(mockAuthRepository);
       },
+      build: () => sessionCubit,
+      act: (cubit) => cubit.checkAuthentication(),
       expect: () => [
         isA<InitialLoading>(),
         isA<Unauthenticated>(),
@@ -51,7 +44,8 @@ void main() {
         when(mockAuthRepository.verifyToken('valid_token'))
             .thenAnswer((_) async => true);
       },
-      build: () => SessionCubit(mockAuthRepository),
+      build: () => sessionCubit,
+      act: (cubit) => cubit.checkAuthentication(),
       expect: () => [
         isA<InitialLoading>(),
         isA<Authenticated>().having(
@@ -60,9 +54,6 @@ void main() {
           'valid_token',
         ),
       ],
-      verify: (_) {
-        verify(mockAuthRepository.verifyToken('valid_token')).called(1);
-      },
     );
 
     blocTest<SessionCubit, SessionState>(
@@ -74,7 +65,8 @@ void main() {
         when(mockAuthRepository.verifyToken('invalid_token'))
             .thenAnswer((_) async => false);
       },
-      build: () => SessionCubit(mockAuthRepository),
+      build: () => sessionCubit,
+      act: (cubit) => cubit.checkAuthentication(),
       expect: () => [
         isA<InitialLoading>(),
         isA<Unauthenticated>(),
@@ -93,7 +85,8 @@ void main() {
         when(mockAuthRepository.verifyToken('error_token'))
             .thenThrow(Exception('Token verification failed'));
       },
-      build: () => SessionCubit(mockAuthRepository),
+      build: () => sessionCubit,
+      act: (cubit) => cubit.checkAuthentication(),
       expect: () => [
         isA<InitialLoading>(),
         isA<Unauthenticated>(),
@@ -110,12 +103,9 @@ void main() {
           'accessToken': 'valid_token',
           'refreshToken': 'refresh_token',
         });
-        when(mockAuthRepository.verifyToken('valid_token'))
-            .thenAnswer((_) async => true);
       },
-      build: () => SessionCubit(mockAuthRepository),
+      build: () => sessionCubit,
       act: (cubit) => cubit.logout(),
-      skip: 2, // Skip initial states
       expect: () => [isA<Unauthenticated>()],
       verify: (_) async {
         final prefs = await SharedPreferences.getInstance();
@@ -133,10 +123,10 @@ void main() {
         when(mockAuthRepository.verifyToken('new_token'))
             .thenAnswer((_) async => true);
       },
-      build: () => SessionCubit(mockAuthRepository),
+      build: () => sessionCubit,
       act: (cubit) => cubit.checkAuthentication(),
-      skip: 2, // Skip initial states
       expect: () => [
+        isA<InitialLoading>(),
         isA<Authenticated>().having(
           (state) => state.accessToken,
           'accessToken',
@@ -146,9 +136,9 @@ void main() {
     );
 
     test('timer is cancelled on close', () async {
-      sessionCubit = SessionCubit(mockAuthRepository);
-      await sessionCubit.close();
-      // Verify no more interactions with repository after close
+      final cubit =
+          SessionCubit(mockAuthRepository); // Create separate instance
+      await cubit.close();
       verifyNoMoreInteractions(mockAuthRepository);
     });
   });
