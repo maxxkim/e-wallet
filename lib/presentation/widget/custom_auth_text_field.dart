@@ -1,13 +1,20 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:mask_text_input_formatter/mask_text_input_formatter.dart';
 import 'package:zippy/presentation/bloc/locale/locale_cubit.dart';
+import 'package:zippy/domain/model/auth/country_model.dart';
 
 class AuthTextField extends StatelessWidget {
   final String label;
   final bool switchValue;
   final ValueChanged<bool> onSwitchChanged;
   final TextEditingController controller;
+  final MaskTextInputFormatter? maskFormatter;
+  final String? placeholder;
+  final CountryModel? selectedCountry;
+  final List<CountryModel> countries;
+  final ValueChanged<CountryModel?> onCountryChanged;
 
   const AuthTextField({
     Key? key,
@@ -15,12 +22,16 @@ class AuthTextField extends StatelessWidget {
     required this.switchValue,
     required this.onSwitchChanged,
     required this.controller,
+    this.maskFormatter,
+    this.placeholder,
+    required this.selectedCountry,
+    required this.countries,
+    required this.onCountryChanged,
   }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     final currentLocale = Localizations.localeOf(context);
-
     return Container(
       margin: const EdgeInsets.symmetric(vertical: 10),
       child: Column(
@@ -40,7 +51,6 @@ class AuthTextField extends StatelessWidget {
               ),
               Row(
                 children: [
-                  // Language switcher
                   GestureDetector(
                     onTap: () {
                       final newLocale = currentLocale.languageCode == 'en'
@@ -70,7 +80,6 @@ class AuthTextField extends StatelessWidget {
                       ),
                     ),
                   ),
-                  // Theme switcher
                   GestureDetector(
                     onTap: () => onSwitchChanged(!switchValue),
                     child: Container(
@@ -118,6 +127,7 @@ class AuthTextField extends StatelessWidget {
             height: 72.0,
             child: TextField(
               controller: controller,
+              inputFormatters: maskFormatter != null ? [maskFormatter!] : null,
               decoration: InputDecoration(
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(16.0),
@@ -128,7 +138,39 @@ class AuthTextField extends StatelessWidget {
                   borderSide: BorderSide(
                       color: Theme.of(context).colorScheme.secondary),
                 ),
-                hintText: "+ 66 (119) 345 97 90",
+                prefixIcon: Container(
+                  margin: const EdgeInsets.only(left: 16),
+                  child: Theme(
+                    data: Theme.of(context).copyWith(
+                      canvasColor: Theme.of(context).scaffoldBackgroundColor,
+                    ),
+                    child: DropdownButton<CountryModel>(
+                      value: selectedCountry,
+                      icon: const Icon(Icons.arrow_drop_down, size: 24),
+                      underline: const SizedBox(),
+                      items: countries.map((CountryModel country) {
+                        return DropdownMenuItem<CountryModel>(
+                          value: country,
+                          child: Container(
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Text(
+                                  country.flagEmoji,
+                                  style: const TextStyle(fontSize: 24),
+                                ),
+                              ],
+                            ),
+                          ),
+                        );
+                      }).toList(),
+                      onChanged: onCountryChanged,
+                    ),
+                  ),
+                ),
+                hintText: placeholder ??
+                    maskFormatter?.getMask() ??
+                    "+ 66 (119) 345 97 90",
                 hintStyle: Theme.of(context).textTheme.labelMedium,
                 contentPadding: const EdgeInsets.symmetric(
                     vertical: 20.0, horizontal: 16.0),

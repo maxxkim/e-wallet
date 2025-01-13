@@ -11,6 +11,7 @@ import 'package:zippy/data/api/api_transfer_initiate.dart';
 import 'package:zippy/data/api/api_verify_token.dart';
 import 'package:zippy/data/api/api_withdraw.dart';
 import 'package:zippy/data/api/api_withdrawal_initiate.dart';
+import 'package:zippy/domain/model/auth/country_model.dart';
 
 class ApiService {
   final Dio _dio = Dio();
@@ -193,5 +194,23 @@ class ApiService {
       },
     );
     return response.data;
+  }
+
+  Future<List<CountryModel>> getCountries() async {
+    try {
+      final response = await _dio
+          .get('https://auth-service-9jf3q.ondigitalocean.app/auth/countries');
+
+      if (response.statusCode == 200) {
+        final List<dynamic> countriesJson = response.data['countries'];
+        return countriesJson
+            .map((json) => CountryModel.fromJson(json))
+            .toList();
+      } else {
+        throw Exception('Failed to load countries');
+      }
+    } catch (e) {
+      throw Exception('Failed to load countries: $e');
+    }
   }
 }
