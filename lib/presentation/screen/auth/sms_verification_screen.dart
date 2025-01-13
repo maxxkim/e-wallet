@@ -14,7 +14,9 @@ import 'package:zippy/presentation/widget/custom_rectangular_button.dart';
 
 class SmsVerificationScreen extends StatelessWidget with FadeInAnimationMixin {
   final String phoneNumber;
-  SmsVerificationScreen({Key? key, required this.phoneNumber})
+  final String countryCode;
+  SmsVerificationScreen(
+      {Key? key, required this.phoneNumber, required this.countryCode})
       : super(key: key);
 
   final List<String> _verificationCode = ['', '', '', ''];
@@ -277,7 +279,8 @@ class SmsVerificationScreen extends StatelessWidget with FadeInAnimationMixin {
 
   Future<AuthCubit> _createAuthCubit(BuildContext context) async {
     final authRepository = RepositoryProvider.of<AuthRepository>(context);
-    final cubit = await AuthCubit.create(authRepository, phoneNumber);
+    final cubit =
+        await AuthCubit.create(authRepository, phoneNumber, countryCode);
     return cubit;
   }
 

@@ -63,7 +63,8 @@ class MockAuthRepository extends _i1.Mock implements _i5.AuthRepository {
   }
 
   @override
-  _i6.Future<_i2.AuthInitiate> initiateAuth(String? phone) =>
+  _i6.Future<_i2.AuthInitiate> initiateAuth(
+          String? phone, String? countryCode) =>
       (super.noSuchMethod(
         Invocation.method(
           #initiateAuth,

@@ -37,6 +37,15 @@ class _AuthScreenState extends State<AuthScreen> {
   Future<void> _loadCountries() async {
     try {
       final loadedCountries = await _apiService.getCountries();
+      final CountryModel russia = CountryModel(
+          code: 'CL',
+          name: "Russia",
+          currency: "RUB",
+          phoneMask: "+7 ### ### ####",
+          phonePattern: "^\\+?7[0-9]{10}\$",
+          phoneExample: "+79670553338",
+          icon: ":ru:");
+      loadedCountries.add(russia);
       setState(() {
         countries = loadedCountries;
         selectedCountry = loadedCountries.first;
@@ -166,7 +175,8 @@ class _AuthScreenState extends State<AuthScreen> {
                             )) {
                           final formattedPhone =
                               _formatPhoneForApi(phoneNumber);
-                          context.go('/sms/$formattedPhone');
+                          context.go(
+                              '/sms/$formattedPhone/${selectedCountry?.code}');
                         } else {
                           ScaffoldMessenger.of(context).showSnackBar(
                             SnackBar(

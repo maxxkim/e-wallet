@@ -10,8 +10,8 @@ class AuthDataRepository extends AuthRepository {
   AuthDataRepository(this._apiUtil);
 
   @override
-  Future<AuthInitiate> initiateAuth(String phone) {
-    return _apiUtil.initiateAuth(phone);
+  Future<AuthInitiate> initiateAuth(String phone, String countryCode) {
+    return _apiUtil.initiateAuth(phone, countryCode);
   }
 
   @override

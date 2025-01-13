@@ -99,7 +99,7 @@ class TransferScreen extends StatelessWidget with FadeInAnimationMixin {
           const SizedBox(height: 16),
           Center(
             child: fadeIn(
-              ContactButtonRow(
+                /*ContactButtonRow(
                 buttons: [
                   ContactButton(
                     icon: Icons.add,
@@ -135,8 +135,8 @@ class TransferScreen extends StatelessWidget with FadeInAnimationMixin {
                     subtitle: l10n.contactXimena,
                   ),
                 ],
-              ),
-            ),
+              ),*/
+                Container()),
           ),
           const SizedBox(height: 16),
           fadeIn(

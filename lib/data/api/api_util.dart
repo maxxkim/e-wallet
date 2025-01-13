@@ -37,8 +37,8 @@ class ApiUtil {
     return BalanceMapper.fromApi(result);
   }
 
-  Future<AuthInitiate> initiateAuth(String phone) async {
-    final result = await _apiService.initiateAuth(phone);
+  Future<AuthInitiate> initiateAuth(String phone, String countryCode) async {
+    final result = await _apiService.initiateAuth(phone, countryCode);
     return AuthInitiateMapper.fromApi(result);
   }
 

@@ -34,13 +34,13 @@ class ApiService {
     return ApiTransaction.fromApi(response.data);
   }
 
-  Future<ApiAuthInitiate> initiateAuth(String phone) async {
+  Future<ApiAuthInitiate> initiateAuth(String phone, String countryCode) async {
     String cleanedPhone = phone.replaceAll(RegExp(r'[^0-9]'), '');
     final response = await _dio.post(
       'https://auth-service-9jf3q.ondigitalocean.app/auth/initiate',
       data: {
         'phone': '+$cleanedPhone',
-        'currency': 'CLP',
+        'country': countryCode,
       },
     );
     return ApiAuthInitiate.fromApi(response.data);

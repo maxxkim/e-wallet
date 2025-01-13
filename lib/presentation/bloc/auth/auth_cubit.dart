@@ -56,16 +56,16 @@ class AuthCubit extends Cubit<AuthState> {
   }
 
   static Future<AuthCubit> create(
-      AuthRepository authRepository, String phone) async {
+      AuthRepository authRepository, String phone, String countryCode) async {
     final cubit = AuthCubit(authRepository);
-    await cubit.loadData(phone);
+    await cubit.loadData(phone, countryCode);
     return cubit;
   }
 
-  Future<void> loadData(String phone) async {
+  Future<void> loadData(String phone, String countryCode) async {
     try {
       final AuthInitiate authInitiate =
-          await _authRepository.initiateAuth(phone);
+          await _authRepository.initiateAuth(phone, countryCode);
       emit(AuthStateLoaded(
         phone: phone,
         userId: authInitiate.userId,

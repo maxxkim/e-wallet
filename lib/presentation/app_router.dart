@@ -92,13 +92,16 @@ final GoRouter appRouter = GoRouter(
       },
       routes: <RouteBase>[
         GoRoute(
-          path: 'sms/:phoneNumber',
+          path: 'sms/:phoneNumber/:countryCode',
           builder: (context, state) {
             try {
               final String phoneNumber = state.pathParameters['phoneNumber']!;
               return _authGuard2(
                 context,
-                SmsVerificationScreen(phoneNumber: phoneNumber),
+                SmsVerificationScreen(
+                  phoneNumber: phoneNumber,
+                  countryCode: state.pathParameters['countryCode'] ?? 'CL',
+                ),
               );
             } catch (e) {
               return ErrorScreen(errorMessage: _handleError(e));
