@@ -3,12 +3,14 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:zippy/domain/state/dashboard/dashboard_state.dart';
+import 'package:zippy/domain/state/transfer/contact_picker_state.dart';
 import 'package:zippy/presentation/animation/fade_animation_mixin.dart';
 import 'package:zippy/presentation/bloc/dashboard/dashboard_cubit.dart';
+import 'package:zippy/presentation/bloc/transfer/contact_picker_cubit.dart';
 import 'package:zippy/presentation/theme/app_theme.dart';
 
-class BalanceDisplay extends StatelessWidget with FadeInAnimationMixin {
-  const BalanceDisplay({Key? key}) : super(key: key);
+class TransferDisplay extends StatelessWidget with FadeInAnimationMixin {
+  const TransferDisplay({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -65,31 +67,46 @@ class BalanceDisplay extends StatelessWidget with FadeInAnimationMixin {
                 ),
                 const Spacer(),
                 fadeIn(
-                  Container(
-                    height: 48.0,
-                    width: double.infinity,
-                    decoration: BoxDecoration(
-                      gradient: Theme.of(context)
-                          .extension<ThemeGradients>()
-                          ?.darkBlueGradient,
-                      borderRadius: const BorderRadius.vertical(
-                        bottom: Radius.circular(16),
+                  GestureDetector(
+                    onTap: () async {
+                      try {
+                        await context.read<ContactPickerCubit>().pickContact();
+                      } catch (e) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text('Error accessing contacts: $e'),
+                            backgroundColor:
+                                Theme.of(context).colorScheme.error,
+                          ),
+                        );
+                      }
+                    },
+                    child: Container(
+                      height: 48.0,
+                      width: double.infinity,
+                      decoration: BoxDecoration(
+                        gradient: Theme.of(context)
+                            .extension<ThemeGradients>()
+                            ?.darkBlueGradient,
+                        borderRadius: const BorderRadius.vertical(
+                          bottom: Radius.circular(16),
+                        ),
                       ),
-                    ),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Text(
-                          l10n.dashboardSelectFromContacts,
-                          style: Theme.of(context).textTheme.displaySmall,
-                        ),
-                        const SizedBox(width: 8),
-                        const Icon(
-                          Icons.person,
-                          color: Colors.white,
-                          size: 24.0,
-                        ),
-                      ],
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Text(
+                            l10n.dashboardSelectFromContacts,
+                            style: Theme.of(context).textTheme.displaySmall,
+                          ),
+                          const SizedBox(width: 8),
+                          const Icon(
+                            Icons.person,
+                            color: Colors.white,
+                            size: 24.0,
+                          ),
+                        ],
+                      ),
                     ),
                   ),
                   delay: 200,

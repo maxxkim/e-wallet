@@ -80,8 +80,8 @@ class SmsVerificationScreen extends StatelessWidget with FadeInAnimationMixin {
                               delay: 300,
                             ),
                             const SizedBox(height: 184),
-                            _buildTermsSection(context, state, l10n),
-                            const SizedBox(height: 16),
+                            /*_buildTermsSection(context, state, l10n),
+                            const SizedBox(height: 16),*/
                             fadeIn(
                               Center(
                                 child: Text(
