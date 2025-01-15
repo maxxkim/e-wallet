@@ -37,7 +37,8 @@ class TopUpBalanceDisplay extends StatelessWidget with FadeInAnimationMixin {
                     ),
                     const SizedBox(width: 16),
                     Text(
-                      state.balance.toStringAsFixed(2),
+                      state.balance.toStringAsFixed(
+                          state.balance.toString().contains('.') ? 2 : 0),
                       style: Theme.of(context).textTheme.titleLarge,
                     )
                   ],

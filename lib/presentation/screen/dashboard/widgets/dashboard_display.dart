@@ -111,7 +111,13 @@ class _BalanceDisplayState extends State<BalanceDisplay>
                                 ),
                                 const SizedBox(width: 8.0),
                                 Text(
-                                  widget.balance?.toStringAsFixed(2) ?? '0.00',
+                                  widget.balance?.toStringAsFixed(widget.balance
+                                                  ?.toString()
+                                                  .contains('.') ??
+                                              false
+                                          ? 2
+                                          : 0) ??
+                                      '0',
                                   style: Theme.of(context)
                                       .textTheme
                                       .headlineMedium

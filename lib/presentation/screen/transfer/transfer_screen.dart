@@ -113,7 +113,7 @@ class TransferScreen extends StatelessWidget with FadeInAnimationMixin {
         children: staggeredFadeIn([
           fadeInFromTop(const TransferDisplay()),
           const SizedBox(height: 16),
-          Center(
+          /*Center(
             child: fadeIn(
               ContactButtonRow(
                 buttons: [
@@ -131,7 +131,7 @@ class TransferScreen extends StatelessWidget with FadeInAnimationMixin {
                 ],
               ),
             ),
-          ),
+          ),*/
           const SizedBox(height: 16),
           fadeIn(
             TransactionFormDisplay(
