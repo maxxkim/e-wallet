@@ -79,7 +79,7 @@ class SmsVerificationScreen extends StatelessWidget with FadeInAnimationMixin {
                               ),
                               delay: 300,
                             ),
-                            const SizedBox(height: 184),
+                            const SizedBox(height: 32),
                             /*_buildTermsSection(context, state, l10n),
                             const SizedBox(height: 16),*/
                             fadeIn(
@@ -92,8 +92,7 @@ class SmsVerificationScreen extends StatelessWidget with FadeInAnimationMixin {
                               ),
                               delay: 400,
                             ),
-                            const SizedBox(height: 16),
-                            fadeIn(
+                            /*fadeIn(
                               Padding(
                                 padding:
                                     const EdgeInsets.symmetric(horizontal: 40),
@@ -108,7 +107,7 @@ class SmsVerificationScreen extends StatelessWidget with FadeInAnimationMixin {
                                 ),
                               ),
                               delay: 500,
-                            ),
+                            ),*/
                           ]),
                         ),
                       ),

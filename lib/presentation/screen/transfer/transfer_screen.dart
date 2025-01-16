@@ -181,10 +181,10 @@ class TransferScreen extends StatelessWidget with FadeInAnimationMixin {
               textAlign: TextAlign.center,
               style: Theme.of(context).textTheme.titleMedium,
             ),
-            const SizedBox(height: 16),
+            const SizedBox(height: 32),
             ElevatedButton(
               onPressed: () => _handleRefresh(context),
-              child: Text(l10n.retry),
+              child: Text('Back'),
             ),
           ],
         ),

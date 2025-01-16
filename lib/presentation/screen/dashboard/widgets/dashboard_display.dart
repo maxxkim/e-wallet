@@ -1,5 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
@@ -12,9 +13,10 @@ import 'package:zippy/presentation/theme/app_theme.dart';
 
 class BalanceDisplay extends StatefulWidget {
   final num? balance;
+  final String currency = "CLP";
   final DashboardTranslations translations;
 
-  BalanceDisplay({super.key, this.balance, required this.translations, v});
+  BalanceDisplay({super.key, this.balance, required this.translations});
 
   @override
   State<BalanceDisplay> createState() => _BalanceDisplayState();
@@ -24,6 +26,39 @@ class _BalanceDisplayState extends State<BalanceDisplay>
     with FadeInAnimationMixin {
   bool _isUpdating = false;
   bool _isLoggingOut = false;
+
+  static final Map<String, IconData> currencyIcons = {
+    // Latin American Currencies
+    'clp': MdiIcons.currencyClp, // Chilean Peso
+    'ars': MdiIcons.currencyArs, // Argentine Peso
+    'brl': MdiIcons.currencyBrl, // Brazilian Real
+    'cop': MdiIcons.currencyCop, // Colombian Peso
+    'mxn': MdiIcons.currencyMxn, // Mexican Peso
+    'pen': MdiIcons.currencyPen, // Peruvian Sol
+    'uyu': MdiIcons.currencyUyu, // Uruguayan Peso
+    'vef': MdiIcons.currencyVef, // Venezuelan Bolívar
+
+    // Major World Currencies
+    'usd': MdiIcons.currencyUsd, // US Dollar
+    'eur': MdiIcons.currencyEur, // Euro
+    'gbp': MdiIcons.currencyGbp, // British Pound
+
+    // Cryptocurrencies
+    'btc': MdiIcons.currencyBtc, // Bitcoin
+    'eth': MdiIcons.currencyEth, // Ethereum
+    'bnb': MdiIcons.currencyBnb, // Binance Coin
+    'usdt': MdiIcons.currencyUsd, // Tether (using USD icon as fallback)
+    'xrp': MdiIcons.currencyXrp, // Ripple
+    'sol': MdiIcons.currencySol, // Solana
+    'ada': MdiIcons.currencyAda, // Cardano
+    'doge': MdiIcons.currencyDoge, // Dogecoin
+    'dot': MdiIcons.currencyDot, // Polkadot
+    'ltc': MdiIcons.currencyLtc, // Litecoin
+  };
+
+  IconData _getCurrencyIcon(String currencyCode) {
+    return currencyIcons[currencyCode.toLowerCase()] ?? MdiIcons.currencyUsd;
+  }
 
   Future<void> _updateBalance(BuildContext context) async {
     setState(() {
@@ -105,10 +140,10 @@ class _BalanceDisplayState extends State<BalanceDisplay>
                           children: [
                             Row(
                               children: [
-                                SvgPicture.asset(
-                                  'assets/images/dollar.svg',
-                                  height: 32.0,
-                                  width: 32.0,
+                                Icon(
+                                  _getCurrencyIcon(widget.currency),
+                                  size: 32,
+                                  color: Colors.white,
                                 ),
                                 const SizedBox(width: 8.0),
                                 Text(
@@ -128,7 +163,7 @@ class _BalanceDisplayState extends State<BalanceDisplay>
                                       ),
                                 ),
                                 const Spacer(),
-                                if (kDebugMode) // Only show in debug builds uwu
+                                if (kDebugMode)
                                   IconButton(
                                     icon: _isLoggingOut
                                         ? const SizedBox(
@@ -248,11 +283,7 @@ class _BalanceDisplayState extends State<BalanceDisplay>
                         child: Column(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            SvgPicture.asset(
-                              'assets/images/icon_qr.svg',
-                              height: 24.0,
-                              width: 24.0,
-                            ),
+                            const Icon(Icons.qr_code_scanner, size: 24),
                             const SizedBox(height: 4),
                             Text(
                               widget.translations.scan,
@@ -279,11 +310,7 @@ class _BalanceDisplayState extends State<BalanceDisplay>
                         child: Column(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            SvgPicture.asset(
-                              'assets/images/icon_transfer.svg',
-                              height: 24.0,
-                              width: 24.0,
-                            ),
+                            const Icon(Icons.swap_horiz, size: 24),
                             const SizedBox(height: 4),
                             Text(
                               widget.translations.transfer,
