@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -127,25 +128,26 @@ class _BalanceDisplayState extends State<BalanceDisplay>
                                       ),
                                 ),
                                 const Spacer(),
-                                IconButton(
-                                  icon: _isLoggingOut
-                                      ? const SizedBox(
-                                          width: 24,
-                                          height: 24,
-                                          child: CircularProgressIndicator(
-                                            strokeWidth: 2,
-                                            valueColor:
-                                                AlwaysStoppedAnimation<Color>(
-                                                    Colors.white),
-                                          ),
-                                        )
-                                      : const Icon(Icons.exit_to_app),
-                                  color:
-                                      Theme.of(context).scaffoldBackgroundColor,
-                                  onPressed: _isLoggingOut
-                                      ? null
-                                      : () => _handleLogout(context),
-                                ),
+                                if (kDebugMode) // Only show in debug builds uwu
+                                  IconButton(
+                                    icon: _isLoggingOut
+                                        ? const SizedBox(
+                                            width: 24,
+                                            height: 24,
+                                            child: CircularProgressIndicator(
+                                              strokeWidth: 2,
+                                              valueColor:
+                                                  AlwaysStoppedAnimation<Color>(
+                                                      Colors.white),
+                                            ),
+                                          )
+                                        : const Icon(Icons.exit_to_app),
+                                    color: Theme.of(context)
+                                        .scaffoldBackgroundColor,
+                                    onPressed: _isLoggingOut
+                                        ? null
+                                        : () => _handleLogout(context),
+                                  ),
                               ],
                             ),
                             Padding(

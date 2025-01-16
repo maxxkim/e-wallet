@@ -178,19 +178,25 @@ class DashboardCubit extends Cubit<DashboardState> {
 
   String _handleError(dynamic error) {
     if (error is DioException) {
+      if (error.response?.data != null &&
+          error.response?.data['status'] == 'error' &&
+          error.response?.data['message'] != null) {
+        return error.response?.data['message'];
+      }
+
       switch (error.type) {
         case DioExceptionType.connectionTimeout:
-          return 'Connection error. Please try again.';
+          return 'Connection error UwU. Please try again!';
         case DioExceptionType.sendTimeout:
-          return 'Send timeout exceeded.';
+          return 'Send timeout exceeded >w<';
         case DioExceptionType.receiveTimeout:
-          return 'Receive timeout exceeded.';
+          return 'Receive timeout exceeded nyaa~';
         case DioExceptionType.badResponse:
-          return 'Server error: ${error.response?.statusCode}.';
+          return 'Server error: ${error.response?.statusCode}';
         case DioExceptionType.cancel:
-          return 'Request cancelled.';
+          return 'Request cancelled ~(=^･ω･^)';
         default:
-          return 'An unknown error occurred.';
+          return 'An unknown error occurred ><';
       }
     }
     return error.toString();

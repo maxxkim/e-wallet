@@ -176,24 +176,30 @@ final GoRouter appRouter = GoRouter(
 
 String _handleError(dynamic error) {
   if (error is DioException) {
+    if (error.response?.data != null &&
+        error.response?.data['status'] == 'error' &&
+        error.response?.data['message'] != null) {
+      return '${error.response?.data['message']} (${error.response?.statusCode})';
+    }
+
     switch (error.type) {
       case DioExceptionType.connectionTimeout:
-        return 'Connection timeout occurred. Please check your internet connection.';
+        return 'Connection timeout occurred UwU. Please check your internet!';
       case DioExceptionType.sendTimeout:
-        return 'Send timeout exceeded. Please try again.';
+        return 'Send timeout exceeded >w<. Try again!';
       case DioExceptionType.receiveTimeout:
-        return 'Receive timeout exceeded. Please try again.';
+        return 'Receive timeout exceeded. Nyaa~ please try again!';
       case DioExceptionType.badResponse:
-        return 'Server error: ${error.response?.statusCode}. Please try again later.';
+        return 'Server error: ${error.response?.statusCode}. Gomenasai!';
       case DioExceptionType.cancel:
-        return 'Request was cancelled. Please try again.';
+        return 'Request was cancelled. Nya~';
       case DioExceptionType.unknown:
         if (error.error is String) {
           return error.error as String;
         }
-        return 'An unexpected error occurred. Please try again.';
+        return 'An unexpected error occurred UwU. Please try again!';
       default:
-        return 'An error occurred. Please try again.';
+        return 'An error occurred >_<. Please try again!';
     }
   }
   return error.toString();

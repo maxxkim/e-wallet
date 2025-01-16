@@ -86,7 +86,6 @@ class TransferScreen extends StatelessWidget with FadeInAnimationMixin {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: Text(l10n.transferRecipientNotFound),
-              backgroundColor: Theme.of(context).colorScheme.error,
             ),
           );
         });

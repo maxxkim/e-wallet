@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:zippy/presentation/bloc/transfer/transfer_cubit.dart';
 import 'package:zippy/presentation/theme/app_theme.dart';
 import 'package:zippy/presentation/widget/custom_text_field.dart';
@@ -17,8 +18,10 @@ class TransactionFormDisplay extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+
     return Container(
-      height: 252,
+      height: 268,
       decoration: BoxDecoration(
         color: Theme.of(context).colorScheme.tertiaryContainer,
         borderRadius: BorderRadius.circular(16),
@@ -34,12 +37,13 @@ class TransactionFormDisplay extends StatelessWidget {
               children: [
                 CustomTextField(
                   controller: emailController,
-                  labelText: 'Mobile number or Email',
+                  labelText: l10n.transferMobileNumberLabel,
+                  keyboardType: TextInputType.numberWithOptions(),
                 ),
                 const SizedBox(height: 16),
                 CustomTextField(
                   controller: amountController,
-                  labelText: 'Amount',
+                  labelText: l10n.transferAmountLabel,
                   keyboardType: TextInputType.numberWithOptions(decimal: true),
                   icon: Padding(
                     padding: const EdgeInsets.all(12.0),
@@ -61,7 +65,8 @@ class TransactionFormDisplay extends StatelessWidget {
               children: [
                 Expanded(
                   child: Text(
-                    "To transfer the amount of ${amountController.text}\nto the number ${emailController.text}, press continue.",
+                    l10n.transferConfirmationText(
+                        amountController.text, emailController.text),
                     style: Theme.of(context).textTheme.bodyMedium,
                     maxLines: 6,
                     overflow: TextOverflow.ellipsis,
@@ -92,8 +97,8 @@ class TransactionFormDisplay extends StatelessWidget {
                   });
                 } else {
                   ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Text('Please fill in all fields UwU'),
+                    SnackBar(
+                      content: Text(l10n.transferFillFieldsError),
                       backgroundColor: Colors.red,
                     ),
                   );
@@ -103,7 +108,7 @@ class TransactionFormDisplay extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Text(
-                    "Continue",
+                    l10n.transferContinueButton,
                     style: Theme.of(context).textTheme.displaySmall,
                   ),
                 ],

@@ -103,6 +103,7 @@ class _TransactionTileState extends State<TransactionTile>
                     style: getColor(widget.transaction.type),
                   ),
                   const SizedBox(width: 8.0),
+                  _buildStatusIcon(),
                 ],
               ),
             ),
@@ -220,6 +221,38 @@ class _TransactionTileState extends State<TransactionTile>
         ),
       ),
     );
+  }
+
+  Widget _buildStatusIcon() {
+    final Color iconColor = Theme.of(context).colorScheme.primary;
+
+    switch (widget.transaction.status.toLowerCase()) {
+      case 'completed':
+        return Icon(
+          Icons.check_circle,
+          size: 24.0,
+          color: iconColor,
+        );
+      case 'pending':
+        return Icon(
+          Icons.schedule,
+          size: 24.0,
+          color: iconColor,
+        );
+      case 'error':
+      case 'failed':
+        return Icon(
+          Icons.cancel,
+          size: 24.0,
+          color: iconColor,
+        );
+      default:
+        return Icon(
+          Icons.error_outline,
+          size: 24.0,
+          color: iconColor,
+        );
+    }
   }
 
   Widget _buildActionButton(

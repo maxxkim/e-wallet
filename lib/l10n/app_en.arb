@@ -158,5 +158,16 @@
     "navHistory": "History",
     "navTransfer": "Transfer",
     "navOffers": "Offers",
-    "navSupport": "Support"
+    "navSupport": "Support",
+    "transferMobileNumberLabel": "Mobile number",
+    "transferAmountLabel": "Amount",
+    "transferFillFieldsError": "Please fill in all fields UwU",
+    "transferContinueButton": "Continue",
+    "transferConfirmationText": "To transfer the amount of {amount}\nto the number {phone}, press continue.",
+    "@transferConfirmationText": {
+        "placeholders": {
+        "amount": {},
+        "phone": {}
+        }
+    }
 }
