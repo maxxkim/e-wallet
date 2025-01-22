@@ -29,14 +29,10 @@ class _BalanceDisplayState extends State<BalanceDisplay>
 
   static final Map<String, IconData> currencyIcons = {
     // Latin American Currencies
-    'clp': MdiIcons.currencyClp, // Chilean Peso
-    'ars': MdiIcons.currencyArs, // Argentine Peso
+    'clp': MdiIcons.currencyUsd, // Chilean Peso
+    'ars': MdiIcons.currencyUsd, // Argentine Peso
     'brl': MdiIcons.currencyBrl, // Brazilian Real
-    'cop': MdiIcons.currencyCop, // Colombian Peso
-    'mxn': MdiIcons.currencyMxn, // Mexican Peso
-    'pen': MdiIcons.currencyPen, // Peruvian Sol
-    'uyu': MdiIcons.currencyUyu, // Uruguayan Peso
-    'vef': MdiIcons.currencyVef, // Venezuelan Bolívar
+    'pen': MdiIcons.currencyUsd, // Peruvian Sol
 
     // Major World Currencies
     'usd': MdiIcons.currencyUsd, // US Dollar
@@ -46,14 +42,7 @@ class _BalanceDisplayState extends State<BalanceDisplay>
     // Cryptocurrencies
     'btc': MdiIcons.currencyBtc, // Bitcoin
     'eth': MdiIcons.currencyEth, // Ethereum
-    'bnb': MdiIcons.currencyBnb, // Binance Coin
     'usdt': MdiIcons.currencyUsd, // Tether (using USD icon as fallback)
-    'xrp': MdiIcons.currencyXrp, // Ripple
-    'sol': MdiIcons.currencySol, // Solana
-    'ada': MdiIcons.currencyAda, // Cardano
-    'doge': MdiIcons.currencyDoge, // Dogecoin
-    'dot': MdiIcons.currencyDot, // Polkadot
-    'ltc': MdiIcons.currencyLtc, // Litecoin
   };
 
   IconData _getCurrencyIcon(String currencyCode) {
