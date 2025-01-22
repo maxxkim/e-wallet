@@ -112,25 +112,19 @@ class TransferScreen extends StatelessWidget with FadeInAnimationMixin {
         children: staggeredFadeIn([
           fadeInFromTop(const TransferDisplay()),
           const SizedBox(height: 16),
-          /*Center(
+          Center(
             child: fadeIn(
               ContactButtonRow(
                 buttons: [
                   ContactButton(
                     icon: Icons.add,
                     subtitle: l10n.transferNewContact,
-                  ),
-                  ContactButton(
-                    icon: Icons.person,
-                    subtitle: l10n.transferNewTransaction,
-                    /*onTap: () {
-                      context.read<ContactPickerCubit>().pickContact();
-                    },*/
+                    onTap: () => context.go('/dashboard/contacts'),
                   ),
                 ],
               ),
             ),
-          ),*/
+          ),
           const SizedBox(height: 16),
           fadeIn(
             TransactionFormDisplay(

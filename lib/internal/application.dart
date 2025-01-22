@@ -9,14 +9,17 @@ import 'package:zippy/data/repository/dashboard/dashboard_data_repository.dart';
 import 'package:zippy/data/repository/qr/qr_payment_data_repository.dart';
 import 'package:zippy/data/repository/transfer/transfer_data_repository.dart';
 import 'package:zippy/data/repository/withdrawal/withdrawal_data_repository.dart';
+import 'package:zippy/data/repository/contacts/contacts_data_repository.dart';
 import 'package:zippy/domain/repository/auth/auth_repository.dart';
 import 'package:zippy/domain/repository/dashboard/dashboard_repository.dart';
 import 'package:zippy/domain/repository/qr/qr_payment_repository.dart';
 import 'package:zippy/domain/repository/transfer/transfer_repository.dart';
 import 'package:zippy/domain/repository/withdrawal/withdrawal_repository.dart';
+import 'package:zippy/domain/repository/contacts/contacts_repository.dart';
 import 'package:zippy/presentation/app_router.dart';
 import 'package:zippy/presentation/bloc/locale/locale_cubit.dart';
 import 'package:zippy/presentation/bloc/navigation/navigation_cubit.dart';
+import 'package:zippy/presentation/bloc/contacts/contacts_cubit.dart';
 import 'package:zippy/presentation/session/session_cubit.dart';
 import 'package:zippy/presentation/theme/app_theme.dart';
 import 'package:zippy/presentation/theme/app_theme_dark.dart';
@@ -74,6 +77,11 @@ class ZippyApp extends StatelessWidget {
               RepositoryProvider.of<ApiUtil>(context),
             ),
           ),
+          RepositoryProvider<ContactsRepository>(
+            create: (context) => ContactsDataRepository(
+              RepositoryProvider.of<ApiUtil>(context),
+            ),
+          ),
         ],
         child: MultiBlocProvider(
           providers: [
@@ -87,6 +95,11 @@ class ZippyApp extends StatelessWidget {
             ),
             BlocProvider(
               create: (context) => LocaleCubit(),
+            ),
+            BlocProvider(
+              create: (context) => ContactsCubit(
+                RepositoryProvider.of<ContactsRepository>(context),
+              ),
             ),
           ],
           child: Builder(

@@ -8,10 +8,10 @@ import 'package:zippy/presentation/screen/dashboard/dashboard_screen.dart';
 import 'package:zippy/presentation/screen/error_screen.dart';
 import 'package:zippy/presentation/screen/history/history_screen.dart';
 import 'package:zippy/presentation/screen/payment/payment_info_screen.dart';
-//import 'package:zippy/presentation/screen/payment/payment_screen.dart';
 import 'package:zippy/presentation/screen/topUp/top_up_screen.dart';
 import 'package:zippy/presentation/screen/transfer/transfer_screen.dart';
 import 'package:zippy/presentation/screen/withdrawal/withdrawal_screen.dart';
+import 'package:zippy/presentation/screen/contacts/contacts_screen.dart';
 import 'package:zippy/presentation/session/session_cubit.dart';
 import 'package:zippy/presentation/session/session_state.dart';
 import 'package:zippy/domain/repository/dashboard/dashboard_repository.dart';
@@ -154,18 +154,19 @@ final GoRouter appRouter = GoRouter(
             return _authGuard(context, const HistoryScreen());
           },
         ),
-        /*GoRoute(
-          path: 'payment',
-          builder: (BuildContext context, GoRouterState state) {
-            return _authGuard(context, PaymentScreen());
-          },
-        ),*/
         GoRoute(
-          path: 'transfer',
-          builder: (BuildContext context, GoRouterState state) {
-            return _authGuard(context, const TransferScreen());
-          },
-        ),
+            path: 'transfer',
+            builder: (BuildContext context, GoRouterState state) {
+              return _authGuard(context, const TransferScreen());
+            },
+            routes: [
+              GoRoute(
+                path: 'contacts',
+                builder: (BuildContext context, GoRouterState state) {
+                  return _authGuard(context, const ContactsScreen());
+                },
+              ),
+            ]),
       ],
     ),
   ],
@@ -179,9 +180,8 @@ String _handleError(dynamic error) {
     if (error.response?.data != null &&
         error.response?.data['status'] == 'error' &&
         error.response?.data['message'] != null) {
-      return '${error.response?.data['message']} (${error.response?.statusCode})';
+      return error.response?.data['message'];
     }
-
     switch (error.type) {
       case DioExceptionType.connectionTimeout:
         return 'Connection timeout occurred UwU. Please check your internet!';
