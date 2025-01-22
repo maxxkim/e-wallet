@@ -1,4 +1,5 @@
 import 'package:dio/dio.dart';
+import 'package:flutter_contacts/contact.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:zippy/data/api/api_auth_initiate.dart';
 import 'package:zippy/data/api/api_auth_refresh.dart';
@@ -12,6 +13,7 @@ import 'package:zippy/data/api/api_verify_token.dart';
 import 'package:zippy/data/api/api_withdraw.dart';
 import 'package:zippy/data/api/api_withdrawal_initiate.dart';
 import 'package:zippy/domain/model/auth/country_model.dart';
+import 'package:zippy/domain/model/contacts/contact_model.dart';
 
 class ApiService {
   final Dio _dio = Dio();
@@ -139,6 +141,40 @@ class ApiService {
       },
     );
     return ApiTransferInitiate.fromApi(response.data);
+  }
+
+  Future<List<ContactModel>> getContacts() async {
+    final response = await _dio.get('https://api.example.com/contacts');
+    return (response.data['contacts'] as List)
+        .map((json) => ContactModel.fromJson(json))
+        .toList();
+  }
+
+  Future<ContactModel> addContact(String phone, String? nickname) async {
+    final response = await _dio.post(
+      'https://api.example.com/contacts',
+      data: {
+        'phone': phone,
+        'nickname': nickname,
+      },
+    );
+    return ContactModel.fromJson(response.data);
+  }
+
+  Future<ContactModel> updateContact(
+      int id, String phone, String? nickname) async {
+    final response = await _dio.put(
+      'https://api.example.com/contacts/$id',
+      data: {
+        'phone': phone,
+        'nickname': nickname,
+      },
+    );
+    return ContactModel.fromJson(response.data);
+  }
+
+  Future<void> deleteContact(int id) async {
+    await _dio.delete('https://api.example.com/contacts/$id');
   }
 
   void _addTokenInterceptor() {

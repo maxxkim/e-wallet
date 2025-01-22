@@ -1,3 +1,4 @@
+import 'package:flutter_contacts/contact.dart';
 import 'package:zippy/data/api/service/api_service.dart';
 import 'package:zippy/data/mapper/auth/auth_initiate_mapper.dart';
 import 'package:zippy/data/mapper/auth/auth_refresh_mapper.dart';
@@ -13,6 +14,7 @@ import 'package:zippy/data/mapper/withdrawal/withdrawal_mapper.dart';
 import 'package:zippy/domain/model/auth/auth_inititate_model.dart';
 import 'package:zippy/domain/model/auth/auth_refresh_mode.dart';
 import 'package:zippy/domain/model/auth/auth_verify_model.dart';
+import 'package:zippy/domain/model/contacts/contact_model.dart';
 import 'package:zippy/domain/model/qr/payment_response_model.dart';
 import 'package:zippy/domain/model/qr/qr_payment_model.dart';
 import 'package:zippy/domain/model/top_up/top_up_initiate_model.dart';
@@ -95,5 +97,22 @@ class ApiUtil {
   Future<PaymentResponse> processPayment(String hash, double amount) async {
     final result = await _apiService.processPayment(hash, amount);
     return PaymentResponse.fromJson(result); // Now we can parse the result
+  }
+
+  Future<List<ContactModel>> getContacts() async {
+    return _apiService.getContacts();
+  }
+
+  Future<ContactModel> addContact(String phone, String? nickname) async {
+    return _apiService.addContact(phone, nickname);
+  }
+
+  Future<ContactModel> updateContact(
+      int id, String phone, String? nickname) async {
+    return _apiService.updateContact(id, phone, nickname);
+  }
+
+  Future<void> deleteContact(int id) async {
+    await _apiService.deleteContact(id);
   }
 }
