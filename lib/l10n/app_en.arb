@@ -169,5 +169,56 @@
         "amount": {},
         "phone": {}
         }
-    }
+    },
+    "contactsTitle": "Zentro Contacts",
+    "contactsAddNew": "Add New Contact",
+    "contactsMyContacts": "My Contacts",
+    "contactsDeleteConfirmTitle": "Delete Contact",
+    "contactsDeleteConfirmMessage": "Are you sure you want to delete {name}?",
+    "contactsCancel": "Cancel",
+    "contactsDelete": "Delete",
+    "contactsEdit": "Edit Contact",
+    "contactsSave": "Save",
+    "contactsPhone": "Phone",
+    "contactsName": "Name (Optional)",
+    "contactsDeleteConfirmTitle": "Delete Contact",
+    "@contactsDeleteConfirmTitle": {
+        "description": "Title of the confirmation dialog when deleting a contact"
+    },
+    "contactsDeleteConfirmMessage": "Are you sure you want to delete {name}?",
+    "@contactsDeleteConfirmMessage": {
+        "description": "Confirmation message when deleting a contact",
+        "placeholders": {
+        "name": {
+            "type": "String",
+            "example": "John Doe"
+        }
+        }
+    },
+    "contactsCopySuccess": "Contact details copied to clipboard! 📋",
+    "contactsCopyError": "Failed to copy: {error}",
+    "@contactsCopyError": {
+        "description": "Error message when copying contact details fails",
+        "placeholders": {
+        "error": {
+            "type": "String",
+            "example": "Permission denied"
+        }
+        }
+    },
+    "contactsShareSuccess": "Contact details shared successfully!",
+    "contactsShareError": "Failed to share: {error}",
+    "@contactsShareError": {
+        "description": "Error message when sharing contact details fails",
+        "placeholders": {
+        "error": {
+            "type": "String",
+            "example": "Permission denied"
+        }
+        }
+    },
+    "contactsEdit": "Edit",
+    "contactsDelete": "Remove",
+    "contactsCopy": "Copy",
+    "contactsShare": "Share"
 }

@@ -144,7 +144,8 @@ class ApiService {
   }
 
   Future<List<ContactModel>> getContacts() async {
-    final response = await _dio.get('https://api.example.com/contacts');
+    final response = await _dio.get(
+        'https://contact-service-w42s8.ondigitalocean.app/api/v1/contacts');
     return (response.data['contacts'] as List)
         .map((json) => ContactModel.fromJson(json))
         .toList();
@@ -152,7 +153,7 @@ class ApiService {
 
   Future<ContactModel> addContact(String phone, String? nickname) async {
     final response = await _dio.post(
-      'https://api.example.com/contacts',
+      'https://contact-service-w42s8.ondigitalocean.app/api/v1/contacts',
       data: {
         'phone': phone,
         'nickname': nickname,
@@ -163,10 +164,9 @@ class ApiService {
 
   Future<ContactModel> updateContact(
       int id, String phone, String? nickname) async {
-    final response = await _dio.put(
-      'https://api.example.com/contacts/$id',
+    final response = await _dio.patch(
+      'https://contact-service-w42s8.ondigitalocean.app/api/v1/contacts/$phone',
       data: {
-        'phone': phone,
         'nickname': nickname,
       },
     );
@@ -174,7 +174,8 @@ class ApiService {
   }
 
   Future<void> deleteContact(int id) async {
-    await _dio.delete('https://api.example.com/contacts/$id');
+    await _dio.delete(
+        'https://contact-service-w42s8.ondigitalocean.app/api/v1/contacts');
   }
 
   void _addTokenInterceptor() {

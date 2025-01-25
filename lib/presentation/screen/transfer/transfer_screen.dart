@@ -119,7 +119,7 @@ class TransferScreen extends StatelessWidget with FadeInAnimationMixin {
                   ContactButton(
                     icon: Icons.add,
                     subtitle: l10n.transferNewContact,
-                    onTap: () => context.go('/dashboard/contacts'),
+                    onTap: () => context.go('/dashboard/transfer/contacts'),
                   ),
                 ],
               ),

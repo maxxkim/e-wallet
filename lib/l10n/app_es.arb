@@ -171,5 +171,24 @@
         "amount": {},
         "phone": {}
         }
-    }
+    },
+    "contactsTitle": "Contactos Zentro",
+    "contactsAddNew": "Agregar Nuevo Contacto",
+    "contactsMyContacts": "Mis Contactos",
+    "contactsDeleteConfirmTitle": "Eliminar Contacto",
+    "contactsDeleteConfirmMessage": "¿Estás seguro que deseas eliminar a {name}?",
+    "contactsCancel": "Cancelar",
+    "contactsDelete": "Eliminar",
+    "contactsEdit": "Editar Contacto",
+    "contactsSave": "Guardar",
+    "contactsPhone": "Teléfono",
+    "contactsName": "Nombre (Opcional)",
+    "contactsCopySuccess": "¡Detalles del contacto copiados al portapapeles! 📋",
+    "contactsCopyError": "Error al copiar: {error}",
+    "contactsShareSuccess": "¡Detalles del contacto compartidos exitosamente!",
+    "contactsShareError": "Error al compartir: {error}",
+    "contactsEdit": "Editar",
+    "contactsDelete": "Eliminar",
+    "contactsCopy": "Copiar", 
+    "contactsShare": "Compartir"
 }

@@ -9,6 +9,7 @@ class ContactsCubit extends Cubit<ContactsState> {
   ContactsCubit(this._contactsRepository) : super(ContactsStateLoading());
 
   Future<void> loadContacts() async {
+    print(2);
     try {
       emit(ContactsStateLoading());
       final contacts = await _contactsRepository.getContacts();

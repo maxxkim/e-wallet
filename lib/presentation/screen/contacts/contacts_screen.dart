@@ -1,11 +1,12 @@
-// ./lib/presentation/screen/contacts/contacts_screen.dart
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:go_router/go_router.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:share_plus/share_plus.dart';
+import 'package:flutter/services.dart';
 import 'package:zippy/domain/model/contacts/contact_model.dart';
 import 'package:zippy/domain/state/contacts/contacts_state.dart';
 import 'package:zippy/presentation/bloc/contacts/contacts_cubit.dart';
+import 'package:zippy/presentation/screen/contacts/widgets/contact_tile.dart';
 import 'package:zippy/presentation/widget/custom_rectangular_button.dart';
 
 class ContactsScreen extends StatelessWidget {
@@ -14,69 +15,98 @@ class ContactsScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
-
-    return Scaffold(
-      appBar: AppBar(
-        backgroundColor: Theme.of(context).colorScheme.primary,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Colors.white),
-          onPressed: () => context.go('/dashboard/transfer'),
-        ),
-        title: Text(
-          'Contacts',
-          style: Theme.of(context).textTheme.displaySmall,
-        ),
-        centerTitle: true,
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.add, color: Colors.white),
-            onPressed: () => _showContactDialog(context),
+    return BlocProvider(
+      create: (context) =>
+          ContactsCubit(RepositoryProvider.of(context))..loadContacts(),
+      child: Builder(
+        builder: (context) => Scaffold(
+          appBar: AppBar(
+            backgroundColor: Colors.transparent,
+            toolbarHeight: 24,
           ),
-        ],
-      ),
-      body: BlocBuilder<ContactsCubit, ContactsState>(
-        builder: (context, state) {
-          if (state is ContactsStateLoading) {
-            return const Center(child: CircularProgressIndicator());
-          }
-
-          if (state is ContactsStateError) {
-            return Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Text(state.errorMessage),
-                  ElevatedButton(
-                    onPressed: () =>
-                        context.read<ContactsCubit>().loadContacts(),
-                    child: Text(l10n.retry),
-                  ),
-                ],
-              ),
-            );
-          }
-
-          if (state is ContactsStateLoaded) {
-            return ListView.builder(
-              itemCount: state.contacts.length,
-              itemBuilder: (context, index) {
-                final contact = state.contacts[index];
-                return _ContactTile(
-                  contact: contact,
-                  onEdit: () => _showContactDialog(context, contact: contact),
-                  onDelete: () => _showDeleteDialog(context, contact),
-                );
+          body: Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: BlocBuilder<ContactsCubit, ContactsState>(
+              builder: (context, state) {
+                if (state is ContactsStateLoading) {
+                  return const Center(child: CircularProgressIndicator());
+                }
+                if (state is ContactsStateError) {
+                  return Center(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Text(state.errorMessage),
+                        ElevatedButton(
+                          onPressed: () =>
+                              context.read<ContactsCubit>().loadContacts(),
+                          child: Text(l10n.retry),
+                        ),
+                      ],
+                    ),
+                  );
+                }
+                if (state is ContactsStateLoaded) {
+                  return Column(
+                    children: [
+                      const SizedBox(height: 24),
+                      Text(
+                        l10n.contactsTitle,
+                        style: Theme.of(context).textTheme.displayLarge,
+                        textAlign: TextAlign.center,
+                      ),
+                      const SizedBox(height: 24),
+                      Padding(
+                        padding: const EdgeInsets.only(left: 64.0, right: 64.0),
+                        child: RectangularButton(
+                          label: l10n.contactsAddNew,
+                          onPressed: () => _showContactDialog(context),
+                        ),
+                      ),
+                      const SizedBox(height: 32),
+                      Align(
+                        alignment: Alignment.centerLeft,
+                        child: Text(
+                          l10n.contactsMyContacts,
+                          style: Theme.of(context).textTheme.titleMedium,
+                        ),
+                      ),
+                      const SizedBox(height: 16),
+                      Expanded(
+                        child: ListView.builder(
+                          padding: const EdgeInsets.all(8),
+                          itemCount: state.contacts.length,
+                          itemBuilder: (context, index) {
+                            final contact = state.contacts[index];
+                            return Padding(
+                              padding: const EdgeInsets.only(bottom: 8.0),
+                              child: ContactTile(
+                                contact: contact,
+                                onEdit: () => _showContactDialog(context,
+                                    contact: contact),
+                                onDelete: () =>
+                                    _showDeleteDialog(context, contact),
+                                onShare: () => _shareContact(context, contact),
+                                onCopy: () => _copyContact(context, contact),
+                              ),
+                            );
+                          },
+                        ),
+                      ),
+                    ],
+                  );
+                }
+                return const SizedBox.shrink();
               },
-            );
-          }
-
-          return const SizedBox.shrink();
-        },
+            ),
+          ),
+        ),
       ),
     );
   }
 
   void _showContactDialog(BuildContext context, {ContactModel? contact}) {
+    final l10n = AppLocalizations.of(context)!;
     showDialog(
       context: context,
       builder: (context) => _ContactDialog(contact: contact),
@@ -84,65 +114,90 @@ class ContactsScreen extends StatelessWidget {
   }
 
   void _showDeleteDialog(BuildContext context, ContactModel contact) {
+    final l10n = AppLocalizations.of(context)!;
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Delete Contact'),
-        content: Text('Are you sure you want to delete ${contact.name}?'),
+        title: Text(l10n.contactsDeleteConfirmTitle),
+        content: Text(l10n.contactsDeleteConfirmMessage(contact.name)),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('Cancel'),
+            child: Text(l10n.contactsCancel),
           ),
           TextButton(
             onPressed: () {
               context.read<ContactsCubit>().deleteContact(contact.id);
               Navigator.pop(context);
             },
-            child: const Text('Delete'),
+            child: Text(l10n.contactsDelete),
           ),
         ],
       ),
     );
   }
-}
 
-class _ContactTile extends StatelessWidget {
-  final ContactModel contact;
-  final VoidCallback onEdit;
-  final VoidCallback onDelete;
-
-  const _ContactTile({
-    required this.contact,
-    required this.onEdit,
-    required this.onDelete,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return ListTile(
-      title: Text(contact.name),
-      subtitle: contact.nickname != null ? Text(contact.nickname!) : null,
-      trailing: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          IconButton(
-            icon: const Icon(Icons.edit),
-            onPressed: onEdit,
+  Future<void> _shareContact(BuildContext context, ContactModel contact) async {
+    try {
+      final shareText = '''
+Contact Details
+─────────────────
+Name: ${contact.name}
+${contact.nickname != null ? 'Nickname: ${contact.nickname}\n' : ''}Phone: ${contact.name}
+Country: ${contact.country}
+''';
+      await Share.share(shareText, subject: 'Contact Details');
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Contact details shared successfully!'),
           ),
-          IconButton(
-            icon: const Icon(Icons.delete),
-            onPressed: onDelete,
+        );
+      }
+    } catch (e) {
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Failed to share: $e'),
+            backgroundColor: Theme.of(context).colorScheme.error,
           ),
-        ],
-      ),
-    );
+        );
+      }
+    }
+  }
+
+  Future<void> _copyContact(BuildContext context, ContactModel contact) async {
+    try {
+      final textToCopy = '''
+Contact Details
+─────────────────
+Name: ${contact.name}
+${contact.nickname != null ? 'Nickname: ${contact.nickname}\n' : ''}Phone: ${contact.name}
+Country: ${contact.country}
+''';
+      await Clipboard.setData(ClipboardData(text: textToCopy));
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Contact details copied to clipboard! 📋'),
+          ),
+        );
+      }
+    } catch (e) {
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Failed to copy: $e'),
+            backgroundColor: Theme.of(context).colorScheme.error,
+          ),
+        );
+      }
+    }
   }
 }
 
 class _ContactDialog extends StatefulWidget {
   final ContactModel? contact;
-
   const _ContactDialog({this.contact});
 
   @override
@@ -169,22 +224,24 @@ class _ContactDialogState extends State<_ContactDialog> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return AlertDialog(
-      title: Text(widget.contact == null ? 'Add Contact' : 'Edit Contact'),
+      title: Text(
+          widget.contact == null ? l10n.contactsAddNew : l10n.contactsEdit),
       content: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
           TextField(
             controller: _phoneController,
-            decoration: const InputDecoration(
-              labelText: 'Phone',
+            decoration: InputDecoration(
+              labelText: l10n.contactsPhone,
             ),
           ),
           const SizedBox(height: 16),
           TextField(
             controller: _nameController,
-            decoration: const InputDecoration(
-              labelText: 'Name (Optional)',
+            decoration: InputDecoration(
+              labelText: l10n.contactsName,
             ),
           ),
         ],
@@ -192,10 +249,10 @@ class _ContactDialogState extends State<_ContactDialog> {
       actions: [
         TextButton(
           onPressed: () => Navigator.pop(context),
-          child: const Text('Cancel'),
+          child: Text(l10n.contactsCancel),
         ),
         RectangularButton(
-          label: 'Save',
+          label: l10n.contactsSave,
           onPressed: () {
             if (widget.contact == null) {
               context.read<ContactsCubit>().addContact(
