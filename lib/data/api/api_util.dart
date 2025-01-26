@@ -115,4 +115,9 @@ class ApiUtil {
   Future<void> deleteContact(int id) async {
     await _apiService.deleteContact(id);
   }
+
+  Future<List<ContactModel>> getRecentContacts() async {
+    final result = await _apiService.getRecentContacts();
+    return result;
+  }
 }

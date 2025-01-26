@@ -250,4 +250,12 @@ class ApiService {
       throw Exception('Failed to load countries: $e');
     }
   }
+
+  Future<List<ContactModel>> getRecentContacts() async {
+    final response = await _dio.get(
+        'https://contact-service-w42s8.ondigitalocean.app/api/v1/contacts/recent');
+    return (response.data['contacts'] as List)
+        .map((json) => ContactModel.fromJson(json))
+        .toList();
+  }
 }

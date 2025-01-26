@@ -39,11 +39,7 @@ class ContactButtonRow extends StatelessWidget {
                         child: CircleAvatar(
                           radius: 24,
                           backgroundColor: button.color ?? Colors.transparent,
-                          child: Icon(
-                            button.icon,
-                            size: 32,
-                            color: Colors.white,
-                          ),
+                          child: button.icon,
                         ),
                       ),
                       const SizedBox(height: 4),

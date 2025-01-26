@@ -7,6 +7,7 @@ import 'package:zippy/domain/model/contacts/contact_model.dart';
 import 'package:zippy/domain/state/contacts/contacts_state.dart';
 import 'package:zippy/presentation/bloc/contacts/contacts_cubit.dart';
 import 'package:zippy/presentation/screen/contacts/widgets/contact_tile.dart';
+import 'package:zippy/presentation/widget/custom_bottom_nav_bar.dart';
 import 'package:zippy/presentation/widget/custom_rectangular_button.dart';
 
 class ContactsScreen extends StatelessWidget {
@@ -100,6 +101,7 @@ class ContactsScreen extends StatelessWidget {
               },
             ),
           ),
+          bottomNavigationBar: const CustomBottomNavBar(),
         ),
       ),
     );
@@ -121,10 +123,6 @@ class ContactsScreen extends StatelessWidget {
         title: Text(l10n.contactsDeleteConfirmTitle),
         content: Text(l10n.contactsDeleteConfirmMessage(contact.name)),
         actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: Text(l10n.contactsCancel),
-          ),
           TextButton(
             onPressed: () {
               context.read<ContactsCubit>().deleteContact(contact.id);
@@ -247,10 +245,6 @@ class _ContactDialogState extends State<_ContactDialog> {
         ],
       ),
       actions: [
-        TextButton(
-          onPressed: () => Navigator.pop(context),
-          child: Text(l10n.contactsCancel),
-        ),
         RectangularButton(
           label: l10n.contactsSave,
           onPressed: () {

@@ -3,7 +3,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:zippy/domain/state/dashboard/dashboard_state.dart';
-import 'package:zippy/domain/state/transfer/contact_picker_state.dart';
 import 'package:zippy/presentation/animation/fade_animation_mixin.dart';
 import 'package:zippy/presentation/bloc/dashboard/dashboard_cubit.dart';
 import 'package:zippy/presentation/bloc/transfer/contact_picker_cubit.dart';

@@ -1,5 +1,7 @@
+// ./lib/presentation/screen/transfer/transfer_screen.dart
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_svg/svg.dart';
 import 'package:go_router/go_router.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:zippy/domain/repository/transfer/transfer_repository.dart';
@@ -13,9 +15,45 @@ import 'package:zippy/presentation/screen/payment/widgets/transaction_form_displ
 import 'package:zippy/presentation/widget/custom_bottom_nav_bar.dart';
 import 'package:zippy/presentation/widget/custom_contact_button.dart';
 import 'package:zippy/presentation/widget/custom_contact_button_row.dart';
+import 'package:zippy/domain/model/contacts/contact_model.dart';
 
-class TransferScreen extends StatelessWidget with FadeInAnimationMixin {
+class TransferScreen extends StatefulWidget {
   const TransferScreen({Key? key}) : super(key: key);
+
+  @override
+  State<TransferScreen> createState() => _TransferScreenState();
+}
+
+class _TransferScreenState extends State<TransferScreen>
+    with FadeInAnimationMixin {
+  List<ContactModel> recentContacts = [];
+  bool isLoading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadRecentContacts();
+  }
+
+  Future<void> _loadRecentContacts() async {
+    try {
+      final contacts = await RepositoryProvider.of<TransferRepository>(context)
+          .getRecentContacts();
+      setState(() {
+        recentContacts = contacts;
+        isLoading = false;
+      });
+    } catch (e) {
+      setState(() {
+        isLoading = false;
+      });
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error loading contacts: $e UwU')),
+        );
+      }
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -114,15 +152,31 @@ class TransferScreen extends StatelessWidget with FadeInAnimationMixin {
           const SizedBox(height: 16),
           Center(
             child: fadeIn(
-              ContactButtonRow(
-                buttons: [
-                  ContactButton(
-                    icon: Icons.add,
-                    subtitle: l10n.transferNewContact,
-                    onTap: () => context.go('/dashboard/transfer/contacts'),
-                  ),
-                ],
-              ),
+              isLoading
+                  ? const CircularProgressIndicator()
+                  : ContactButtonRow(
+                      buttons: [
+                        ContactButton(
+                          icon: SvgPicture.asset(
+                            'assets/images/icon_z.svg',
+                            height: 28.0,
+                            width: 28.0,
+                          ),
+                          subtitle: l10n.transferZentroContacts,
+                          onTap: () =>
+                              context.go('/dashboard/transfer/contacts'),
+                        ),
+                        ...recentContacts
+                            .map((contact) => ContactButton(
+                                  icon: const Icon(Icons.person),
+                                  subtitle: contact.nickname ?? contact.name,
+                                  onTap: () {
+                                    phoneController.text = contact.name;
+                                  },
+                                ))
+                            .toList(),
+                      ],
+                    ),
             ),
           ),
           const SizedBox(height: 16),
@@ -178,7 +232,7 @@ class TransferScreen extends StatelessWidget with FadeInAnimationMixin {
             const SizedBox(height: 32),
             ElevatedButton(
               onPressed: () => _handleRefresh(context),
-              child: Text('Back'),
+              child: Text(l10n.retry),
             ),
           ],
         ),
@@ -188,5 +242,6 @@ class TransferScreen extends StatelessWidget with FadeInAnimationMixin {
 
   Future<void> _handleRefresh(BuildContext context) async {
     await context.read<TransferCubit>().loadData();
+    await _loadRecentContacts();
   }
 }

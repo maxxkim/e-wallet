@@ -220,5 +220,6 @@
     "contactsEdit": "Edit",
     "contactsDelete": "Remove",
     "contactsCopy": "Copy",
-    "contactsShare": "Share"
+    "contactsShare": "Share",
+    "transferZentroContacts": "Zentro Contacts"
 }

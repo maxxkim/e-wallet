@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 
 class ContactButton {
   final Color? color;
-  final IconData? icon;
+  final Widget? icon;
   final String subtitle;
   final VoidCallback? onTap;
 

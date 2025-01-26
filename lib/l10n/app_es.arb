@@ -190,5 +190,6 @@
     "contactsEdit": "Editar",
     "contactsDelete": "Eliminar",
     "contactsCopy": "Copiar", 
-    "contactsShare": "Compartir"
+    "contactsShare": "Compartir",
+    "transferZentroContacts": "Contactos Zentro"
 }
