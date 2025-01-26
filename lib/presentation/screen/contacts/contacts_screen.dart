@@ -224,23 +224,23 @@ class _ContactDialogState extends State<_ContactDialog> {
   // Validation helper methods >w
   String? _validatePhone(String? value) {
     if (value == null || value.isEmpty) {
-      return 'Phone number is required UwU';
+      return 'Phone number is required';
     }
 
     // Validate phone format using regex kawaii~
     final phoneRegex = RegExp(r'^\+?[\d\s-]{8,}$');
     if (!phoneRegex.hasMatch(value)) {
-      return 'Please enter a valid phone number >_<';
+      return 'Please enter a valid phone number';
     }
     return null;
   }
 
   String? _validateName(String? value) {
     if (value == null || value.isEmpty) {
-      return 'Name is required nyaa~';
+      return 'Name is required ';
     }
     if (value.length < 2) {
-      return 'Name must be at least 2 characters UwU';
+      return 'Name must be at least 2 characters';
     }
     return null;
   }
