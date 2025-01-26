@@ -4,5 +4,5 @@ abstract class ContactsRepository {
   Future<List<ContactModel>> getContacts();
   Future<ContactModel> addContact(String phone, String? nickname);
   Future<ContactModel> updateContact(int id, String phone, String? nickname);
-  Future<void> deleteContact(int id);
+  Future<void> deleteContact(String phone);
 }

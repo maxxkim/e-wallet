@@ -173,9 +173,9 @@ class ApiService {
     return ContactModel.fromJson(response.data);
   }
 
-  Future<void> deleteContact(int id) async {
+  Future<void> deleteContact(String phone) async {
     await _dio.delete(
-        'https://contact-service-w42s8.ondigitalocean.app/api/v1/contacts');
+        'https://contact-service-w42s8.ondigitalocean.app/api/v1/contacts/$phone');
   }
 
   void _addTokenInterceptor() {

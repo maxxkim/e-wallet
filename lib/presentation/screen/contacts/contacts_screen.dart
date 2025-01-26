@@ -125,7 +125,7 @@ class ContactsScreen extends StatelessWidget {
         actions: [
           TextButton(
             onPressed: () {
-              context.read<ContactsCubit>().deleteContact(contact.id);
+              context.read<ContactsCubit>().deleteContact(contact.name);
               Navigator.pop(context);
             },
             child: Text(l10n.contactsDelete),
@@ -166,13 +166,7 @@ Country: ${contact.country}
 
   Future<void> _copyContact(BuildContext context, ContactModel contact) async {
     try {
-      final textToCopy = '''
-Contact Details
-─────────────────
-Name: ${contact.name}
-${contact.nickname != null ? 'Nickname: ${contact.nickname}\n' : ''}Phone: ${contact.name}
-Country: ${contact.country}
-''';
+      final textToCopy = contact.name;
       await Clipboard.setData(ClipboardData(text: textToCopy));
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -206,6 +200,13 @@ class _ContactDialogState extends State<_ContactDialog> {
   late TextEditingController _phoneController;
   late TextEditingController _nameController;
 
+  // Add form key for validation OwO
+  final _formKey = GlobalKey<FormState>();
+
+  // Error states for manual validation ^_^
+  String? _phoneError;
+  String? _nameError;
+
   @override
   void initState() {
     super.initState();
@@ -220,48 +221,106 @@ class _ContactDialogState extends State<_ContactDialog> {
     super.dispose();
   }
 
+  // Validation helper methods >w
+  String? _validatePhone(String? value) {
+    if (value == null || value.isEmpty) {
+      return 'Phone number is required UwU';
+    }
+
+    // Validate phone format using regex kawaii~
+    final phoneRegex = RegExp(r'^\+?[\d\s-]{8,}$');
+    if (!phoneRegex.hasMatch(value)) {
+      return 'Please enter a valid phone number >_<';
+    }
+    return null;
+  }
+
+  String? _validateName(String? value) {
+    if (value == null || value.isEmpty) {
+      return 'Name is required nyaa~';
+    }
+    if (value.length < 2) {
+      return 'Name must be at least 2 characters UwU';
+    }
+    return null;
+  }
+
+  void _validateAndSubmit() {
+    // Clear previous errors first ^.^
+    setState(() {
+      _phoneError = null;
+      _nameError = null;
+    });
+
+    // Validate both fields manually :3
+    final phoneError = _validatePhone(_phoneController.text);
+    final nameError = _validateName(_nameController.text);
+
+    if (phoneError != null || nameError != null) {
+      setState(() {
+        _phoneError = phoneError;
+        _nameError = nameError;
+      });
+      return;
+    }
+
+    // If validation passes, proceed with save ✨
+    if (widget.contact == null) {
+      context.read<ContactsCubit>().addContact(
+            _phoneController.text,
+            _nameController.text.isEmpty ? null : _nameController.text,
+          );
+    } else {
+      context.read<ContactsCubit>().updateContact(
+            widget.contact!.id,
+            _phoneController.text,
+            _nameController.text.isEmpty ? null : _nameController.text,
+          );
+    }
+    Navigator.pop(context);
+  }
+
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
     return AlertDialog(
       title: Text(
-          widget.contact == null ? l10n.contactsAddNew : l10n.contactsEdit),
-      content: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          TextField(
-            controller: _phoneController,
-            decoration: InputDecoration(
-              labelText: l10n.contactsPhone,
+        widget.contact == null ? l10n.contactsAddNew : l10n.contactsEdit,
+      ),
+      content: Form(
+        key: _formKey,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            TextField(
+              controller: _phoneController,
+              decoration: InputDecoration(
+                labelText: l10n.contactsPhone,
+                errorText: _phoneError,
+                // Add cute phone prefix icon ^_^
+                prefixIcon: const Icon(Icons.phone),
+              ),
+              keyboardType: TextInputType.phone,
             ),
-          ),
-          const SizedBox(height: 16),
-          TextField(
-            controller: _nameController,
-            decoration: InputDecoration(
-              labelText: l10n.contactsName,
+            const SizedBox(height: 16),
+            TextField(
+              controller: _nameController,
+              decoration: InputDecoration(
+                labelText: l10n.contactsName,
+                errorText: _nameError,
+                // Add kawaii person prefix icon >w
+                prefixIcon: const Icon(Icons.person),
+              ),
+              keyboardType: TextInputType.name,
+              textCapitalization: TextCapitalization.words,
             ),
-          ),
-        ],
+          ],
+        ),
       ),
       actions: [
         RectangularButton(
           label: l10n.contactsSave,
-          onPressed: () {
-            if (widget.contact == null) {
-              context.read<ContactsCubit>().addContact(
-                    _phoneController.text,
-                    _nameController.text.isEmpty ? null : _nameController.text,
-                  );
-            } else {
-              context.read<ContactsCubit>().updateContact(
-                    widget.contact!.id,
-                    _phoneController.text,
-                    _nameController.text.isEmpty ? null : _nameController.text,
-                  );
-            }
-            Navigator.pop(context);
-          },
+          onPressed: _validateAndSubmit,
         ),
       ],
     );

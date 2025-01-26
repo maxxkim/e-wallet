@@ -92,15 +92,26 @@ class _ContactTileState extends State<ContactTile>
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        Text(
-                          widget.contact.nickname ?? '',
-                          style: Theme.of(context).textTheme.bodyLarge,
+                        Expanded(
+                          flex: 2,
+                          child: Text(
+                            widget.contact.nickname ?? '',
+                            style: Theme.of(context).textTheme.bodyLarge,
+                            overflow: TextOverflow.ellipsis,
+                            maxLines: 1,
+                          ),
                         ),
-                        Text(
-                          widget.contact.name,
-                          style: Theme.of(context).textTheme.displayLarge,
-                          textAlign: TextAlign.end,
+                        Expanded(
+                          flex: 3,
+                          child: Text(
+                            widget.contact.name,
+                            style: Theme.of(context).textTheme.bodyLarge,
+                            textAlign: TextAlign.end,
+                            overflow: TextOverflow.ellipsis,
+                            maxLines: 1,
+                          ),
                         ),
+                        const SizedBox(width: 8),
                         SvgPicture.asset(
                           'assets/images/icon_wallet.svg',
                           height: 32.0,

@@ -23,7 +23,7 @@ class ContactsDataRepository extends ContactsRepository {
   }
 
   @override
-  Future<void> deleteContact(int id) {
-    return _apiUtil.deleteContact(id);
+  Future<void> deleteContact(String phone) {
+    return _apiUtil.deleteContact(phone);
   }
 }

@@ -26,43 +26,69 @@ class ContactsCubit extends Cubit<ContactsState> {
   }
 
   Future<void> addContact(String phone, String? nickname) async {
-    try {
-      emit(ContactsStateLoading());
-      await _contactsRepository.addContact(phone, nickname);
-      await loadContacts();
-    } catch (e) {
-      if (!isClosed) {
-        emit(ContactsStateError(
-          errorMessage: _handleError(e),
-        ));
+    if (state is ContactsStateLoaded) {
+      final currentContacts = (state as ContactsStateLoaded).contacts;
+      try {
+        final newContact =
+            await _contactsRepository.addContact(phone, nickname);
+        if (!isClosed) {
+          emit(ContactsStateLoaded(contacts: [...currentContacts, newContact]));
+        }
+      } catch (e) {
+        if (!isClosed) {
+          emit(ContactsStateError(
+            errorMessage: _handleError(e),
+          ));
+          // Restore previous state after error
+          emit(ContactsStateLoaded(contacts: currentContacts));
+        }
       }
     }
   }
 
   Future<void> updateContact(int id, String phone, String? nickname) async {
-    try {
-      emit(ContactsStateLoading());
-      await _contactsRepository.updateContact(id, phone, nickname);
-      await loadContacts();
-    } catch (e) {
-      if (!isClosed) {
-        emit(ContactsStateError(
-          errorMessage: _handleError(e),
-        ));
+    if (state is ContactsStateLoaded) {
+      final currentContacts = (state as ContactsStateLoaded).contacts;
+      try {
+        final updatedContact =
+            await _contactsRepository.updateContact(id, phone, nickname);
+        if (!isClosed) {
+          final updatedContacts = currentContacts
+              .map((contact) => contact.id == id ? updatedContact : contact)
+              .toList();
+          emit(ContactsStateLoaded(contacts: updatedContacts));
+        }
+      } catch (e) {
+        if (!isClosed) {
+          emit(ContactsStateError(
+            errorMessage: _handleError(e),
+          ));
+          // Restore previous state after error
+          emit(ContactsStateLoaded(contacts: currentContacts));
+        }
       }
     }
   }
 
-  Future<void> deleteContact(int id) async {
-    try {
-      emit(ContactsStateLoading());
-      await _contactsRepository.deleteContact(id);
-      await loadContacts();
-    } catch (e) {
-      if (!isClosed) {
-        emit(ContactsStateError(
-          errorMessage: _handleError(e),
-        ));
+  Future<void> deleteContact(String phone) async {
+    if (state is ContactsStateLoaded) {
+      final currentContacts = (state as ContactsStateLoaded).contacts;
+      try {
+        await _contactsRepository.deleteContact(phone);
+        if (!isClosed) {
+          final updatedContacts = currentContacts
+              .where((contact) => contact.name != phone)
+              .toList();
+          emit(ContactsStateLoaded(contacts: updatedContacts));
+        }
+      } catch (e) {
+        if (!isClosed) {
+          emit(ContactsStateError(
+            errorMessage: _handleError(e),
+          ));
+          // Restore previous state after error
+          emit(ContactsStateLoaded(contacts: currentContacts));
+        }
       }
     }
   }
