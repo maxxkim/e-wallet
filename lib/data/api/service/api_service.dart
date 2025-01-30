@@ -315,4 +315,19 @@ class ApiService {
 
     return [];
   }
+
+  Future<List<Offer>> getTopOffers(int limit) async {
+    final response = await _dio.get(
+      'https://offer-service-xn3b9.ondigitalocean.app/api/v1/offers/top',
+      queryParameters: {'limit': limit},
+    );
+
+    if (response.data['status'] == 'success' &&
+        response.data['offers'] != null) {
+      return (response.data['offers'] as List)
+          .map((json) => Offer.fromJson(json))
+          .toList();
+    }
+    return [];
+  }
 }

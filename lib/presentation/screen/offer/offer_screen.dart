@@ -1,12 +1,18 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:zippy/domain/model/offer/offer_model.dart';
+import 'package:zippy/domain/repository/offer/offer_repository.dart';
 import 'package:zippy/domain/state/offer/offer_state.dart';
 import 'package:zippy/presentation/animation/fade_animation_mixin.dart';
 import 'package:zippy/presentation/bloc/offer/offer_cubit.dart';
+import 'package:zippy/presentation/theme/app_theme.dart';
 import 'package:zippy/presentation/widget/custom_text_field.dart';
 import 'package:zippy/presentation/widget/custom_bottom_nav_bar.dart';
 import 'package:zippy/presentation/screen/offer/widgets/offer_tile.dart';
+
+enum OfferFilterType { category, merchant, discount }
 
 class OfferScreen extends StatelessWidget with FadeInAnimationMixin {
   const OfferScreen({Key? key}) : super(key: key);
@@ -32,6 +38,85 @@ class OfferScreen extends StatelessWidget with FadeInAnimationMixin {
                   ),
                 ),
               ),
+              const SizedBox(height: 16),
+              SizedBox(
+                height: 120,
+                child: FutureBuilder<List<Offer>>(
+                  future: RepositoryProvider.of<OfferRepository>(context)
+                      .getTopOffers(),
+                  builder: (context, snapshot) {
+                    if (snapshot.connectionState == ConnectionState.waiting) {
+                      return const Center(child: CircularProgressIndicator());
+                    }
+
+                    if (snapshot.hasError) {
+                      return const SizedBox.shrink();
+                    }
+
+                    final topOffers = snapshot.data ?? [];
+                    if (topOffers.isEmpty) {
+                      return const SizedBox.shrink();
+                    }
+
+                    return ListView.builder(
+                      scrollDirection: Axis.horizontal,
+                      itemCount: topOffers.length,
+                      itemBuilder: (context, index) {
+                        final offer = topOffers[index];
+                        return Padding(
+                          padding: const EdgeInsets.only(right: 8.0),
+                          child: ClipRRect(
+                            borderRadius: BorderRadius.circular(16.0),
+                            child: AspectRatio(
+                              aspectRatio: 16 / 9,
+                              child: Image.network(
+                                offer.image,
+                                fit: BoxFit.contain,
+                                loadingBuilder:
+                                    (context, child, loadingProgress) {
+                                  if (loadingProgress == null) return child;
+                                  return Container(
+                                    color: Theme.of(context)
+                                        .colorScheme
+                                        .tertiaryContainer,
+                                    child: Center(
+                                      child: CircularProgressIndicator(
+                                        value: loadingProgress
+                                                    .expectedTotalBytes !=
+                                                null
+                                            ? loadingProgress
+                                                    .cumulativeBytesLoaded /
+                                                loadingProgress
+                                                    .expectedTotalBytes!
+                                            : null,
+                                      ),
+                                    ),
+                                  );
+                                },
+                                errorBuilder: (context, error, stackTrace) {
+                                  return Container(
+                                    color: Theme.of(context)
+                                        .colorScheme
+                                        .primary
+                                        .withOpacity(0.1),
+                                    child: Icon(
+                                      Icons.error_outline,
+                                      color:
+                                          Theme.of(context).colorScheme.primary,
+                                    ),
+                                  );
+                                },
+                              ),
+                            ),
+                          ),
+                        );
+                      },
+                    );
+                  },
+                ),
+              ),
+              const SizedBox(height: 16),
+              _buildFilterButtons(context, l10n),
               const SizedBox(height: 16),
               Expanded(
                 child: BlocBuilder<OfferCubit, OfferState>(
@@ -98,7 +183,6 @@ class OfferScreen extends StatelessWidget with FadeInAnimationMixin {
                   )
                 : const SizedBox.shrink();
           }
-
           final offer = state.offers[index];
           return fadeIn(
             OfferTile(
@@ -144,5 +228,97 @@ class OfferScreen extends StatelessWidget with FadeInAnimationMixin {
         ),
       ),
     );
+  }
+
+  Widget _buildFilterButtons(BuildContext context, AppLocalizations l10n) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+      children: [
+        _buildFilterButton(
+          context,
+          l10n.offerFilterCategory,
+          OfferFilterType.category,
+          true,
+        ),
+        _buildFilterButton(
+          context,
+          l10n.offerFilterMerchant,
+          OfferFilterType.merchant,
+          false,
+        ),
+        _buildFilterButton(
+          context,
+          l10n.offerFilterDiscount,
+          OfferFilterType.discount,
+          false,
+        ),
+      ],
+    ).animate().fadeIn(
+          duration: const Duration(milliseconds: 300),
+        );
+  }
+
+  Widget _buildFilterButton(
+    BuildContext context,
+    String label,
+    OfferFilterType type,
+    bool isSelected,
+  ) {
+    const double buttonHeight = 40.0;
+    const double buttonWidth = 114.0;
+
+    return SizedBox(
+      width: buttonWidth,
+      height: buttonHeight,
+      child: isSelected
+          ? Container(
+              decoration: BoxDecoration(
+                gradient: Theme.of(context)
+                    .extension<ThemeGradients>()
+                    ?.darkBlueGradient,
+                borderRadius: BorderRadius.circular(32.0),
+              ),
+              child: FilledButton(
+                onPressed: () => _handleFilterTap(context, type),
+                style: ButtonStyle(
+                  padding: WidgetStateProperty.all(
+                    const EdgeInsets.symmetric(horizontal: 20.0),
+                  ),
+                  backgroundColor: WidgetStateProperty.all(Colors.transparent),
+                ),
+                child: Text(
+                  label,
+                  style: Theme.of(context).textTheme.displaySmall,
+                ),
+              ),
+            )
+          : OutlinedButton(
+              style: ButtonStyle(
+                side: WidgetStateProperty.all(
+                  BorderSide(color: Theme.of(context).colorScheme.secondary),
+                ),
+              ),
+              onPressed: () => _handleFilterTap(context, type),
+              child: Text(
+                label,
+                style: Theme.of(context).textTheme.bodySmall,
+              ),
+            ),
+    );
+  }
+
+  void _handleFilterTap(BuildContext context, OfferFilterType type) {
+    // Implement filter logic here UwU
+    switch (type) {
+      case OfferFilterType.category:
+        // Handle category filter
+        break;
+      case OfferFilterType.merchant:
+        // Handle merchant filter
+        break;
+      case OfferFilterType.discount:
+        // Handle discount filter
+        break;
+    }
   }
 }

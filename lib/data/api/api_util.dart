@@ -157,4 +157,9 @@ class ApiUtil {
     );
     return result;
   }
+
+  Future<List<Offer>> getTopOffers({int limit = 5}) async {
+    final result = await _apiService.getTopOffers(limit);
+    return result;
+  }
 }

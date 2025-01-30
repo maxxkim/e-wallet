@@ -42,4 +42,9 @@ class OfferDataRepository implements OfferRepository {
       filterType: filterType,
     );
   }
+
+  @override
+  Future<List<Offer>> getTopOffers({int limit = 5}) {
+    return _apiUtil.getTopOffers(limit: limit);
+  }
 }

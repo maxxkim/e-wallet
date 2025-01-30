@@ -220,5 +220,8 @@
     "offersBonus": "Bonus",
     "getOfferNow": "Get now!",
     "offerActivatedSuccess": "Offer activated successfully!",
-    "offerActivationError": "Failed to activate offer. Please try again."
+    "offerActivationError": "Failed to activate offer. Please try again.",
+    "offerFilterCategory": "Category",
+    "offerFilterMerchant": "Merchant",
+    "offerFilterDiscount": "Discount"
 }
