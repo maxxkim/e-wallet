@@ -15,6 +15,8 @@ import 'package:zippy/domain/model/auth/auth_inititate_model.dart';
 import 'package:zippy/domain/model/auth/auth_refresh_mode.dart';
 import 'package:zippy/domain/model/auth/auth_verify_model.dart';
 import 'package:zippy/domain/model/contacts/contact_model.dart';
+import 'package:zippy/domain/model/offer/activation_model.dart';
+import 'package:zippy/domain/model/offer/offer_model.dart';
 import 'package:zippy/domain/model/qr/payment_response_model.dart';
 import 'package:zippy/domain/model/qr/qr_payment_model.dart';
 import 'package:zippy/domain/model/top_up/top_up_initiate_model.dart';
@@ -118,6 +120,41 @@ class ApiUtil {
 
   Future<List<ContactModel>> getRecentContacts() async {
     final result = await _apiService.getRecentContacts();
+    return result;
+  }
+
+  Future<List<Activation>> getActivations({int limit = 20}) async {
+    final result = await _apiService.getActivations(limit);
+    return result;
+  }
+
+  Future<Activation> activateOffer(int offerId) async {
+    final result = await _apiService.activateOffer(offerId);
+    return result;
+  }
+
+  Future<List<Offer>> getOffers({
+    int page = 1,
+    int limit = 100,
+    String? search,
+    int? categoryId,
+    String? merchantId,
+    String? sortBy = 'desc',
+    String? filterFrom,
+    String? filterTo,
+    String? filterType,
+  }) async {
+    final result = await _apiService.getOffers(
+      page: page,
+      limit: limit,
+      search: search,
+      categoryId: categoryId,
+      merchantId: merchantId,
+      sortBy: sortBy,
+      filterFrom: filterFrom,
+      filterTo: filterTo,
+      filterType: filterType,
+    );
     return result;
   }
 }

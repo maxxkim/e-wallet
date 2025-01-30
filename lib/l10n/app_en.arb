@@ -5,7 +5,6 @@
     "signInButton": "Sign In",
     "invalidPhoneError": "Please enter a valid phone number",
     "termsAndSupport": "Terms & Conditions | Support",
-    
     "@_SMS_VERIFICATION": {},
     "smsVerificationSent": "We've sent a verification\ncode to",
     "smsVerificationCantReceive": "Can't receive a verification code?",
@@ -14,7 +13,6 @@
     "iAgree": "I agree to ",
     "termsOfUse": "Terms of Use",
     "continueButton": "Continue",
-
     "@_DASHBOARD": {},
     "refresh": "Refresh",
     "dashboardTopUp": "Top Up",
@@ -28,7 +26,6 @@
     "dashboardTransactionHistory": "Transaction History",
     "dashboardNoTransactions": "No transactions available",
     "dashboardViewAll": "View All",
-
     "@_MONTHS": {},
     "monthJanuary": "January",
     "monthFebruary": "February",
@@ -42,14 +39,12 @@
     "monthOctober": "October",
     "monthNovember": "November",
     "monthDecember": "December",
-
     "@_HISTORY": {},
     "historySearchHint": "Search transactions",
     "historyTotal": "Total",
     "historyExpense": "Expense",
     "historyIncome": "Income",
     "historyNoTransactions": "No transactions available",
-
     "@_TRANSACTIONS": {},
     "transactionId": "ID",
     "transactionAmount": "Amount",
@@ -153,8 +148,7 @@
         }
     },
     "operationError": "Operation failed: {error}",
-    "totalBalance":  "Total balance",
-
+    "totalBalance": "Total balance",
     "navHistory": "History",
     "navTransfer": "Transfer",
     "navOffers": "Offers",
@@ -166,8 +160,8 @@
     "transferConfirmationText": "To transfer the amount of {amount}\nto the number {phone}, press continue.",
     "@transferConfirmationText": {
         "placeholders": {
-        "amount": {},
-        "phone": {}
+            "amount": {},
+            "phone": {}
         }
     },
     "contactsTitle": "Zentro Contacts",
@@ -189,10 +183,10 @@
     "@contactsDeleteConfirmMessage": {
         "description": "Confirmation message when deleting a contact",
         "placeholders": {
-        "name": {
-            "type": "String",
-            "example": "John Doe"
-        }
+            "name": {
+                "type": "String",
+                "example": "John Doe"
+            }
         }
     },
     "contactsCopySuccess": "Contact details copied to clipboard! 📋",
@@ -200,10 +194,10 @@
     "@contactsCopyError": {
         "description": "Error message when copying contact details fails",
         "placeholders": {
-        "error": {
-            "type": "String",
-            "example": "Permission denied"
-        }
+            "error": {
+                "type": "String",
+                "example": "Permission denied"
+            }
         }
     },
     "contactsShareSuccess": "Contact details shared successfully!",
@@ -211,15 +205,17 @@
     "@contactsShareError": {
         "description": "Error message when sharing contact details fails",
         "placeholders": {
-        "error": {
-            "type": "String",
-            "example": "Permission denied"
-        }
+            "error": {
+                "type": "String",
+                "example": "Permission denied"
+            }
         }
     },
-    "contactsEdit": "Edit",
-    "contactsDelete": "Remove",
     "contactsCopy": "Copy",
     "contactsShare": "Share",
-    "transferZentroContacts": "Zentro Contacts"
+    "transferZentroContacts": "Zentro Contacts",
+    "offersSearchHint": "Search",
+    "offersNoData": "No offers available yet",
+    "offersDiscount": "OFF",
+    "offersBonus": "Bonus"
 }

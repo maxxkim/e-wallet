@@ -2,11 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:zippy/domain/model/transaction/transaction_model.dart';
+import 'package:zippy/domain/repository/offer/offer_repository.dart';
+import 'package:zippy/presentation/bloc/offer/offer_cubit.dart';
 import 'package:zippy/presentation/screen/auth/auth_screen.dart';
 import 'package:zippy/presentation/screen/auth/sms_verification_screen.dart';
 import 'package:zippy/presentation/screen/dashboard/dashboard_screen.dart';
 import 'package:zippy/presentation/screen/error_screen.dart';
 import 'package:zippy/presentation/screen/history/history_screen.dart';
+import 'package:zippy/presentation/screen/offer/offer_screen.dart';
 import 'package:zippy/presentation/screen/payment/payment_info_screen.dart';
 import 'package:zippy/presentation/screen/topUp/top_up_screen.dart';
 import 'package:zippy/presentation/screen/transfer/transfer_screen.dart';
@@ -167,6 +170,20 @@ final GoRouter appRouter = GoRouter(
                 },
               ),
             ]),
+        GoRoute(
+          path: 'offers',
+          builder: (BuildContext context, GoRouterState state) {
+            return _authGuard(
+              context,
+              BlocProvider(
+                create: (context) => OfferCubit(
+                  RepositoryProvider.of<OfferRepository>(context),
+                ),
+                child: const OfferScreen(),
+              ),
+            );
+          },
+        ),
       ],
     ),
   ],

@@ -22,10 +22,10 @@ class NavigationCubit extends Cubit<NavigationState> {
         router.go('/dashboard');
         break;
       case NavigationTab.offers:
-        // Handle offers navigation when implemented
+        router.go('/dashboard/offers');
         break;
       case NavigationTab.support:
-        // Support is handled via dialog, no navigation needed
+        // Handle support tab
         break;
     }
   }

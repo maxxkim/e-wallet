@@ -5,7 +5,6 @@
     "signInButton": "Iniciar sesión",
     "invalidPhoneError": "Por favor ingrese un número de teléfono válido",
     "termsAndSupport": "Términos y condiciones | Soporte",
-    
     "@_SMS_VERIFICATION": {},
     "smsVerificationSent": "Hemos enviado un código\nde verificación a",
     "smsVerificationCantReceive": "¿No puedes recibir el código?",
@@ -14,7 +13,6 @@
     "iAgree": "Estoy de acuerdo con los ",
     "termsOfUse": "Términos de uso",
     "continueButton": "Continuar",
-
     "@_DASHBOARD": {},
     "refresh": "Actualizar",
     "dashboardTopUp": "Recargar",
@@ -28,7 +26,6 @@
     "dashboardTransactionHistory": "Historial de transacciones",
     "dashboardNoTransactions": "No hay transacciones disponibles",
     "dashboardViewAll": "Ver todo",
-
     "@_MONTHS": {},
     "monthJanuary": "Enero",
     "monthFebruary": "Febrero",
@@ -42,14 +39,12 @@
     "monthOctober": "Octubre",
     "monthNovember": "Noviembre",
     "monthDecember": "Diciembre",
-
     "@_HISTORY": {},
     "historySearchHint": "Buscar transacciones",
     "historyTotal": "Total",
     "historyExpense": "Gastos",
     "historyIncome": "Ingresos",
     "historyNoTransactions": "No hay transacciones disponibles",
-
     "@_TRANSACTIONS": {},
     "transactionId": "ID",
     "transactionAmount": "Monto",
@@ -112,7 +107,6 @@
             }
         }
     },
-
     "@_WITHDRAWAL": {},
     "withdrawalTitle": "Retiro",
     "withdrawalLoading": "Cargando opciones de retiro...",
@@ -156,10 +150,10 @@
         }
     },
     "operationError": "La operación falló: {error}",
-    "totalBalance":  "Balance Total",
+    "totalBalance": "Balance Total",
     "navHistory": "Historial",
     "navTransfer": "Transferir",
-    "navOffers": "Ofertas", 
+    "navOffers": "Ofertas",
     "navSupport": "Ayuda",
     "transferMobileNumberLabel": "Número móvil",
     "transferAmountLabel": "Monto",
@@ -168,8 +162,8 @@
     "transferConfirmationText": "Para transferir el monto de {amount}\nal número {phone}, presione continuar.",
     "@transferConfirmationText": {
         "placeholders": {
-        "amount": {},
-        "phone": {}
+            "amount": {},
+            "phone": {}
         }
     },
     "contactsTitle": "Contactos Zentro",
@@ -179,7 +173,6 @@
     "contactsDeleteConfirmMessage": "¿Estás seguro que deseas eliminar a {name}?",
     "contactsCancel": "Cancelar",
     "contactsDelete": "Eliminar",
-    "contactsEdit": "Editar Contacto",
     "contactsSave": "Guardar",
     "contactsPhone": "Teléfono",
     "contactsName": "Nombre (Opcional)",
@@ -188,8 +181,11 @@
     "contactsShareSuccess": "¡Detalles del contacto compartidos exitosamente!",
     "contactsShareError": "Error al compartir: {error}",
     "contactsEdit": "Editar",
-    "contactsDelete": "Eliminar",
-    "contactsCopy": "Copiar", 
+    "contactsCopy": "Copiar",
     "contactsShare": "Compartir",
-    "transferZentroContacts": "Contactos Zentro"
+    "transferZentroContacts": "Contactos Zentro",
+    "offersSearchHint": "Buscar",
+    "offersNoData": "No hay ofertas disponibles",
+    "offersDiscount": "DCTO",
+    "offersBonus": "Bono"
 }

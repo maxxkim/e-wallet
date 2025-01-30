@@ -14,6 +14,8 @@ import 'package:zippy/data/api/api_withdraw.dart';
 import 'package:zippy/data/api/api_withdrawal_initiate.dart';
 import 'package:zippy/domain/model/auth/country_model.dart';
 import 'package:zippy/domain/model/contacts/contact_model.dart';
+import 'package:zippy/domain/model/offer/activation_model.dart';
+import 'package:zippy/domain/model/offer/offer_model.dart';
 
 class ApiService {
   final Dio _dio = Dio();
@@ -257,5 +259,60 @@ class ApiService {
     return (response.data['contacts'] as List)
         .map((json) => ContactModel.fromJson(json))
         .toList();
+  }
+
+  Future<List<Activation>> getActivations(int limit) async {
+    final response = await _dio.get(
+      'https://offer-service-xn3b9.ondigitalocean.app/api/v1/activations',
+      queryParameters: {'limit': limit},
+    );
+    return (response.data['activations'] as List)
+        .map((json) => Activation.fromJson(json))
+        .toList();
+  }
+
+  Future<Activation> activateOffer(int offerId) async {
+    final response = await _dio.post(
+      'https://offer-service-xn3b9.ondigitalocean.app/api/v1/activations/$offerId',
+    );
+    return Activation.fromJson(response.data['activation']);
+  }
+
+  Future<List<Offer>> getOffers({
+    int page = 1,
+    int limit = 100,
+    String? search,
+    int? categoryId,
+    String? merchantId,
+    String? sortBy = 'desc',
+    String? filterFrom,
+    String? filterTo,
+    String? filterType,
+  }) async {
+    final queryParams = {
+      'page': page,
+      'limit': limit,
+      if (search != null && search.isNotEmpty) 'search': search,
+      if (categoryId != null) 'category_id': categoryId,
+      if (merchantId != null) 'merchant_id': merchantId,
+      'sort_by': sortBy,
+      if (filterFrom != null) 'filter_from': filterFrom,
+      if (filterTo != null) 'filter_to': filterTo,
+      if (filterType != null) 'filter_type': filterType,
+    };
+
+    final response = await _dio.get(
+      'https://offer-service-xn3b9.ondigitalocean.app/api/v1/offers',
+      queryParameters: queryParams,
+    );
+
+    if (response.data['status'] == 'success' &&
+        response.data['offers'] != null) {
+      return (response.data['offers'] as List)
+          .map((json) => Offer.fromJson(json))
+          .toList();
+    }
+
+    return [];
   }
 }
