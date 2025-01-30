@@ -6,6 +6,7 @@ import 'package:zippy/presentation/animation/fade_animation_mixin.dart';
 import 'package:zippy/presentation/bloc/offer/offer_cubit.dart';
 import 'package:zippy/presentation/widget/custom_text_field.dart';
 import 'package:zippy/presentation/widget/custom_bottom_nav_bar.dart';
+import 'package:zippy/presentation/screen/offer/widgets/offer_tile.dart';
 
 class OfferScreen extends StatelessWidget with FadeInAnimationMixin {
   const OfferScreen({Key? key}) : super(key: key);
@@ -100,98 +101,11 @@ class OfferScreen extends StatelessWidget with FadeInAnimationMixin {
 
           final offer = state.offers[index];
           return fadeIn(
-            Card(
-              margin: const EdgeInsets.only(bottom: 8.0),
-              child: ListTile(
-                contentPadding: const EdgeInsets.all(16),
-                leading: ClipRRect(
-                  borderRadius: BorderRadius.circular(8),
-                  child: Image.network(
-                    offer.image,
-                    width: 60,
-                    height: 60,
-                    fit: BoxFit.cover,
-                    errorBuilder: (context, error, stackTrace) {
-                      return Container(
-                        width: 60,
-                        height: 60,
-                        color: Theme.of(context)
-                            .colorScheme
-                            .primary
-                            .withOpacity(0.1),
-                        child: Icon(
-                          Icons.error_outline,
-                          color: Theme.of(context).colorScheme.primary,
-                        ),
-                      );
-                    },
-                  ),
-                ),
-                title: Text(
-                  offer.title,
-                  style: Theme.of(context).textTheme.titleMedium,
-                ),
-                subtitle: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const SizedBox(height: 4),
-                    Text(
-                      offer.merchantName,
-                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                            color: Theme.of(context).colorScheme.secondary,
-                          ),
-                    ),
-                    const SizedBox(height: 4),
-                    Row(
-                      children: [
-                        if (offer.discount != "0.00") ...[
-                          Icon(
-                            Icons.local_offer,
-                            size: 16,
-                            color: Theme.of(context).colorScheme.primary,
-                          ),
-                          const SizedBox(width: 4),
-                          Text(
-                            '${offer.discount}% ${l10n.offersDiscount}',
-                            style: Theme.of(context)
-                                .textTheme
-                                .bodySmall
-                                ?.copyWith(
-                                  color: Theme.of(context).colorScheme.primary,
-                                ),
-                          ),
-                          const SizedBox(width: 16),
-                        ],
-                        if (offer.bonus != "0.00") ...[
-                          Icon(
-                            Icons.stars,
-                            size: 16,
-                            color: Theme.of(context).colorScheme.secondary,
-                          ),
-                          const SizedBox(width: 4),
-                          Text(
-                            '${offer.bonus}% ${l10n.offersBonus}',
-                            style: Theme.of(context)
-                                .textTheme
-                                .bodySmall
-                                ?.copyWith(
-                                  color:
-                                      Theme.of(context).colorScheme.secondary,
-                                ),
-                          ),
-                        ],
-                      ],
-                    ),
-                  ],
-                ),
-                trailing: Icon(
-                  Icons.chevron_right,
-                  color: Theme.of(context).colorScheme.primary,
-                ),
-                onTap: () {
-                  // Handle offer tap
-                },
-              ),
+            OfferTile(
+              offer: offer,
+              onTap: () {
+                // Handle offer tap
+              },
             ),
             delay: index * 100,
           );

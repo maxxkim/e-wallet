@@ -217,5 +217,8 @@
     "offersSearchHint": "Search",
     "offersNoData": "No offers available yet",
     "offersDiscount": "OFF",
-    "offersBonus": "Bonus"
+    "offersBonus": "Bonus",
+    "getOfferNow": "Get now!",
+    "offerActivatedSuccess": "Offer activated successfully!",
+    "offerActivationError": "Failed to activate offer. Please try again."
 }

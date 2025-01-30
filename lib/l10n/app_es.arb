@@ -187,5 +187,8 @@
     "offersSearchHint": "Buscar",
     "offersNoData": "No hay ofertas disponibles",
     "offersDiscount": "DCTO",
-    "offersBonus": "Bono"
+    "offersBonus": "Bono",
+    "getOfferNow": "¡Obtener ahora!",
+    "offerActivatedSuccess": "¡Oferta activada exitosamente!",
+    "offerActivationError": "Error al activar la oferta. Por favor intente nuevamente."
 }
