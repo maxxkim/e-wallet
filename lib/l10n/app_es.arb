@@ -193,5 +193,21 @@
     "offerActivationError": "Error al activar la oferta. Por favor intente nuevamente.",
     "offerFilterCategory": "Categoría",
     "offerFilterMerchant": "Comercio",
-    "offerFilterDiscount": "Descuento"
+    "offerFilterDiscount": "Descuento",
+    "offersTitle": "Ofertas",
+    "offersAvailable": "Ofertas Disponibles",
+    "offersForYou": "Para Ti",
+    "offersViewAll": "Ver Todo",
+    "offersAllOffers": "Todas las Ofertas",
+    "offersCategories": "Categorías",
+    "offersTopOffers": "Ofertas Principales",
+    "offersCategoryDialogTitle": "Seleccionar Categoría",
+    "offersTotalOffers": "{count} ofertas",
+    "@offersTotalOffers": {
+        "placeholders": {
+            "count": {
+                "type": "int"
+            }
+        }
+    }
 }

@@ -1,3 +1,4 @@
+// lib/presentation/screen/offer/offer_screen.dart
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -11,6 +12,7 @@ import 'package:zippy/presentation/theme/app_theme.dart';
 import 'package:zippy/presentation/widget/custom_text_field.dart';
 import 'package:zippy/presentation/widget/custom_bottom_nav_bar.dart';
 import 'package:zippy/presentation/screen/offer/widgets/offer_tile.dart';
+import 'package:zippy/presentation/screen/offer/widgets/category_filter_dialog.dart';
 
 enum OfferFilterType { category, merchant, discount }
 
@@ -308,10 +310,26 @@ class OfferScreen extends StatelessWidget with FadeInAnimationMixin {
   }
 
   void _handleFilterTap(BuildContext context, OfferFilterType type) {
-    // Implement filter logic here UwU
     switch (type) {
       case OfferFilterType.category:
-        // Handle category filter
+        showDialog(
+          context: context,
+          builder: (BuildContext context) {
+            return Dialog(
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(16),
+              ),
+              // Remove the Padding widget and its padding
+              child: CategoryFilterDialog(
+                selectedCategory: null,
+                onCategorySelected: (category) {
+                  context.read<OfferCubit>().selectCategory(category);
+                  Navigator.pop(context);
+                },
+              ),
+            );
+          },
+        );
         break;
       case OfferFilterType.merchant:
         // Handle merchant filter

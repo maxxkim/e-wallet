@@ -16,6 +16,7 @@ import 'package:zippy/domain/model/auth/auth_refresh_mode.dart';
 import 'package:zippy/domain/model/auth/auth_verify_model.dart';
 import 'package:zippy/domain/model/contacts/contact_model.dart';
 import 'package:zippy/domain/model/offer/activation_model.dart';
+import 'package:zippy/domain/model/offer/category_model.dart';
 import 'package:zippy/domain/model/offer/offer_model.dart';
 import 'package:zippy/domain/model/qr/payment_response_model.dart';
 import 'package:zippy/domain/model/qr/qr_payment_model.dart';
@@ -161,5 +162,27 @@ class ApiUtil {
   Future<List<Offer>> getTopOffers({int limit = 5}) async {
     final result = await _apiService.getTopOffers(limit);
     return result;
+  }
+
+  Future<List<CategoryModel>> getCategories(
+      {int limit = 20, String? search}) async {
+    final result =
+        await _apiService.getCategories(limit: limit, search: search);
+    return result.categories;
+  }
+
+  Future<List<CategoryModel>> getFavoriteCategories({int limit = 100}) async {
+    final result = await _apiService.getFavoriteCategories(limit: limit);
+    return result.categories;
+  }
+
+  Future<List<CategoryModel>> addFavoriteCategory(int categoryId) async {
+    final result = await _apiService.addFavoriteCategory(categoryId);
+    return result.categories;
+  }
+
+  Future<List<CategoryModel>> deleteFavoriteCategory(int categoryId) async {
+    final result = await _apiService.deleteFavoriteCategory(categoryId);
+    return result.categories;
   }
 }

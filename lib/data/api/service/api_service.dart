@@ -5,6 +5,7 @@ import 'package:zippy/data/api/api_auth_initiate.dart';
 import 'package:zippy/data/api/api_auth_refresh.dart';
 import 'package:zippy/data/api/api_auth_verify.dart';
 import 'package:zippy/data/api/api_balance.dart';
+import 'package:zippy/data/api/api_category_responce.dart';
 import 'package:zippy/data/api/api_top_up.dart';
 import 'package:zippy/data/api/api_top_up_initiate.dart';
 import 'package:zippy/data/api/api_transaction.dart';
@@ -329,5 +330,40 @@ class ApiService {
           .toList();
     }
     return [];
+  }
+
+  Future<ApiCategoriesResponse> getCategories(
+      {int limit = 20, String? search}) async {
+    final response = await _dio.get(
+      'https://offer-service-xn3b9.ondigitalocean.app/api/v1/categories',
+      queryParameters: {
+        'limit': limit,
+        if (search != null) 'search': search,
+      },
+    );
+    return ApiCategoriesResponse.fromJson(response.data);
+  }
+
+  Future<ApiCategoriesResponse> getFavoriteCategories({int limit = 100}) async {
+    final response = await _dio.get(
+      'https://offer-service-xn3b9.ondigitalocean.app/api/v1/favorites/categories',
+      queryParameters: {'limit': limit},
+    );
+    return ApiCategoriesResponse.fromJson(response.data);
+  }
+
+  Future<ApiCategoriesResponse> addFavoriteCategory(int categoryId) async {
+    final response = await _dio.post(
+      'https://offer-service-xn3b9.ondigitalocean.app/api/v1/favorites/categories',
+      data: {'category_id': categoryId},
+    );
+    return ApiCategoriesResponse.fromJson(response.data);
+  }
+
+  Future<ApiCategoriesResponse> deleteFavoriteCategory(int categoryId) async {
+    final response = await _dio.delete(
+      'https://offer-service-xn3b9.ondigitalocean.app/api/v1/favorites/categories/$categoryId',
+    );
+    return ApiCategoriesResponse.fromJson(response.data);
   }
 }

@@ -223,5 +223,21 @@
     "offerActivationError": "Failed to activate offer. Please try again.",
     "offerFilterCategory": "Category",
     "offerFilterMerchant": "Merchant",
-    "offerFilterDiscount": "Discount"
+    "offerFilterDiscount": "Discount",
+    "offersTitle": "Offers",
+    "offersAvailable": "Available Offers",
+    "offersForYou": "For You",
+    "offersViewAll": "View All",
+    "offersAllOffers": "All Offers",
+    "offersCategories": "Categories",
+    "offersTopOffers": "Top Offers",
+    "offersCategoryDialogTitle": "Select Category",
+    "offersTotalOffers": "{count} offers",
+    "@offersTotalOffers": {
+        "placeholders": {
+            "count": {
+                "type": "int"
+            }
+        }
+    }
 }

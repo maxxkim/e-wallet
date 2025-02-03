@@ -1,5 +1,6 @@
 import 'package:zippy/data/api/api_util.dart';
 import 'package:zippy/domain/model/offer/activation_model.dart';
+import 'package:zippy/domain/model/offer/category_model.dart';
 import 'package:zippy/domain/model/offer/offer_model.dart';
 import 'package:zippy/domain/repository/offer/offer_repository.dart';
 
@@ -46,5 +47,25 @@ class OfferDataRepository implements OfferRepository {
   @override
   Future<List<Offer>> getTopOffers({int limit = 5}) {
     return _apiUtil.getTopOffers(limit: limit);
+  }
+
+  @override
+  Future<List<CategoryModel>> getCategories({int limit = 20, String? search}) {
+    return _apiUtil.getCategories(limit: limit, search: search);
+  }
+
+  @override
+  Future<List<CategoryModel>> getFavoriteCategories({int limit = 100}) {
+    return _apiUtil.getFavoriteCategories(limit: limit);
+  }
+
+  @override
+  Future<List<CategoryModel>> addFavoriteCategory(int categoryId) {
+    return _apiUtil.addFavoriteCategory(categoryId);
+  }
+
+  @override
+  Future<List<CategoryModel>> deleteFavoriteCategory(int categoryId) {
+    return _apiUtil.deleteFavoriteCategory(categoryId);
   }
 }
