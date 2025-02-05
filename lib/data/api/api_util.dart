@@ -185,4 +185,16 @@ class ApiUtil {
     final result = await _apiService.deleteFavoriteCategory(categoryId);
     return result.categories;
   }
+
+  Future<List<Map<String, dynamic>>> getMerchants({
+    int limit = 20,
+    String? search,
+  }) async {
+    final response =
+        await _apiService.getMerchants(limit: limit, search: search);
+    if (response['status'] == 'success' && response['merchants'] != null) {
+      return List<Map<String, dynamic>>.from(response['merchants']);
+    }
+    return [];
+  }
 }

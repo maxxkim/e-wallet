@@ -68,4 +68,12 @@ class OfferDataRepository implements OfferRepository {
   Future<List<CategoryModel>> deleteFavoriteCategory(int categoryId) {
     return _apiUtil.deleteFavoriteCategory(categoryId);
   }
+
+  @override
+  Future<List<Map<String, dynamic>>> getMerchants({
+    int limit = 20,
+    String? search,
+  }) {
+    return _apiUtil.getMerchants(limit: limit, search: search);
+  }
 }

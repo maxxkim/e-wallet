@@ -1,7 +1,8 @@
 import 'package:zippy/domain/model/offer/category_model.dart';
 import 'package:zippy/domain/model/offer/offer_model.dart';
+import 'package:zippy/presentation/screen/offer/widgets/merchant_filter_dialog.dart';
 
-enum FilterType { all, category, top }
+enum FilterType { all, category, merchant, top }
 
 abstract class OfferState {}
 
@@ -12,6 +13,7 @@ class OfferStateLoaded extends OfferState {
   final String searchQuery;
   final bool isLoadingMore;
   final List<CategoryModel> selectedCategories;
+  final List<MerchantData> selectedMerchants;
   final FilterType filterType;
 
   OfferStateLoaded({
@@ -19,6 +21,7 @@ class OfferStateLoaded extends OfferState {
     this.searchQuery = '',
     this.isLoadingMore = false,
     this.selectedCategories = const [],
+    this.selectedMerchants = const [],
     this.filterType = FilterType.all,
   });
 
@@ -27,6 +30,7 @@ class OfferStateLoaded extends OfferState {
     String? searchQuery,
     bool? isLoadingMore,
     List<CategoryModel>? selectedCategories,
+    List<MerchantData>? selectedMerchants,
     FilterType? filterType,
   }) {
     return OfferStateLoaded(
@@ -34,6 +38,7 @@ class OfferStateLoaded extends OfferState {
       searchQuery: searchQuery ?? this.searchQuery,
       isLoadingMore: isLoadingMore ?? this.isLoadingMore,
       selectedCategories: selectedCategories ?? this.selectedCategories,
+      selectedMerchants: selectedMerchants ?? this.selectedMerchants,
       filterType: filterType ?? this.filterType,
     );
   }
@@ -41,6 +46,5 @@ class OfferStateLoaded extends OfferState {
 
 class OfferStateError extends OfferState {
   final String errorMessage;
-
   OfferStateError({required this.errorMessage});
 }

@@ -409,4 +409,18 @@ class ApiService {
     );
     return ApiCategoriesResponse.fromJson(response.data);
   }
+
+  Future<Map<String, dynamic>> getMerchants({
+    int limit = 20,
+    String? search,
+  }) async {
+    final response = await _dio.get(
+      'https://offer-service-xn3b9.ondigitalocean.app/api/v1/merchants',
+      queryParameters: {
+        'limit': limit,
+        if (search != null && search.isNotEmpty) 'search': search,
+      },
+    );
+    return response.data;
+  }
 }

@@ -13,6 +13,7 @@ import 'package:zippy/presentation/widget/custom_text_field.dart';
 import 'package:zippy/presentation/widget/custom_bottom_nav_bar.dart';
 import 'package:zippy/presentation/screen/offer/widgets/offer_tile.dart';
 import 'package:zippy/presentation/screen/offer/widgets/category_filter_dialog.dart';
+import 'package:zippy/presentation/screen/offer/widgets/merchant_filter_dialog.dart';
 
 enum OfferFilterType { category, merchant, discount }
 
@@ -232,8 +233,10 @@ class OfferScreen extends StatelessWidget with FadeInAnimationMixin {
   Widget _buildFilterButtons(BuildContext context, AppLocalizations l10n) {
     return BlocBuilder<OfferCubit, OfferState>(
       builder: (context, state) {
-        final isFiltered =
+        final isCategoryFiltered =
             state is OfferStateLoaded && state.selectedCategories.isNotEmpty;
+        final isMerchantFiltered =
+            state is OfferStateLoaded && state.selectedMerchants.isNotEmpty;
 
         return Row(
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -242,15 +245,15 @@ class OfferScreen extends StatelessWidget with FadeInAnimationMixin {
               context,
               l10n.offerFilterCategory,
               OfferFilterType.category,
-              isFiltered,
+              isCategoryFiltered,
               state is OfferStateLoaded ? state.selectedCategories : [],
             ),
             _buildFilterButton(
               context,
               l10n.offerFilterMerchant,
               OfferFilterType.merchant,
-              false,
-              [],
+              isMerchantFiltered,
+              state is OfferStateLoaded ? state.selectedMerchants : [],
             ),
             _buildFilterButton(
               context,
@@ -320,7 +323,10 @@ class OfferScreen extends StatelessWidget with FadeInAnimationMixin {
   }
 
   void _handleFilterTap(
-      BuildContext context, OfferFilterType type, List<dynamic> selectedItems) {
+    BuildContext context,
+    OfferFilterType type,
+    List<dynamic> selectedItems,
+  ) {
     switch (type) {
       case OfferFilterType.category:
         final cubit = context.read<OfferCubit>();
@@ -342,10 +348,26 @@ class OfferScreen extends StatelessWidget with FadeInAnimationMixin {
         );
         break;
       case OfferFilterType.merchant:
-        // TODO: Handle merchant filter
+        final cubit = context.read<OfferCubit>();
+        showDialog(
+          context: context,
+          builder: (dialogContext) {
+            return Dialog(
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(16),
+              ),
+              child: MerchantFilterDialog(
+                selectedMerchants: selectedItems.cast<MerchantData>(),
+                onMerchantsSelected: (merchants) {
+                  cubit.selectMerchants(merchants);
+                },
+              ),
+            );
+          },
+        );
         break;
       case OfferFilterType.discount:
-        // TODO: Handle discount filter
+        // Implement discount filtering
         break;
     }
   }

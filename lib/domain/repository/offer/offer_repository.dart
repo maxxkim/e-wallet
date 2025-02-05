@@ -31,4 +31,9 @@ abstract class OfferRepository {
   Future<List<CategoryModel>> getFavoriteCategories({int limit = 100});
   Future<List<CategoryModel>> addFavoriteCategory(int categoryId);
   Future<List<CategoryModel>> deleteFavoriteCategory(int categoryId);
+
+  Future<List<Map<String, dynamic>>> getMerchants({
+    int limit = 20,
+    String? search,
+  });
 }

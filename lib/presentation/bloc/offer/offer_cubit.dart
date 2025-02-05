@@ -6,6 +6,7 @@ import 'package:zippy/domain/model/offer/category_model.dart';
 import 'package:zippy/domain/model/offer/offer_model.dart';
 import 'package:zippy/domain/repository/offer/offer_repository.dart';
 import 'package:zippy/domain/state/offer/offer_state.dart';
+import 'package:zippy/presentation/screen/offer/widgets/merchant_filter_dialog.dart';
 
 class OfferCubit extends Cubit<OfferState> {
   final OfferRepository _offerRepository;
@@ -48,7 +49,21 @@ class OfferCubit extends Cubit<OfferState> {
       _currentPage = 1;
       emit(currentState.copyWith(
         selectedCategories: categories,
+        selectedMerchants: [], // Clear selected merchants when selecting categories
         filterType: FilterType.category,
+      ));
+      await loadOffers(refresh: true);
+    }
+  }
+
+  void selectMerchants(List<MerchantData> merchants) async {
+    if (state is OfferStateLoaded) {
+      final currentState = state as OfferStateLoaded;
+      _currentPage = 1;
+      emit(currentState.copyWith(
+        selectedMerchants: merchants,
+        selectedCategories: [], // Clear selected categories when selecting merchants
+        filterType: FilterType.merchant,
       ));
       await loadOffers(refresh: true);
     }
@@ -85,6 +100,9 @@ class OfferCubit extends Cubit<OfferState> {
           limit: _pageSize,
           categoryIds:
               currentState?.selectedCategories.map((c) => c.id).toList(),
+          merchantId: currentState?.selectedMerchants.isNotEmpty == true
+              ? currentState?.selectedMerchants.first.hash
+              : null,
           search:
               searchController.text.isNotEmpty ? searchController.text : null,
         );
@@ -100,6 +118,7 @@ class OfferCubit extends Cubit<OfferState> {
           offers: offers,
           filterType: currentState?.filterType ?? FilterType.all,
           selectedCategories: currentState?.selectedCategories ?? [],
+          selectedMerchants: currentState?.selectedMerchants ?? [],
         ));
       }
       _currentPage++;
