@@ -283,38 +283,81 @@ class ApiService {
     int page = 1,
     int limit = 100,
     String? search,
-    int? categoryId,
+    List<int>? categoryIds,
     String? merchantId,
     String? sortBy = 'desc',
     String? filterFrom,
     String? filterTo,
     String? filterType,
   }) async {
-    final queryParams = {
-      'page': page,
-      'limit': limit,
-      if (search != null && search.isNotEmpty) 'search': search,
-      if (categoryId != null) 'category_id': categoryId,
-      if (merchantId != null) 'merchant_id': merchantId,
-      'sort_by': sortBy,
-      if (filterFrom != null) 'filter_from': filterFrom,
-      if (filterTo != null) 'filter_to': filterTo,
-      if (filterType != null) 'filter_type': filterType,
-    };
+    try {
+      if (categoryIds != null && categoryIds.isNotEmpty) {
+        // Make parallel requests for each category
+        final futures = categoryIds.map((categoryId) {
+          final queryParams = {
+            'page': page,
+            'limit': limit,
+            if (search != null && search.isNotEmpty) 'search': search,
+            'category_id': categoryId,
+            if (merchantId != null) 'merchant_id': merchantId,
+            'sort_by': sortBy,
+            if (filterFrom != null) 'filter_from': filterFrom,
+            if (filterTo != null) 'filter_to': filterTo,
+            if (filterType != null) 'filter_type': filterType,
+          };
 
-    final response = await _dio.get(
-      'https://offer-service-xn3b9.ondigitalocean.app/api/v1/offers',
-      queryParameters: queryParams,
-    );
+          return _dio.get(
+            'https://offer-service-xn3b9.ondigitalocean.app/api/v1/offers',
+            queryParameters: queryParams,
+          );
+        });
 
-    if (response.data['status'] == 'success' &&
-        response.data['offers'] != null) {
-      return (response.data['offers'] as List)
-          .map((json) => Offer.fromJson(json))
-          .toList();
+        // Wait for all requests to complete
+        final responses = await Future.wait(futures);
+
+        // Combine and deduplicate offers from all responses
+        final allOffers = <Offer>{};
+        for (final response in responses) {
+          if (response.data['status'] == 'success' &&
+              response.data['offers'] != null) {
+            final offers = (response.data['offers'] as List)
+                .map((json) => Offer.fromJson(json));
+            allOffers.addAll(offers);
+          }
+        }
+
+        return allOffers.toList();
+      } else {
+        // If no categories selected, make a single request
+        final queryParams = {
+          'page': page,
+          'limit': limit,
+          if (search != null && search.isNotEmpty) 'search': search,
+          if (merchantId != null) 'merchant_id': merchantId,
+          'sort_by': sortBy,
+          if (filterFrom != null) 'filter_from': filterFrom,
+          if (filterTo != null) 'filter_to': filterTo,
+          if (filterType != null) 'filter_type': filterType,
+        };
+
+        final response = await _dio.get(
+          'https://offer-service-xn3b9.ondigitalocean.app/api/v1/offers',
+          queryParameters: queryParams,
+        );
+
+        if (response.data['status'] == 'success' &&
+            response.data['offers'] != null) {
+          return (response.data['offers'] as List)
+              .map((json) => Offer.fromJson(json))
+              .toList();
+        }
+      }
+      return [];
+    } catch (e, stackTrace) {
+      print('Error in getOffers: $e');
+      print('Stack trace: $stackTrace');
+      rethrow;
     }
-
-    return [];
   }
 
   Future<List<Offer>> getTopOffers(int limit) async {

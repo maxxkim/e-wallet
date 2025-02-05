@@ -1,12 +1,10 @@
-// lib/domain/model/offer/offer_model.dart
-
 class Offer {
   final int id;
   final String merchantId;
   final String merchantName;
   final String hash;
   final int categoryId;
-  final String? categoryName; // Made nullable
+  final String? categoryName;
   final String country;
   final String currency;
   final double minAmount;
@@ -14,7 +12,7 @@ class Offer {
   final String title;
   final String description;
   final String image;
-  final String? addImage; // Made nullable
+  final String? addImage;
   final int type;
   final String productId;
   final String discount;
@@ -31,7 +29,7 @@ class Offer {
     required this.merchantName,
     required this.hash,
     required this.categoryId,
-    this.categoryName, // Optional
+    this.categoryName,
     required this.country,
     required this.currency,
     required this.minAmount,
@@ -39,7 +37,7 @@ class Offer {
     required this.title,
     required this.description,
     required this.image,
-    this.addImage, // Optional
+    this.addImage,
     required this.type,
     required this.productId,
     required this.discount,
@@ -58,7 +56,7 @@ class Offer {
       merchantName: json['merchant_name'] as String,
       hash: json['hash'] as String,
       categoryId: json['category_id'] as int,
-      categoryName: json['category_name'] as String?, // Handle null
+      categoryName: json['category_name'] as String?,
       country: json['country'] as String,
       currency: json['currency'] as String,
       minAmount: (json['min_amount'] as num).toDouble(),
@@ -66,7 +64,7 @@ class Offer {
       title: json['title'] as String,
       description: json['description'] as String,
       image: json['image'] as String,
-      addImage: json['add_image'] as String?, // Handle null
+      addImage: json['add_image'] as String?,
       type: json['type'] as int,
       productId: json['product_id'] as String,
       discount: json['discount'] as String,
@@ -78,4 +76,16 @@ class Offer {
       dateEnd: DateTime.parse(json['date_end'] as String),
     );
   }
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is Offer &&
+          runtimeType == other.runtimeType &&
+          id == other.id &&
+          merchantId == other.merchantId &&
+          hash == other.hash;
+
+  @override
+  int get hashCode => Object.hash(id, merchantId, hash);
 }

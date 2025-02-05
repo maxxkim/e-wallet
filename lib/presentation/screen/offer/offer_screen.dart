@@ -1,8 +1,8 @@
-// lib/presentation/screen/offer/offer_screen.dart
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:zippy/domain/model/offer/category_model.dart';
 import 'package:zippy/domain/model/offer/offer_model.dart';
 import 'package:zippy/domain/repository/offer/offer_repository.dart';
 import 'package:zippy/domain/state/offer/offer_state.dart';
@@ -50,16 +50,13 @@ class OfferScreen extends StatelessWidget with FadeInAnimationMixin {
                     if (snapshot.connectionState == ConnectionState.waiting) {
                       return const Center(child: CircularProgressIndicator());
                     }
-
                     if (snapshot.hasError) {
                       return const SizedBox.shrink();
                     }
-
                     final topOffers = snapshot.data ?? [];
                     if (topOffers.isEmpty) {
                       return const SizedBox.shrink();
                     }
-
                     return ListView.builder(
                       scrollDirection: Axis.horizontal,
                       itemCount: topOffers.length,
@@ -233,31 +230,41 @@ class OfferScreen extends StatelessWidget with FadeInAnimationMixin {
   }
 
   Widget _buildFilterButtons(BuildContext context, AppLocalizations l10n) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-      children: [
-        _buildFilterButton(
-          context,
-          l10n.offerFilterCategory,
-          OfferFilterType.category,
-          true,
-        ),
-        _buildFilterButton(
-          context,
-          l10n.offerFilterMerchant,
-          OfferFilterType.merchant,
-          false,
-        ),
-        _buildFilterButton(
-          context,
-          l10n.offerFilterDiscount,
-          OfferFilterType.discount,
-          false,
-        ),
-      ],
-    ).animate().fadeIn(
-          duration: const Duration(milliseconds: 300),
-        );
+    return BlocBuilder<OfferCubit, OfferState>(
+      builder: (context, state) {
+        final isFiltered =
+            state is OfferStateLoaded && state.selectedCategories.isNotEmpty;
+
+        return Row(
+          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          children: [
+            _buildFilterButton(
+              context,
+              l10n.offerFilterCategory,
+              OfferFilterType.category,
+              isFiltered,
+              state is OfferStateLoaded ? state.selectedCategories : [],
+            ),
+            _buildFilterButton(
+              context,
+              l10n.offerFilterMerchant,
+              OfferFilterType.merchant,
+              false,
+              [],
+            ),
+            _buildFilterButton(
+              context,
+              l10n.offerFilterDiscount,
+              OfferFilterType.discount,
+              false,
+              [],
+            ),
+          ],
+        ).animate().fadeIn(
+              duration: const Duration(milliseconds: 300),
+            );
+      },
+    );
   }
 
   Widget _buildFilterButton(
@@ -265,6 +272,7 @@ class OfferScreen extends StatelessWidget with FadeInAnimationMixin {
     String label,
     OfferFilterType type,
     bool isSelected,
+    List<dynamic> selectedItems,
   ) {
     const double buttonHeight = 40.0;
     const double buttonWidth = 114.0;
@@ -281,7 +289,7 @@ class OfferScreen extends StatelessWidget with FadeInAnimationMixin {
                 borderRadius: BorderRadius.circular(32.0),
               ),
               child: FilledButton(
-                onPressed: () => _handleFilterTap(context, type),
+                onPressed: () => _handleFilterTap(context, type, selectedItems),
                 style: ButtonStyle(
                   padding: WidgetStateProperty.all(
                     const EdgeInsets.symmetric(horizontal: 20.0),
@@ -289,7 +297,9 @@ class OfferScreen extends StatelessWidget with FadeInAnimationMixin {
                   backgroundColor: WidgetStateProperty.all(Colors.transparent),
                 ),
                 child: Text(
-                  label,
+                  selectedItems.length > 1
+                      ? '${selectedItems.length} selected'
+                      : label,
                   style: Theme.of(context).textTheme.displaySmall,
                 ),
               ),
@@ -300,7 +310,7 @@ class OfferScreen extends StatelessWidget with FadeInAnimationMixin {
                   BorderSide(color: Theme.of(context).colorScheme.secondary),
                 ),
               ),
-              onPressed: () => _handleFilterTap(context, type),
+              onPressed: () => _handleFilterTap(context, type, selectedItems),
               child: Text(
                 label,
                 style: Theme.of(context).textTheme.bodySmall,
@@ -309,22 +319,22 @@ class OfferScreen extends StatelessWidget with FadeInAnimationMixin {
     );
   }
 
-  void _handleFilterTap(BuildContext context, OfferFilterType type) {
+  void _handleFilterTap(
+      BuildContext context, OfferFilterType type, List<dynamic> selectedItems) {
     switch (type) {
       case OfferFilterType.category:
+        final cubit = context.read<OfferCubit>();
         showDialog(
           context: context,
-          builder: (BuildContext context) {
+          builder: (dialogContext) {
             return Dialog(
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(16),
               ),
-              // Remove the Padding widget and its padding
               child: CategoryFilterDialog(
-                selectedCategory: null,
-                onCategorySelected: (category) {
-                  context.read<OfferCubit>().selectCategory(category);
-                  Navigator.pop(context);
+                selectedCategories: selectedItems.cast<CategoryModel>(),
+                onCategoriesSelected: (categories) {
+                  cubit.selectCategories(categories);
                 },
               ),
             );
@@ -332,10 +342,10 @@ class OfferScreen extends StatelessWidget with FadeInAnimationMixin {
         );
         break;
       case OfferFilterType.merchant:
-        // Handle merchant filter
+        // TODO: Handle merchant filter
         break;
       case OfferFilterType.discount:
-        // Handle discount filter
+        // TODO: Handle discount filter
         break;
     }
   }

@@ -1,17 +1,16 @@
-// lib/presentation/screen/offer/widgets/category_filter_dialog.dart
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:zippy/domain/model/offer/category_model.dart';
 import 'package:zippy/domain/repository/offer/offer_repository.dart';
 
 class CategoryFilterDialog extends StatefulWidget {
-  final Function(CategoryModel?) onCategorySelected;
-  final CategoryModel? selectedCategory;
+  final Function(List<CategoryModel>) onCategoriesSelected;
+  final List<CategoryModel> selectedCategories;
 
   const CategoryFilterDialog({
     Key? key,
-    required this.onCategorySelected,
-    this.selectedCategory,
+    required this.onCategoriesSelected,
+    required this.selectedCategories,
   }) : super(key: key);
 
   @override
@@ -21,12 +20,14 @@ class CategoryFilterDialog extends StatefulWidget {
 class _CategoryFilterDialogState extends State<CategoryFilterDialog> {
   List<CategoryModel> _categories = [];
   List<CategoryModel> _favorites = [];
+  List<CategoryModel> _selectedCategories = [];
   bool _isLoading = true;
   String? _error;
 
   @override
   void initState() {
     super.initState();
+    _selectedCategories = List.from(widget.selectedCategories);
     _fetchCategories();
   }
 
@@ -37,7 +38,6 @@ class _CategoryFilterDialogState extends State<CategoryFilterDialog> {
         repository.getCategories(),
         repository.getFavoriteCategories(),
       ]);
-
       if (mounted) {
         setState(() {
           _categories = responses[0];
@@ -59,11 +59,9 @@ class _CategoryFilterDialogState extends State<CategoryFilterDialog> {
     try {
       final repository = RepositoryProvider.of<OfferRepository>(context);
       final isFavorite = _favorites.any((fav) => fav.id == category.id);
-
       final updatedFavorites = isFavorite
           ? await repository.deleteFavoriteCategory(category.id)
           : await repository.addFavoriteCategory(category.id);
-
       if (mounted) {
         setState(() {
           _favorites = updatedFavorites;
@@ -76,6 +74,16 @@ class _CategoryFilterDialogState extends State<CategoryFilterDialog> {
         );
       }
     }
+  }
+
+  void _toggleCategory(CategoryModel category) {
+    setState(() {
+      if (_selectedCategories.any((cat) => cat.id == category.id)) {
+        _selectedCategories.removeWhere((cat) => cat.id == category.id);
+      } else {
+        _selectedCategories.add(category);
+      }
+    });
   }
 
   @override
@@ -105,62 +113,104 @@ class _CategoryFilterDialogState extends State<CategoryFilterDialog> {
         color: Colors.white,
         borderRadius: BorderRadius.circular(16),
       ),
-      child: SingleChildScrollView(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Padding(
-              padding: const EdgeInsets.all(16),
-              child: Row(
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Flexible(
+            child: SingleChildScrollView(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
                 children: [
-                  Text(
-                    'Favorite',
-                    style: TextStyle(
-                      color: Theme.of(context).colorScheme.secondary,
-                      fontWeight: FontWeight.w600,
+                  Padding(
+                    padding: const EdgeInsets.all(16),
+                    child: Row(
+                      children: [
+                        Text(
+                          'Favorite',
+                          style: TextStyle(
+                            color: Theme.of(context).colorScheme.secondary,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                        const Spacer(),
+                        Text(
+                          'Total offers',
+                          style: TextStyle(
+                            color: Theme.of(context).colorScheme.secondary,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                        const SizedBox(width: 56),
+                      ],
                     ),
                   ),
-                  const Spacer(),
-                  Text(
-                    'Total offers',
-                    style: TextStyle(
-                      color: Theme.of(context).colorScheme.secondary,
-                      fontWeight: FontWeight.w600,
+                  if (_favorites.isNotEmpty) ...[
+                    ..._favorites.map(
+                        (category) => _buildCategoryItem(context, category)),
+                    Padding(
+                      padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
+                      child: Align(
+                        alignment: Alignment.centerLeft,
+                        child: Text(
+                          'All Categories',
+                          style: TextStyle(
+                            color: Theme.of(context).colorScheme.secondary,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ),
                     ),
-                  ),
-                  const SizedBox(width: 56),
+                  ],
+                  ..._categories
+                      .where(
+                          (cat) => !_favorites.any((fav) => fav.id == cat.id))
+                      .map((category) => _buildCategoryItem(context, category)),
                 ],
               ),
             ),
-            if (_favorites.isNotEmpty) ...[
-              ..._favorites
-                  .map((category) => _buildCategoryItem(context, category)),
-              Padding(
-                padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
-                child: Align(
-                  alignment: Alignment.centerLeft,
+          ),
+          Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: [
+                GestureDetector(
+                  onTap: () {
+                    widget.onCategoriesSelected(_selectedCategories);
+                    Navigator.of(context).pop();
+                  },
                   child: Text(
-                    'All Categories',
+                    'Cancel',
                     style: TextStyle(
                       color: Theme.of(context).colorScheme.secondary,
-                      fontWeight: FontWeight.w600,
                     ),
                   ),
                 ),
-              ),
-            ],
-            ..._categories
-                .where((cat) => !_favorites.any((fav) => fav.id == cat.id))
-                .map((category) => _buildCategoryItem(context, category)),
-          ],
-        ),
+                const SizedBox(width: 32),
+                ElevatedButton(
+                  onPressed: () {
+                    widget.onCategoriesSelected(_selectedCategories);
+                    Navigator.of(context).pop();
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Theme.of(context).colorScheme.primary,
+                  ),
+                  child: const Text(
+                    'Apply',
+                    style: TextStyle(color: Colors.white),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
       ),
     );
   }
 
   Widget _buildCategoryItem(BuildContext context, CategoryModel category) {
+    final isSelected = _selectedCategories.any((cat) => cat.id == category.id);
     final isFavorite = _favorites.any((fav) => fav.id == category.id);
-    final isSelected = widget.selectedCategory?.id == category.id;
 
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 2),
@@ -172,7 +222,7 @@ class _CategoryFilterDialogState extends State<CategoryFilterDialog> {
       ),
       child: InkWell(
         borderRadius: BorderRadius.circular(16),
-        onTap: () => widget.onCategorySelected(isSelected ? null : category),
+        onTap: () => _toggleCategory(category),
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
           child: Row(

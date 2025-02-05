@@ -1,6 +1,4 @@
-// lib/presentation/bloc/offer/offer_cubit.dart
 import 'dart:async';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:dio/dio.dart';
@@ -14,9 +12,8 @@ class OfferCubit extends Cubit<OfferState> {
   int _currentPage = 1;
   static const int _pageSize = 20;
   final ScrollController scrollController = ScrollController();
-  final TextEditingController searchController =
-      TextEditingController(); // Added this
-  Timer? _searchDebounce; // Add this for search debouncing
+  final TextEditingController searchController = TextEditingController();
+  Timer? _searchDebounce;
 
   OfferCubit(this._offerRepository) : super(OfferStateLoading()) {
     _init();
@@ -24,15 +21,15 @@ class OfferCubit extends Cubit<OfferState> {
 
   void _init() {
     scrollController.addListener(_onScroll);
-    searchController.addListener(_onSearchChanged); // Add search listener
+    searchController.addListener(_onSearchChanged);
     loadOffers();
   }
 
   @override
   Future<void> close() {
     scrollController.dispose();
-    searchController.dispose(); // Dispose search controller
-    _searchDebounce?.cancel(); // Cancel timer if exists
+    searchController.dispose();
+    _searchDebounce?.cancel();
     return super.close();
   }
 
@@ -45,28 +42,14 @@ class OfferCubit extends Cubit<OfferState> {
     });
   }
 
-  void selectFilter(FilterType type) async {
+  void selectCategories(List<CategoryModel> categories) async {
     if (state is OfferStateLoaded) {
       final currentState = state as OfferStateLoaded;
-      if (currentState.filterType == type) return;
-
-      _currentPage = 1;
-      emit(currentState.copyWith(filterType: type));
-
-      await loadOffers(refresh: true);
-    }
-  }
-
-  void selectCategory(CategoryModel? category) async {
-    if (state is OfferStateLoaded) {
-      final currentState = state as OfferStateLoaded;
-
       _currentPage = 1;
       emit(currentState.copyWith(
-        selectedCategory: category,
+        selectedCategories: categories,
         filterType: FilterType.category,
       ));
-
       await loadOffers(refresh: true);
     }
   }
@@ -100,7 +83,10 @@ class OfferCubit extends Cubit<OfferState> {
         offers = await _offerRepository.getOffers(
           page: _currentPage,
           limit: _pageSize,
-          categoryId: currentState?.selectedCategory?.id,
+          categoryIds:
+              currentState?.selectedCategories.map((c) => c.id).toList(),
+          search:
+              searchController.text.isNotEmpty ? searchController.text : null,
         );
       }
 
@@ -113,7 +99,7 @@ class OfferCubit extends Cubit<OfferState> {
         emit(OfferStateLoaded(
           offers: offers,
           filterType: currentState?.filterType ?? FilterType.all,
-          selectedCategory: currentState?.selectedCategory,
+          selectedCategories: currentState?.selectedCategories ?? [],
         ));
       }
       _currentPage++;

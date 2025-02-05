@@ -175,10 +175,11 @@ final GoRouter appRouter = GoRouter(
           builder: (BuildContext context, GoRouterState state) {
             return _authGuard(
               context,
-              BlocProvider(
+              BlocProvider<OfferCubit>(
                 create: (context) => OfferCubit(
                   RepositoryProvider.of<OfferRepository>(context),
                 ),
+                lazy: false,
                 child: const OfferScreen(),
               ),
             );
