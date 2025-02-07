@@ -423,4 +423,15 @@ class ApiService {
     );
     return response.data;
   }
+
+  Future<Map<String, dynamic>> getOfferTypes() async {
+    try {
+      final response = await _dio.get(
+        'https://offer-service-xn3b9.ondigitalocean.app/api/v1/offers/types',
+      );
+      return response.data;
+    } catch (e) {
+      throw Exception('Failed to fetch offer types >.<: $e');
+    }
+  }
 }

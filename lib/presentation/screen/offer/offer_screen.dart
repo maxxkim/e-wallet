@@ -8,6 +8,8 @@ import 'package:zippy/domain/repository/offer/offer_repository.dart';
 import 'package:zippy/domain/state/offer/offer_state.dart';
 import 'package:zippy/presentation/animation/fade_animation_mixin.dart';
 import 'package:zippy/presentation/bloc/offer/offer_cubit.dart';
+import 'package:zippy/presentation/screen/offer/widgets/active_filters.dart';
+import 'package:zippy/presentation/screen/offer/widgets/discount_filter_dialog.dart';
 import 'package:zippy/presentation/theme/app_theme.dart';
 import 'package:zippy/presentation/widget/custom_text_field.dart';
 import 'package:zippy/presentation/widget/custom_bottom_nav_bar.dart';
@@ -117,7 +119,36 @@ class OfferScreen extends StatelessWidget with FadeInAnimationMixin {
               ),
               const SizedBox(height: 16),
               _buildFilterButtons(context, l10n),
-              const SizedBox(height: 16),
+              const SizedBox(height: 8),
+              BlocBuilder<OfferCubit, OfferState>(
+                buildWhen: (previous, current) {
+                  if (previous is OfferStateLoaded &&
+                      current is OfferStateLoaded) {
+                    return previous.selectedCategories !=
+                            current.selectedCategories ||
+                        previous.selectedMerchants !=
+                            current.selectedMerchants ||
+                        previous.minDiscount != current.minDiscount ||
+                        previous.maxDiscount != current.maxDiscount;
+                  }
+                  return true;
+                },
+                builder: (context, state) {
+                  if (state is OfferStateLoaded) {
+                    return Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                      child: ActiveFilters(
+                        selectedCategories: state.selectedCategories,
+                        selectedMerchants: state.selectedMerchants,
+                        minDiscount: state.minDiscount,
+                        maxDiscount: state.maxDiscount,
+                      ),
+                    );
+                  }
+                  return const SizedBox.shrink();
+                },
+              ),
+              const SizedBox(height: 8),
               Expanded(
                 child: BlocBuilder<OfferCubit, OfferState>(
                   builder: (context, state) {
@@ -237,7 +268,8 @@ class OfferScreen extends StatelessWidget with FadeInAnimationMixin {
             state is OfferStateLoaded && state.selectedCategories.isNotEmpty;
         final isMerchantFiltered =
             state is OfferStateLoaded && state.selectedMerchants.isNotEmpty;
-
+        final isDiscountFiltered = state is OfferStateLoaded &&
+            (state.minDiscount != null || state.maxDiscount != null);
         return Row(
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           children: [
@@ -259,7 +291,7 @@ class OfferScreen extends StatelessWidget with FadeInAnimationMixin {
               context,
               l10n.offerFilterDiscount,
               OfferFilterType.discount,
-              false,
+              isDiscountFiltered,
               [],
             ),
           ],
@@ -367,8 +399,39 @@ class OfferScreen extends StatelessWidget with FadeInAnimationMixin {
         );
         break;
       case OfferFilterType.discount:
-        // Implement discount filtering
+        _showDiscountFilter(context);
         break;
+    }
+  }
+
+  void _showDiscountFilter(BuildContext context) {
+    final state = context.read<OfferCubit>().state;
+    if (state is OfferStateLoaded) {
+      showDialog(
+        context: context,
+        builder: (dialogContext) {
+          return Dialog(
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(16),
+            ),
+            child: DiscountFilterDialog(
+              minDiscount: state.minDiscount,
+              maxDiscount: state.maxDiscount,
+              sortDirection: state.sortDirection,
+              selectedTypes: state.selectedOfferTypes,
+              onDiscountRangeChanged: (min, max) {
+                context.read<OfferCubit>().setDiscountRange(min, max);
+              },
+              onSortDirectionChanged: (direction) {
+                context.read<OfferCubit>().setSortDirection(direction);
+              },
+              onTypesChanged: (types) {
+                context.read<OfferCubit>().setSelectedOfferTypes(types);
+              },
+            ),
+          );
+        },
+      );
     }
   }
 }

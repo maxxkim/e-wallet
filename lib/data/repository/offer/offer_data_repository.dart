@@ -6,8 +6,12 @@ import 'package:zippy/domain/repository/offer/offer_repository.dart';
 
 class OfferDataRepository implements OfferRepository {
   final ApiUtil _apiUtil;
-
   OfferDataRepository(this._apiUtil);
+
+  @override
+  Future<List<String>> getOfferTypes() {
+    return _apiUtil.getOfferTypes();
+  }
 
   @override
   Future<List<Activation>> getActivations({int limit = 20}) {

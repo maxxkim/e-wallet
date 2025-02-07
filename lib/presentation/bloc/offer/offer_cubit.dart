@@ -49,9 +49,18 @@ class OfferCubit extends Cubit<OfferState> {
       _currentPage = 1;
       emit(currentState.copyWith(
         selectedCategories: categories,
-        selectedMerchants: [], // Clear selected merchants when selecting categories
-        filterType: FilterType.category,
       ));
+      await loadOffers(refresh: true);
+    }
+  }
+
+  void removeCategory(CategoryModel category) async {
+    if (state is OfferStateLoaded) {
+      final currentState = state as OfferStateLoaded;
+      final newCategories =
+          List<CategoryModel>.from(currentState.selectedCategories)
+            ..removeWhere((c) => c.id == category.id);
+      emit(currentState.copyWith(selectedCategories: newCategories));
       await loadOffers(refresh: true);
     }
   }
@@ -62,8 +71,62 @@ class OfferCubit extends Cubit<OfferState> {
       _currentPage = 1;
       emit(currentState.copyWith(
         selectedMerchants: merchants,
-        selectedCategories: [], // Clear selected categories when selecting merchants
-        filterType: FilterType.merchant,
+      ));
+      await loadOffers(refresh: true);
+    }
+  }
+
+  void removeMerchant(MerchantData merchant) async {
+    if (state is OfferStateLoaded) {
+      final currentState = state as OfferStateLoaded;
+      final newMerchants =
+          List<MerchantData>.from(currentState.selectedMerchants)
+            ..removeWhere((m) => m.hash == merchant.hash);
+      emit(currentState.copyWith(selectedMerchants: newMerchants));
+      await loadOffers(refresh: true);
+    }
+  }
+
+  void setSortDirection(String direction) async {
+    if (state is OfferStateLoaded) {
+      final currentState = state as OfferStateLoaded;
+      emit(currentState.copyWith(sortDirection: direction));
+      await loadOffers(refresh: true);
+    }
+  }
+
+  void setSelectedOfferTypes(List<String> types) async {
+    if (state is OfferStateLoaded) {
+      final currentState = state as OfferStateLoaded;
+      emit(currentState.copyWith(selectedOfferTypes: types));
+      await loadOffers(refresh: true);
+    }
+  }
+
+  void setDiscountRange(double? min, double? max) async {
+    if (state is OfferStateLoaded) {
+      final currentState = state as OfferStateLoaded;
+      _currentPage = 1;
+      emit(currentState.copyWith(
+        minDiscount: min,
+        maxDiscount: max,
+      ));
+
+      await loadOffers(
+        refresh: true,
+        filterFrom: min?.toString(),
+        filterTo: max?.toString(),
+        filterType: (min != null || max != null) ? 'discount' : null,
+      );
+    }
+  }
+
+  void clearDiscountFilter() async {
+    if (state is OfferStateLoaded) {
+      final currentState = state as OfferStateLoaded;
+      emit(currentState.copyWith(
+        minDiscount: null,
+        maxDiscount: null,
       ));
       await loadOffers(refresh: true);
     }
@@ -79,7 +142,12 @@ class OfferCubit extends Cubit<OfferState> {
     }
   }
 
-  Future<void> loadOffers({bool refresh = false}) async {
+  Future<void> loadOffers({
+    bool refresh = false,
+    String? filterFrom,
+    String? filterTo,
+    String? filterType,
+  }) async {
     try {
       final currentState =
           state is OfferStateLoaded ? state as OfferStateLoaded : null;
@@ -91,23 +159,61 @@ class OfferCubit extends Cubit<OfferState> {
         emit(currentState.copyWith(isLoadingMore: true));
       }
 
-      List<Offer> offers;
-      if (currentState?.filterType == FilterType.top) {
-        offers = await _offerRepository.getTopOffers();
+      final List<Future<List<Offer>>> futures = [];
+
+      // If categories are selected, fetch offers for each category
+      if (currentState?.selectedCategories.isNotEmpty ?? false) {
+        for (final category in currentState!.selectedCategories) {
+          futures.add(_offerRepository.getOffers(
+            page: _currentPage,
+            limit: _pageSize,
+            categoryIds: [category.id],
+            merchantId: currentState.selectedMerchants.isNotEmpty
+                ? currentState.selectedMerchants.first.hash
+                : null,
+            search:
+                searchController.text.isNotEmpty ? searchController.text : null,
+            filterFrom: filterFrom ?? currentState.minDiscount?.toString(),
+            filterTo: filterTo ?? currentState.maxDiscount?.toString(),
+            filterType: filterType ??
+                (currentState.selectedOfferTypes.isNotEmpty == true
+                    ? currentState.selectedOfferTypes.first
+                    : 'discount'),
+            sortBy: currentState.sortDirection,
+          ));
+        }
       } else {
-        offers = await _offerRepository.getOffers(
+        // If no categories selected, fetch offers with other filters
+        futures.add(_offerRepository.getOffers(
           page: _currentPage,
           limit: _pageSize,
-          categoryIds:
-              currentState?.selectedCategories.map((c) => c.id).toList(),
           merchantId: currentState?.selectedMerchants.isNotEmpty == true
               ? currentState?.selectedMerchants.first.hash
               : null,
           search:
               searchController.text.isNotEmpty ? searchController.text : null,
-        );
+          filterFrom: filterFrom ?? currentState?.minDiscount?.toString(),
+          filterTo: filterTo ?? currentState?.maxDiscount?.toString(),
+          filterType: filterType ??
+              (currentState?.selectedOfferTypes.isNotEmpty == true
+                  ? currentState?.selectedOfferTypes.first
+                  : 'discount'),
+          sortBy: currentState?.sortDirection ?? 'desc',
+        ));
       }
 
+      // Wait for all requests to complete
+      final results = await Future.wait(futures);
+
+      // Combine and deduplicate offers
+      final Set<Offer> uniqueOffers = {};
+      for (final offerList in results) {
+        uniqueOffers.addAll(offerList);
+      }
+
+      final offers = uniqueOffers.toList();
+
+      // Update state with new offers
       if (currentState != null && !refresh) {
         emit(currentState.copyWith(
           offers: [...currentState.offers, ...offers],
@@ -116,9 +222,12 @@ class OfferCubit extends Cubit<OfferState> {
       } else {
         emit(OfferStateLoaded(
           offers: offers,
-          filterType: currentState?.filterType ?? FilterType.all,
           selectedCategories: currentState?.selectedCategories ?? [],
           selectedMerchants: currentState?.selectedMerchants ?? [],
+          minDiscount: currentState?.minDiscount,
+          maxDiscount: currentState?.maxDiscount,
+          sortDirection: currentState?.sortDirection ?? 'desc',
+          selectedOfferTypes: currentState?.selectedOfferTypes ?? [],
         ));
       }
       _currentPage++;

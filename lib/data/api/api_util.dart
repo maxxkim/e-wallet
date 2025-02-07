@@ -197,4 +197,16 @@ class ApiUtil {
     }
     return [];
   }
+
+  Future<List<String>> getOfferTypes() async {
+    try {
+      final response = await _apiService.getOfferTypes();
+      if (response['status'] == 'success' && response['types'] != null) {
+        return List<String>.from(response['types']);
+      }
+      throw Exception('Invalid response format from server >.<');
+    } catch (e) {
+      throw Exception('Failed to load offer types nyaa~: $e');
+    }
+  }
 }

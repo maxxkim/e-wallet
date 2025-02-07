@@ -36,4 +36,5 @@ abstract class OfferRepository {
     int limit = 20,
     String? search,
   });
+  Future<List<String>> getOfferTypes();
 }

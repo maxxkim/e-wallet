@@ -2,8 +2,6 @@ import 'package:zippy/domain/model/offer/category_model.dart';
 import 'package:zippy/domain/model/offer/offer_model.dart';
 import 'package:zippy/presentation/screen/offer/widgets/merchant_filter_dialog.dart';
 
-enum FilterType { all, category, merchant, top }
-
 abstract class OfferState {}
 
 class OfferStateLoading extends OfferState {}
@@ -14,7 +12,10 @@ class OfferStateLoaded extends OfferState {
   final bool isLoadingMore;
   final List<CategoryModel> selectedCategories;
   final List<MerchantData> selectedMerchants;
-  final FilterType filterType;
+  final double? minDiscount;
+  final double? maxDiscount;
+  final String sortDirection;
+  final List<String> selectedOfferTypes;
 
   OfferStateLoaded({
     required this.offers,
@@ -22,7 +23,10 @@ class OfferStateLoaded extends OfferState {
     this.isLoadingMore = false,
     this.selectedCategories = const [],
     this.selectedMerchants = const [],
-    this.filterType = FilterType.all,
+    this.minDiscount,
+    this.maxDiscount,
+    this.sortDirection = 'desc',
+    this.selectedOfferTypes = const [],
   });
 
   OfferStateLoaded copyWith({
@@ -31,7 +35,10 @@ class OfferStateLoaded extends OfferState {
     bool? isLoadingMore,
     List<CategoryModel>? selectedCategories,
     List<MerchantData>? selectedMerchants,
-    FilterType? filterType,
+    double? minDiscount,
+    double? maxDiscount,
+    String? sortDirection,
+    List<String>? selectedOfferTypes,
   }) {
     return OfferStateLoaded(
       offers: offers ?? this.offers,
@@ -39,7 +46,10 @@ class OfferStateLoaded extends OfferState {
       isLoadingMore: isLoadingMore ?? this.isLoadingMore,
       selectedCategories: selectedCategories ?? this.selectedCategories,
       selectedMerchants: selectedMerchants ?? this.selectedMerchants,
-      filterType: filterType ?? this.filterType,
+      minDiscount: minDiscount ?? this.minDiscount,
+      maxDiscount: maxDiscount ?? this.maxDiscount,
+      sortDirection: sortDirection ?? this.sortDirection,
+      selectedOfferTypes: selectedOfferTypes ?? this.selectedOfferTypes,
     );
   }
 }
