@@ -13,7 +13,10 @@ class ContactsCubit extends Cubit<ContactsState> {
     try {
       emit(ContactsStateLoading());
       final contacts = await _contactsRepository.getContacts();
-      emit(ContactsStateLoaded(contacts: contacts));
+      emit(ContactsStateLoaded(
+        contacts: contacts,
+        timestamp: DateTime.now().millisecondsSinceEpoch,
+      ));
     } catch (e) {
       emit(ContactsStateError(
         errorMessage: _handleError(e),
@@ -24,61 +27,39 @@ class ContactsCubit extends Cubit<ContactsState> {
   Future<void> addContact(String phone, String? nickname) async {
     try {
       emit(ContactsStateLoading());
-      // Keep current contacts in view while loading
-      final currentState = state;
-
-      // Add contact
       await _contactsRepository.addContact(phone, nickname);
-
-      // Immediately reload contacts to show updated list
-      final contacts = await _contactsRepository.getContacts();
-      emit(ContactsStateLoaded(contacts: contacts));
+      await loadContacts();
     } catch (e) {
       emit(ContactsStateError(
         errorMessage: _handleError(e),
       ));
-      // Restore previous state on error
-      if (state is ContactsStateLoaded) {
-        emit(state);
-      }
+      await loadContacts();
     }
   }
 
   Future<void> updateContact(int id, String phone, String? nickname) async {
     try {
       emit(ContactsStateLoading());
-      final currentState = state;
-
       await _contactsRepository.updateContact(id, phone, nickname);
-
-      final contacts = await _contactsRepository.getContacts();
-      emit(ContactsStateLoaded(contacts: contacts));
+      await loadContacts();
     } catch (e) {
       emit(ContactsStateError(
         errorMessage: _handleError(e),
       ));
-      if (state is ContactsStateLoaded) {
-        emit(state);
-      }
+      await loadContacts();
     }
   }
 
   Future<void> deleteContact(String phone) async {
     try {
       emit(ContactsStateLoading());
-      final currentState = state;
-
       await _contactsRepository.deleteContact(phone);
-
-      final contacts = await _contactsRepository.getContacts();
-      emit(ContactsStateLoaded(contacts: contacts));
+      await loadContacts();
     } catch (e) {
       emit(ContactsStateError(
         errorMessage: _handleError(e),
       ));
-      if (state is ContactsStateLoaded) {
-        emit(state);
-      }
+      await loadContacts();
     }
   }
 

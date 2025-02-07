@@ -28,21 +28,16 @@ class _BalanceDisplayState extends State<BalanceDisplay>
   bool _isLoggingOut = false;
 
   static final Map<String, IconData> currencyIcons = {
-    // Latin American Currencies
-    'clp': MdiIcons.currencyUsd, // Chilean Peso
-    'ars': MdiIcons.currencyUsd, // Argentine Peso
-    'brl': MdiIcons.currencyBrl, // Brazilian Real
-    'pen': MdiIcons.currencyUsd, // Peruvian Sol
-
-    // Major World Currencies
-    'usd': MdiIcons.currencyUsd, // US Dollar
-    'eur': MdiIcons.currencyEur, // Euro
-    'gbp': MdiIcons.currencyGbp, // British Pound
-
-    // Cryptocurrencies
-    'btc': MdiIcons.currencyBtc, // Bitcoin
-    'eth': MdiIcons.currencyEth, // Ethereum
-    'usdt': MdiIcons.currencyUsd, // Tether (using USD icon as fallback)
+    'clp': MdiIcons.currencyUsd,
+    'ars': MdiIcons.currencyUsd,
+    'brl': MdiIcons.currencyBrl,
+    'pen': MdiIcons.currencyUsd,
+    'usd': MdiIcons.currencyUsd,
+    'eur': MdiIcons.currencyEur,
+    'gbp': MdiIcons.currencyGbp,
+    'btc': MdiIcons.currencyBtc,
+    'eth': MdiIcons.currencyEth,
+    'usdt': MdiIcons.currencyUsd,
   };
 
   IconData _getCurrencyIcon(String currencyCode) {
@@ -53,6 +48,7 @@ class _BalanceDisplayState extends State<BalanceDisplay>
     setState(() {
       _isUpdating = true;
     });
+
     try {
       await context.read<DashboardCubit>().loadData();
     } finally {
@@ -272,7 +268,11 @@ class _BalanceDisplayState extends State<BalanceDisplay>
                         child: Column(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            const Icon(Icons.qr_code_scanner, size: 24),
+                            SvgPicture.asset(
+                              'assets/images/icon_qr.svg',
+                              height: 24,
+                              width: 24,
+                            ),
                             const SizedBox(height: 4),
                             Text(
                               widget.translations.scan,
@@ -299,7 +299,11 @@ class _BalanceDisplayState extends State<BalanceDisplay>
                         child: Column(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            const Icon(Icons.swap_horiz, size: 24),
+                            SvgPicture.asset(
+                              'assets/images/icon_transfer.svg',
+                              height: 24,
+                              width: 24,
+                            ),
                             const SizedBox(height: 4),
                             Text(
                               widget.translations.transfer,

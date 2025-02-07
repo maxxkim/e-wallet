@@ -1,17 +1,23 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:flutter/services.dart';
 import 'package:zippy/domain/model/contacts/contact_model.dart';
 import 'package:zippy/domain/state/contacts/contacts_state.dart';
 import 'package:zippy/presentation/bloc/contacts/contacts_cubit.dart';
+import 'package:zippy/presentation/screen/contacts/widgets/contact_dialog.dart';
 import 'package:zippy/presentation/screen/contacts/widgets/contact_tile.dart';
 import 'package:zippy/presentation/widget/custom_bottom_nav_bar.dart';
 import 'package:zippy/presentation/widget/custom_rectangular_button.dart';
 
 class ContactsScreen extends StatelessWidget {
   const ContactsScreen({Key? key}) : super(key: key);
+
+  void _refreshScreen(BuildContext context) {
+    context.go('/dashboard/transfer/contacts');
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -27,7 +33,17 @@ class ContactsScreen extends StatelessWidget {
           ),
           body: Padding(
             padding: const EdgeInsets.all(16.0),
-            child: BlocBuilder<ContactsCubit, ContactsState>(
+            child: BlocConsumer<ContactsCubit, ContactsState>(
+              listener: (context, state) {
+                if (state is ContactsStateError) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text(state.errorMessage)),
+                  );
+                }
+                if (state is ContactsStateLoaded) {
+                  _refreshScreen(context);
+                }
+              },
               builder: (context, state) {
                 if (state is ContactsStateLoading) {
                   return const Center(child: CircularProgressIndicator());
@@ -39,8 +55,9 @@ class ContactsScreen extends StatelessWidget {
                       children: [
                         Text(state.errorMessage),
                         ElevatedButton(
-                          onPressed: () =>
-                              context.read<ContactsCubit>().loadContacts(),
+                          onPressed: () {
+                            context.read<ContactsCubit>().loadContacts();
+                          },
                           child: Text(l10n.retry),
                         ),
                       ],
@@ -108,10 +125,9 @@ class ContactsScreen extends StatelessWidget {
   }
 
   void _showContactDialog(BuildContext context, {ContactModel? contact}) {
-    final l10n = AppLocalizations.of(context)!;
     showDialog(
       context: context,
-      builder: (context) => _ContactDialog(contact: contact),
+      builder: (context) => ContactDialog(contact: contact),
     );
   }
 
@@ -185,144 +201,5 @@ Country: ${contact.country}
         );
       }
     }
-  }
-}
-
-class _ContactDialog extends StatefulWidget {
-  final ContactModel? contact;
-  const _ContactDialog({this.contact});
-
-  @override
-  _ContactDialogState createState() => _ContactDialogState();
-}
-
-class _ContactDialogState extends State<_ContactDialog> {
-  late TextEditingController _phoneController;
-  late TextEditingController _nameController;
-
-  // Add form key for validation OwO
-  final _formKey = GlobalKey<FormState>();
-
-  // Error states for manual validation ^_^
-  String? _phoneError;
-  String? _nameError;
-
-  @override
-  void initState() {
-    super.initState();
-    _phoneController = TextEditingController(text: widget.contact?.name);
-    _nameController = TextEditingController(text: widget.contact?.nickname);
-  }
-
-  @override
-  void dispose() {
-    _phoneController.dispose();
-    _nameController.dispose();
-    super.dispose();
-  }
-
-  // Validation helper methods >w
-  String? _validatePhone(String? value) {
-    if (value == null || value.isEmpty) {
-      return 'Phone number is required';
-    }
-
-    // Validate phone format using regex kawaii~
-    final phoneRegex = RegExp(r'^\+?[\d\s-]{8,}$');
-    if (!phoneRegex.hasMatch(value)) {
-      return 'Please enter a valid phone number';
-    }
-    return null;
-  }
-
-  String? _validateName(String? value) {
-    if (value == null || value.isEmpty) {
-      return 'Name is required ';
-    }
-    if (value.length < 2) {
-      return 'Name must be at least 2 characters';
-    }
-    return null;
-  }
-
-  void _validateAndSubmit() {
-    // Clear previous errors first ^.^
-    setState(() {
-      _phoneError = null;
-      _nameError = null;
-    });
-
-    // Validate both fields manually :3
-    final phoneError = _validatePhone(_phoneController.text);
-    final nameError = _validateName(_nameController.text);
-
-    if (phoneError != null || nameError != null) {
-      setState(() {
-        _phoneError = phoneError;
-        _nameError = nameError;
-      });
-      return;
-    }
-
-    // If validation passes, proceed with save ✨
-    if (widget.contact == null) {
-      context.read<ContactsCubit>().addContact(
-            _phoneController.text,
-            _nameController.text.isEmpty ? null : _nameController.text,
-          );
-    } else {
-      context.read<ContactsCubit>().updateContact(
-            widget.contact!.id,
-            _phoneController.text,
-            _nameController.text.isEmpty ? null : _nameController.text,
-          );
-    }
-    Navigator.pop(context);
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final l10n = AppLocalizations.of(context)!;
-    return AlertDialog(
-      title: Text(
-        widget.contact == null ? l10n.contactsAddNew : l10n.contactsEdit,
-      ),
-      content: Form(
-        key: _formKey,
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            TextField(
-              controller: _phoneController,
-              decoration: InputDecoration(
-                labelText: l10n.contactsPhone,
-                errorText: _phoneError,
-                // Add cute phone prefix icon ^_^
-                prefixIcon: const Icon(Icons.phone),
-              ),
-              keyboardType: TextInputType.phone,
-            ),
-            const SizedBox(height: 16),
-            TextField(
-              controller: _nameController,
-              decoration: InputDecoration(
-                labelText: l10n.contactsName,
-                errorText: _nameError,
-                // Add kawaii person prefix icon >w
-                prefixIcon: const Icon(Icons.person),
-              ),
-              keyboardType: TextInputType.name,
-              textCapitalization: TextCapitalization.words,
-            ),
-          ],
-        ),
-      ),
-      actions: [
-        RectangularButton(
-          label: l10n.contactsSave,
-          onPressed: _validateAndSubmit,
-        ),
-      ],
-    );
   }
 }
