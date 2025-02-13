@@ -30,7 +30,7 @@ class OfferScreen extends StatelessWidget with FadeInAnimationMixin {
     return Scaffold(
       body: SafeArea(
         child: Padding(
-          padding: const EdgeInsets.all(16.0),
+          padding: const EdgeInsets.all(8.0),
           child: Column(
             children: [
               fadeInFromTop(
