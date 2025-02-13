@@ -29,7 +29,7 @@ if (flutterVersionName == null) {
 
 android {
     namespace "com.example.zippy"
-    compileSdkVersion flutter.compileSdkVersion
+    compileSdkVersion 34  // Changed to 34 instead of 35
     ndkVersion flutter.ndkVersion
 
     compileOptions {
