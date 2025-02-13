@@ -34,14 +34,15 @@ class _CategoryFilterDialogState extends State<CategoryFilterDialog> {
   Future<void> _fetchCategories() async {
     try {
       final repository = RepositoryProvider.of<OfferRepository>(context);
-      final responses = await Future.wait([
-        repository.getCategories(),
-        repository.getFavoriteCategories(),
-      ]);
+      // Get initial data for categories
+      final initialData = await repository.getInitialData();
+      // Get favorite categories separately since they're not in initial data
+      final favoriteCategories = await repository.getFavoriteCategories();
+
       if (mounted) {
         setState(() {
-          _categories = responses[0];
-          _favorites = responses[1];
+          _categories = initialData.categories;
+          _favorites = favoriteCategories;
           _isLoading = false;
         });
       }

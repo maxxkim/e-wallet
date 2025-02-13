@@ -46,10 +46,17 @@ class _DiscountFilterDialogState extends State<DiscountFilterDialog> {
 
   Future<void> _loadOfferTypes() async {
     try {
-      final repository = RepositoryProvider.of<OfferRepository>(context);
-      final types = await repository.getOfferTypes();
+      final initialData = await RepositoryProvider.of<OfferRepository>(context)
+          .getInitialData();
+
+      // Get unique offer types from the offers
+      final uniqueTypes = initialData.offers
+          .map((offer) => offer.type.toLowerCase())
+          .toSet()
+          .toList();
+
       setState(() {
-        offerTypes = types.map((type) => type.toLowerCase()).toList();
+        offerTypes = uniqueTypes;
         for (var type in offerTypes) {
           selectedTypes[type] = widget.selectedTypes.contains(type);
         }
@@ -157,6 +164,7 @@ class _DiscountFilterDialogState extends State<DiscountFilterDialog> {
           color: isSelected
               ? Theme.of(context).colorScheme.secondary
               : Colors.grey[300]!,
+          width: 1,
         ),
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(32),
@@ -195,6 +203,24 @@ class _DiscountFilterDialogState extends State<DiscountFilterDialog> {
                     hintText: '5%',
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(8),
+                      borderSide: BorderSide(
+                        color: Theme.of(context).colorScheme.secondary,
+                        width: 1,
+                      ),
+                    ),
+                    enabledBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(8),
+                      borderSide: BorderSide(
+                        color: Colors.grey[300]!,
+                        width: 1,
+                      ),
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(8),
+                      borderSide: BorderSide(
+                        color: Theme.of(context).colorScheme.secondary,
+                        width: 1,
+                      ),
                     ),
                     contentPadding: const EdgeInsets.symmetric(
                       horizontal: 12,
@@ -216,6 +242,24 @@ class _DiscountFilterDialogState extends State<DiscountFilterDialog> {
                     hintText: '100%',
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(8),
+                      borderSide: BorderSide(
+                        color: Theme.of(context).colorScheme.secondary,
+                        width: 1,
+                      ),
+                    ),
+                    enabledBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(8),
+                      borderSide: BorderSide(
+                        color: Colors.grey[300]!,
+                        width: 1,
+                      ),
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(8),
+                      borderSide: BorderSide(
+                        color: Theme.of(context).colorScheme.secondary,
+                        width: 1,
+                      ),
                     ),
                     contentPadding: const EdgeInsets.symmetric(
                       horizontal: 12,
@@ -250,25 +294,40 @@ class _DiscountFilterDialogState extends State<DiscountFilterDialog> {
             spacing: 8,
             runSpacing: 4,
             children: offerTypes.map((type) {
+              final isSelected = selectedTypes[type] ?? false;
               return SizedBox(
-                width: 150, // Fixed width for consistent layout nya~
+                width: 150,
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    Checkbox(
-                      value: selectedTypes[type] ?? false,
-                      activeColor: Theme.of(context).colorScheme.secondary,
-                      onChanged: (selected) {
-                        setState(() {
-                          selectedTypes[type] = selected ?? false;
-                        });
-                        final selectedList = selectedTypes.entries
-                            .where((entry) => entry.value)
-                            .map((entry) => entry.key)
-                            .toList();
-                        widget.onTypesChanged(selectedList);
-                      },
+                    SizedBox(
+                      width: 24,
+                      height: 24,
+                      child: Checkbox(
+                        value: isSelected,
+                        activeColor: Theme.of(context).colorScheme.secondary,
+                        side: BorderSide(
+                          color: isSelected
+                              ? Theme.of(context).colorScheme.secondary
+                              : Colors.grey[300]!,
+                          width: 0.5,
+                        ),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(4),
+                        ),
+                        onChanged: (selected) {
+                          setState(() {
+                            selectedTypes[type] = selected ?? false;
+                          });
+                          final selectedList = selectedTypes.entries
+                              .where((entry) => entry.value)
+                              .map((entry) => entry.key)
+                              .toList();
+                          widget.onTypesChanged(selectedList);
+                        },
+                      ),
                     ),
+                    const SizedBox(width: 8),
                     Flexible(
                       child: Text(
                         type,
@@ -292,7 +351,6 @@ class _DiscountFilterDialogState extends State<DiscountFilterDialog> {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.end,
         children: [
-          //_validateAndUpdateRange();
           GestureDetector(
             onTap: () {
               Navigator.of(context).pop();

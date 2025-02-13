@@ -1,10 +1,8 @@
 import 'package:flutter/material.dart';
 
 const Color bluePurpleColor = Color(0xFF0F0A54);
-// Gradient colors for darkBlueGradient
 const Color darkBlueGradientStartColor = Color(0xFF0b3eb4);
 const Color darkBlueGradientEndColor = Color(0xFF0B3597);
-// Gradient colors for deepBlueGradient
 const Color aquaBlueColor = Color(0xFF7BE7D7);
 const Color deepBlueColor = Color(0xFF1258FD);
 const Color darkGreyColor = Color(0xFF878787);
@@ -18,7 +16,6 @@ const Color whiteColor = Color(0xFFFFFFFF);
 const Color lightYellowColor = Color(0xFFFFF7E3);
 const Color yellowColor = Color(0xFFFFAB6D);
 
-// Define the gradients UwU
 const LinearGradient darkBlueGradient = LinearGradient(
   begin: Alignment.topCenter,
   end: Alignment.bottomCenter,
@@ -28,7 +25,6 @@ const LinearGradient darkBlueGradient = LinearGradient(
   ],
 );
 
-// Pretty new gradient with multiple color stops ✨
 const LinearGradient deepBlueGradient = LinearGradient(
   begin: Alignment.topLeft,
   end: Alignment.bottomRight,
@@ -43,6 +39,8 @@ final ThemeData appTheme = ThemeData(
   secondaryHeaderColor: bluePurpleColor,
   brightness: Brightness.light,
   scaffoldBackgroundColor: whiteColor,
+  dialogBackgroundColor:
+      whiteColor, // Changed from lightGreyColor to whiteColor
   colorScheme: const ColorScheme.light(
     primary: bluePurpleColor,
     secondary: deepBlueColor,
@@ -55,7 +53,6 @@ final ThemeData appTheme = ThemeData(
     scrim: greenColor,
     onErrorContainer: lightRedColor,
     onTertiaryContainer: lightYellowColor,
-    surface: darkBlueGradientStartColor,
   ),
   extensions: const [
     ThemeGradients(
@@ -63,6 +60,7 @@ final ThemeData appTheme = ThemeData(
       deepBlueGradient: deepBlueGradient,
     ),
   ],
+  // Rest of the theme configuration remains the same
   textTheme: const TextTheme(
     titleSmall: TextStyle(
         color: bluePurpleColor,
@@ -156,16 +154,16 @@ final ThemeData appTheme = ThemeData(
     foregroundColor: whiteColor,
   ),
   snackBarTheme: SnackBarThemeData(
-    backgroundColor: lightGreyColor, // kawaii background color! (｡♥‿♥｡)
+    backgroundColor: lightGreyColor,
     contentTextStyle: const TextStyle(
         color: darkGreyColor,
         fontSize: 14,
         fontWeight: FontWeight.w500,
         fontFamily: 'RobotoFlex'),
     shape: RoundedRectangleBorder(
-      borderRadius: BorderRadius.circular(16), // Make it round nya~
+      borderRadius: BorderRadius.circular(16),
     ),
-    behavior: SnackBarBehavior.floating, // Floating snackbars are so cute! >w
+    behavior: SnackBarBehavior.floating,
   ),
   buttonTheme: ButtonThemeData(
     buttonColor: bluePurpleColor,
@@ -244,7 +242,6 @@ final ThemeData appTheme = ThemeData(
     overlayColor: bluePurpleColor.withOpacity(0.2),
   ),
   cardColor: lightAquamarineColor,
-  dialogBackgroundColor: lightGreyColor,
 );
 
 class ThemeGradients extends ThemeExtension<ThemeGradients> {
@@ -275,6 +272,7 @@ class ThemeGradients extends ThemeExtension<ThemeGradients> {
     if (other is! ThemeGradients) {
       return this;
     }
+
     return ThemeGradients(
       darkBlueGradient: LinearGradient(
         begin: Alignment.topLeft,

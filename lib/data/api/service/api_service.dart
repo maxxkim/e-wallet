@@ -86,12 +86,6 @@ class ApiService {
     return ApiVerifyToken.fromApi(response.data);
   }
 
-  Future<String?> _getAccessToken() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    final String? token = prefs.getString('accessToken');
-    return token;
-  }
-
   Future<ApiTopUp> getProviders() async {
     final response = await _dio.get(
       'https://trx-service-lc9l6.ondigitalocean.app/providers/all',
@@ -181,39 +175,6 @@ class ApiService {
         'https://contact-service-w42s8.ondigitalocean.app/api/v1/contacts/$phone');
   }
 
-  void _addTokenInterceptor() {
-    _dio.interceptors.add(InterceptorsWrapper(onRequest:
-        (RequestOptions options, RequestInterceptorHandler handler) async {
-      // Always add x-api-key header for all requests
-      options.headers['x-api-key'] = 'TV99UCUiCfmayqRqPVXnTxPpmuqKxrT3';
-
-      // Check if it's a merchant service endpoint
-      if (options.path.contains('merchant')) {
-        // For QR code existence check endpoint use ApiKey
-        if (!options.path.contains('payment')) {
-          options.headers['Authorization'] =
-              'ApiKey TV99UCUiCfmayqRqPVXnTxPpmuqKxrT3';
-        }
-        // For payment endpoint use Bearer token
-        else {
-          String? accessToken = await _getAccessToken();
-          if (accessToken != null) {
-            options.headers['Authorization'] = 'Bearer $accessToken';
-          }
-        }
-      }
-      // For all other non-merchant endpoints use Bearer token
-      else {
-        String? accessToken = await _getAccessToken();
-        if (accessToken != null) {
-          options.headers['Authorization'] = 'Bearer $accessToken';
-        }
-      }
-
-      return handler.next(options);
-    }));
-  }
-
   Future<Map<String, dynamic>> checkQrCode(String hash) async {
     final response = await _dio.post(
       'https://merchant-service-gp4xz.ondigitalocean.app/api/v1/qr_code/exist',
@@ -262,6 +223,29 @@ class ApiService {
         .toList();
   }
 
+  Future<Map<String, dynamic>> getInitialData({
+    int limit = 15,
+    int topLimit = 5,
+  }) async {
+    try {
+      final response = await _dio.get(
+        'https://offer-service-xn3b9.ondigitalocean.app/api/v1/initial-data',
+        queryParameters: {
+          'limit': limit,
+          'top_limit': topLimit,
+        },
+      );
+
+      if (response.statusCode == 200) {
+        return response.data as Map<String, dynamic>;
+      } else {
+        throw Exception('Failed to load initial data >.<');
+      }
+    } catch (e) {
+      throw Exception('Error fetching initial data: $e');
+    }
+  }
+
   Future<List<Activation>> getActivations(int limit) async {
     final response = await _dio.get(
       'https://offer-service-xn3b9.ondigitalocean.app/api/v1/activations',
@@ -277,114 +261,6 @@ class ApiService {
       'https://offer-service-xn3b9.ondigitalocean.app/api/v1/activations/$offerId',
     );
     return Activation.fromJson(response.data['activation']);
-  }
-
-  Future<List<Offer>> getOffers({
-    int page = 1,
-    int limit = 100,
-    String? search,
-    List<int>? categoryIds,
-    String? merchantId,
-    String? sortBy = 'desc',
-    String? filterFrom,
-    String? filterTo,
-    String? filterType,
-  }) async {
-    try {
-      if (categoryIds != null && categoryIds.isNotEmpty) {
-        // Make parallel requests for each category
-        final futures = categoryIds.map((categoryId) {
-          final queryParams = {
-            'page': page,
-            'limit': limit,
-            if (search != null && search.isNotEmpty) 'search': search,
-            'category_id': categoryId,
-            if (merchantId != null) 'merchant_id': merchantId,
-            'sort_by': sortBy,
-            if (filterFrom != null) 'filter_from': filterFrom,
-            if (filterTo != null) 'filter_to': filterTo,
-            if (filterType != null) 'filter_type': filterType,
-          };
-
-          return _dio.get(
-            'https://offer-service-xn3b9.ondigitalocean.app/api/v1/offers',
-            queryParameters: queryParams,
-          );
-        });
-
-        // Wait for all requests to complete
-        final responses = await Future.wait(futures);
-
-        // Combine and deduplicate offers from all responses
-        final allOffers = <Offer>{};
-        for (final response in responses) {
-          if (response.data['status'] == 'success' &&
-              response.data['offers'] != null) {
-            final offers = (response.data['offers'] as List)
-                .map((json) => Offer.fromJson(json));
-            allOffers.addAll(offers);
-          }
-        }
-
-        return allOffers.toList();
-      } else {
-        // If no categories selected, make a single request
-        final queryParams = {
-          'page': page,
-          'limit': limit,
-          if (search != null && search.isNotEmpty) 'search': search,
-          if (merchantId != null) 'merchant_id': merchantId,
-          'sort_by': sortBy,
-          if (filterFrom != null) 'filter_from': filterFrom,
-          if (filterTo != null) 'filter_to': filterTo,
-          if (filterType != null) 'filter_type': filterType,
-        };
-
-        final response = await _dio.get(
-          'https://offer-service-xn3b9.ondigitalocean.app/api/v1/offers',
-          queryParameters: queryParams,
-        );
-
-        if (response.data['status'] == 'success' &&
-            response.data['offers'] != null) {
-          return (response.data['offers'] as List)
-              .map((json) => Offer.fromJson(json))
-              .toList();
-        }
-      }
-      return [];
-    } catch (e, stackTrace) {
-      print('Error in getOffers: $e');
-      print('Stack trace: $stackTrace');
-      rethrow;
-    }
-  }
-
-  Future<List<Offer>> getTopOffers(int limit) async {
-    final response = await _dio.get(
-      'https://offer-service-xn3b9.ondigitalocean.app/api/v1/offers/top',
-      queryParameters: {'limit': limit},
-    );
-
-    if (response.data['status'] == 'success' &&
-        response.data['offers'] != null) {
-      return (response.data['offers'] as List)
-          .map((json) => Offer.fromJson(json))
-          .toList();
-    }
-    return [];
-  }
-
-  Future<ApiCategoriesResponse> getCategories(
-      {int limit = 20, String? search}) async {
-    final response = await _dio.get(
-      'https://offer-service-xn3b9.ondigitalocean.app/api/v1/categories',
-      queryParameters: {
-        'limit': limit,
-        if (search != null) 'search': search,
-      },
-    );
-    return ApiCategoriesResponse.fromJson(response.data);
   }
 
   Future<ApiCategoriesResponse> getFavoriteCategories({int limit = 100}) async {
@@ -410,28 +286,23 @@ class ApiService {
     return ApiCategoriesResponse.fromJson(response.data);
   }
 
-  Future<Map<String, dynamic>> getMerchants({
-    int limit = 20,
-    String? search,
-  }) async {
-    final response = await _dio.get(
-      'https://offer-service-xn3b9.ondigitalocean.app/api/v1/merchants',
-      queryParameters: {
-        'limit': limit,
-        if (search != null && search.isNotEmpty) 'search': search,
-      },
+  void _addTokenInterceptor() {
+    _dio.interceptors.add(
+      InterceptorsWrapper(
+        onRequest: (options, handler) async {
+          options.headers['x-api-key'] = 'TV99UCUiCfmayqRqPVXnTxPpmuqKxrT3';
+          String? accessToken = await _getAccessToken();
+          if (accessToken != null) {
+            options.headers['Authorization'] = 'Bearer $accessToken';
+          }
+          return handler.next(options);
+        },
+      ),
     );
-    return response.data;
   }
 
-  Future<Map<String, dynamic>> getOfferTypes() async {
-    try {
-      final response = await _dio.get(
-        'https://offer-service-xn3b9.ondigitalocean.app/api/v1/offers/types',
-      );
-      return response.data;
-    } catch (e) {
-      throw Exception('Failed to fetch offer types >.<: $e');
-    }
+  Future<String?> _getAccessToken() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    return prefs.getString('accessToken');
   }
 }

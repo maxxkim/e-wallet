@@ -17,6 +17,7 @@ import 'package:zippy/domain/model/auth/auth_verify_model.dart';
 import 'package:zippy/domain/model/contacts/contact_model.dart';
 import 'package:zippy/domain/model/offer/activation_model.dart';
 import 'package:zippy/domain/model/offer/category_model.dart';
+import 'package:zippy/domain/model/offer/initial_data_model.dart';
 import 'package:zippy/domain/model/offer/offer_model.dart';
 import 'package:zippy/domain/model/qr/payment_response_model.dart';
 import 'package:zippy/domain/model/qr/qr_payment_model.dart';
@@ -124,51 +125,23 @@ class ApiUtil {
     return result;
   }
 
-  Future<List<Activation>> getActivations({int limit = 20}) async {
-    final result = await _apiService.getActivations(limit);
-    return result;
-  }
-
-  Future<Activation> activateOffer(int offerId) async {
-    final result = await _apiService.activateOffer(offerId);
-    return result;
-  }
-
-  Future<List<Offer>> getOffers({
-    int page = 1,
-    int limit = 100,
-    String? search,
-    List<int>? categoryIds,
-    String? merchantId,
-    String? sortBy = 'desc',
-    String? filterFrom,
-    String? filterTo,
-    String? filterType,
+  Future<InitialDataResponse> getInitialData({
+    int limit = 15,
+    int topLimit = 5,
   }) async {
-    final result = await _apiService.getOffers(
-      page: page,
+    final result = await _apiService.getInitialData(
       limit: limit,
-      search: search,
-      categoryIds: categoryIds,
-      merchantId: merchantId,
-      sortBy: sortBy,
-      filterFrom: filterFrom,
-      filterTo: filterTo,
-      filterType: filterType,
+      topLimit: topLimit,
     );
-    return result;
+    return InitialDataResponse.fromJson(result);
   }
 
-  Future<List<Offer>> getTopOffers({int limit = 5}) async {
-    final result = await _apiService.getTopOffers(limit);
-    return result;
+  Future<List<Activation>> getActivations({int limit = 20}) {
+    return _apiService.getActivations(limit);
   }
 
-  Future<List<CategoryModel>> getCategories(
-      {int limit = 20, String? search}) async {
-    final result =
-        await _apiService.getCategories(limit: limit, search: search);
-    return result.categories;
+  Future<Activation> activateOffer(int offerId) {
+    return _apiService.activateOffer(offerId);
   }
 
   Future<List<CategoryModel>> getFavoriteCategories({int limit = 100}) async {
@@ -184,29 +157,5 @@ class ApiUtil {
   Future<List<CategoryModel>> deleteFavoriteCategory(int categoryId) async {
     final result = await _apiService.deleteFavoriteCategory(categoryId);
     return result.categories;
-  }
-
-  Future<List<Map<String, dynamic>>> getMerchants({
-    int limit = 20,
-    String? search,
-  }) async {
-    final response =
-        await _apiService.getMerchants(limit: limit, search: search);
-    if (response['status'] == 'success' && response['merchants'] != null) {
-      return List<Map<String, dynamic>>.from(response['merchants']);
-    }
-    return [];
-  }
-
-  Future<List<String>> getOfferTypes() async {
-    try {
-      final response = await _apiService.getOfferTypes();
-      if (response['status'] == 'success' && response['types'] != null) {
-        return List<String>.from(response['types']);
-      }
-      throw Exception('Invalid response format from server >.<');
-    } catch (e) {
-      throw Exception('Failed to load offer types nyaa~: $e');
-    }
   }
 }

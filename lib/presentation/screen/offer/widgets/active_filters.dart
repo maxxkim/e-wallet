@@ -1,3 +1,5 @@
+// lib/presentation/screen/offer/widgets/active_filters.dart
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:zippy/domain/model/offer/category_model.dart';
@@ -28,8 +30,8 @@ class ActiveFilters extends StatelessWidget {
     }
 
     return Wrap(
-      spacing: 4,
-      runSpacing: 4,
+      spacing: 8,
+      runSpacing: 8,
       children: [
         ...selectedCategories.map((category) => _buildFilterChip(
               context,
@@ -60,14 +62,15 @@ class ActiveFilters extends StatelessWidget {
   }) {
     return Container(
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: Theme.of(context).colorScheme.tertiaryContainer,
         borderRadius: BorderRadius.circular(16),
         border: Border.all(
-          color: Theme.of(context).colorScheme.secondary.withOpacity(0),
+          color: Theme.of(context).colorScheme.secondary.withOpacity(0.1),
+          width: 1,
         ),
       ),
       child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 2, vertical: 2),
+        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
@@ -75,20 +78,20 @@ class ActiveFilters extends StatelessWidget {
               label,
               style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                     fontSize: 12,
+                    color: Theme.of(context).colorScheme.secondary,
                   ),
             ),
-            const SizedBox(width: 2),
-            IconButton(
-              icon: Icon(
-                Icons.close,
-                size: 14,
-                color: Theme.of(context).colorScheme.secondary,
-              ),
-              onPressed: onRemove,
-              padding: EdgeInsets.zero,
-              constraints: const BoxConstraints(
-                minWidth: 16,
-                minHeight: 16,
+            const SizedBox(width: 4),
+            InkWell(
+              onTap: onRemove,
+              borderRadius: BorderRadius.circular(12),
+              child: Padding(
+                padding: const EdgeInsets.all(4),
+                child: Icon(
+                  Icons.close,
+                  size: 14,
+                  color: Theme.of(context).colorScheme.secondary,
+                ),
               ),
             ),
           ],

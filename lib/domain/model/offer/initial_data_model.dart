@@ -1,3 +1,5 @@
+// lib/domain/model/offer/initial_data_model.dart
+
 import 'package:zippy/domain/model/offer/category_model.dart';
 import 'package:zippy/domain/model/offer/offer_model.dart';
 

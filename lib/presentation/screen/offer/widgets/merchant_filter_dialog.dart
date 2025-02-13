@@ -1,3 +1,5 @@
+// lib/presentation/screen/offer/widgets/merchant_filter_dialog.dart
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:zippy/domain/repository/offer/offer_repository.dart';
@@ -30,7 +32,6 @@ class MerchantFilterDialog extends StatefulWidget {
 
 class _MerchantFilterDialogState extends State<MerchantFilterDialog> {
   List<MerchantData> _merchants = [];
-  List<MerchantData> _favorites = [];
   List<MerchantData> _selectedMerchants = [];
   bool _isLoading = true;
   String? _error;
@@ -45,14 +46,15 @@ class _MerchantFilterDialogState extends State<MerchantFilterDialog> {
   Future<void> _fetchMerchants() async {
     try {
       final repository = RepositoryProvider.of<OfferRepository>(context);
-      final response = await repository.getMerchants();
+      final initialData = await repository.getInitialData();
+
       if (mounted) {
         setState(() {
-          _merchants = response
-              .map((merchant) => MerchantData(
-                    hash: merchant['hash'] as String,
-                    name: merchant['name'] as String,
-                    totalOffers: merchant['total_offers'] as int,
+          _merchants = initialData.merchants
+              .map((m) => MerchantData(
+                    hash: m.hash,
+                    name: m.name,
+                    totalOffers: m.totalOffers,
                   ))
               .toList();
           _isLoading = false;

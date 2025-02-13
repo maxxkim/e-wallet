@@ -46,74 +46,69 @@ class OfferScreen extends StatelessWidget with FadeInAnimationMixin {
               const SizedBox(height: 16),
               SizedBox(
                 height: 120,
-                child: FutureBuilder<List<Offer>>(
-                  future: RepositoryProvider.of<OfferRepository>(context)
-                      .getTopOffers(),
-                  builder: (context, snapshot) {
-                    if (snapshot.connectionState == ConnectionState.waiting) {
-                      return const Center(child: CircularProgressIndicator());
-                    }
-                    if (snapshot.hasError) {
-                      return const SizedBox.shrink();
-                    }
-                    final topOffers = snapshot.data ?? [];
-                    if (topOffers.isEmpty) {
-                      return const SizedBox.shrink();
-                    }
-                    return ListView.builder(
-                      scrollDirection: Axis.horizontal,
-                      itemCount: topOffers.length,
-                      itemBuilder: (context, index) {
-                        final offer = topOffers[index];
-                        return Padding(
-                          padding: const EdgeInsets.only(right: 8.0),
-                          child: ClipRRect(
-                            borderRadius: BorderRadius.circular(16.0),
-                            child: AspectRatio(
-                              aspectRatio: 16 / 9,
-                              child: Image.network(
-                                offer.image,
-                                fit: BoxFit.contain,
-                                loadingBuilder:
-                                    (context, child, loadingProgress) {
-                                  if (loadingProgress == null) return child;
-                                  return Container(
-                                    color: Theme.of(context)
-                                        .colorScheme
-                                        .tertiaryContainer,
-                                    child: Center(
-                                      child: CircularProgressIndicator(
-                                        value: loadingProgress
-                                                    .expectedTotalBytes !=
-                                                null
-                                            ? loadingProgress
-                                                    .cumulativeBytesLoaded /
-                                                loadingProgress
-                                                    .expectedTotalBytes!
-                                            : null,
+                child: BlocBuilder<OfferCubit, OfferState>(
+                  builder: (context, state) {
+                    if (state is OfferStateLoaded) {
+                      final topOffers = state.offers.take(5).toList();
+                      if (topOffers.isEmpty) return const SizedBox.shrink();
+
+                      return ListView.builder(
+                        scrollDirection: Axis.horizontal,
+                        itemCount: topOffers.length,
+                        itemBuilder: (context, index) {
+                          final offer = topOffers[index];
+                          return Padding(
+                            padding: const EdgeInsets.only(right: 8.0),
+                            child: ClipRRect(
+                              borderRadius: BorderRadius.circular(16.0),
+                              child: AspectRatio(
+                                aspectRatio: 16 / 9,
+                                child: Image.network(
+                                  offer.image,
+                                  fit: BoxFit.contain,
+                                  loadingBuilder:
+                                      (context, child, loadingProgress) {
+                                    if (loadingProgress == null) return child;
+                                    return Container(
+                                      color: Theme.of(context)
+                                          .colorScheme
+                                          .tertiaryContainer,
+                                      child: Center(
+                                        child: CircularProgressIndicator(
+                                          value: loadingProgress
+                                                      .expectedTotalBytes !=
+                                                  null
+                                              ? loadingProgress
+                                                      .cumulativeBytesLoaded /
+                                                  loadingProgress
+                                                      .expectedTotalBytes!
+                                              : null,
+                                        ),
                                       ),
-                                    ),
-                                  );
-                                },
-                                errorBuilder: (context, error, stackTrace) {
-                                  return Container(
-                                    color: Theme.of(context)
-                                        .colorScheme
-                                        .primary
-                                        .withOpacity(0.1),
-                                    child: Icon(
-                                      Icons.error_outline,
-                                      color:
-                                          Theme.of(context).colorScheme.primary,
-                                    ),
-                                  );
-                                },
+                                    );
+                                  },
+                                  errorBuilder: (context, error, stackTrace) {
+                                    return Container(
+                                      color: Theme.of(context)
+                                          .colorScheme
+                                          .primary
+                                          .withOpacity(0.1),
+                                      child: Icon(
+                                        Icons.error_outline,
+                                        color: Theme.of(context)
+                                            .colorScheme
+                                            .primary,
+                                      ),
+                                    );
+                                  },
+                                ),
                               ),
                             ),
-                          ),
-                        );
-                      },
-                    );
+                          );
+                        },
+                      );
+                    }
+                    return const Center(child: CircularProgressIndicator());
                   },
                 ),
               ),
