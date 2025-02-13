@@ -170,7 +170,7 @@ class OfferCubit extends Cubit<OfferState> {
             return false;
           }
 
-          if (currentState!.maxDiscount != null &&
+          if (currentState.maxDiscount != null &&
               totalDiscount > currentState.maxDiscount!) {
             return false;
           }
