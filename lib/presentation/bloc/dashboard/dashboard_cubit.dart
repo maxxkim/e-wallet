@@ -97,14 +97,16 @@ class DashboardCubit extends Cubit<DashboardState> {
 
     List<Transaction> filtered = [...transactions];
 
+    // Get month number from month name
+    final monthNumber = DateFormat('MMMM').parse(month).month;
+
     if (filterType == FilterType.deposit) {
       filtered = filtered.where((t) => t.type == 'payin').toList();
     } else if (filterType == FilterType.withdrawal) {
       filtered = filtered.where((t) => t.type == 'payout').toList();
     } else if (filterType == FilterType.period) {
-      filtered = filtered
-          .where((t) => DateFormat('MMMM').format(t.date) == month)
-          .toList();
+      // Compare month numbers instead of strings
+      filtered = filtered.where((t) => t.date.month == monthNumber).toList();
     }
 
     if (searchQuery.isNotEmpty) {

@@ -3,6 +3,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:intl/intl.dart';
 import 'package:zippy/domain/state/dashboard/dashboard_state.dart';
 import 'package:zippy/presentation/animation/fade_animation_mixin.dart';
 import 'package:zippy/presentation/bloc/dashboard/dashboard_cubit.dart';
@@ -159,15 +160,9 @@ class DashboardScreen extends StatelessWidget with FadeInAnimationMixin {
       MonthData(12, l10n.monthDecember),
     ];
 
-    final currentMonthNumber = state.selectedMonthNumber;
-    final currentMonthData = months.firstWhere(
-      (m) => m.number == currentMonthNumber,
-      orElse: () => months[DateTime.now().month - 1],
-    );
-
-    final currentIndex = months.indexOf(currentMonthData);
-    final startIndex = (currentIndex - 2).clamp(0, months.length - 1);
-    final endIndex = (startIndex + 5).clamp(0, months.length);
+    // Get current month number from state's chosen month
+    final currentMonthNumber =
+        DateFormat('MMMM').parse(state.chosenMonth).month;
 
     return Container(
       height: 48.0,
@@ -184,23 +179,25 @@ class DashboardScreen extends StatelessWidget with FadeInAnimationMixin {
       ),
       child: ListView.builder(
         scrollDirection: Axis.horizontal,
-        itemCount: endIndex - startIndex,
+        itemCount: months.length,
         itemBuilder: (context, index) {
-          final month = months[startIndex + index];
+          final month = months[index];
           final isSelected = month.number == currentMonthNumber;
+
           return GestureDetector(
-            onTap: () => context
-                .read<DashboardCubit>()
-                .selectMonth(month.number.toString()),
-            child: Container(
-              width: 112.0,
-              alignment: Alignment.center,
-              child: Text(
-                month.localizedName,
-                style: isSelected
-                    ? Theme.of(context).textTheme.headlineSmall
-                    : Theme.of(context).textTheme.bodyMedium,
-                textAlign: TextAlign.center,
+            onTap: () =>
+                context.read<DashboardCubit>().selectMonth(month.localizedName),
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16.0),
+              child: Center(
+                child: Text(
+                  month.localizedName,
+                  style: isSelected
+                      ? Theme.of(context).textTheme.headlineSmall?.copyWith(
+                            color: Theme.of(context).colorScheme.primary,
+                          )
+                      : Theme.of(context).textTheme.bodyMedium,
+                ),
               ),
             ),
           );
