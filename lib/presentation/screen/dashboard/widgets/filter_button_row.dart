@@ -2,13 +2,16 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:zippy/domain/state/dashboard/dashboard_state.dart';
 import 'package:zippy/presentation/bloc/dashboard/dashboard_cubit.dart';
+import 'package:zippy/presentation/screen/dashboard/dashboard_screen.dart';
 import 'package:zippy/presentation/theme/app_theme.dart';
 
 class FilterButtonRow extends StatelessWidget {
   final DashboardStateLoaded state;
+  final FilterTranslations translations;
   const FilterButtonRow({
     super.key,
     required this.state,
+    required this.translations,
   });
 
   @override
@@ -18,19 +21,19 @@ class FilterButtonRow extends StatelessWidget {
         _buildFilterButton(
           context: context,
           type: FilterType.period,
-          label: "Period",
+          label: translations.period,
         ),
         const Spacer(),
         _buildFilterButton(
           context: context,
           type: FilterType.deposit,
-          label: "Deposit",
+          label: translations.deposit,
         ),
         const Spacer(),
         _buildFilterButton(
           context: context,
           type: FilterType.withdrawal,
-          label: "Withdrawal",
+          label: translations.withdrawal,
         ),
       ],
     );
@@ -44,7 +47,7 @@ class FilterButtonRow extends StatelessWidget {
     final isSelected = state.filterType == type;
 
     return Container(
-      height: 40, // Smaller height ✨
+      height: 36, // Smaller height ✨
       decoration: BoxDecoration(
         gradient: isSelected
             ? Theme.of(context).extension<ThemeGradients>()?.darkBlueGradient
@@ -63,7 +66,7 @@ class FilterButtonRow extends StatelessWidget {
         style: ButtonStyle(
           padding: WidgetStateProperty.all(
             const EdgeInsets.symmetric(
-                horizontal: 24.0, vertical: 0), // Reduced vertical padding
+                horizontal: 28.0, vertical: 0), // Reduced vertical padding
           ),
           minimumSize:
               WidgetStateProperty.all(const Size(0, 32)), // Set minimum height

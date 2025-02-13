@@ -1,0 +1,243 @@
+{
+    "@_AUTHENTICATION": {},
+    "mobileNumberLabel": "Mobile number",
+    "signUpButton": "Sign Up",
+    "signInButton": "Sign In",
+    "invalidPhoneError": "Please enter a valid phone number",
+    "termsAndSupport": "Terms & Conditions | Support",
+    "@_SMS_VERIFICATION": {},
+    "smsVerificationSent": "We've sent a verification\ncode to",
+    "smsVerificationCantReceive": "Can't receive a verification code?",
+    "smsVerificationTruoraRedirect": "You will be redirected to Truora verification platform",
+    "smsVerificationError": "Verification code is not sent. We are working on this issue. Please try again later.",
+    "iAgree": "I agree to ",
+    "termsOfUse": "Terms of Use",
+    "continueButton": "Continue",
+    "@_DASHBOARD": {},
+    "refresh": "Refresh",
+    "dashboardTopUp": "Top Up",
+    "dashboardWithdraw": "Withdraw",
+    "dashboardScan": "Scan",
+    "dashboardTransfer": "Transfer",
+    "dashboardSelectFromContacts": "Select from contacts",
+    "dashboardPeriod": "Period",
+    "dashboardDeposit": "Deposit",
+    "dashboardWithdrawal": "Withdrawal",
+    "dashboardTransactionHistory": "Transaction History",
+    "dashboardNoTransactions": "No transactions available",
+    "dashboardViewAll": "View All",
+    "@_MONTHS": {},
+    "monthJanuary": "January",
+    "monthFebruary": "February",
+    "monthMarch": "March",
+    "monthApril": "April",
+    "monthMay": "May",
+    "monthJune": "June",
+    "monthJuly": "July",
+    "monthAugust": "August",
+    "monthSeptember": "September",
+    "monthOctober": "October",
+    "monthNovember": "November",
+    "monthDecember": "December",
+    "@_HISTORY": {},
+    "historySearchHint": "Search transactions",
+    "historyTotal": "Total",
+    "historyExpense": "Expense",
+    "historyIncome": "Income",
+    "historyNoTransactions": "No transactions available",
+    "@_TRANSACTIONS": {},
+    "transactionId": "ID",
+    "transactionAmount": "Amount",
+    "transactionDate": "Date",
+    "transactionTime": "Time",
+    "transactionStatus": "Status",
+    "transactionHelp": "Help",
+    "transactionCopy": "Copy",
+    "transactionShare": "Share",
+    "transactionNeedHelp": "Need Help? 🤔",
+    "transactionSupportMessage": "Contact our support team for assistance with your transaction.",
+    "transactionClose": "Close",
+    "transactionCopiedSuccess": "Transaction details copied to clipboard! 📋",
+    "@transactionCopyError": {
+        "placeholders": {
+            "error": {
+                "type": "String"
+            }
+        }
+    },
+    "transactionCopyError": "Failed to copy: {error}",
+    "transferLoading": "Loading Transfer options...",
+    "transferUnknownError": "Unknown error occurred",
+    "transferNewContact": "New\nContact",
+    "transferNewTransaction": "New\nTransaction",
+    "retry": "Retry",
+    "contactEnrique": "Enrique\nIglesias",
+    "contactLionel": "Lionel\nMessi",
+    "contactJuan": "Juan\nPeron",
+    "contactJohn": "John\nDoe",
+    "contactXimena": "Ximena\nMerino",
+    "transferRecipientLabel": "Mobile number",
+    "transferAmountLabel": "Amount",
+    "transferRecipientNotFound": "Could not find the recipient",
+    "@transferConfirmMessage": {
+        "placeholders": {
+            "amount": {
+                "type": "String"
+            },
+            "recipient": {
+                "type": "String"
+            }
+        }
+    },
+    "transferConfirmMessage": "To transfer the amount of {amount} to the number {recipient}, press continue.",
+    "topUpTitle": "Top Up",
+    "topUpLoading": "Loading providers...",
+    "topUpNoProviders": "No providers available",
+    "retry": "Retry",
+    "unknownError": "Unknown error occurred",
+    "topUpAmount": "Amount",
+    "topUpContinue": "Continue",
+    "topUpSelectProvider": "Select provider:",
+    "topUpError": "Error: {error}",
+    "@topUpError": {
+        "placeholders": {
+            "error": {
+                "type": "String"
+            }
+        }
+    },
+    "withdrawalTitle": "Withdrawal",
+    "withdrawalLoading": "Loading withdrawal options...",
+    "withdrawalNoMethods": "No withdrawal methods available",
+    "withdrawalAmount": "Amount",
+    "withdrawalContinue": "Continue",
+    "withdrawalSelectMethod": "Select withdrawal method:",
+    "withdrawalError": "Error: {error}",
+    "@withdrawalError": {
+        "placeholders": {
+            "error": {
+                "type": "String"
+            }
+        }
+    },
+    "@_FORM_VALIDATION": {},
+    "fieldRequired": "This field is required",
+    "invalidNumber": "Please enter a valid number",
+    "invalidFormat": "Invalid format",
+    "@valueTooSmall": {
+        "placeholders": {
+            "min": {
+                "type": "String"
+            }
+        }
+    },
+    "valueTooSmall": "Value must be greater than {min}",
+    "@valueTooLarge": {
+        "placeholders": {
+            "max": {
+                "type": "String"
+            }
+        }
+    },
+    "valueTooLarge": "Value must be less than {max}",
+    "@operationError": {
+        "placeholders": {
+            "error": {
+                "type": "String"
+            }
+        }
+    },
+    "operationError": "Operation failed: {error}",
+    "totalBalance": "Total balance",
+    "navHistory": "History",
+    "navTransfer": "Transfer",
+    "navOffers": "Offers",
+    "navSupport": "Support",
+    "transferMobileNumberLabel": "Mobile number",
+    "transferAmountLabel": "Amount",
+    "transferFillFieldsError": "Please fill in all fields UwU",
+    "transferContinueButton": "Continue",
+    "transferConfirmationText": "To transfer the amount of {amount}\nto the number {phone}, press continue.",
+    "@transferConfirmationText": {
+        "placeholders": {
+            "amount": {},
+            "phone": {}
+        }
+    },
+    "contactsTitle": "Zentro Contacts",
+    "contactsAddNew": "Add New Contact",
+    "contactsMyContacts": "My Contacts",
+    "contactsDeleteConfirmTitle": "Delete Contact",
+    "contactsDeleteConfirmMessage": "Are you sure you want to delete {name}?",
+    "contactsCancel": "Cancel",
+    "contactsDelete": "Delete",
+    "contactsEdit": "Edit Contact",
+    "contactsSave": "Save",
+    "contactsPhone": "Phone",
+    "contactsName": "Name (Optional)",
+    "contactsDeleteConfirmTitle": "Delete Contact",
+    "@contactsDeleteConfirmTitle": {
+        "description": "Title of the confirmation dialog when deleting a contact"
+    },
+    "contactsDeleteConfirmMessage": "Are you sure you want to delete {name}?",
+    "@contactsDeleteConfirmMessage": {
+        "description": "Confirmation message when deleting a contact",
+        "placeholders": {
+            "name": {
+                "type": "String",
+                "example": "John Doe"
+            }
+        }
+    },
+    "contactsCopySuccess": "Contact details copied to clipboard! 📋",
+    "contactsCopyError": "Failed to copy: {error}",
+    "@contactsCopyError": {
+        "description": "Error message when copying contact details fails",
+        "placeholders": {
+            "error": {
+                "type": "String",
+                "example": "Permission denied"
+            }
+        }
+    },
+    "contactsShareSuccess": "Contact details shared successfully!",
+    "contactsShareError": "Failed to share: {error}",
+    "@contactsShareError": {
+        "description": "Error message when sharing contact details fails",
+        "placeholders": {
+            "error": {
+                "type": "String",
+                "example": "Permission denied"
+            }
+        }
+    },
+    "contactsCopy": "Copy",
+    "contactsShare": "Share",
+    "transferZentroContacts": "Zentro Contacts",
+    "offersSearchHint": "Search",
+    "offersNoData": "No offers available yet",
+    "offersDiscount": "OFF",
+    "offersBonus": "Bonus",
+    "getOfferNow": "Get now!",
+    "offerActivatedSuccess": "Offer activated successfully!",
+    "offerActivationError": "Failed to activate offer. Please try again.",
+    "offerFilterCategory": "Category",
+    "offerFilterMerchant": "Merchant",
+    "offerFilterDiscount": "Discount",
+    "offersTitle": "Offers",
+    "offersAvailable": "Available Offers",
+    "offersForYou": "For You",
+    "offersViewAll": "View All",
+    "offersAllOffers": "All Offers",
+    "offersCategories": "Categories",
+    "offersTopOffers": "Top Offers",
+    "offersCategoryDialogTitle": "Select Category",
+    "offersTotalOffers": "{count} offers",
+    "@offersTotalOffers": {
+        "placeholders": {
+            "count": {
+                "type": "int"
+            }
+        }
+    }
+}

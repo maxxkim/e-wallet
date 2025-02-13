@@ -1,0 +1,213 @@
+{
+    "@_AUTHENTICATION": {},
+    "mobileNumberLabel": "Número móvil",
+    "signUpButton": "Registrarse",
+    "signInButton": "Iniciar sesión",
+    "invalidPhoneError": "Por favor ingrese un número de teléfono válido",
+    "termsAndSupport": "Términos y condiciones | Soporte",
+    "@_SMS_VERIFICATION": {},
+    "smsVerificationSent": "Hemos enviado un código\nde verificación a",
+    "smsVerificationCantReceive": "¿No puedes recibir el código?",
+    "smsVerificationTruoraRedirect": "Serás redirigido a la plataforma de verificación de Truora",
+    "smsVerificationError": "El código de verificación no fue enviado. Estamos trabajando en este problema. Por favor, inténtalo de nuevo más tarde.",
+    "iAgree": "Estoy de acuerdo con los ",
+    "termsOfUse": "Términos de uso",
+    "continueButton": "Continuar",
+    "@_DASHBOARD": {},
+    "refresh": "Actualizar",
+    "dashboardTopUp": "Recargar",
+    "dashboardWithdraw": "Retirar",
+    "dashboardScan": "Escanear",
+    "dashboardTransfer": "Transferir",
+    "dashboardSelectFromContacts": "Seleccionar contacto",
+    "dashboardPeriod": "Período",
+    "dashboardDeposit": "Depósito",
+    "dashboardWithdrawal": "Retiro",
+    "dashboardTransactionHistory": "Historial de transacciones",
+    "dashboardNoTransactions": "No hay transacciones disponibles",
+    "dashboardViewAll": "Ver todo",
+    "@_MONTHS": {},
+    "monthJanuary": "Enero",
+    "monthFebruary": "Febrero",
+    "monthMarch": "Marzo",
+    "monthApril": "Abril",
+    "monthMay": "Mayo",
+    "monthJune": "Junio",
+    "monthJuly": "Julio",
+    "monthAugust": "Agosto",
+    "monthSeptember": "Septiembre",
+    "monthOctober": "Octubre",
+    "monthNovember": "Noviembre",
+    "monthDecember": "Diciembre",
+    "@_HISTORY": {},
+    "historySearchHint": "Buscar transacciones",
+    "historyTotal": "Total",
+    "historyExpense": "Gastos",
+    "historyIncome": "Ingresos",
+    "historyNoTransactions": "No hay transacciones disponibles",
+    "@_TRANSACTIONS": {},
+    "transactionId": "ID",
+    "transactionAmount": "Monto",
+    "transactionDate": "Fecha",
+    "transactionTime": "Hora",
+    "transactionStatus": "Estado",
+    "transactionHelp": "Ayuda",
+    "transactionCopy": "Copiar",
+    "transactionShare": "Compartir",
+    "transactionNeedHelp": "¿Necesitas ayuda? 🤔",
+    "transactionSupportMessage": "Contacta a nuestro equipo de soporte para asistencia con tu transacción.",
+    "transactionClose": "Cerrar",
+    "transactionCopiedSuccess": "¡Detalles de la transacción copiados al portapapeles! 📋",
+    "@transactionCopyError": {
+        "placeholders": {
+            "error": {
+                "type": "String"
+            }
+        }
+    },
+    "transactionCopyError": "Error al copiar: {error}",
+    "transferLoading": "Cargando opciones de transferencia...",
+    "transferUnknownError": "Ocurrió un error desconocido",
+    "transferNewContact": "Nuevo\nContacto",
+    "transferRecipientNotFound": "No se pudo encontrar al destinatario",
+    "transferNewTransaction": "Nueva\nTransferencia",
+    "retry": "Reintentar",
+    "contactEnrique": "Enrique\nIglesias",
+    "contactLionel": "Lionel\nMessi",
+    "contactJuan": "Juan\nPeron",
+    "contactJohn": "John\nDoe",
+    "contactXimena": "Ximena\nMerino",
+    "transferRecipientLabel": "Número móvil",
+    "transferAmountLabel": "Monto",
+    "@transferConfirmMessage": {
+        "placeholders": {
+            "amount": {
+                "type": "String"
+            },
+            "recipient": {
+                "type": "String"
+            }
+        }
+    },
+    "transferConfirmMessage": "Para transferir el monto de {amount} al número {recipient}, presiona continuar.",
+    "@_TOPUP": {},
+    "topUpTitle": "Recargar",
+    "topUpLoading": "Cargando proveedores...",
+    "topUpNoProviders": "No hay proveedores disponibles",
+    "retry": "Reintentar",
+    "unknownError": "Ocurrió un error desconocido",
+    "topUpAmount": "Monto",
+    "topUpContinue": "Continuar",
+    "topUpSelectProvider": "Seleccionar proveedor:",
+    "topUpError": "Error: {error}",
+    "@topUpError": {
+        "placeholders": {
+            "error": {
+                "type": "String"
+            }
+        }
+    },
+    "@_WITHDRAWAL": {},
+    "withdrawalTitle": "Retiro",
+    "withdrawalLoading": "Cargando opciones de retiro...",
+    "withdrawalNoMethods": "No hay métodos de retiro disponibles",
+    "withdrawalAmount": "Monto",
+    "withdrawalContinue": "Continuar",
+    "withdrawalSelectMethod": "Seleccionar método de retiro:",
+    "withdrawalError": "Error: {error}",
+    "@withdrawalError": {
+        "placeholders": {
+            "error": {
+                "type": "String"
+            }
+        }
+    },
+    "@_FORM_VALIDATION": {},
+    "fieldRequired": "Este campo es obligatorio",
+    "invalidNumber": "Por favor ingrese un número válido",
+    "invalidFormat": "Formato inválido",
+    "@valueTooSmall": {
+        "placeholders": {
+            "min": {
+                "type": "String"
+            }
+        }
+    },
+    "valueTooSmall": "El valor debe ser mayor que {min}",
+    "@valueTooLarge": {
+        "placeholders": {
+            "max": {
+                "type": "String"
+            }
+        }
+    },
+    "valueTooLarge": "El valor debe ser menor que {max}",
+    "@operationError": {
+        "placeholders": {
+            "error": {
+                "type": "String"
+            }
+        }
+    },
+    "operationError": "La operación falló: {error}",
+    "totalBalance": "Balance Total",
+    "navHistory": "Historial",
+    "navTransfer": "Transferir",
+    "navOffers": "Ofertas",
+    "navSupport": "Ayuda",
+    "transferMobileNumberLabel": "Número móvil",
+    "transferAmountLabel": "Monto",
+    "transferFillFieldsError": "Por favor complete todos los campos UwU",
+    "transferContinueButton": "Continuar",
+    "transferConfirmationText": "Para transferir el monto de {amount}\nal número {phone}, presione continuar.",
+    "@transferConfirmationText": {
+        "placeholders": {
+            "amount": {},
+            "phone": {}
+        }
+    },
+    "contactsTitle": "Contactos Zentro",
+    "contactsAddNew": "Agregar Nuevo Contacto",
+    "contactsMyContacts": "Mis Contactos",
+    "contactsDeleteConfirmTitle": "Eliminar Contacto",
+    "contactsDeleteConfirmMessage": "¿Estás seguro que deseas eliminar a {name}?",
+    "contactsCancel": "Cancelar",
+    "contactsDelete": "Eliminar",
+    "contactsSave": "Guardar",
+    "contactsPhone": "Teléfono",
+    "contactsName": "Nombre (Opcional)",
+    "contactsCopySuccess": "¡Detalles del contacto copiados al portapapeles! 📋",
+    "contactsCopyError": "Error al copiar: {error}",
+    "contactsShareSuccess": "¡Detalles del contacto compartidos exitosamente!",
+    "contactsShareError": "Error al compartir: {error}",
+    "contactsEdit": "Editar",
+    "contactsCopy": "Copiar",
+    "contactsShare": "Compartir",
+    "transferZentroContacts": "Contactos Zentro",
+    "offersSearchHint": "Buscar",
+    "offersNoData": "No hay ofertas disponibles",
+    "offersDiscount": "DCTO",
+    "offersBonus": "Bono",
+    "getOfferNow": "¡Obtener ahora!",
+    "offerActivatedSuccess": "¡Oferta activada exitosamente!",
+    "offerActivationError": "Error al activar la oferta. Por favor intente nuevamente.",
+    "offerFilterCategory": "Categoría",
+    "offerFilterMerchant": "Comercio",
+    "offerFilterDiscount": "Descuento",
+    "offersTitle": "Ofertas",
+    "offersAvailable": "Ofertas Disponibles",
+    "offersForYou": "Para Ti",
+    "offersViewAll": "Ver Todo",
+    "offersAllOffers": "Todas las Ofertas",
+    "offersCategories": "Categorías",
+    "offersTopOffers": "Ofertas Principales",
+    "offersCategoryDialogTitle": "Seleccionar Categoría",
+    "offersTotalOffers": "{count} ofertas",
+    "@offersTotalOffers": {
+        "placeholders": {
+            "count": {
+                "type": "int"
+            }
+        }
+    }
+}

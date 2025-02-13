@@ -1,9 +1,11 @@
 import 'package:dio/dio.dart';
+import 'package:flutter_contacts/contact.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:zippy/data/api/api_auth_initiate.dart';
 import 'package:zippy/data/api/api_auth_refresh.dart';
 import 'package:zippy/data/api/api_auth_verify.dart';
 import 'package:zippy/data/api/api_balance.dart';
+import 'package:zippy/data/api/api_category_responce.dart';
 import 'package:zippy/data/api/api_top_up.dart';
 import 'package:zippy/data/api/api_top_up_initiate.dart';
 import 'package:zippy/data/api/api_transaction.dart';
@@ -11,6 +13,10 @@ import 'package:zippy/data/api/api_transfer_initiate.dart';
 import 'package:zippy/data/api/api_verify_token.dart';
 import 'package:zippy/data/api/api_withdraw.dart';
 import 'package:zippy/data/api/api_withdrawal_initiate.dart';
+import 'package:zippy/domain/model/auth/country_model.dart';
+import 'package:zippy/domain/model/contacts/contact_model.dart';
+import 'package:zippy/domain/model/offer/activation_model.dart';
+import 'package:zippy/domain/model/offer/offer_model.dart';
 
 class ApiService {
   final Dio _dio = Dio();
@@ -21,25 +27,25 @@ class ApiService {
 
   Future<ApiBalance> getBalance() async {
     final response = await _dio.get(
-      'https://balance-service-app-sz8if.ondigitalocean.app/api/v1/wallet',
+      'https://balance-service-zug9v.ondigitalocean.app/api/v1/wallet',
     );
     return ApiBalance.fromApi(response.data);
   }
 
   Future<ApiTransaction> getTransactions() async {
     final response = await _dio.get(
-      'https://lionfish-app-9ixm6.ondigitalocean.app/transactions/all',
+      'https://trx-service-lc9l6.ondigitalocean.app/transactions/all',
     );
     return ApiTransaction.fromApi(response.data);
   }
 
-  Future<ApiAuthInitiate> initiateAuth(String phone) async {
+  Future<ApiAuthInitiate> initiateAuth(String phone, String countryCode) async {
     String cleanedPhone = phone.replaceAll(RegExp(r'[^0-9]'), '');
     final response = await _dio.post(
-      'https://auth-service-app-m9z4y.ondigitalocean.app/auth/initiate',
+      'https://auth-service-9jf3q.ondigitalocean.app/auth/initiate',
       data: {
         'phone': '+$cleanedPhone',
-        'currency': 'CLP',
+        'country': countryCode,
       },
     );
     return ApiAuthInitiate.fromApi(response.data);
@@ -50,7 +56,7 @@ class ApiService {
     String cleanedPhone = phone.replaceAll(RegExp(r'[^0-9]'), '');
 
     final response = await _dio.post(
-      'https://auth-service-app-m9z4y.ondigitalocean.app/auth/verify',
+      'https://auth-service-9jf3q.ondigitalocean.app/auth/verify',
       data: {
         'phone': '+$cleanedPhone',
         'code': code,
@@ -62,7 +68,7 @@ class ApiService {
 
   Future<ApiAuthRefresh> refreshAuth(String refreshToken) async {
     final response = await _dio.post(
-      'https://auth-service-app-m9z4y.ondigitalocean.app/auth/refresh',
+      'https://auth-service-9jf3q.ondigitalocean.app/auth/refresh',
       data: {
         'refreshToken': refreshToken,
       },
@@ -72,7 +78,7 @@ class ApiService {
 
   Future<ApiVerifyToken> verifyToken(String token) async {
     final response = await _dio.post(
-      'https://auth-service-app-m9z4y.ondigitalocean.app/auth/validate-token',
+      'https://auth-service-9jf3q.ondigitalocean.app/auth/validate-token',
       data: {
         'token': token,
       },
@@ -80,30 +86,21 @@ class ApiService {
     return ApiVerifyToken.fromApi(response.data);
   }
 
-  Future<String?> _getAccessToken() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    final String? token = prefs.getString('accessToken');
-    return token;
-  }
-
   Future<ApiTopUp> getProviders() async {
     final response = await _dio.get(
-      'https://lionfish-app-9ixm6.ondigitalocean.app/providers/all',
+      'https://trx-service-lc9l6.ondigitalocean.app/providers/all',
     );
     return ApiTopUp.fromApi(response.data);
   }
 
   Future<ApiTopUpInitiate> initiateTopUp(Map<String, dynamic> data) async {
     final response = await _dio.post(
-      'https://lionfish-app-9ixm6.ondigitalocean.app/transactions/initiate-deposit',
+      'https://trx-service-lc9l6.ondigitalocean.app/transactions/initiate-deposit',
       data: {
-        "provider": "zippyBankCard",
+        "provider": data['provider'],
         "currency": "CLP",
         "amount": data['amount'],
-        "userData": {
-          "email": "user20@example.com",
-          "documentId": "111111111",
-        }
+        "userData": data
       },
     );
     return ApiTopUpInitiate.fromApi(response.data);
@@ -111,7 +108,7 @@ class ApiService {
 
   Future<ApiWithdraw> getWithdrawalProviders() async {
     final response = await _dio.get(
-      'https://lionfish-app-9ixm6.ondigitalocean.app/providers/all',
+      'https://trx-service-lc9l6.ondigitalocean.app/providers/all',
     );
     return ApiWithdraw.fromApi(response.data);
   }
@@ -119,15 +116,12 @@ class ApiService {
   Future<ApiWithdrawalInitiate> initiateWithdrawal(
       Map<String, dynamic> data) async {
     final response = await _dio.post(
-      'https://lionfish-app-9ixm6.ondigitalocean.app/transactions/initiate-payout',
+      'https://trx-service-lc9l6.ondigitalocean.app/transactions/initiate-deposit',
       data: {
-        "provider": "zippyBankCard",
+        "provider": data['provider'],
         "currency": "CLP",
-        "amount": 3,
-        "userData": {
-          "email": "user20@example.com",
-          "documentId": "111111111",
-        }
+        "amount": data['amount'],
+        "userData": data
       },
     );
     return ApiWithdrawalInitiate.fromApi(response.data);
@@ -136,9 +130,9 @@ class ApiService {
   Future<ApiTransferInitiate> initiateTransfer(
       Map<String, dynamic> data) async {
     final response = await _dio.post(
-      'https://transfer-service-2on2u.ondigitalocean.app/api/v1/transfer',
+      'https://transfer-service-dibxk.ondigitalocean.app/api/v1/transfer',
       data: {
-        "recipientId": "279df215-14bc-439a-b4ad-cfafc03c8914",
+        "recipient": data['recipient'],
         "currency": "CLP",
         "amount": data['amount'],
       },
@@ -146,42 +140,44 @@ class ApiService {
     return ApiTransferInitiate.fromApi(response.data);
   }
 
-  void _addTokenInterceptor() {
-    _dio.interceptors.add(InterceptorsWrapper(onRequest:
-        (RequestOptions options, RequestInterceptorHandler handler) async {
-      // Always add x-api-key header for all requests
-      options.headers['x-api-key'] = 'BKC4X9KXCrsCpVZB7DvN4rkhrHZSu6sD';
+  Future<List<ContactModel>> getContacts() async {
+    final response = await _dio.get(
+        'https://contact-service-w42s8.ondigitalocean.app/api/v1/contacts');
+    return (response.data['contacts'] as List)
+        .map((json) => ContactModel.fromJson(json))
+        .toList();
+  }
 
-      // Check if it's a merchant service endpoint
-      if (options.path.contains('merchant-service')) {
-        // For QR code existence check endpoint use ApiKey
-        if (!options.path.contains('payment')) {
-          options.headers['Authorization'] =
-              'ApiKey BKC4X9KXCrsCpVZB7DvN4rkhrHZSu6sD';
-        }
-        // For payment endpoint use Bearer token
-        else {
-          String? accessToken = await _getAccessToken();
-          if (accessToken != null) {
-            options.headers['Authorization'] = 'Bearer $accessToken';
-          }
-        }
-      }
-      // For all other non-merchant endpoints use Bearer token
-      else {
-        String? accessToken = await _getAccessToken();
-        if (accessToken != null) {
-          options.headers['Authorization'] = 'Bearer $accessToken';
-        }
-      }
+  Future<ContactModel> addContact(String phone, String? nickname) async {
+    final response = await _dio.post(
+      'https://contact-service-w42s8.ondigitalocean.app/api/v1/contacts',
+      data: {
+        'phone': phone,
+        'nickname': nickname,
+      },
+    );
+    return ContactModel.fromJson(response.data);
+  }
 
-      return handler.next(options);
-    }));
+  Future<ContactModel> updateContact(
+      int id, String phone, String? nickname) async {
+    final response = await _dio.patch(
+      'https://contact-service-w42s8.ondigitalocean.app/api/v1/contacts/$phone',
+      data: {
+        'nickname': nickname,
+      },
+    );
+    return ContactModel.fromJson(response.data);
+  }
+
+  Future<void> deleteContact(String phone) async {
+    await _dio.delete(
+        'https://contact-service-w42s8.ondigitalocean.app/api/v1/contacts/$phone');
   }
 
   Future<Map<String, dynamic>> checkQrCode(String hash) async {
     final response = await _dio.post(
-      'https://merchant-service-a5ja2.ondigitalocean.app/api/v1/qr_code/exist',
+      'https://merchant-service-gp4xz.ondigitalocean.app/api/v1/qr_code/exist',
       data: {
         'hash': hash,
       },
@@ -189,13 +185,124 @@ class ApiService {
     return response.data;
   }
 
-  Future<void> processPayment(String hash, double amount) async {
-    await _dio.post(
-      'https://merchant-service-a5ja2.ondigitalocean.app/api/v1/payment',
+  Future<Map<String, dynamic>> processPayment(
+      String hash, double amount) async {
+    final response = await _dio.post(
+      'https://merchant-service-gp4xz.ondigitalocean.app/api/v1/payment',
       data: {
         'qr_code_hash': hash,
         'amount': amount,
       },
     );
+    return response.data;
+  }
+
+  Future<List<CountryModel>> getCountries() async {
+    try {
+      final response = await _dio
+          .get('https://auth-service-9jf3q.ondigitalocean.app/auth/countries');
+
+      if (response.statusCode == 200) {
+        final List<dynamic> countriesJson = response.data['countries'];
+        return countriesJson
+            .map((json) => CountryModel.fromJson(json))
+            .toList();
+      } else {
+        throw Exception('Failed to load countries');
+      }
+    } catch (e) {
+      throw Exception('Failed to load countries: $e');
+    }
+  }
+
+  Future<List<ContactModel>> getRecentContacts() async {
+    final response = await _dio.get(
+        'https://contact-service-w42s8.ondigitalocean.app/api/v1/contacts/recent');
+    return (response.data['contacts'] as List)
+        .map((json) => ContactModel.fromJson(json))
+        .toList();
+  }
+
+  Future<Map<String, dynamic>> getInitialData({
+    int limit = 15,
+    int topLimit = 5,
+  }) async {
+    try {
+      final response = await _dio.get(
+        'https://offer-service-xn3b9.ondigitalocean.app/api/v1/initial-data',
+        queryParameters: {
+          'limit': limit,
+          'top_limit': topLimit,
+        },
+      );
+
+      if (response.statusCode == 200) {
+        return response.data as Map<String, dynamic>;
+      } else {
+        throw Exception('Failed to load initial data >.<');
+      }
+    } catch (e) {
+      throw Exception('Error fetching initial data: $e');
+    }
+  }
+
+  Future<List<Activation>> getActivations(int limit) async {
+    final response = await _dio.get(
+      'https://offer-service-xn3b9.ondigitalocean.app/api/v1/activations',
+      queryParameters: {'limit': limit},
+    );
+    return (response.data['activations'] as List)
+        .map((json) => Activation.fromJson(json))
+        .toList();
+  }
+
+  Future<Activation> activateOffer(int offerId) async {
+    final response = await _dio.post(
+      'https://offer-service-xn3b9.ondigitalocean.app/api/v1/activations/$offerId',
+    );
+    return Activation.fromJson(response.data['activation']);
+  }
+
+  Future<ApiCategoriesResponse> getFavoriteCategories({int limit = 100}) async {
+    final response = await _dio.get(
+      'https://offer-service-xn3b9.ondigitalocean.app/api/v1/favorites/categories',
+      queryParameters: {'limit': limit},
+    );
+    return ApiCategoriesResponse.fromJson(response.data);
+  }
+
+  Future<ApiCategoriesResponse> addFavoriteCategory(int categoryId) async {
+    final response = await _dio.post(
+      'https://offer-service-xn3b9.ondigitalocean.app/api/v1/favorites/categories',
+      data: {'category_id': categoryId},
+    );
+    return ApiCategoriesResponse.fromJson(response.data);
+  }
+
+  Future<ApiCategoriesResponse> deleteFavoriteCategory(int categoryId) async {
+    final response = await _dio.delete(
+      'https://offer-service-xn3b9.ondigitalocean.app/api/v1/favorites/categories/$categoryId',
+    );
+    return ApiCategoriesResponse.fromJson(response.data);
+  }
+
+  void _addTokenInterceptor() {
+    _dio.interceptors.add(
+      InterceptorsWrapper(
+        onRequest: (options, handler) async {
+          options.headers['x-api-key'] = 'TV99UCUiCfmayqRqPVXnTxPpmuqKxrT3';
+          String? accessToken = await _getAccessToken();
+          if (accessToken != null) {
+            options.headers['Authorization'] = 'Bearer $accessToken';
+          }
+          return handler.next(options);
+        },
+      ),
+    );
+  }
+
+  Future<String?> _getAccessToken() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    return prefs.getString('accessToken');
   }
 }

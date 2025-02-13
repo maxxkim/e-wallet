@@ -27,11 +27,14 @@ class OutlinedButtonCustom extends StatelessWidget {
             width: 1), // Цвет границы из темы
         backgroundColor: theme.scaffoldBackgroundColor, // Прозрачный фон
       ),
-      child: Text(
-        label,
-        style: TextStyle(
-          color: theme.colorScheme.secondary, // Цвет текста из темы
-          fontSize: 12,
+      child: Align(
+        alignment: Alignment.center,
+        child: Text(
+          label,
+          style: TextStyle(
+            color: theme.colorScheme.secondary, // Цвет текста из темы
+            fontSize: 12,
+          ),
         ),
       ),
     );

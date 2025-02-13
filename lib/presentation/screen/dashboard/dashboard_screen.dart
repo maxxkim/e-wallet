@@ -1,11 +1,16 @@
+// ./lib/presentation/screen/dashboard/dashboard_screen.dart
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:go_router/go_router.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:intl/intl.dart';
 import 'package:zippy/domain/state/dashboard/dashboard_state.dart';
 import 'package:zippy/presentation/animation/fade_animation_mixin.dart';
 import 'package:zippy/presentation/bloc/dashboard/dashboard_cubit.dart';
 import 'package:zippy/presentation/screen/dashboard/widgets/filter_button_row.dart';
 import 'package:zippy/presentation/screen/dashboard/widgets/transaction_history_panel.dart';
+import 'package:zippy/presentation/screen/error_screen.dart';
+import 'package:zippy/presentation/widget/custom_bottom_nav_bar.dart';
 import 'widgets/dashboard_display.dart';
 
 class DashboardScreen extends StatelessWidget with FadeInAnimationMixin {
@@ -13,8 +18,10 @@ class DashboardScreen extends StatelessWidget with FadeInAnimationMixin {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return BlocBuilder<DashboardCubit, DashboardState>(
       builder: (context, state) {
+        if (state is DashboardStateLoggedOut) {}
         if (state is DashboardStateLoaded) {
           return Scaffold(
             body: Padding(
@@ -28,11 +35,28 @@ class DashboardScreen extends StatelessWidget with FadeInAnimationMixin {
                 mainAxisAlignment: MainAxisAlignment.start,
                 children: staggeredFadeIn([
                   fadeInFromTop(
-                    BalanceDisplay(balance: state.balance),
+                    BalanceDisplay(
+                      balance: state.balance,
+                      translations: DashboardTranslations(
+                        totalBalance: l10n.refresh,
+                        topUp: l10n.dashboardTopUp,
+                        withdraw: l10n.dashboardWithdraw,
+                        scan: l10n.dashboardScan,
+                        transfer: l10n.dashboardTransfer,
+                        selectFromContacts: l10n.dashboardSelectFromContacts,
+                      ),
+                    ),
                   ),
                   const SizedBox(height: 16),
                   fadeIn(
-                    FilterButtonRow(state: state),
+                    FilterButtonRow(
+                      state: state,
+                      translations: FilterTranslations(
+                        period: l10n.dashboardPeriod,
+                        deposit: l10n.dashboardDeposit,
+                        withdrawal: l10n.dashboardWithdrawal,
+                      ),
+                    ),
                     delay: 100,
                   ),
                   const SizedBox(height: 16),
@@ -54,7 +78,14 @@ class DashboardScreen extends StatelessWidget with FadeInAnimationMixin {
                               ),
                             Expanded(
                               child: fadeIn(
-                                TransactionHistoryPanel(state: state),
+                                TransactionHistoryPanel(
+                                  state: state,
+                                  translations: TransactionHistoryTranslations(
+                                    noTransactions:
+                                        l10n.dashboardNoTransactions,
+                                    viewAll: l10n.dashboardViewAll,
+                                  ),
+                                ),
                                 delay: 300,
                               ),
                             ),
@@ -67,40 +98,74 @@ class DashboardScreen extends StatelessWidget with FadeInAnimationMixin {
                 ]),
               ),
             ),
+            bottomNavigationBar: const CustomBottomNavBar(),
           );
+        } else if (state is DashboardStateError) {
+          return ErrorScreen(errorMessage: state.errorMessage);
         }
-        return const Center(child: CircularProgressIndicator());
+        return const Scaffold(
+          body: Center(
+            child: CircularProgressIndicator(),
+          ),
+        );
       },
     );
   }
 
-  void navigateToScanner(BuildContext context) {
-    context.go('/dashboard/scan');
+  String getMonthName(int monthNumber, AppLocalizations l10n) {
+    switch (monthNumber) {
+      case 1:
+        return l10n.monthJanuary;
+      case 2:
+        return l10n.monthFebruary;
+      case 3:
+        return l10n.monthMarch;
+      case 4:
+        return l10n.monthApril;
+      case 5:
+        return l10n.monthMay;
+      case 6:
+        return l10n.monthJune;
+      case 7:
+        return l10n.monthJuly;
+      case 8:
+        return l10n.monthAugust;
+      case 9:
+        return l10n.monthSeptember;
+      case 10:
+        return l10n.monthOctober;
+      case 11:
+        return l10n.monthNovember;
+      case 12:
+        return l10n.monthDecember;
+      default:
+        return l10n.monthJanuary;
+    }
   }
 
   Widget _buildMonthSelector(BuildContext context, DashboardStateLoaded state) {
-    final List<String> months = [
-      "January",
-      "February",
-      "March",
-      "April",
-      "May",
-      "June",
-      "July",
-      "August",
-      "September",
-      "October",
-      "November",
-      "December"
+    final l10n = AppLocalizations.of(context)!;
+    final List<MonthData> months = [
+      MonthData(1, l10n.monthJanuary),
+      MonthData(2, l10n.monthFebruary),
+      MonthData(3, l10n.monthMarch),
+      MonthData(4, l10n.monthApril),
+      MonthData(5, l10n.monthMay),
+      MonthData(6, l10n.monthJune),
+      MonthData(7, l10n.monthJuly),
+      MonthData(8, l10n.monthAugust),
+      MonthData(9, l10n.monthSeptember),
+      MonthData(10, l10n.monthOctober),
+      MonthData(11, l10n.monthNovember),
+      MonthData(12, l10n.monthDecember),
     ];
 
-    final currentMonth = state.chosenMonth;
-    final currentIndex = months.indexOf(currentMonth);
-    final startIndex = (currentIndex - 2).clamp(0, months.length - 1);
-    final endIndex = (startIndex + 5).clamp(0, months.length);
+    // Get current month number from state's chosen month
+    final currentMonthNumber =
+        DateFormat('MMMM').parse(state.chosenMonth).month;
 
     return Container(
-      height: 56.0,
+      height: 48.0,
       decoration: BoxDecoration(
         color: Theme.of(context).scaffoldBackgroundColor,
         border: Border.all(
@@ -114,20 +179,23 @@ class DashboardScreen extends StatelessWidget with FadeInAnimationMixin {
       ),
       child: ListView.builder(
         scrollDirection: Axis.horizontal,
-        itemCount: endIndex - startIndex,
+        itemCount: months.length,
         itemBuilder: (context, index) {
-          final month = months[startIndex + index];
-          final isSelected = month == currentMonth;
+          final month = months[index];
+          final isSelected = month.number == currentMonthNumber;
 
           return GestureDetector(
-            onTap: () => context.read<DashboardCubit>().selectMonth(month),
+            onTap: () =>
+                context.read<DashboardCubit>().selectMonth(month.localizedName),
             child: Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16.0),
               child: Center(
                 child: Text(
-                  month,
+                  month.localizedName,
                   style: isSelected
-                      ? Theme.of(context).textTheme.headlineSmall
+                      ? Theme.of(context).textTheme.headlineSmall?.copyWith(
+                            color: Theme.of(context).colorScheme.primary,
+                          )
                       : Theme.of(context).textTheme.bodyMedium,
                 ),
               ),
@@ -137,4 +205,50 @@ class DashboardScreen extends StatelessWidget with FadeInAnimationMixin {
       ),
     );
   }
+}
+
+class MonthData {
+  final int number;
+  final String localizedName;
+  MonthData(this.number, this.localizedName);
+}
+
+class DashboardTranslations {
+  final String totalBalance;
+  final String topUp;
+  final String withdraw;
+  final String scan;
+  final String transfer;
+  final String selectFromContacts;
+
+  DashboardTranslations({
+    required this.totalBalance,
+    required this.topUp,
+    required this.withdraw,
+    required this.scan,
+    required this.transfer,
+    required this.selectFromContacts,
+  });
+}
+
+class FilterTranslations {
+  final String period;
+  final String deposit;
+  final String withdrawal;
+
+  FilterTranslations({
+    required this.period,
+    required this.deposit,
+    required this.withdrawal,
+  });
+}
+
+class TransactionHistoryTranslations {
+  final String noTransactions;
+  final String viewAll;
+
+  TransactionHistoryTranslations({
+    required this.noTransactions,
+    required this.viewAll,
+  });
 }

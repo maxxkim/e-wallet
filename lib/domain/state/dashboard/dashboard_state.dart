@@ -2,6 +2,8 @@ import 'package:zippy/domain/model/transaction/transaction_model.dart';
 
 enum FilterType { period, deposit, withdrawal }
 
+enum NavigationTab { home, history, action, cards, profile }
+
 abstract class DashboardState {}
 
 class DashboardStateLoaded extends DashboardState {
@@ -12,6 +14,7 @@ class DashboardStateLoaded extends DashboardState {
   final List<Transaction>? transactions;
   final List<Transaction>? filteredTransactions;
   final String searchQuery;
+  final NavigationTab selectedTab;
 
   DashboardStateLoaded({
     required this.filterType,
@@ -21,7 +24,26 @@ class DashboardStateLoaded extends DashboardState {
     required this.filteredTransactions,
     this.accessToken,
     this.searchQuery = '',
+    this.selectedTab = NavigationTab.home,
   });
+
+  int get selectedMonthNumber {
+    final Map<String, int> monthMap = {
+      'January': 1,
+      'February': 2,
+      'March': 3,
+      'April': 4,
+      'May': 5,
+      'June': 6,
+      'July': 7,
+      'August': 8,
+      'September': 9,
+      'October': 10,
+      'November': 11,
+      'December': 12,
+    };
+    return monthMap[chosenMonth] ?? DateTime.now().month;
+  }
 
   DashboardStateLoaded copyWith({
     FilterType? filterType,
@@ -31,6 +53,7 @@ class DashboardStateLoaded extends DashboardState {
     List<Transaction>? filteredTransactions,
     String? accessToken,
     String? searchQuery,
+    NavigationTab? selectedTab,
   }) {
     return DashboardStateLoaded(
       filterType: filterType ?? this.filterType,
@@ -40,6 +63,7 @@ class DashboardStateLoaded extends DashboardState {
       filteredTransactions: filteredTransactions ?? this.filteredTransactions,
       accessToken: accessToken ?? this.accessToken,
       searchQuery: searchQuery ?? this.searchQuery,
+      selectedTab: selectedTab ?? this.selectedTab,
     );
   }
 }

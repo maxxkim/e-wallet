@@ -1,138 +1,190 @@
+// ./lib/presentation/screen/transfer/transfer_screen.dart
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_svg/svg.dart';
 import 'package:go_router/go_router.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:zippy/domain/repository/transfer/transfer_repository.dart';
+import 'package:zippy/domain/state/transfer/contact_picker_state.dart';
 import 'package:zippy/domain/state/transfer/transfer_state.dart';
 import 'package:zippy/presentation/animation/fade_animation_mixin.dart';
 import 'package:zippy/presentation/bloc/transfer/transfer_cubit.dart';
-import 'package:zippy/presentation/screen/payment/widgets/balance_display.dart';
+import 'package:zippy/presentation/bloc/transfer/contact_picker_cubit.dart';
+import 'package:zippy/presentation/screen/payment/widgets/transfer_display.dart';
 import 'package:zippy/presentation/screen/payment/widgets/transaction_form_display.dart';
+import 'package:zippy/presentation/widget/custom_bottom_nav_bar.dart';
 import 'package:zippy/presentation/widget/custom_contact_button.dart';
 import 'package:zippy/presentation/widget/custom_contact_button_row.dart';
+import 'package:zippy/domain/model/contacts/contact_model.dart';
 
-class TransferScreen extends StatelessWidget with FadeInAnimationMixin {
+class TransferScreen extends StatefulWidget {
   const TransferScreen({Key? key}) : super(key: key);
 
   @override
+  State<TransferScreen> createState() => _TransferScreenState();
+}
+
+class _TransferScreenState extends State<TransferScreen>
+    with FadeInAnimationMixin {
+  List<ContactModel> recentContacts = [];
+  bool isLoading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadRecentContacts();
+  }
+
+  Future<void> _loadRecentContacts() async {
+    try {
+      final contacts = await RepositoryProvider.of<TransferRepository>(context)
+          .getRecentContacts();
+      setState(() {
+        recentContacts = contacts;
+        isLoading = false;
+      });
+    } catch (e) {
+      setState(() {
+        isLoading = false;
+      });
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error loading contacts: $e UwU')),
+        );
+      }
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
-    return BlocProvider(
-      create: (context) => TransferCubit(
-        RepositoryProvider.of<TransferRepository>(context),
-      )..loadData(),
-      child: BlocBuilder<TransferCubit, TransferState>(
-        builder: (context, state) {
-          return Scaffold(
-              appBar: _buildAppBar(context),
+    final l10n = AppLocalizations.of(context)!;
+    final phoneController = TextEditingController();
+    final amountController = TextEditingController();
+
+    return MultiBlocProvider(
+      providers: [
+        BlocProvider(
+          create: (context) => TransferCubit(
+            RepositoryProvider.of<TransferRepository>(context),
+          )..loadData(),
+        ),
+        BlocProvider(
+          create: (context) => ContactPickerCubit(),
+        ),
+      ],
+      child: BlocListener<ContactPickerCubit, ContactPickerState>(
+        listener: (context, state) {
+          if (state is ContactSelected) {
+            phoneController.text = state.phoneNumber;
+          }
+        },
+        child: BlocBuilder<TransferCubit, TransferState>(
+          builder: (context, state) {
+            return Scaffold(
+              appBar: _buildAppBar(context, l10n),
               body: Padding(
                 padding: const EdgeInsets.all(16.0),
                 child: RefreshIndicator(
                   onRefresh: () => _handleRefresh(context),
-                  child: _buildBody(context, state),
+                  child: _buildBody(
+                      context, state, l10n, phoneController, amountController),
                 ),
-              ));
-        },
+              ),
+              bottomNavigationBar: const CustomBottomNavBar(),
+            );
+          },
+        ),
       ),
     );
   }
 
-  PreferredSizeWidget _buildAppBar(BuildContext context) {
+  PreferredSizeWidget _buildAppBar(
+      BuildContext context, AppLocalizations l10n) {
     return AppBar(
       backgroundColor: Colors.transparent,
       toolbarHeight: 24,
-      /*leading: fadeIn(
-        IconButton(
-          icon: const Icon(Icons.arrow_back, color: Colors.white),
-          onPressed: () => context.go('/dashboard'),
-        ),
-      ),
-      title: fadeIn(
-        Text(
-          'Transfer',
-          style: Theme.of(context).textTheme.displaySmall,
-        ),
-      ),
-      centerTitle: true,*/
     );
   }
 
-  Widget _buildBody(BuildContext context, TransferState state) {
+  Widget _buildBody(
+    BuildContext context,
+    TransferState state,
+    AppLocalizations l10n,
+    TextEditingController phoneController,
+    TextEditingController amountController,
+  ) {
     if (state is TransferStateLoading) {
-      return _buildLoadingContent();
+      return _buildLoadingContent(l10n);
     } else if (state is TransferStateLoaded) {
-      return _buildLoadedContent(context);
+      return _buildLoadedContent(
+          context, l10n, phoneController, amountController);
     } else if (state is TransferStateError) {
-      return _buildErrorContent(context, state.errorMessage);
+      if (state.isRecipientNotFound) {
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(l10n.transferRecipientNotFound),
+            ),
+          );
+        });
+      }
+      return _buildErrorContent(context, state.errorMessage, l10n);
     } else if (state is TransferStateSent) {
-      context.go('/');
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        context.go('/dashboard');
+      });
+      return _buildLoadedContent(
+          context, l10n, phoneController, amountController);
     }
-    return _buildErrorContent(context, "Unknown state");
+    return _buildErrorContent(context, l10n.transferUnknownError, l10n);
   }
 
-  Widget _buildLoadingContent() {
-    return fadeIn(
-      const Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            CircularProgressIndicator(),
-            SizedBox(height: 16),
-            Text('Loading Transfer options...'),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildLoadedContent(BuildContext context) {
+  Widget _buildLoadedContent(
+    BuildContext context,
+    AppLocalizations l10n,
+    TextEditingController phoneController,
+    TextEditingController amountController,
+  ) {
     return SingleChildScrollView(
       child: Column(
         children: staggeredFadeIn([
-          fadeInFromTop(const BalanceDisplay()),
+          fadeInFromTop(const TransferDisplay()),
           const SizedBox(height: 16),
           Center(
             child: fadeIn(
-              ContactButtonRow(
-                buttons: [
-                  ContactButton(
-                    icon: Icons.add,
-                    subtitle: 'New\nContact',
-                  ),
-                  ContactButton(
-                    icon: Icons.arrow_right_alt,
-                    subtitle: 'New\nTransaction',
-                  ),
-                  ContactButton(
-                    color: Theme.of(context).colorScheme.tertiaryContainer,
-                    icon: Icons.person,
-                    subtitle: 'Enrique\nIglesias',
-                  ),
-                  ContactButton(
-                    color: Theme.of(context).colorScheme.tertiaryContainer,
-                    icon: Icons.person,
-                    subtitle: 'Lionel\nMessi',
-                  ),
-                  ContactButton(
-                    color: Theme.of(context).colorScheme.tertiaryContainer,
-                    icon: Icons.person,
-                    subtitle: 'Juan\nPeron',
-                  ),
-                  ContactButton(
-                    color: Theme.of(context).colorScheme.tertiaryContainer,
-                    icon: Icons.person,
-                    subtitle: 'John\nDoe',
-                  ),
-                  ContactButton(
-                    color: Theme.of(context).colorScheme.tertiaryContainer,
-                    icon: Icons.person,
-                    subtitle: 'Ximena\nMerino',
-                  ),
-                ],
-              ),
+              isLoading
+                  ? const CircularProgressIndicator()
+                  : ContactButtonRow(
+                      buttons: [
+                        ContactButton(
+                          icon: SvgPicture.asset(
+                            'assets/images/icon_z.svg',
+                            height: 28.0,
+                            width: 28.0,
+                          ),
+                          subtitle: l10n.transferZentroContacts,
+                          onTap: () =>
+                              context.go('/dashboard/transfer/contacts'),
+                        ),
+                        ...recentContacts
+                            .map((contact) => ContactButton(
+                                  icon: const Icon(Icons.person),
+                                  subtitle: contact.nickname ?? contact.name,
+                                  onTap: () {
+                                    phoneController.text = contact.name;
+                                  },
+                                ))
+                            .toList(),
+                      ],
+                    ),
             ),
           ),
           const SizedBox(height: 16),
           fadeIn(
-            const TransactionFormDisplay(),
+            TransactionFormDisplay(
+              emailController: phoneController,
+              amountController: amountController,
+            ),
             delay: 200,
           ),
           const SizedBox(height: 4),
@@ -141,7 +193,26 @@ class TransferScreen extends StatelessWidget with FadeInAnimationMixin {
     );
   }
 
-  Widget _buildErrorContent(BuildContext context, String message) {
+  Widget _buildLoadingContent(AppLocalizations l10n) {
+    return fadeIn(
+      Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            const CircularProgressIndicator(),
+            const SizedBox(height: 16),
+            Text(l10n.transferLoading),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildErrorContent(
+    BuildContext context,
+    String message,
+    AppLocalizations l10n,
+  ) {
     return fadeIn(
       Center(
         child: Column(
@@ -158,10 +229,10 @@ class TransferScreen extends StatelessWidget with FadeInAnimationMixin {
               textAlign: TextAlign.center,
               style: Theme.of(context).textTheme.titleMedium,
             ),
-            const SizedBox(height: 16),
+            const SizedBox(height: 32),
             ElevatedButton(
               onPressed: () => _handleRefresh(context),
-              child: const Text('Retry'),
+              child: Text(l10n.retry),
             ),
           ],
         ),
@@ -171,5 +242,6 @@ class TransferScreen extends StatelessWidget with FadeInAnimationMixin {
 
   Future<void> _handleRefresh(BuildContext context) async {
     await context.read<TransferCubit>().loadData();
+    await _loadRecentContacts();
   }
 }

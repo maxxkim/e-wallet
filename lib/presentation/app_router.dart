@@ -2,16 +2,19 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:zippy/domain/model/transaction/transaction_model.dart';
+import 'package:zippy/domain/repository/offer/offer_repository.dart';
+import 'package:zippy/presentation/bloc/offer/offer_cubit.dart';
 import 'package:zippy/presentation/screen/auth/auth_screen.dart';
 import 'package:zippy/presentation/screen/auth/sms_verification_screen.dart';
 import 'package:zippy/presentation/screen/dashboard/dashboard_screen.dart';
 import 'package:zippy/presentation/screen/error_screen.dart';
 import 'package:zippy/presentation/screen/history/history_screen.dart';
+import 'package:zippy/presentation/screen/offer/offer_screen.dart';
 import 'package:zippy/presentation/screen/payment/payment_info_screen.dart';
-import 'package:zippy/presentation/screen/payment/payment_screen.dart';
 import 'package:zippy/presentation/screen/topUp/top_up_screen.dart';
 import 'package:zippy/presentation/screen/transfer/transfer_screen.dart';
 import 'package:zippy/presentation/screen/withdrawal/withdrawal_screen.dart';
+import 'package:zippy/presentation/screen/contacts/contacts_screen.dart';
 import 'package:zippy/presentation/session/session_cubit.dart';
 import 'package:zippy/presentation/session/session_state.dart';
 import 'package:zippy/domain/repository/dashboard/dashboard_repository.dart';
@@ -41,42 +44,44 @@ Widget _withDashboardProvider(BuildContext context, Widget child) {
 }
 
 Widget _authGuard(BuildContext context, Widget child) {
-  return BlocBuilder<SessionCubit, SessionState>(
-    builder: (context, state) {
-      if (state is InitialLoading || state is RefreshingTokens) {
-        return _loadingScreen();
-      }
-      if (state is Authenticated) {
-        return _withDashboardProvider(context, child);
-      }
+  return BlocListener<SessionCubit, SessionState>(
+    listener: (context, state) {
       if (state is Unauthenticated) {
-        WidgetsBinding.instance.addPostFrameCallback((_) {
-          GoRouter.of(context).go('/');
-        });
-        return _loadingScreen();
+        context.go('/');
       }
-      return _loadingScreen();
     },
+    child: BlocBuilder<SessionCubit, SessionState>(
+      builder: (context, state) {
+        if (state is InitialLoading || state is RefreshingTokens) {
+          return _loadingScreen();
+        }
+        if (state is Authenticated) {
+          return _withDashboardProvider(context, child);
+        }
+        return _loadingScreen();
+      },
+    ),
   );
 }
 
 Widget _authGuard2(BuildContext context, Widget child) {
-  return BlocBuilder<SessionCubit, SessionState>(
-    builder: (context, state) {
-      if (state is InitialLoading || state is RefreshingTokens) {
-        return _loadingScreen();
-      }
-      if (state is Unauthenticated) {
-        return child;
-      }
+  return BlocListener<SessionCubit, SessionState>(
+    listener: (context, state) {
       if (state is Authenticated) {
-        WidgetsBinding.instance.addPostFrameCallback((_) {
-          GoRouter.of(context).go('/dashboard');
-        });
-        return _loadingScreen();
+        context.go('/dashboard');
       }
-      return _loadingScreen();
     },
+    child: BlocBuilder<SessionCubit, SessionState>(
+      builder: (context, state) {
+        if (state is InitialLoading || state is RefreshingTokens) {
+          return _loadingScreen();
+        }
+        if (state is Unauthenticated) {
+          return child;
+        }
+        return _loadingScreen();
+      },
+    ),
   );
 }
 
@@ -90,13 +95,16 @@ final GoRouter appRouter = GoRouter(
       },
       routes: <RouteBase>[
         GoRoute(
-          path: 'sms/:phoneNumber',
+          path: 'sms/:phoneNumber/:countryCode',
           builder: (context, state) {
             try {
               final String phoneNumber = state.pathParameters['phoneNumber']!;
               return _authGuard2(
                 context,
-                SmsVerificationScreen(phoneNumber: phoneNumber),
+                SmsVerificationScreen(
+                  phoneNumber: phoneNumber,
+                  countryCode: state.pathParameters['countryCode'] ?? 'CL',
+                ),
               );
             } catch (e) {
               return ErrorScreen(errorMessage: _handleError(e));
@@ -114,7 +122,7 @@ final GoRouter appRouter = GoRouter(
         GoRoute(
           path: 'scan',
           builder: (BuildContext context, GoRouterState state) {
-            return _authGuard(context, BarcodeScannerSimple());
+            return _authGuard(context, const BarcodeScannerSimple());
           },
         ),
         GoRoute(
@@ -129,7 +137,6 @@ final GoRouter appRouter = GoRouter(
             return _authGuard(context, const WithdrawalScreen());
           },
         ),
-        // Add new route for transaction details
         GoRoute(
           path: 'transaction-details',
           builder: (context, state) {
@@ -151,15 +158,31 @@ final GoRouter appRouter = GoRouter(
           },
         ),
         GoRoute(
-          path: 'payment',
-          builder: (BuildContext context, GoRouterState state) {
-            return _authGuard(context, PaymentScreen());
-          },
-        ),
+            path: 'transfer',
+            builder: (BuildContext context, GoRouterState state) {
+              return _authGuard(context, const TransferScreen());
+            },
+            routes: [
+              GoRoute(
+                path: 'contacts',
+                builder: (BuildContext context, GoRouterState state) {
+                  return _authGuard(context, const ContactsScreen());
+                },
+              ),
+            ]),
         GoRoute(
-          path: 'transfer',
+          path: 'offers',
           builder: (BuildContext context, GoRouterState state) {
-            return _authGuard(context, const TransferScreen());
+            return _authGuard(
+              context,
+              BlocProvider<OfferCubit>(
+                create: (context) => OfferCubit(
+                  RepositoryProvider.of<OfferRepository>(context),
+                ),
+                lazy: false,
+                child: const OfferScreen(),
+              ),
+            );
           },
         ),
       ],
@@ -172,24 +195,29 @@ final GoRouter appRouter = GoRouter(
 
 String _handleError(dynamic error) {
   if (error is DioException) {
+    if (error.response?.data != null &&
+        error.response?.data['status'] == 'error' &&
+        error.response?.data['message'] != null) {
+      return error.response?.data['message'];
+    }
     switch (error.type) {
       case DioExceptionType.connectionTimeout:
-        return 'Connection timeout occurred. Please check your internet connection.';
+        return 'Connection timeout occurred UwU. Please check your internet!';
       case DioExceptionType.sendTimeout:
-        return 'Send timeout exceeded. Please try again.';
+        return 'Send timeout exceeded >w<. Try again!';
       case DioExceptionType.receiveTimeout:
-        return 'Receive timeout exceeded. Please try again.';
+        return 'Receive timeout exceeded. Nyaa~ please try again!';
       case DioExceptionType.badResponse:
-        return 'Server error: ${error.response?.statusCode}. Please try again later.';
+        return 'Server error: ${error.response?.statusCode}. Gomenasai!';
       case DioExceptionType.cancel:
-        return 'Request was cancelled. Please try again.';
+        return 'Request was cancelled. Nya~';
       case DioExceptionType.unknown:
         if (error.error is String) {
           return error.error as String;
         }
-        return 'An unexpected error occurred. Please try again.';
+        return 'An unexpected error occurred UwU. Please try again!';
       default:
-        return 'An error occurred. Please try again.';
+        return 'An error occurred >_<. Please try again!';
     }
   }
   return error.toString();

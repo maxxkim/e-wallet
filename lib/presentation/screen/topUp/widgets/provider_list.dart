@@ -25,11 +25,13 @@ class ProviderList extends StatelessWidget {
         return ProviderCard(
           provider: providers[index],
           isWithdrawal: isWithdrawal,
-          onSubmit: (data) async {
+          onSubmit: (data, router) async {
             if (isWithdrawal) {
-              await context.read<WithdrawalCubit>().initializeWithdrawal(data);
+              await context
+                  .read<WithdrawalCubit>()
+                  .initializeWithdrawal(data, router);
             } else {
-              await context.read<TopUpCubit>().initializeTopUp(data);
+              await context.read<TopUpCubit>().initializeTopUp(data, router);
             }
           },
         );

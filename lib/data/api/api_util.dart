@@ -1,3 +1,4 @@
+import 'package:flutter_contacts/contact.dart';
 import 'package:zippy/data/api/service/api_service.dart';
 import 'package:zippy/data/mapper/auth/auth_initiate_mapper.dart';
 import 'package:zippy/data/mapper/auth/auth_refresh_mapper.dart';
@@ -13,6 +14,12 @@ import 'package:zippy/data/mapper/withdrawal/withdrawal_mapper.dart';
 import 'package:zippy/domain/model/auth/auth_inititate_model.dart';
 import 'package:zippy/domain/model/auth/auth_refresh_mode.dart';
 import 'package:zippy/domain/model/auth/auth_verify_model.dart';
+import 'package:zippy/domain/model/contacts/contact_model.dart';
+import 'package:zippy/domain/model/offer/activation_model.dart';
+import 'package:zippy/domain/model/offer/category_model.dart';
+import 'package:zippy/domain/model/offer/initial_data_model.dart';
+import 'package:zippy/domain/model/offer/offer_model.dart';
+import 'package:zippy/domain/model/qr/payment_response_model.dart';
 import 'package:zippy/domain/model/qr/qr_payment_model.dart';
 import 'package:zippy/domain/model/top_up/top_up_initiate_model.dart';
 import 'package:zippy/domain/model/top_up/top_up_model.dart';
@@ -36,8 +43,8 @@ class ApiUtil {
     return BalanceMapper.fromApi(result);
   }
 
-  Future<AuthInitiate> initiateAuth(String phone) async {
-    final result = await _apiService.initiateAuth(phone);
+  Future<AuthInitiate> initiateAuth(String phone, String countryCode) async {
+    final result = await _apiService.initiateAuth(phone, countryCode);
     return AuthInitiateMapper.fromApi(result);
   }
 
@@ -91,7 +98,64 @@ class ApiUtil {
     return QrPaymentResponse.fromJson(result);
   }
 
-  Future<void> processPayment(String hash, double amount) async {
-    await _apiService.processPayment(hash, amount);
+  Future<PaymentResponse> processPayment(String hash, double amount) async {
+    final result = await _apiService.processPayment(hash, amount);
+    return PaymentResponse.fromJson(result); // Now we can parse the result
+  }
+
+  Future<List<ContactModel>> getContacts() async {
+    return _apiService.getContacts();
+  }
+
+  Future<ContactModel> addContact(String phone, String? nickname) async {
+    return _apiService.addContact(phone, nickname);
+  }
+
+  Future<ContactModel> updateContact(
+      int id, String phone, String? nickname) async {
+    return _apiService.updateContact(id, phone, nickname);
+  }
+
+  Future<void> deleteContact(String phone) async {
+    await _apiService.deleteContact(phone);
+  }
+
+  Future<List<ContactModel>> getRecentContacts() async {
+    final result = await _apiService.getRecentContacts();
+    return result;
+  }
+
+  Future<InitialDataResponse> getInitialData({
+    int limit = 15,
+    int topLimit = 5,
+  }) async {
+    final result = await _apiService.getInitialData(
+      limit: limit,
+      topLimit: topLimit,
+    );
+    return InitialDataResponse.fromJson(result);
+  }
+
+  Future<List<Activation>> getActivations({int limit = 20}) {
+    return _apiService.getActivations(limit);
+  }
+
+  Future<Activation> activateOffer(int offerId) {
+    return _apiService.activateOffer(offerId);
+  }
+
+  Future<List<CategoryModel>> getFavoriteCategories({int limit = 100}) async {
+    final result = await _apiService.getFavoriteCategories(limit: limit);
+    return result.categories;
+  }
+
+  Future<List<CategoryModel>> addFavoriteCategory(int categoryId) async {
+    final result = await _apiService.addFavoriteCategory(categoryId);
+    return result.categories;
+  }
+
+  Future<List<CategoryModel>> deleteFavoriteCategory(int categoryId) async {
+    final result = await _apiService.deleteFavoriteCategory(categoryId);
+    return result.categories;
   }
 }

@@ -1,5 +1,6 @@
 import 'package:zippy/data/api/api_util.dart';
 import 'package:zippy/domain/model/qr/qr_payment_model.dart';
+import 'package:zippy/domain/model/qr/payment_response_model.dart';
 import 'package:zippy/domain/repository/qr/qr_payment_repository.dart';
 
 class QrPaymentDataRepository extends QrPaymentRepository {
@@ -13,7 +14,7 @@ class QrPaymentDataRepository extends QrPaymentRepository {
   }
 
   @override
-  Future<void> processPayment(String hash, double amount) async {
+  Future<PaymentResponse> processPayment(String hash, double amount) async {
     return _apiUtil.processPayment(hash, amount);
   }
 }

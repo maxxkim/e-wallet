@@ -1,15 +1,22 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
 import 'package:zippy/domain/state/dashboard/dashboard_state.dart';
 import 'package:zippy/presentation/animation/fade_animation_mixin.dart';
 import 'package:zippy/presentation/bloc/dashboard/dashboard_cubit.dart';
+import 'package:zippy/presentation/screen/dashboard/dashboard_screen.dart';
+import 'package:zippy/presentation/session/session_cubit.dart';
 import 'package:zippy/presentation/theme/app_theme.dart';
 
 class BalanceDisplay extends StatefulWidget {
   final num? balance;
-  const BalanceDisplay({super.key, this.balance});
+  final String currency = "CLP";
+  final DashboardTranslations translations;
+
+  BalanceDisplay({super.key, this.balance, required this.translations});
 
   @override
   State<BalanceDisplay> createState() => _BalanceDisplayState();
@@ -18,6 +25,24 @@ class BalanceDisplay extends StatefulWidget {
 class _BalanceDisplayState extends State<BalanceDisplay>
     with FadeInAnimationMixin {
   bool _isUpdating = false;
+  bool _isLoggingOut = false;
+
+  static final Map<String, IconData> currencyIcons = {
+    'clp': MdiIcons.currencyUsd,
+    'ars': MdiIcons.currencyUsd,
+    'brl': MdiIcons.currencyBrl,
+    'pen': MdiIcons.currencyUsd,
+    'usd': MdiIcons.currencyUsd,
+    'eur': MdiIcons.currencyEur,
+    'gbp': MdiIcons.currencyGbp,
+    'btc': MdiIcons.currencyBtc,
+    'eth': MdiIcons.currencyEth,
+    'usdt': MdiIcons.currencyUsd,
+  };
+
+  IconData _getCurrencyIcon(String currencyCode) {
+    return currencyIcons[currencyCode.toLowerCase()] ?? MdiIcons.currencyUsd;
+  }
 
   Future<void> _updateBalance(BuildContext context) async {
     setState(() {
@@ -35,9 +60,36 @@ class _BalanceDisplayState extends State<BalanceDisplay>
     }
   }
 
+  Future<void> _handleLogout(BuildContext context) async {
+    if (_isLoggingOut) return;
+
+    setState(() {
+      _isLoggingOut = true;
+    });
+
+    try {
+      await context.read<SessionCubit>().logout();
+      if (mounted) {
+        context.read<DashboardCubit>().reset();
+      }
+    } catch (e) {
+      print(e);
+      if (mounted) {
+        setState(() {
+          _isLoggingOut = false;
+        });
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<DashboardCubit, DashboardState>(
+    return BlocConsumer<DashboardCubit, DashboardState>(
+      listener: (context, state) {
+        if (state is DashboardStateLoggedOut && mounted) {
+          GoRouter.of(context).go('/');
+        }
+      },
       builder: (context, state) {
         if (state is DashboardStateLoaded) {
           return Row(
@@ -73,14 +125,20 @@ class _BalanceDisplayState extends State<BalanceDisplay>
                           children: [
                             Row(
                               children: [
-                                SvgPicture.asset(
-                                  'assets/images/dollar.svg',
-                                  height: 32.0,
-                                  width: 32.0,
+                                Icon(
+                                  _getCurrencyIcon(widget.currency),
+                                  size: 32,
+                                  color: Colors.white,
                                 ),
                                 const SizedBox(width: 8.0),
                                 Text(
-                                  state.balance.toStringAsFixed(2),
+                                  widget.balance?.toStringAsFixed(widget.balance
+                                                  ?.toString()
+                                                  .contains('.') ??
+                                              false
+                                          ? 2
+                                          : 0) ??
+                                      '0',
                                   style: Theme.of(context)
                                       .textTheme
                                       .headlineMedium
@@ -90,15 +148,26 @@ class _BalanceDisplayState extends State<BalanceDisplay>
                                       ),
                                 ),
                                 const Spacer(),
-                                IconButton(
-                                  icon: const Icon(Icons.exit_to_app),
-                                  color:
-                                      Theme.of(context).scaffoldBackgroundColor,
-                                  onPressed: () {
-                                    context.read<DashboardCubit>().logout();
-                                    context.go('/');
-                                  },
-                                ),
+                                if (kDebugMode)
+                                  IconButton(
+                                    icon: _isLoggingOut
+                                        ? const SizedBox(
+                                            width: 24,
+                                            height: 24,
+                                            child: CircularProgressIndicator(
+                                              strokeWidth: 2,
+                                              valueColor:
+                                                  AlwaysStoppedAnimation<Color>(
+                                                      Colors.white),
+                                            ),
+                                          )
+                                        : const Icon(Icons.exit_to_app),
+                                    color: Theme.of(context)
+                                        .scaffoldBackgroundColor,
+                                    onPressed: _isLoggingOut
+                                        ? null
+                                        : () => _handleLogout(context),
+                                  ),
                               ],
                             ),
                             Padding(
@@ -129,7 +198,7 @@ class _BalanceDisplayState extends State<BalanceDisplay>
                                       ),
                                     const SizedBox(width: 4),
                                     Text(
-                                      "Update",
+                                      widget.translations.totalBalance,
                                       style: Theme.of(context)
                                           .textTheme
                                           .titleSmall
@@ -159,7 +228,7 @@ class _BalanceDisplayState extends State<BalanceDisplay>
                               GestureDetector(
                                 onTap: () => context.go('/dashboard/topUp'),
                                 child: Text(
-                                  "Top Up",
+                                  widget.translations.topUp,
                                   style:
                                       Theme.of(context).textTheme.displayMedium,
                                 ),
@@ -168,7 +237,7 @@ class _BalanceDisplayState extends State<BalanceDisplay>
                                 onTap: () =>
                                     context.go('/dashboard/withdrawal'),
                                 child: Text(
-                                  "Withdraw",
+                                  widget.translations.withdraw,
                                   style:
                                       Theme.of(context).textTheme.displayMedium,
                                 ),
@@ -195,23 +264,22 @@ class _BalanceDisplayState extends State<BalanceDisplay>
                           color:
                               Theme.of(context).colorScheme.tertiaryContainer,
                           borderRadius: BorderRadius.circular(16),
-                          border: Border.all(
-                            color: deepBlueColor,
-                            width: 1.5,
-                          ),
                         ),
                         child: Column(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
                             SvgPicture.asset(
                               'assets/images/icon_qr.svg',
-                              height: 24.0,
-                              width: 24.0,
+                              height: 24,
+                              width: 24,
                             ),
                             const SizedBox(height: 4),
                             Text(
-                              "Scan",
-                              style: Theme.of(context).textTheme.bodySmall,
+                              widget.translations.scan,
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .bodySmall
+                                  ?.copyWith(fontSize: 12),
                             ),
                           ],
                         ),
@@ -227,23 +295,22 @@ class _BalanceDisplayState extends State<BalanceDisplay>
                           color:
                               Theme.of(context).colorScheme.tertiaryContainer,
                           borderRadius: BorderRadius.circular(16),
-                          border: Border.all(
-                            color: deepBlueColor,
-                            width: 1.5,
-                          ),
                         ),
                         child: Column(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
                             SvgPicture.asset(
                               'assets/images/icon_transfer.svg',
-                              height: 24.0,
-                              width: 24.0,
+                              height: 24,
+                              width: 24,
                             ),
                             const SizedBox(height: 4),
                             Text(
-                              "Transfer",
-                              style: Theme.of(context).textTheme.bodySmall,
+                              widget.translations.transfer,
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .bodySmall
+                                  ?.copyWith(fontSize: 12),
                             ),
                           ],
                         ),

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:zippy/domain/repository/top_up/top_up_repository.dart';
 import 'package:zippy/domain/state/topUp/top_up_state.dart';
 import 'package:zippy/presentation/animation/fade_animation_mixin.dart';
@@ -13,6 +14,7 @@ class TopUpScreen extends StatelessWidget with FadeInAnimationMixin {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return BlocProvider(
       create: (context) => TopUpCubit(
         RepositoryProvider.of<TopUpRepository>(context),
@@ -20,10 +22,10 @@ class TopUpScreen extends StatelessWidget with FadeInAnimationMixin {
       child: BlocBuilder<TopUpCubit, TopUpState>(
         builder: (context, state) {
           return Scaffold(
-            //  appBar: _buildAppBar(context),
+            appBar: _buildAppBar(context, l10n),
             body: RefreshIndicator(
               onRefresh: () => _handleRefresh(context),
-              child: _buildBody(context, state),
+              child: _buildBody(context, state, l10n),
             ),
           );
         },
@@ -31,7 +33,8 @@ class TopUpScreen extends StatelessWidget with FadeInAnimationMixin {
     );
   }
 
-  PreferredSizeWidget _buildAppBar(BuildContext context) {
+  PreferredSizeWidget _buildAppBar(
+      BuildContext context, AppLocalizations l10n) {
     return AppBar(
       backgroundColor: Theme.of(context).colorScheme.primary,
       toolbarHeight: 40,
@@ -43,7 +46,7 @@ class TopUpScreen extends StatelessWidget with FadeInAnimationMixin {
       ),
       title: fadeIn(
         Text(
-          'Top Up',
+          l10n.topUpTitle,
           style: Theme.of(context).textTheme.displaySmall,
         ),
       ),
@@ -51,33 +54,35 @@ class TopUpScreen extends StatelessWidget with FadeInAnimationMixin {
     );
   }
 
-  Widget _buildBody(BuildContext context, TopUpState state) {
+  Widget _buildBody(
+      BuildContext context, TopUpState state, AppLocalizations l10n) {
     if (state is TopUpStateLoading) {
-      return _buildLoadingContent();
+      return _buildLoadingContent(l10n);
     } else if (state is TopUpStateLoaded) {
-      return _buildLoadedContent(context, state);
+      return _buildLoadedContent(context, state, l10n);
     } else if (state is TopUpStateError) {
-      return _buildErrorContent(context, state.errorMessage);
+      return _buildErrorContent(context, state.errorMessage, l10n);
     }
-    return _buildErrorContent(context, "Unknown state");
+    return _buildErrorContent(context, l10n.unknownError, l10n);
   }
 
-  Widget _buildLoadingContent() {
+  Widget _buildLoadingContent(AppLocalizations l10n) {
     return fadeIn(
-      const Center(
+      Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            CircularProgressIndicator(),
-            SizedBox(height: 16),
-            Text('Loading providers...'),
+            const CircularProgressIndicator(),
+            const SizedBox(height: 16),
+            Text(l10n.topUpLoading),
           ],
         ),
       ),
     );
   }
 
-  Widget _buildLoadedContent(BuildContext context, TopUpStateLoaded state) {
+  Widget _buildLoadedContent(
+      BuildContext context, TopUpStateLoaded state, AppLocalizations l10n) {
     if (state.providers.isEmpty) {
       return fadeIn(
         Center(
@@ -85,13 +90,13 @@ class TopUpScreen extends StatelessWidget with FadeInAnimationMixin {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Text(
-                'No providers available',
+                l10n.topUpNoProviders,
                 style: Theme.of(context).textTheme.titleMedium,
               ),
               const SizedBox(height: 16),
               ElevatedButton(
                 onPressed: () => _handleRefresh(context),
-                child: const Text('Retry'),
+                child: Text(l10n.retry),
               ),
             ],
           ),
@@ -121,7 +126,8 @@ class TopUpScreen extends StatelessWidget with FadeInAnimationMixin {
     );
   }
 
-  Widget _buildErrorContent(BuildContext context, String message) {
+  Widget _buildErrorContent(
+      BuildContext context, String message, AppLocalizations l10n) {
     return fadeIn(
       Center(
         child: Column(
@@ -141,7 +147,7 @@ class TopUpScreen extends StatelessWidget with FadeInAnimationMixin {
             const SizedBox(height: 16),
             ElevatedButton(
               onPressed: () => _handleRefresh(context),
-              child: const Text('Retry'),
+              child: Text(l10n.retry),
             ),
           ],
         ),

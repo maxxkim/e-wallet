@@ -6,15 +6,18 @@ import 'package:zippy/domain/model/transaction/transaction_model.dart';
 import 'package:zippy/domain/state/dashboard/dashboard_state.dart';
 import 'package:zippy/presentation/animation/fade_animation_mixin.dart';
 import 'package:zippy/presentation/bloc/dashboard/dashboard_cubit.dart';
+import 'package:zippy/presentation/screen/dashboard/dashboard_screen.dart';
 import 'package:zippy/presentation/screen/history/widgets/transaction_tile.dart';
 
 class TransactionHistoryPanel extends StatelessWidget
     with FadeInAnimationMixin {
   final DashboardStateLoaded state;
+  final TransactionHistoryTranslations translations;
 
   const TransactionHistoryPanel({
     super.key,
     required this.state,
+    required this.translations,
   });
 
   @override
@@ -31,7 +34,7 @@ class TransactionHistoryPanel extends StatelessWidget
         children: [
           Expanded(
             child: ListView.builder(
-              physics: const AlwaysScrollableScrollPhysics(),
+              padding: EdgeInsets.zero,
               itemCount:
                   _getDisplayedItemCount(state.filteredTransactions!.length),
               itemBuilder: (context, index) {
@@ -91,7 +94,7 @@ class TransactionHistoryPanel extends StatelessWidget
         ),
         child: Center(
           child: Text(
-            "View All",
+            translations.viewAll,
             style: Theme.of(context).textTheme.titleMedium?.copyWith(
                   color: Theme.of(context).colorScheme.primary,
                 ),
@@ -116,15 +119,8 @@ class TransactionHistoryPanel extends StatelessWidget
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Icon(
-                    Icons.receipt_long_outlined,
-                    size: 64,
-                    color:
-                        Theme.of(context).colorScheme.primary.withOpacity(0.5),
-                  ),
-                  const SizedBox(height: 16),
                   Text(
-                    'No transactions found',
+                    translations.noTransactions,
                     style: Theme.of(context).textTheme.titleMedium?.copyWith(
                           color: Theme.of(context)
                               .colorScheme

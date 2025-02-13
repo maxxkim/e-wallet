@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:url_launcher/url_launcher.dart';
 import 'package:zippy/domain/model/qr/qr_payment_model.dart';
 import 'package:zippy/domain/state/qr/qr_payment_state.dart';
 import 'package:zippy/presentation/animation/fade_animation_mixin.dart';
@@ -25,13 +26,24 @@ class QrPaymentConfirmation extends StatelessWidget with FadeInAnimationMixin {
   @override
   Widget build(BuildContext context) {
     return BlocListener<QrPaymentCubit, QrPaymentState>(
-      listener: (context, state) {
-        if (state is QrPaymentSuccess) {
+      listener: (context, state) async {
+        if (state is QrPaymentSuccess && state.paymentResponse != null) {
+          // Launch return URL
+          final returnUrl = state.paymentResponse.payment.returnUrl;
+          if (returnUrl != null) {
+            final url = Uri.parse(returnUrl);
+            if (!await launchUrl(url, mode: LaunchMode.externalApplication)) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(
+                    content: Text('Could not launch external browser.')),
+              );
+            }
+          }
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(content: Text('Payment processed successfully!')),
           );
-          Navigator.of(context).pop(); // Close confirmation
-          Navigator.of(context).pop(); // Close scanner
+          Navigator.of(context).pop();
+          Navigator.of(context).pop();
         } else if (state is QrPaymentProcessError) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(content: Text('Payment failed: ${state.message}')),
