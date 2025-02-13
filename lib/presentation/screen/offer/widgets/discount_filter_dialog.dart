@@ -2,16 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:zippy/domain/repository/offer/offer_repository.dart';
 import 'package:zippy/presentation/bloc/offer/offer_cubit.dart';
-import 'package:zippy/presentation/theme/app_theme.dart';
 
 class DiscountFilterDialog extends StatefulWidget {
   final double? minDiscount;
   final double? maxDiscount;
   final String sortDirection;
   final List<String> selectedTypes;
-  final Function(double?, double?) onDiscountRangeChanged;
-  final Function(String) onSortDirectionChanged;
-  final Function(List<String>) onTypesChanged;
 
   const DiscountFilterDialog({
     Key? key,
@@ -19,9 +15,6 @@ class DiscountFilterDialog extends StatefulWidget {
     this.maxDiscount,
     required this.sortDirection,
     required this.selectedTypes,
-    required this.onDiscountRangeChanged,
-    required this.onSortDirectionChanged,
-    required this.onTypesChanged,
   }) : super(key: key);
 
   @override
@@ -49,12 +42,10 @@ class _DiscountFilterDialogState extends State<DiscountFilterDialog> {
       final initialData = await RepositoryProvider.of<OfferRepository>(context)
           .getInitialData();
 
-      // Get unique offer types from the offers
       final uniqueTypes = initialData.offers
           .map((offer) => offer.type.toLowerCase())
           .toSet()
           .toList();
-
       setState(() {
         offerTypes = uniqueTypes;
         for (var type in offerTypes) {
@@ -64,29 +55,10 @@ class _DiscountFilterDialogState extends State<DiscountFilterDialog> {
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Failed to load offer types: $e UwU')),
+          SnackBar(content: Text('Failed to load offer types: $e')),
         );
       }
     }
-  }
-
-  void _validateAndUpdateRange() {
-    double? min = double.tryParse(_minController.text);
-    double? max = double.tryParse(_maxController.text);
-
-    if (min != null && max != null) {
-      if (min > max) {
-        final temp = min;
-        min = max;
-        max = temp;
-        _minController.text = min.toString();
-        _maxController.text = max.toString();
-      }
-      if (min < 0) min = 0;
-      if (max > 100) max = 100;
-    }
-
-    widget.onDiscountRangeChanged(min, max);
   }
 
   @override
@@ -133,7 +105,6 @@ class _DiscountFilterDialogState extends State<DiscountFilterDialog> {
                 isSelected: sortDirection == 'asc',
                 onTap: () {
                   setState(() => sortDirection = 'asc');
-                  widget.onSortDirectionChanged('asc');
                 },
               ),
               const SizedBox(width: 8),
@@ -142,7 +113,6 @@ class _DiscountFilterDialogState extends State<DiscountFilterDialog> {
                 isSelected: sortDirection == 'desc',
                 onTap: () {
                   setState(() => sortDirection = 'desc');
-                  widget.onSortDirectionChanged('desc');
                 },
               ),
             ],
@@ -203,31 +173,12 @@ class _DiscountFilterDialogState extends State<DiscountFilterDialog> {
                     hintText: '5%',
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(8),
-                      borderSide: BorderSide(
-                        color: Theme.of(context).colorScheme.secondary,
-                        width: 1,
-                      ),
-                    ),
-                    enabledBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(8),
-                      borderSide: BorderSide(
-                        color: Colors.grey[300]!,
-                        width: 1,
-                      ),
-                    ),
-                    focusedBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(8),
-                      borderSide: BorderSide(
-                        color: Theme.of(context).colorScheme.secondary,
-                        width: 1,
-                      ),
                     ),
                     contentPadding: const EdgeInsets.symmetric(
                       horizontal: 12,
                       vertical: 8,
                     ),
                   ),
-                  onChanged: (_) => _validateAndUpdateRange(),
                 ),
               ),
               const Padding(
@@ -242,31 +193,12 @@ class _DiscountFilterDialogState extends State<DiscountFilterDialog> {
                     hintText: '100%',
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(8),
-                      borderSide: BorderSide(
-                        color: Theme.of(context).colorScheme.secondary,
-                        width: 1,
-                      ),
-                    ),
-                    enabledBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(8),
-                      borderSide: BorderSide(
-                        color: Colors.grey[300]!,
-                        width: 1,
-                      ),
-                    ),
-                    focusedBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(8),
-                      borderSide: BorderSide(
-                        color: Theme.of(context).colorScheme.secondary,
-                        width: 1,
-                      ),
                     ),
                     contentPadding: const EdgeInsets.symmetric(
                       horizontal: 12,
                       vertical: 8,
                     ),
                   ),
-                  onChanged: (_) => _validateAndUpdateRange(),
                 ),
               ),
             ],
@@ -319,11 +251,6 @@ class _DiscountFilterDialogState extends State<DiscountFilterDialog> {
                           setState(() {
                             selectedTypes[type] = selected ?? false;
                           });
-                          final selectedList = selectedTypes.entries
-                              .where((entry) => entry.value)
-                              .map((entry) => entry.key)
-                              .toList();
-                          widget.onTypesChanged(selectedList);
                         },
                       ),
                     ),
@@ -365,7 +292,20 @@ class _DiscountFilterDialogState extends State<DiscountFilterDialog> {
           const SizedBox(width: 16),
           ElevatedButton(
             onPressed: () {
-              _validateAndUpdateRange();
+              final min = double.tryParse(_minController.text);
+              final max = double.tryParse(_maxController.text);
+              final selectedList = selectedTypes.entries
+                  .where((entry) => entry.value)
+                  .map((entry) => entry.key)
+                  .toList();
+
+              context.read<OfferCubit>().applyFilters(
+                    minDiscount: min,
+                    maxDiscount: max,
+                    sortDirection: sortDirection,
+                    offerTypes: selectedList,
+                  );
+
               Navigator.of(context).pop();
             },
             style: ElevatedButton.styleFrom(

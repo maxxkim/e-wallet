@@ -405,24 +405,18 @@ class OfferScreen extends StatelessWidget with FadeInAnimationMixin {
       showDialog(
         context: context,
         builder: (dialogContext) {
-          return Dialog(
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(16),
-            ),
-            child: DiscountFilterDialog(
-              minDiscount: state.minDiscount,
-              maxDiscount: state.maxDiscount,
-              sortDirection: state.sortDirection,
-              selectedTypes: state.selectedOfferTypes,
-              onDiscountRangeChanged: (min, max) {
-                context.read<OfferCubit>().setDiscountRange(min, max);
-              },
-              onSortDirectionChanged: (direction) {
-                context.read<OfferCubit>().setSortDirection(direction);
-              },
-              onTypesChanged: (types) {
-                context.read<OfferCubit>().setSelectedOfferTypes(types);
-              },
+          return BlocProvider.value(
+            value: context.read<OfferCubit>(),
+            child: Dialog(
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(16),
+              ),
+              child: DiscountFilterDialog(
+                minDiscount: state.minDiscount,
+                maxDiscount: state.maxDiscount,
+                sortDirection: state.sortDirection,
+                selectedTypes: state.selectedOfferTypes,
+              ),
             ),
           );
         },

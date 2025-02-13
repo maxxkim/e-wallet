@@ -1,5 +1,3 @@
-// lib/presentation/bloc/offer/offer_cubit.dart
-
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -62,8 +60,7 @@ class OfferCubit extends Cubit<OfferState> {
       final newCategories =
           List<CategoryModel>.from(currentState.selectedCategories)
             ..removeWhere((c) => c.id == category.id);
-      emit(currentState.copyWith(selectedCategories: newCategories));
-      await loadOffers(refresh: true);
+      selectCategories(newCategories);
     }
   }
 
@@ -84,24 +81,32 @@ class OfferCubit extends Cubit<OfferState> {
       final newMerchants =
           List<MerchantData>.from(currentState.selectedMerchants)
             ..removeWhere((m) => m.hash == merchant.hash);
-      emit(currentState.copyWith(selectedMerchants: newMerchants));
+      selectMerchants(newMerchants);
+    }
+  }
+
+  void applyFilters({
+    String? sortDirection,
+    double? minDiscount,
+    double? maxDiscount,
+    List<String>? offerTypes,
+  }) async {
+    if (state is OfferStateLoaded) {
+      final currentState = state as OfferStateLoaded;
+      _currentPage = 1;
+      emit(currentState.copyWith(
+        sortDirection: sortDirection ?? currentState.sortDirection,
+        minDiscount: minDiscount,
+        maxDiscount: maxDiscount,
+        selectedOfferTypes: offerTypes ?? currentState.selectedOfferTypes,
+      ));
       await loadOffers(refresh: true);
     }
   }
 
-  void setSortDirection(String direction) async {
+  void clearDiscountFilter() async {
     if (state is OfferStateLoaded) {
-      final currentState = state as OfferStateLoaded;
-      emit(currentState.copyWith(sortDirection: direction));
-      await loadOffers(refresh: true);
-    }
-  }
-
-  void setSelectedOfferTypes(List<String> types) async {
-    if (state is OfferStateLoaded) {
-      final currentState = state as OfferStateLoaded;
-      emit(currentState.copyWith(selectedOfferTypes: types));
-      await loadOffers(refresh: true);
+      applyFilters(minDiscount: null, maxDiscount: null);
     }
   }
 
@@ -127,18 +132,64 @@ class OfferCubit extends Cubit<OfferState> {
         emit(currentState.copyWith(isLoadingMore: true));
       }
 
-      // Load initial data with pagination
+      final queryParams = {
+        'page': _currentPage,
+        'limit': _pageSize,
+        'search': searchController.text,
+        'sort_by': currentState?.sortDirection ?? 'desc',
+      };
+
+      if (currentState?.selectedCategories.isNotEmpty ?? false) {
+        queryParams['category_id'] = currentState!.selectedCategories
+            .map((c) => c.id.toString())
+            .join(',');
+      }
+
+      if (currentState?.selectedMerchants.isNotEmpty ?? false) {
+        queryParams['merchant_id'] =
+            currentState!.selectedMerchants.map((m) => m.hash).join(',');
+      }
+
       final initialData = await _offerRepository.getInitialData(
         limit: _pageSize,
-        topLimit:
-            _currentPage == 1 ? 5 : 0, // Only load top offers on first page
+        topLimit: _currentPage == 1 ? 5 : 0,
       );
 
+      List<Offer> filteredOffers = initialData.offers;
+
+      // Apply local filtering
+      if (currentState?.minDiscount != null ||
+          currentState?.maxDiscount != null) {
+        filteredOffers = filteredOffers.where((offer) {
+          final discount = double.tryParse(offer.discount) ?? 0;
+          final bonus = double.tryParse(offer.bonus) ?? 0;
+          final totalDiscount = discount + bonus;
+
+          if (currentState!.minDiscount != null &&
+              totalDiscount < currentState.minDiscount!) {
+            return false;
+          }
+
+          if (currentState!.maxDiscount != null &&
+              totalDiscount > currentState.maxDiscount!) {
+            return false;
+          }
+
+          return true;
+        }).toList();
+      }
+
+      if (currentState?.selectedOfferTypes.isNotEmpty ?? false) {
+        filteredOffers = filteredOffers.where((offer) {
+          return currentState!.selectedOfferTypes
+              .contains(offer.type.toLowerCase());
+        }).toList();
+      }
+
       if (currentState != null && !refresh) {
-        // For pagination: combine existing and new offers
         final List<Offer> updatedOffers = [
           ...currentState.offers,
-          ...initialData.offers,
+          ...filteredOffers,
         ];
 
         emit(currentState.copyWith(
@@ -146,25 +197,17 @@ class OfferCubit extends Cubit<OfferState> {
           isLoadingMore: false,
         ));
       } else {
-        // First load or refresh
         emit(OfferStateLoaded(
-          offers: initialData.offers,
-          selectedCategories: initialData.categories,
-          selectedMerchants: initialData.merchants
-              .map((m) => MerchantData(
-                    hash: m.hash,
-                    name: m.name,
-                    totalOffers: m.totalOffers,
-                  ))
-              .toList(),
-          minDiscount: null,
-          maxDiscount: null,
-          sortDirection: initialData.options.sortBy,
-          selectedOfferTypes: [],
+          offers: filteredOffers,
+          selectedCategories: currentState?.selectedCategories ?? [],
+          selectedMerchants: currentState?.selectedMerchants ?? [],
+          minDiscount: currentState?.minDiscount,
+          maxDiscount: currentState?.maxDiscount,
+          sortDirection: currentState?.sortDirection ?? 'desc',
+          selectedOfferTypes: currentState?.selectedOfferTypes ?? [],
         ));
       }
 
-      // Check if we should load more based on total pages
       if (_currentPage < initialData.options.lastPage) {
         _currentPage++;
       }
@@ -174,29 +217,6 @@ class OfferCubit extends Cubit<OfferState> {
         emit(currentState.copyWith(isLoadingMore: false));
       }
       emit(OfferStateError(errorMessage: _handleError(e)));
-    }
-  }
-
-  void setDiscountRange(double? min, double? max) async {
-    if (state is OfferStateLoaded) {
-      final currentState = state as OfferStateLoaded;
-      _currentPage = 1;
-      emit(currentState.copyWith(
-        minDiscount: min,
-        maxDiscount: max,
-      ));
-      await loadOffers(refresh: true);
-    }
-  }
-
-  void clearDiscountFilter() async {
-    if (state is OfferStateLoaded) {
-      final currentState = state as OfferStateLoaded;
-      emit(currentState.copyWith(
-        minDiscount: null,
-        maxDiscount: null,
-      ));
-      await loadOffers(refresh: true);
     }
   }
 
@@ -214,17 +234,17 @@ class OfferCubit extends Cubit<OfferState> {
       }
       switch (error.type) {
         case DioExceptionType.connectionTimeout:
-          return 'Connection timeout occurred UwU';
+          return 'Connection timeout occurred';
         case DioExceptionType.sendTimeout:
-          return 'Send timeout exceeded >w<';
+          return 'Send timeout exceeded';
         case DioExceptionType.receiveTimeout:
-          return 'Receive timeout exceeded nyaa~';
+          return 'Receive timeout exceeded';
         case DioExceptionType.badResponse:
           return 'Server error: ${error.response?.statusCode}';
         case DioExceptionType.cancel:
-          return 'Request cancelled OwO';
+          return 'Request cancelled';
         default:
-          return 'An unknown error occurred >.<';
+          return 'An unknown error occurred';
       }
     }
     return error.toString();
