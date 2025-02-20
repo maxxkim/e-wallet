@@ -18,8 +18,9 @@ abstract class OfferRepository {
     int offerId,
   );
 
-  // Keeping favorite categories management
   Future<List<CategoryModel>> getFavoriteCategories({int limit = 100});
+
   Future<List<CategoryModel>> addFavoriteCategory(int categoryId);
+
   Future<List<CategoryModel>> deleteFavoriteCategory(int categoryId);
 }

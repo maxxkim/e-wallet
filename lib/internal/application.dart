@@ -1,9 +1,13 @@
+// lib/internal/application.dart
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:keyboard_dismisser/keyboard_dismisser.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:zippy/data/repository/activation/activation_data_repository.dart';
 import 'package:zippy/data/repository/offer/offer_data_repository.dart';
+import 'package:zippy/domain/repository/activation/activation_repository.dart';
 import 'package:zippy/domain/repository/offer/offer_repository.dart';
 import 'package:zippy/l10n/l10n.dart';
 import 'package:zippy/data/repository/auth/auth_data_repository.dart';
@@ -86,6 +90,11 @@ class ZippyApp extends StatelessWidget {
           ),
           RepositoryProvider<OfferRepository>(
             create: (context) => OfferDataRepository(
+              RepositoryProvider.of<ApiUtil>(context),
+            ),
+          ),
+          RepositoryProvider<ActivationRepository>(
+            create: (context) => ActivationDataRepository(
               RepositoryProvider.of<ApiUtil>(context),
             ),
           ),

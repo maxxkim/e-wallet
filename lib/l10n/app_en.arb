@@ -218,9 +218,6 @@
     "offersNoData": "No offers available yet",
     "offersDiscount": "OFF",
     "offersBonus": "Bonus",
-    "getOfferNow": "Get now!",
-    "offerActivatedSuccess": "Offer activated successfully!",
-    "offerActivationError": "Failed to activate offer. Please try again.",
     "offerFilterCategory": "Category",
     "offerFilterMerchant": "Merchant",
     "offerFilterDiscount": "Discount",
@@ -239,5 +236,8 @@
                 "type": "int"
             }
         }
-    }
+    },
+    "offerActivatedSuccess": "Offer activated successfully! ✨",
+    "offerActivationError": "Failed to activate offer (◞‸◟；)",
+    "getOfferNow": "Get Now"
 }

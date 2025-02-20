@@ -13,6 +13,7 @@ import 'package:zippy/data/api/api_transfer_initiate.dart';
 import 'package:zippy/data/api/api_verify_token.dart';
 import 'package:zippy/data/api/api_withdraw.dart';
 import 'package:zippy/data/api/api_withdrawal_initiate.dart';
+import 'package:zippy/data/api/responcses/activation_responses.dart';
 import 'package:zippy/domain/model/auth/country_model.dart';
 import 'package:zippy/domain/model/contacts/contact_model.dart';
 import 'package:zippy/domain/model/offer/activation_model.dart';
@@ -256,13 +257,6 @@ class ApiService {
         .toList();
   }
 
-  Future<Activation> activateOffer(int offerId) async {
-    final response = await _dio.post(
-      'https://offer-service-xn3b9.ondigitalocean.app/api/v1/activations/$offerId',
-    );
-    return Activation.fromJson(response.data['activation']);
-  }
-
   Future<ApiCategoriesResponse> getFavoriteCategories({int limit = 100}) async {
     final response = await _dio.get(
       'https://offer-service-xn3b9.ondigitalocean.app/api/v1/favorites/categories',
@@ -284,6 +278,43 @@ class ApiService {
       'https://offer-service-xn3b9.ondigitalocean.app/api/v1/favorites/categories/$categoryId',
     );
     return ApiCategoriesResponse.fromJson(response.data);
+  }
+
+  Future<ActivationsResponse> getAllActivations() async {
+    final response = await _dio.get(
+        'https://offer-service-xn3b9.ondigitalocean.app/api/v1/merchants/activations/all');
+    return ActivationsResponse.fromJson(response.data);
+  }
+
+  Future<ActivationResponse> getActivationByUserAndOffer(
+      String userId, int offerId) async {
+    final response = await _dio.get(
+        'https://offer-service-xn3b9.ondigitalocean.app/api/v1/merchants/activations/$userId/$offerId');
+    return ActivationResponse.fromJson(response.data);
+  }
+
+  Future<ActivationResponse> checkActivationByUserAndMerchant(
+      String userId, String merchantId) async {
+    final response = await _dio.get(
+        'https://offer-service-xn3b9.ondigitalocean.app/api/v1/merchants/activations/$userId/$merchantId/check');
+    return ActivationResponse.fromJson(response.data);
+  }
+
+  Future<ActivationResponse> checkActivationById(String activationId) async {
+    final response = await _dio.get(
+        'https://offer-service-xn3b9.ondigitalocean.app/api/v1/merchants/activations/$activationId/check');
+    return ActivationResponse.fromJson(response.data);
+  }
+
+  Future<void> completeActivation(String activationId) async {
+    await _dio.post(
+        'https://offer-service-xn3b9.ondigitalocean.app/api/v1/merchants/activations/$activationId/complete');
+  }
+
+  Future<Activation> activateOffer(int offerId) async {
+    final response = await _dio.post(
+        'https://offer-service-xn3b9.ondigitalocean.app/api/v1/activations/$offerId');
+    return Activation.fromJson(response.data['activation']);
   }
 
   void _addTokenInterceptor() {

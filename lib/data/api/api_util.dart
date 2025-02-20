@@ -140,10 +140,6 @@ class ApiUtil {
     return _apiService.getActivations(limit);
   }
 
-  Future<Activation> activateOffer(int offerId) {
-    return _apiService.activateOffer(offerId);
-  }
-
   Future<List<CategoryModel>> getFavoriteCategories({int limit = 100}) async {
     final result = await _apiService.getFavoriteCategories(limit: limit);
     return result.categories;
@@ -157,5 +153,38 @@ class ApiUtil {
   Future<List<CategoryModel>> deleteFavoriteCategory(int categoryId) async {
     final result = await _apiService.deleteFavoriteCategory(categoryId);
     return result.categories;
+  }
+
+  Future<List<Activation>> getAllActivations() async {
+    final result = await _apiService.getAllActivations();
+    return result.activations;
+  }
+
+  Future<Activation> getActivationByUserAndOffer(
+      String userId, int offerId) async {
+    final result =
+        await _apiService.getActivationByUserAndOffer(userId, offerId);
+    return result.activation;
+  }
+
+  Future<Activation> checkActivationByUserAndMerchant(
+      String userId, String merchantId) async {
+    final result =
+        await _apiService.checkActivationByUserAndMerchant(userId, merchantId);
+    return result.activation;
+  }
+
+  Future<Activation> checkActivationById(String activationId) async {
+    final result = await _apiService.checkActivationById(activationId);
+    return result.activation;
+  }
+
+  Future<void> completeActivation(String activationId) async {
+    await _apiService.completeActivation(activationId);
+  }
+
+  Future<Activation> activateOffer(int offerId) async {
+    final result = await _apiService.activateOffer(offerId);
+    return result;
   }
 }
