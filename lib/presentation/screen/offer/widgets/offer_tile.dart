@@ -1,7 +1,6 @@
-// lib/presentation/screen/offer/widgets/offer_tile.dart
-
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:url_launcher/url_launcher.dart';
 import 'package:zippy/domain/model/offer/offer_model.dart';
 import 'package:zippy/domain/repository/offer/offer_repository.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
@@ -55,55 +54,6 @@ class _OfferTileState extends State<OfferTile>
         _controller.reverse();
       }
     });
-  }
-
-  Future<void> _activateOffer() async {
-    final l10n = AppLocalizations.of(context)!;
-
-    if (_isActivating) return;
-
-    setState(() {
-      _isActivating = true;
-    });
-
-    try {
-      final repository = RepositoryProvider.of<OfferRepository>(context);
-      final activation = await repository.activateOffer(widget.offer.id);
-
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(
-              l10n.offerActivatedSuccess,
-              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                    color: Theme.of(context).colorScheme.primary,
-                  ),
-            ),
-            backgroundColor: Theme.of(context).colorScheme.tertiaryContainer,
-          ),
-        );
-      }
-    } catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(
-              l10n.offerActivationError,
-              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                    color: Theme.of(context).colorScheme.primary,
-                  ),
-            ),
-            backgroundColor: Theme.of(context).colorScheme.tertiaryContainer,
-          ),
-        );
-      }
-    } finally {
-      if (mounted) {
-        setState(() {
-          _isActivating = false;
-        });
-      }
-    }
   }
 
   @override
@@ -230,41 +180,78 @@ class _OfferTileState extends State<OfferTile>
                     Row(
                       mainAxisAlignment: MainAxisAlignment.end,
                       children: [
-                        ElevatedButton(
-                          onPressed: _isActivating ? null : _activateOffer,
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor:
-                                Theme.of(context).colorScheme.primary,
-                            foregroundColor: Colors.white,
-                            shape: RoundedRectangleBorder(
+                        if (widget.offer.is_activation)
+                          Container(
+                            height: 36,
+                            decoration: BoxDecoration(
+                              color: Theme.of(context)
+                                  .colorScheme
+                                  .tertiaryContainer,
                               borderRadius: BorderRadius.circular(20),
                             ),
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 20,
-                              vertical: 8,
-                            ),
-                          ),
-                          child: _isActivating
-                              ? SizedBox(
-                                  width: 20,
-                                  height: 20,
-                                  child: CircularProgressIndicator(
-                                    strokeWidth: 2,
-                                    valueColor: AlwaysStoppedAnimation<Color>(
-                                      Theme.of(context).colorScheme.onPrimary,
-                                    ),
-                                  ),
-                                )
-                              : Text(
-                                  AppLocalizations.of(context)!.getOfferNow,
-                                  style: Theme.of(context)
-                                      .textTheme
-                                      .titleSmall
-                                      ?.copyWith(
-                                        color: Colors.white,
-                                      ),
+                            child: ElevatedButton(
+                              onPressed: null,
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: Theme.of(context)
+                                    .colorScheme
+                                    .secondaryContainer,
+                                foregroundColor:
+                                    Theme.of(context).colorScheme.primary,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(20),
                                 ),
-                        ),
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 20,
+                                  vertical: 8,
+                                ),
+                              ),
+                              child: Text(
+                                'Activated',
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .titleSmall
+                                    ?.copyWith(
+                                      color: Colors.white,
+                                    ),
+                              ),
+                            ),
+                          )
+                        else
+                          ElevatedButton(
+                            onPressed: _isActivating ? null : _activateOffer,
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor:
+                                  Theme.of(context).colorScheme.primary,
+                              foregroundColor: Colors.white,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(20),
+                              ),
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 20,
+                                vertical: 8,
+                              ),
+                            ),
+                            child: _isActivating
+                                ? SizedBox(
+                                    width: 20,
+                                    height: 20,
+                                    child: CircularProgressIndicator(
+                                      strokeWidth: 2,
+                                      valueColor: AlwaysStoppedAnimation<Color>(
+                                        Theme.of(context).colorScheme.onPrimary,
+                                      ),
+                                    ),
+                                  )
+                                : Text(
+                                    AppLocalizations.of(context)!.getOfferNow,
+                                    style: Theme.of(context)
+                                        .textTheme
+                                        .titleSmall
+                                        ?.copyWith(
+                                          color: Colors.white,
+                                        ),
+                                  ),
+                          ),
                       ],
                     ),
                   ],
@@ -295,5 +282,60 @@ class _OfferTileState extends State<OfferTile>
         ],
       ),
     );
+  }
+
+  Future<void> _activateOffer() async {
+    final l10n = AppLocalizations.of(context)!;
+    if (_isActivating) return;
+
+    setState(() {
+      _isActivating = true;
+    });
+
+    try {
+      final repository = RepositoryProvider.of<OfferRepository>(context);
+      final activation = await repository.activateOffer(widget.offer.id);
+
+      if (mounted) {
+        // Show success message
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              l10n.offerActivatedSuccess,
+              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                    color: Theme.of(context).colorScheme.primary,
+                  ),
+            ),
+            backgroundColor: Theme.of(context).colorScheme.tertiaryContainer,
+          ),
+        );
+
+        // Launch offer URL
+        final url = Uri.parse(widget.offer.link);
+        if (!await launchUrl(url, mode: LaunchMode.externalApplication)) {
+          throw Exception('Could not launch ${widget.offer.link}');
+        }
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              l10n.offerActivationError,
+              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                    color: Theme.of(context).colorScheme.primary,
+                  ),
+            ),
+            backgroundColor: Theme.of(context).colorScheme.tertiaryContainer,
+          ),
+        );
+      }
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isActivating = false;
+        });
+      }
+    }
   }
 }

@@ -23,6 +23,7 @@ class Offer {
   final String link;
   final DateTime dateStart;
   final DateTime dateEnd;
+  final bool is_activation;
 
   Offer({
     required this.id,
@@ -48,6 +49,7 @@ class Offer {
     required this.link,
     required this.dateStart,
     required this.dateEnd,
+    required this.is_activation,
   });
 
   factory Offer.fromJson(Map<String, dynamic> json) {
@@ -76,6 +78,7 @@ class Offer {
       bonusType: json['bonus_type'] == 'FIXED' ? 0 : 1,
       link: json['link'] as String,
       dateStart: DateTime.parse(json['date_start'] as String),
+      is_activation: json['is_activation'] as bool? ?? false,
       dateEnd: DateTime.parse(json['date_end'] as String),
     );
   }
