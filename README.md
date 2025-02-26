@@ -156,7 +156,8 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 
 - Flutter team for their amazing framework
 - All the package authors that made this project possible
-- [Your company/team name] for supporting the development of Zentro Wallet
+- Strаteсh Corp for supporting the development of Zentro Wallet
+- My mom
 
 Nyaa~ Thank you for checking out our project! (⁄ ⁄>⁄ ▽ ⁄<⁄ ⁄)
 ![telegram-cloud-photo-size-2-5330510965520851914-y](https://github.com/user-attachments/assets/b79eff4b-c96f-44fe-87c3-41a10387a8de)
