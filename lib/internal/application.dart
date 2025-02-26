@@ -7,8 +7,10 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:zippy/data/repository/activation/activation_data_repository.dart';
 import 'package:zippy/data/repository/offer/offer_data_repository.dart';
+import 'package:zippy/data/repository/search/global_search_data_repository.dart';
 import 'package:zippy/domain/repository/activation/activation_repository.dart';
 import 'package:zippy/domain/repository/offer/offer_repository.dart';
+import 'package:zippy/domain/repository/search/global_search_repository.dart';
 import 'package:zippy/l10n/l10n.dart';
 import 'package:zippy/data/repository/auth/auth_data_repository.dart';
 import 'package:zippy/data/repository/dashboard/dashboard_data_repository.dart';
@@ -26,6 +28,7 @@ import 'package:zippy/presentation/app_router.dart';
 import 'package:zippy/presentation/bloc/locale/locale_cubit.dart';
 import 'package:zippy/presentation/bloc/navigation/navigation_cubit.dart';
 import 'package:zippy/presentation/bloc/contacts/contacts_cubit.dart';
+import 'package:zippy/presentation/bloc/search/global_search_cubit.dart';
 import 'package:zippy/presentation/session/session_cubit.dart';
 import 'package:zippy/presentation/theme/app_theme.dart';
 import 'package:zippy/presentation/theme/app_theme_dark.dart';
@@ -98,6 +101,11 @@ class ZippyApp extends StatelessWidget {
               RepositoryProvider.of<ApiUtil>(context),
             ),
           ),
+          RepositoryProvider<GlobalSearchRepository>(
+            create: (context) => GlobalSearchDataRepository(
+              RepositoryProvider.of<ApiUtil>(context),
+            ),
+          ),
         ],
         child: MultiBlocProvider(
           providers: [
@@ -115,6 +123,11 @@ class ZippyApp extends StatelessWidget {
             BlocProvider(
               create: (context) => ContactsCubit(
                 RepositoryProvider.of<ContactsRepository>(context),
+              ),
+            ),
+            BlocProvider(
+              create: (context) => GlobalSearchCubit(
+                RepositoryProvider.of<GlobalSearchRepository>(context),
               ),
             ),
           ],

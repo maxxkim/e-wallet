@@ -5,13 +5,15 @@ import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:zippy/domain/model/offer/category_model.dart';
 import 'package:zippy/domain/model/offer/offer_model.dart';
 import 'package:zippy/domain/repository/offer/offer_repository.dart';
+import 'package:zippy/domain/repository/search/global_search_repository.dart';
 import 'package:zippy/domain/state/offer/offer_state.dart';
 import 'package:zippy/presentation/animation/fade_animation_mixin.dart';
 import 'package:zippy/presentation/bloc/offer/offer_cubit.dart';
+import 'package:zippy/presentation/bloc/search/global_search_cubit.dart';
 import 'package:zippy/presentation/screen/offer/widgets/active_filters.dart';
 import 'package:zippy/presentation/screen/offer/widgets/discount_filter_dialog.dart';
 import 'package:zippy/presentation/theme/app_theme.dart';
-import 'package:zippy/presentation/widget/custom_text_field.dart';
+import 'package:zippy/presentation/widget/global_search_widget.dart';
 import 'package:zippy/presentation/widget/custom_bottom_nav_bar.dart';
 import 'package:zippy/presentation/screen/offer/widgets/offer_tile.dart';
 import 'package:zippy/presentation/screen/offer/widgets/category_filter_dialog.dart';
@@ -27,142 +29,149 @@ class OfferScreen extends StatelessWidget with FadeInAnimationMixin {
     final l10n = AppLocalizations.of(context)!;
     final cubit = context.read<OfferCubit>();
 
-    return Scaffold(
-      body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.all(8.0),
-          child: Column(
-            children: [
-              fadeInFromTop(
-                CustomTextField(
-                  controller: cubit.searchController,
-                  hintText: l10n.offersSearchHint,
-                  icon: const Padding(
-                    padding: EdgeInsets.all(12.0),
-                    child: Icon(Icons.search),
+    return BlocProvider(
+      create: (context) => GlobalSearchCubit(
+          RepositoryProvider.of<GlobalSearchRepository>(context)),
+      child: Scaffold(
+        body: SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Column(
+              children: [
+                fadeInFromTop(
+                  GlobalSearchWidget(
+                    hintText: l10n.offersSearchHint,
+                    onResultSelected: (result) {
+                      if (result is Offer) {
+                        // Handle offer selection
+                      } else if (result is CategoryModel) {
+                        cubit.selectCategories([result]);
+                      } else if (result is MerchantData) {
+                        cubit.selectMerchants([result]);
+                      }
+                    },
                   ),
                 ),
-              ),
-              const SizedBox(height: 16),
-              SizedBox(
-                height: 120,
-                child: BlocBuilder<OfferCubit, OfferState>(
-                  builder: (context, state) {
-                    if (state is OfferStateLoaded) {
-                      final topOffers = state.offers.take(5).toList();
-                      if (topOffers.isEmpty) return const SizedBox.shrink();
-
-                      return ListView.builder(
-                        scrollDirection: Axis.horizontal,
-                        itemCount: topOffers.length,
-                        itemBuilder: (context, index) {
-                          final offer = topOffers[index];
-                          return Padding(
-                            padding: const EdgeInsets.only(right: 8.0),
-                            child: ClipRRect(
-                              borderRadius: BorderRadius.circular(16.0),
-                              child: AspectRatio(
-                                aspectRatio: 16 / 9,
-                                child: Image.network(
-                                  offer.image,
-                                  fit: BoxFit.contain,
-                                  loadingBuilder:
-                                      (context, child, loadingProgress) {
-                                    if (loadingProgress == null) return child;
-                                    return Container(
-                                      color: Theme.of(context)
-                                          .colorScheme
-                                          .tertiaryContainer,
-                                      child: Center(
-                                        child: CircularProgressIndicator(
-                                          value: loadingProgress
-                                                      .expectedTotalBytes !=
-                                                  null
-                                              ? loadingProgress
-                                                      .cumulativeBytesLoaded /
-                                                  loadingProgress
-                                                      .expectedTotalBytes!
-                                              : null,
-                                        ),
-                                      ),
-                                    );
-                                  },
-                                  errorBuilder: (context, error, stackTrace) {
-                                    return Container(
-                                      color: Theme.of(context)
-                                          .colorScheme
-                                          .primary
-                                          .withOpacity(0.1),
-                                      child: Icon(
-                                        Icons.error_outline,
+                const SizedBox(height: 16),
+                SizedBox(
+                  height: 120,
+                  child: BlocBuilder<OfferCubit, OfferState>(
+                    builder: (context, state) {
+                      if (state is OfferStateLoaded) {
+                        final topOffers = state.offers.take(5).toList();
+                        if (topOffers.isEmpty) return const SizedBox.shrink();
+                        return ListView.builder(
+                          scrollDirection: Axis.horizontal,
+                          itemCount: topOffers.length,
+                          itemBuilder: (context, index) {
+                            final offer = topOffers[index];
+                            return Padding(
+                              padding: const EdgeInsets.only(right: 8.0),
+                              child: ClipRRect(
+                                borderRadius: BorderRadius.circular(16.0),
+                                child: AspectRatio(
+                                  aspectRatio: 16 / 9,
+                                  child: Image.network(
+                                    offer.image,
+                                    fit: BoxFit.contain,
+                                    loadingBuilder:
+                                        (context, child, loadingProgress) {
+                                      if (loadingProgress == null) return child;
+                                      return Container(
                                         color: Theme.of(context)
                                             .colorScheme
-                                            .primary,
-                                      ),
-                                    );
-                                  },
+                                            .tertiaryContainer,
+                                        child: Center(
+                                          child: CircularProgressIndicator(
+                                            value: loadingProgress
+                                                        .expectedTotalBytes !=
+                                                    null
+                                                ? loadingProgress
+                                                        .cumulativeBytesLoaded /
+                                                    loadingProgress
+                                                        .expectedTotalBytes!
+                                                : null,
+                                          ),
+                                        ),
+                                      );
+                                    },
+                                    errorBuilder: (context, error, stackTrace) {
+                                      return Container(
+                                        color: Theme.of(context)
+                                            .colorScheme
+                                            .primary
+                                            .withOpacity(0.1),
+                                        child: Icon(
+                                          Icons.error_outline,
+                                          color: Theme.of(context)
+                                              .colorScheme
+                                              .primary,
+                                        ),
+                                      );
+                                    },
+                                  ),
                                 ),
                               ),
-                            ),
-                          );
-                        },
-                      );
-                    }
-                    return const Center(child: CircularProgressIndicator());
-                  },
+                            );
+                          },
+                        );
+                      }
+                      return const Center(child: CircularProgressIndicator());
+                    },
+                  ),
                 ),
-              ),
-              const SizedBox(height: 16),
-              _buildFilterButtons(context, l10n),
-              const SizedBox(height: 8),
-              BlocBuilder<OfferCubit, OfferState>(
-                buildWhen: (previous, current) {
-                  if (previous is OfferStateLoaded &&
-                      current is OfferStateLoaded) {
-                    return previous.selectedCategories !=
-                            current.selectedCategories ||
-                        previous.selectedMerchants !=
-                            current.selectedMerchants ||
-                        previous.minDiscount != current.minDiscount ||
-                        previous.maxDiscount != current.maxDiscount;
-                  }
-                  return true;
-                },
-                builder: (context, state) {
-                  if (state is OfferStateLoaded) {
-                    return Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                      child: ActiveFilters(
-                        selectedCategories: state.selectedCategories,
-                        selectedMerchants: state.selectedMerchants,
-                        minDiscount: state.minDiscount,
-                        maxDiscount: state.maxDiscount,
-                      ),
-                    );
-                  }
-                  return const SizedBox.shrink();
-                },
-              ),
-              const SizedBox(height: 8),
-              Expanded(
-                child: BlocBuilder<OfferCubit, OfferState>(
+                const SizedBox(height: 16),
+                _buildFilterButtons(context, l10n),
+                const SizedBox(height: 8),
+                BlocBuilder<OfferCubit, OfferState>(
+                  buildWhen: (previous, current) {
+                    if (previous is OfferStateLoaded &&
+                        current is OfferStateLoaded) {
+                      return previous.selectedCategories !=
+                              current.selectedCategories ||
+                          previous.selectedMerchants !=
+                              current.selectedMerchants ||
+                          previous.minDiscount != current.minDiscount ||
+                          previous.maxDiscount != current.maxDiscount;
+                    }
+                    return true;
+                  },
                   builder: (context, state) {
-                    if (state is OfferStateLoading) {
-                      return _buildLoadingState();
-                    } else if (state is OfferStateLoaded) {
-                      return _buildLoadedState(context, state, l10n, cubit);
-                    } else if (state is OfferStateError) {
-                      return _buildErrorState(context, state, l10n);
+                    if (state is OfferStateLoaded) {
+                      return Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                        child: ActiveFilters(
+                          selectedCategories: state.selectedCategories,
+                          selectedMerchants: state.selectedMerchants,
+                          minDiscount: state.minDiscount,
+                          maxDiscount: state.maxDiscount,
+                        ),
+                      );
                     }
                     return const SizedBox.shrink();
                   },
                 ),
-              ),
-            ],
+                const SizedBox(height: 8),
+                Expanded(
+                  child: BlocBuilder<OfferCubit, OfferState>(
+                    builder: (context, state) {
+                      if (state is OfferStateLoading) {
+                        return _buildLoadingState();
+                      } else if (state is OfferStateLoaded) {
+                        return _buildLoadedState(context, state, l10n, cubit);
+                      } else if (state is OfferStateError) {
+                        return _buildErrorState(context, state, l10n);
+                      }
+                      return const SizedBox.shrink();
+                    },
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
+        bottomNavigationBar: const CustomBottomNavBar(),
       ),
-      bottomNavigationBar: const CustomBottomNavBar(),
     );
   }
 
@@ -192,7 +201,6 @@ class OfferScreen extends StatelessWidget with FadeInAnimationMixin {
         ),
       );
     }
-
     return RefreshIndicator(
       onRefresh: () => cubit.refresh(),
       child: ListView.builder(
@@ -306,7 +314,6 @@ class OfferScreen extends StatelessWidget with FadeInAnimationMixin {
   ) {
     const double buttonHeight = 40.0;
     const double buttonWidth = 114.0;
-
     return SizedBox(
       width: buttonWidth,
       height: buttonHeight,

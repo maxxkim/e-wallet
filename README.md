@@ -156,20 +156,6 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 
 - Flutter team for their amazing framework
 - All the package authors that made this project possible
-- Strаteсh Corp for supporting the development of Zentro Wallet
-- My mom
+- [Your company/team name] for supporting the development of Zentro Wallet
 
 Nyaa~ Thank you for checking out our project! (⁄ ⁄>⁄ ▽ ⁄<⁄ ⁄)
-![telegram-cloud-photo-size-2-5330510965520851914-y](https://github.com/user-attachments/assets/b79eff4b-c96f-44fe-87c3-41a10387a8de)
-![telegram-cloud-photo-size-2-5330510965520851915-y](https://github.com/user-attachments/assets/dd4502c7-b6ff-4884-b74d-8914ed9cf2b9)
-![telegram-cloud-photo-size-2-5330510965520851916-y](https://github.com/user-attachments/assets/abac2707-7461-4edd-b08a-9406b9d68f74)
-![telegram-cloud-photo-size-2-5330510965520851917-y](https://github.com/user-attachments/assets/9d73c393-8a5b-417d-8f1c-4287ae3a5e7b)
-![telegram-cloud-photo-size-2-5330215961397161503-y](https://github.com/user-attachments/assets/44047909-157b-49f5-951c-09fcbb75bf29)
-![telegram-cloud-photo-size-2-5330510965520851918-y](https://github.com/user-attachments/assets/57281dca-cf14-4d06-9280-5435573e57a4)
-![telegram-cloud-photo-size-2-5330510965520851919-y](https://github.com/user-attachments/assets/744bb6ae-6e4a-4ccd-a240-730b477c1e24)
-![telegram-cloud-photo-size-2-5330510965520851920-y](https://github.com/user-attachments/assets/f7bcc590-5a6e-4fcf-bf32-5cdf6e5bfecf)
-
-
-
-
-

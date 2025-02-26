@@ -21,6 +21,7 @@ import 'package:zippy/domain/model/offer/initial_data_model.dart';
 import 'package:zippy/domain/model/offer/offer_model.dart';
 import 'package:zippy/domain/model/qr/payment_response_model.dart';
 import 'package:zippy/domain/model/qr/qr_payment_model.dart';
+import 'package:zippy/domain/model/search/global_search_model.dart';
 import 'package:zippy/domain/model/top_up/top_up_initiate_model.dart';
 import 'package:zippy/domain/model/top_up/top_up_model.dart';
 import 'package:zippy/domain/model/transaction/transaction_model.dart';
@@ -186,5 +187,11 @@ class ApiUtil {
   Future<Activation> activateOffer(int offerId) async {
     final result = await _apiService.activateOffer(offerId);
     return result;
+  }
+
+  Future<GlobalSearchResponse> searchGlobal(String query,
+      {int limit = 5}) async {
+    final result = await _apiService.searchGlobal(query, limit: limit);
+    return result.toDomain();
   }
 }

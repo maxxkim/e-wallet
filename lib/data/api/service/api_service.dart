@@ -6,6 +6,7 @@ import 'package:zippy/data/api/api_auth_refresh.dart';
 import 'package:zippy/data/api/api_auth_verify.dart';
 import 'package:zippy/data/api/api_balance.dart';
 import 'package:zippy/data/api/api_category_responce.dart';
+import 'package:zippy/data/api/api_global_search_response.dart';
 import 'package:zippy/data/api/api_top_up.dart';
 import 'package:zippy/data/api/api_top_up_initiate.dart';
 import 'package:zippy/data/api/api_transaction.dart';
@@ -315,6 +316,18 @@ class ApiService {
     final response = await _dio.post(
         'https://offer-service-xn3b9.ondigitalocean.app/api/v1/activations/$offerId');
     return Activation.fromJson(response.data['activation']);
+  }
+
+  Future<ApiGlobalSearchResponse> searchGlobal(String query,
+      {int limit = 5}) async {
+    final response = await _dio.get(
+      'https://search-service-52g7l.ondigitalocean.app/api/v1/search/global',
+      queryParameters: {
+        'search': query,
+        'limit': limit,
+      },
+    );
+    return ApiGlobalSearchResponse.fromApi(response.data);
   }
 
   void _addTokenInterceptor() {

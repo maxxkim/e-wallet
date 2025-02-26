@@ -1,16 +1,19 @@
-// ./lib/presentation/screen/dashboard/dashboard_screen.dart
-
+import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:intl/intl.dart';
+import 'package:zippy/domain/repository/search/global_search_repository.dart';
 import 'package:zippy/domain/state/dashboard/dashboard_state.dart';
 import 'package:zippy/presentation/animation/fade_animation_mixin.dart';
 import 'package:zippy/presentation/bloc/dashboard/dashboard_cubit.dart';
+import 'package:zippy/presentation/bloc/search/global_search_cubit.dart';
 import 'package:zippy/presentation/screen/dashboard/widgets/filter_button_row.dart';
 import 'package:zippy/presentation/screen/dashboard/widgets/transaction_history_panel.dart';
 import 'package:zippy/presentation/screen/error_screen.dart';
 import 'package:zippy/presentation/widget/custom_bottom_nav_bar.dart';
+import 'package:zippy/presentation/widget/global_search_widget.dart';
 import 'widgets/dashboard_display.dart';
 
 class DashboardScreen extends StatelessWidget with FadeInAnimationMixin {
@@ -19,96 +22,111 @@ class DashboardScreen extends StatelessWidget with FadeInAnimationMixin {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
-    return BlocBuilder<DashboardCubit, DashboardState>(
-      builder: (context, state) {
-        if (state is DashboardStateLoggedOut) {}
-        if (state is DashboardStateLoaded) {
-          return Scaffold(
-            body: Padding(
-              padding: const EdgeInsets.only(
-                left: 16.0,
-                right: 16.0,
-                bottom: 16.0,
-                top: 60.0,
-              ),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.start,
-                children: staggeredFadeIn([
-                  fadeInFromTop(
-                    BalanceDisplay(
-                      balance: state.balance,
-                      translations: DashboardTranslations(
-                        totalBalance: l10n.refresh,
-                        topUp: l10n.dashboardTopUp,
-                        withdraw: l10n.dashboardWithdraw,
-                        scan: l10n.dashboardScan,
-                        transfer: l10n.dashboardTransfer,
-                        selectFromContacts: l10n.dashboardSelectFromContacts,
+    // Create GlobalSearchCubit lazily so it's only created when needed
+    return BlocProvider(
+      create: (context) => GlobalSearchCubit(
+          RepositoryProvider.of<GlobalSearchRepository>(context)),
+      lazy: false, // Create immediately to ensure it's ready
+      child: BlocBuilder<DashboardCubit, DashboardState>(
+        builder: (context, state) {
+          if (state is DashboardStateLoggedOut) {}
+          if (state is DashboardStateLoaded) {
+            return Scaffold(
+              body: Padding(
+                padding: const EdgeInsets.only(
+                  left: 16.0,
+                  right: 16.0,
+                  bottom: 16.0,
+                  top: 60.0,
+                ),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  children: staggeredFadeIn([
+                    fadeInFromTop(
+                      GlobalSearchWidget(
+                        hintText: l10n.historySearchHint,
+                        fullWidth: true,
+                        autofocus: false,
                       ),
                     ),
-                  ),
-                  const SizedBox(height: 16),
-                  fadeIn(
-                    FilterButtonRow(
-                      state: state,
-                      translations: FilterTranslations(
-                        period: l10n.dashboardPeriod,
-                        deposit: l10n.dashboardDeposit,
-                        withdrawal: l10n.dashboardWithdrawal,
-                      ),
-                    ),
-                    delay: 100,
-                  ),
-                  const SizedBox(height: 16),
-                  Expanded(
-                    child: fadeIn(
-                      Container(
-                        decoration: BoxDecoration(
-                          color:
-                              Theme.of(context).colorScheme.tertiaryContainer,
-                          borderRadius: BorderRadius.circular(32),
+                    const SizedBox(height: 16),
+                    fadeInFromTop(
+                      BalanceDisplay(
+                        balance: state.balance,
+                        translations: DashboardTranslations(
+                          totalBalance: l10n.refresh,
+                          topUp: l10n.dashboardTopUp,
+                          withdraw: l10n.dashboardWithdraw,
+                          scan: l10n.dashboardScan,
+                          transfer: l10n.dashboardTransfer,
+                          selectFromContacts: l10n.dashboardSelectFromContacts,
                         ),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.end,
-                          children: [
-                            if (state.filterType == FilterType.period)
-                              fadeIn(
-                                _buildMonthSelector(context, state),
-                                delay: 200,
-                              ),
-                            Expanded(
-                              child: fadeIn(
-                                TransactionHistoryPanel(
-                                  state: state,
-                                  translations: TransactionHistoryTranslations(
-                                    noTransactions:
-                                        l10n.dashboardNoTransactions,
-                                    viewAll: l10n.dashboardViewAll,
-                                  ),
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+                    fadeIn(
+                      FilterButtonRow(
+                        state: state,
+                        translations: FilterTranslations(
+                          period: l10n.dashboardPeriod,
+                          deposit: l10n.dashboardDeposit,
+                          withdrawal: l10n.dashboardWithdrawal,
+                        ),
+                      ),
+                      delay: 100,
+                    ),
+                    const SizedBox(height: 16),
+                    Expanded(
+                      child: fadeIn(
+                        Container(
+                          decoration: BoxDecoration(
+                            color:
+                                Theme.of(context).colorScheme.tertiaryContainer,
+                            borderRadius: BorderRadius.circular(32),
+                          ),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.end,
+                            children: [
+                              if (state.filterType == FilterType.period)
+                                fadeIn(
+                                  _buildMonthSelector(context, state),
+                                  delay: 200,
                                 ),
-                                delay: 300,
+                              Expanded(
+                                child: fadeIn(
+                                  TransactionHistoryPanel(
+                                    state: state,
+                                    translations:
+                                        TransactionHistoryTranslations(
+                                      noTransactions:
+                                          l10n.dashboardNoTransactions,
+                                      viewAll: l10n.dashboardViewAll,
+                                    ),
+                                  ),
+                                  delay: 300,
+                                ),
                               ),
-                            ),
-                          ],
+                            ],
+                          ),
                         ),
+                        delay: 150,
                       ),
-                      delay: 150,
                     ),
-                  ),
-                ]),
+                  ]),
+                ),
               ),
+              bottomNavigationBar: const CustomBottomNavBar(),
+            );
+          } else if (state is DashboardStateError) {
+            return ErrorScreen(errorMessage: state.errorMessage);
+          }
+          return const Scaffold(
+            body: Center(
+              child: CircularProgressIndicator(),
             ),
-            bottomNavigationBar: const CustomBottomNavBar(),
           );
-        } else if (state is DashboardStateError) {
-          return ErrorScreen(errorMessage: state.errorMessage);
-        }
-        return const Scaffold(
-          body: Center(
-            child: CircularProgressIndicator(),
-          ),
-        );
-      },
+        },
+      ),
     );
   }
 
@@ -160,10 +178,8 @@ class DashboardScreen extends StatelessWidget with FadeInAnimationMixin {
       MonthData(12, l10n.monthDecember),
     ];
 
-    // Get current month number from state's chosen month
     final currentMonthNumber =
         DateFormat('MMMM').parse(state.chosenMonth).month;
-
     return Container(
       height: 48.0,
       decoration: BoxDecoration(
@@ -183,7 +199,6 @@ class DashboardScreen extends StatelessWidget with FadeInAnimationMixin {
         itemBuilder: (context, index) {
           final month = months[index];
           final isSelected = month.number == currentMonthNumber;
-
           return GestureDetector(
             onTap: () =>
                 context.read<DashboardCubit>().selectMonth(month.localizedName),
@@ -220,7 +235,6 @@ class DashboardTranslations {
   final String scan;
   final String transfer;
   final String selectFromContacts;
-
   DashboardTranslations({
     required this.totalBalance,
     required this.topUp,
@@ -235,7 +249,6 @@ class FilterTranslations {
   final String period;
   final String deposit;
   final String withdrawal;
-
   FilterTranslations({
     required this.period,
     required this.deposit,
@@ -246,7 +259,6 @@ class FilterTranslations {
 class TransactionHistoryTranslations {
   final String noTransactions;
   final String viewAll;
-
   TransactionHistoryTranslations({
     required this.noTransactions,
     required this.viewAll,

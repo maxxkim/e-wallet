@@ -1,13 +1,14 @@
-// ./lib/presentation/screen/transfer/transfer_screen.dart
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:go_router/go_router.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:zippy/domain/repository/search/global_search_repository.dart';
 import 'package:zippy/domain/repository/transfer/transfer_repository.dart';
 import 'package:zippy/domain/state/transfer/contact_picker_state.dart';
 import 'package:zippy/domain/state/transfer/transfer_state.dart';
 import 'package:zippy/presentation/animation/fade_animation_mixin.dart';
+import 'package:zippy/presentation/bloc/search/global_search_cubit.dart';
 import 'package:zippy/presentation/bloc/transfer/transfer_cubit.dart';
 import 'package:zippy/presentation/bloc/transfer/contact_picker_cubit.dart';
 import 'package:zippy/presentation/screen/payment/widgets/transfer_display.dart';
@@ -16,6 +17,7 @@ import 'package:zippy/presentation/widget/custom_bottom_nav_bar.dart';
 import 'package:zippy/presentation/widget/custom_contact_button.dart';
 import 'package:zippy/presentation/widget/custom_contact_button_row.dart';
 import 'package:zippy/domain/model/contacts/contact_model.dart';
+import 'package:zippy/presentation/widget/global_search_widget.dart';
 
 class TransferScreen extends StatefulWidget {
   const TransferScreen({Key? key}) : super(key: key);
@@ -28,6 +30,8 @@ class _TransferScreenState extends State<TransferScreen>
     with FadeInAnimationMixin {
   List<ContactModel> recentContacts = [];
   bool isLoading = true;
+  final TextEditingController phoneController = TextEditingController();
+  final TextEditingController amountController = TextEditingController();
 
   @override
   void initState() {
@@ -58,8 +62,6 @@ class _TransferScreenState extends State<TransferScreen>
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
-    final phoneController = TextEditingController();
-    final amountController = TextEditingController();
 
     return MultiBlocProvider(
       providers: [
@@ -71,6 +73,11 @@ class _TransferScreenState extends State<TransferScreen>
         BlocProvider(
           create: (context) => ContactPickerCubit(),
         ),
+        BlocProvider(
+          create: (context) => GlobalSearchCubit(
+            RepositoryProvider.of<GlobalSearchRepository>(context),
+          ),
+        ),
       ],
       child: BlocListener<ContactPickerCubit, ContactPickerState>(
         listener: (context, state) {
@@ -81,13 +88,12 @@ class _TransferScreenState extends State<TransferScreen>
         child: BlocBuilder<TransferCubit, TransferState>(
           builder: (context, state) {
             return Scaffold(
-              appBar: _buildAppBar(context, l10n),
+              // appBar: _buildAppBar(context, l10n),
               body: Padding(
                 padding: const EdgeInsets.all(16.0),
                 child: RefreshIndicator(
                   onRefresh: () => _handleRefresh(context),
-                  child: _buildBody(
-                      context, state, l10n, phoneController, amountController),
+                  child: _buildBody(context, state, l10n),
                 ),
               ),
               bottomNavigationBar: const CustomBottomNavBar(),
@@ -110,14 +116,11 @@ class _TransferScreenState extends State<TransferScreen>
     BuildContext context,
     TransferState state,
     AppLocalizations l10n,
-    TextEditingController phoneController,
-    TextEditingController amountController,
   ) {
     if (state is TransferStateLoading) {
       return _buildLoadingContent(l10n);
     } else if (state is TransferStateLoaded) {
-      return _buildLoadedContent(
-          context, l10n, phoneController, amountController);
+      return _buildLoadedContent(context, l10n);
     } else if (state is TransferStateError) {
       if (state.isRecipientNotFound) {
         WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -133,8 +136,7 @@ class _TransferScreenState extends State<TransferScreen>
       WidgetsBinding.instance.addPostFrameCallback((_) {
         context.go('/dashboard');
       });
-      return _buildLoadedContent(
-          context, l10n, phoneController, amountController);
+      return _buildLoadedContent(context, l10n);
     }
     return _buildErrorContent(context, l10n.transferUnknownError, l10n);
   }
@@ -142,12 +144,22 @@ class _TransferScreenState extends State<TransferScreen>
   Widget _buildLoadedContent(
     BuildContext context,
     AppLocalizations l10n,
-    TextEditingController phoneController,
-    TextEditingController amountController,
   ) {
     return SingleChildScrollView(
       child: Column(
         children: staggeredFadeIn([
+          const SizedBox(height: 32),
+          fadeIn(
+            GlobalSearchWidget(
+              hintText: l10n.transferMobileNumberLabel,
+              onResultSelected: (result) {
+                if (result is ContactModel) {
+                  phoneController.text = result.name;
+                }
+              },
+            ),
+          ),
+          const SizedBox(height: 16),
           fadeInFromTop(const TransferDisplay()),
           const SizedBox(height: 16),
           Center(

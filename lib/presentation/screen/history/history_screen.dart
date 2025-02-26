@@ -3,12 +3,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:zippy/domain/repository/search/global_search_repository.dart';
 import 'package:zippy/domain/state/dashboard/dashboard_state.dart';
 import 'package:zippy/presentation/bloc/dashboard/dashboard_cubit.dart';
+import 'package:zippy/presentation/bloc/search/global_search_cubit.dart';
 import 'package:zippy/presentation/screen/history/widgets/transaction_list.dart';
 import 'package:zippy/presentation/theme/app_theme.dart';
 import 'package:zippy/presentation/widget/custom_bottom_nav_bar.dart';
-import 'package:zippy/presentation/widget/custom_text_field.dart';
+import 'package:zippy/presentation/widget/global_search_widget.dart';
 
 class HistoryScreen extends StatefulWidget {
   const HistoryScreen({super.key});
@@ -18,82 +20,64 @@ class HistoryScreen extends StatefulWidget {
 }
 
 class _HistoryScreenState extends State<HistoryScreen> {
-  final TextEditingController _searchController = TextEditingController();
-  Timer? _debounce;
-
-  @override
-  void initState() {
-    super.initState();
-    _searchController.addListener(_onSearchChanged);
-  }
-
-  @override
-  void dispose() {
-    _searchController.dispose();
-    _debounce?.cancel();
-    super.dispose();
-  }
-
-  void _onSearchChanged() {
-    if (_debounce?.isActive ?? false) _debounce!.cancel();
-    _debounce = Timer(const Duration(milliseconds: 500), () {
-      context.read<DashboardCubit>().searchTransactions(_searchController.text);
-    });
-  }
-
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
-    return BlocBuilder<DashboardCubit, DashboardState>(
-      builder: (context, state) {
-        if (state is DashboardStateLoaded) {
-          return Scaffold(
-            appBar: AppBar(
-              backgroundColor: Theme.of(context).scaffoldBackgroundColor,
-              toolbarHeight: 0,
-            ),
-            body: Padding(
-              padding: const EdgeInsets.only(top: 16, left: 16, right: 16),
-              child: Column(
-                children: <Widget>[
-                  _buildSearchField(l10n),
-                  const SizedBox(height: 16),
-                  _buildHeader(context, state, l10n),
-                  const SizedBox(height: 8),
-                  _buildStatistics(context, state, l10n),
-                  const SizedBox(height: 16),
-                  _buildTransactionHeader(context, l10n),
-                  const SizedBox(height: 8),
-                  _buildFilterButtons(context, state, l10n),
-                  const SizedBox(height: 16),
-                  TransactionList(
-                    transactions: state.filteredTransactions ?? [],
-                    translations: TransactionListTranslations(
-                      noTransactions: l10n.historyNoTransactions,
-                    ),
-                  ),
-                ],
+    return BlocProvider(
+      create: (context) => GlobalSearchCubit(
+          RepositoryProvider.of<GlobalSearchRepository>(context)),
+      child: BlocBuilder<DashboardCubit, DashboardState>(
+        builder: (context, state) {
+          if (state is DashboardStateLoaded) {
+            return Scaffold(
+              appBar: AppBar(
+                backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+                toolbarHeight: 0,
               ),
-            ),
-            bottomNavigationBar: const CustomBottomNavBar(),
-          );
-        }
-        return const Center(child: CircularProgressIndicator());
-      },
-    );
-  }
-
-  Widget _buildSearchField(AppLocalizations l10n) {
-    return CustomTextField(
-      hintText: l10n.historySearchHint,
-      controller: _searchController,
-      icon: const Padding(
-        padding: EdgeInsets.all(12.0),
-        child: Icon(Icons.search),
+              body: Padding(
+                padding: const EdgeInsets.only(top: 16, left: 16, right: 16),
+                child: Column(
+                  children: <Widget>[
+                    GlobalSearchWidget(
+                      hintText: l10n.historySearchHint,
+                      onResultSelected: (result) {
+                        // When a transaction is selected from global search,
+                        // update the dashboard filter to show it in the list
+                        if (result is Map<String, dynamic> &&
+                            result['type'] == 'transaction') {
+                          context
+                              .read<DashboardCubit>()
+                              .searchTransactions(result['query']);
+                        }
+                      },
+                    ).animate().fadeIn(
+                          duration: const Duration(milliseconds: 300),
+                        ),
+                    const SizedBox(height: 16),
+                    _buildHeader(context, state, l10n),
+                    const SizedBox(height: 8),
+                    _buildStatistics(context, state, l10n),
+                    const SizedBox(height: 16),
+                    _buildTransactionHeader(context, l10n),
+                    const SizedBox(height: 8),
+                    _buildFilterButtons(context, state, l10n),
+                    const SizedBox(height: 16),
+                    TransactionList(
+                      transactions: state.filteredTransactions ?? [],
+                      translations: TransactionListTranslations(
+                        noTransactions: l10n.historyNoTransactions,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              bottomNavigationBar: const CustomBottomNavBar(),
+            );
+          }
+          return const Center(child: CircularProgressIndicator());
+        },
       ),
-    ).animate().fadeIn(
-          duration: const Duration(milliseconds: 300),
-        );
+    );
   }
 
   Widget _buildHeader(
@@ -294,7 +278,6 @@ class _HistoryScreenState extends State<HistoryScreen> {
 
 class TransactionListTranslations {
   final String noTransactions;
-
   TransactionListTranslations({
     required this.noTransactions,
   });
