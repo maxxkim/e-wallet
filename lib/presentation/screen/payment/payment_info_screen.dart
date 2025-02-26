@@ -17,126 +17,129 @@ class PaymentInfoScreen extends StatelessWidget with FadeInAnimationMixin {
       appBar: AppBar(
         title: fadeIn(const Text('Payment info')),
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: staggeredFadeIn([
-            const SizedBox(height: 40),
-            Center(
-              child: Text(
-                getText(context),
-                textAlign: TextAlign.center,
-                style: Theme.of(context).textTheme.displayLarge,
+      body: SingleChildScrollView(
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: staggeredFadeIn([
+              const SizedBox(height: 40),
+              Center(
+                child: Text(
+                  getText(context),
+                  textAlign: TextAlign.center,
+                  style: Theme.of(context).textTheme.displayLarge,
+                ),
               ),
-            ),
-            const SizedBox(height: 24),
-            Padding(
-              padding: const EdgeInsets.only(left: 32.0, right: 32.0),
-              child: fadeInFromTop(
-                Container(
-                  padding: const EdgeInsets.all(16.0),
-                  decoration: BoxDecoration(
-                    color: getContainer(context),
-                    borderRadius: BorderRadius.circular(16),
+              const SizedBox(height: 24),
+              Padding(
+                padding: const EdgeInsets.only(left: 32.0, right: 32.0),
+                child: fadeInFromTop(
+                  Container(
+                    padding: const EdgeInsets.all(16.0),
+                    decoration: BoxDecoration(
+                      color: getContainer(context),
+                      borderRadius: BorderRadius.circular(16),
+                    ),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        if (transaction.type == "deposit")
+                          Text(
+                            'Top Up',
+                            style: Theme.of(context).textTheme.titleMedium,
+                          ),
+                        if (transaction.type == "withdraw")
+                          Text(
+                            'Withdraw',
+                            style: Theme.of(context).textTheme.titleMedium,
+                          ),
+                        const SizedBox(height: 16),
+                        getIcon(context),
+                        const SizedBox(height: 16),
+                        Text(
+                          '${getSign(context)} ${transaction.amount} ${transaction.currency}',
+                          style: Theme.of(context).textTheme.titleLarge,
+                        ),
+                        const SizedBox(height: 12),
+                        Align(
+                          alignment: Alignment.center,
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Text(
+                                '${transaction.currency} 1356.32',
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .titleMedium
+                                    ?.copyWith(
+                                      decoration: TextDecoration.lineThrough,
+                                    ),
+                              ),
+                              Text(" → ",
+                                  style:
+                                      Theme.of(context).textTheme.titleMedium),
+                              Text(
+                                '${transaction.currency} ${1356.32 + transaction.amount.roundToDouble()}',
+                                style: Theme.of(context).textTheme.titleMedium,
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
-                  child: Column(
+                ),
+              ),
+              const SizedBox(height: 32),
+              fadeIn(
+                Center(
+                  child: Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      if (transaction.type == "deposit")
-                        Text(
-                          'Top Up',
-                          style: Theme.of(context).textTheme.titleMedium,
-                        ),
-                      if (transaction.type == "withdraw")
-                        Text(
-                          'Withdraw',
-                          style: Theme.of(context).textTheme.titleMedium,
-                        ),
-                      const SizedBox(height: 16),
-                      getIcon(context),
-                      const SizedBox(height: 16),
-                      Text(
-                        '${getSign(context)} ${transaction.amount} ${transaction.currency}',
-                        style: Theme.of(context).textTheme.titleLarge,
+                      _buildActionButton(
+                        context,
+                        'assets/images/icon_support_lg.svg',
+                        'Help',
+                        () => _showHelpDialog(context),
                       ),
-                      const SizedBox(height: 12),
-                      Align(
-                        alignment: Alignment.center,
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Text(
-                              '${transaction.currency} 1356.32',
-                              style: Theme.of(context)
-                                  .textTheme
-                                  .titleMedium
-                                  ?.copyWith(
-                                    decoration: TextDecoration.lineThrough,
-                                  ),
-                            ),
-                            Text(" → ",
-                                style: Theme.of(context).textTheme.titleMedium),
-                            Text(
-                              '${transaction.currency} ${1356.32 + transaction.amount.roundToDouble()}',
-                              style: Theme.of(context).textTheme.titleMedium,
-                            ),
-                          ],
-                        ),
+                      const SizedBox(width: 32),
+                      _buildActionButton(
+                        context,
+                        'assets/images/icon_copy_lg.svg',
+                        'Copy',
+                        () => _copyTransactionDetails(context),
+                      ),
+                      const SizedBox(width: 32),
+                      _buildActionButton(
+                        context,
+                        'assets/images/icon_share_lg.svg',
+                        'Share',
+                        () => _shareTransaction(context),
                       ),
                     ],
                   ),
                 ),
+                delay: 300,
               ),
-            ),
-            const SizedBox(height: 32),
-            fadeIn(
-              Center(
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    _buildActionButton(
-                      context,
-                      'assets/images/icon_support_lg.svg',
-                      'Help',
-                      () => _showHelpDialog(context),
-                    ),
-                    const SizedBox(width: 32),
-                    _buildActionButton(
-                      context,
-                      'assets/images/icon_copy_lg.svg',
-                      'Copy',
-                      () => _copyTransactionDetails(context),
-                    ),
-                    const SizedBox(width: 32),
-                    _buildActionButton(
-                      context,
-                      'assets/images/icon_share_lg.svg',
-                      'Share',
-                      () => _shareTransaction(context),
-                    ),
-                  ],
+              const SizedBox(
+                height: 96,
+              ),
+              Padding(
+                padding: const EdgeInsets.only(right: 40, left: 40),
+                child: fadeIn(
+                  RectangularButton(
+                    label: "Home",
+                    onPressed: () {
+                      context.go('/dashboard');
+                    },
+                  ),
+                  delay: 400,
                 ),
               ),
-              delay: 300,
-            ),
-            const SizedBox(
-              height: 96,
-            ),
-            Padding(
-              padding: const EdgeInsets.only(right: 40, left: 40),
-              child: fadeIn(
-                RectangularButton(
-                  label: "Home",
-                  onPressed: () {
-                    context.go('/dashboard');
-                  },
-                ),
-                delay: 400,
-              ),
-            ),
-            const SizedBox(height: 88),
-          ]),
+              const SizedBox(height: 88),
+            ]),
+          ),
         ),
       ),
     );

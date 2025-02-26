@@ -578,8 +578,8 @@ class _GlobalSearchWidgetState extends State<GlobalSearchWidget> {
                   onTap: onViewAll,
                   child: Text(
                     AppLocalizations.of(context)!.dashboardViewAll,
-                    style: TextStyle(
-                      color: Theme.of(context).colorScheme.secondary,
+                    style: const TextStyle(
+                      color: Colors.white,
                       fontSize: 12,
                       fontWeight: FontWeight.w600,
                     ),
