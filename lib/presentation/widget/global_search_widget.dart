@@ -19,7 +19,6 @@ class GlobalSearchWidget extends StatefulWidget {
   final bool fullWidth;
   final bool autofocus;
   final bool clearOnSelect;
-
   const GlobalSearchWidget({
     Key? key,
     this.onResultSelected,
@@ -38,23 +37,19 @@ class _GlobalSearchWidgetState extends State<GlobalSearchWidget> {
   final TextEditingController _searchController = TextEditingController();
   final FocusNode _focusNode = FocusNode();
   final LayerLink _layerLink = LayerLink();
-
   OverlayEntry? _overlayEntry;
   Timer? _searchDebounce;
-
   bool _isLoading = false;
   String _errorMessage = '';
   GlobalSearchResponse? _searchResults;
   bool _showResults = false;
-  bool _keepOverlayOpen =
-      false; // Flag to keep overlay open when tapped outside
+  bool _keepOverlayOpen = false;
 
   @override
   void initState() {
     super.initState();
     _focusNode.addListener(_onFocusChange);
     _searchController.addListener(_onSearchChanged);
-
     if (widget.autofocus) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         _focusNode.requestFocus();
@@ -80,9 +75,8 @@ class _GlobalSearchWidgetState extends State<GlobalSearchWidget> {
         _performSearch(query);
       }
       _showOverlay();
-      _keepOverlayOpen = true; // Set flag when focus gained
+      _keepOverlayOpen = true;
     } else if (!_keepOverlayOpen) {
-      // Only hide if we're not keeping it open
       Future.delayed(const Duration(milliseconds: 200), () {
         if (!_focusNode.hasFocus && !_keepOverlayOpen) {
           setState(() => _showResults = false);
@@ -94,7 +88,6 @@ class _GlobalSearchWidgetState extends State<GlobalSearchWidget> {
 
   void _onSearchChanged() {
     if (_searchDebounce?.isActive ?? false) _searchDebounce!.cancel();
-
     final query = _searchController.text.trim();
     if (query.isEmpty) {
       setState(() {
@@ -113,10 +106,8 @@ class _GlobalSearchWidgetState extends State<GlobalSearchWidget> {
     });
   }
 
-  // Helper method to safely format dates
   String _safeFormatDate(dynamic dateValue) {
     if (dateValue == null) return '';
-
     try {
       final dateStr = dateValue.toString();
       final date = DateTime.tryParse(dateStr);
@@ -126,7 +117,6 @@ class _GlobalSearchWidgetState extends State<GlobalSearchWidget> {
     } catch (e) {
       print("Error formatting date: $e");
     }
-
     return '';
   }
 
@@ -152,7 +142,6 @@ class _GlobalSearchWidgetState extends State<GlobalSearchWidget> {
       final repository = RepositoryProvider.of<GlobalSearchRepository>(context);
       final results = await repository.searchGlobal(query);
 
-      // Safety check for results
       if (results != null) {
         setState(() {
           _searchResults = results;
@@ -174,7 +163,6 @@ class _GlobalSearchWidgetState extends State<GlobalSearchWidget> {
       });
       print("Error in search: $e");
     }
-
     _updateOverlay();
   }
 
@@ -196,7 +184,7 @@ class _GlobalSearchWidgetState extends State<GlobalSearchWidget> {
   void _removeOverlay() {
     _overlayEntry?.remove();
     _overlayEntry = null;
-    _keepOverlayOpen = false; // Reset flag when overlay is removed
+    _keepOverlayOpen = false;
   }
 
   void _updateOverlay() {
@@ -204,18 +192,17 @@ class _GlobalSearchWidgetState extends State<GlobalSearchWidget> {
       if (_focusNode.hasFocus || _keepOverlayOpen) _showOverlay();
       return;
     }
-
     _overlayEntry!.markNeedsBuild();
   }
 
+  // This is the key method we need to fix
   void _handleResultSelected(dynamic result) {
     if (widget.clearOnSelect) {
       _clearSearch();
     }
-
     _focusNode.unfocus();
     setState(() {
-      _keepOverlayOpen = false; // Reset flag when result is selected
+      _keepOverlayOpen = false;
     });
 
     if (widget.onResultSelected != null) {
@@ -243,13 +230,18 @@ class _GlobalSearchWidgetState extends State<GlobalSearchWidget> {
     } else if (result is Offer) {
       context.go('/dashboard/offers', extra: result);
     } else if (result is MerchantSearchResult) {
+      // Create a new approach: store the merchant data in a singleton or static variable
+      // that the OfferCubit can check when it initializes
       final merchantData = result.toMerchantData();
-      final offerCubit = context.read<OfferCubit>();
-      offerCubit.selectMerchants([merchantData]);
+
+      // Store the merchant data in a static variable that can be accessed by OfferCubit
+      OfferCubit.selectedMerchantFromSearch = merchantData;
+
+      // Now navigate to the offers screen
       context.go('/dashboard/offers');
     } else if (result is CategoryModel) {
-      final offerCubit = context.read<OfferCubit>();
-      offerCubit.selectCategories([result]);
+      // Similar approach for categories
+      OfferCubit.selectedCategoryFromSearch = result;
       context.go('/dashboard/offers');
     }
   }
@@ -257,13 +249,11 @@ class _GlobalSearchWidgetState extends State<GlobalSearchWidget> {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
-
     return CompositedTransformTarget(
       link: _layerLink,
       child: GestureDetector(
         onTap: () {
-          _focusNode
-              .requestFocus(); // Give focus to the search field when container is tapped
+          _focusNode.requestFocus();
         },
         child: Container(
           width: widget.fullWidth ? double.infinity : null,
@@ -309,19 +299,15 @@ class _GlobalSearchWidgetState extends State<GlobalSearchWidget> {
     final renderBox = context.findRenderObject() as RenderBox;
     final size = renderBox.size;
     final offset = renderBox.localToGlobal(Offset.zero);
-
     return OverlayEntry(
       builder: (context) => GestureDetector(
-        // This gesture detector will handle taps outside the overlay
         behavior: HitTestBehavior.translucent,
         onTap: () {
-          // When tapped outside, don't dismiss but keep focus on search field
           _keepOverlayOpen = true;
           _focusNode.requestFocus();
         },
         child: Stack(
           children: [
-            // This Positioned widget takes up the entire screen to catch taps
             Positioned.fill(
               child: GestureDetector(
                 onTap: () {
@@ -330,7 +316,6 @@ class _GlobalSearchWidgetState extends State<GlobalSearchWidget> {
                 },
               ),
             ),
-            // The actual dropdown container
             Positioned(
               width: size.width,
               top: offset.dy + size.height,
@@ -340,7 +325,6 @@ class _GlobalSearchWidgetState extends State<GlobalSearchWidget> {
                 showWhenUnlinked: false,
                 offset: Offset(0, size.height + 4),
                 child: GestureDetector(
-                  // This stops tap events from propagating up and triggering the onTap above
                   onTap: () {},
                   child: Material(
                     elevation: 8,

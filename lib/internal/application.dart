@@ -28,6 +28,7 @@ import 'package:zippy/presentation/app_router.dart';
 import 'package:zippy/presentation/bloc/locale/locale_cubit.dart';
 import 'package:zippy/presentation/bloc/navigation/navigation_cubit.dart';
 import 'package:zippy/presentation/bloc/contacts/contacts_cubit.dart';
+import 'package:zippy/presentation/bloc/offer/offer_cubit.dart';
 import 'package:zippy/presentation/bloc/search/global_search_cubit.dart';
 import 'package:zippy/presentation/session/session_cubit.dart';
 import 'package:zippy/presentation/theme/app_theme.dart';
@@ -128,6 +129,11 @@ class ZippyApp extends StatelessWidget {
             BlocProvider(
               create: (context) => GlobalSearchCubit(
                 RepositoryProvider.of<GlobalSearchRepository>(context),
+              ),
+            ),
+            BlocProvider(
+              create: (context) => OfferCubit(
+                RepositoryProvider.of<OfferRepository>(context),
               ),
             ),
           ],

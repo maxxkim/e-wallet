@@ -10,6 +10,7 @@ import 'package:zippy/presentation/screen/dashboard/dashboard_screen.dart';
 import 'package:zippy/presentation/screen/error_screen.dart';
 import 'package:zippy/presentation/screen/history/history_screen.dart';
 import 'package:zippy/presentation/screen/offer/offer_screen.dart';
+import 'package:zippy/presentation/screen/offer/widgets/merchant_filter_dialog.dart';
 import 'package:zippy/presentation/screen/payment/payment_info_screen.dart';
 import 'package:zippy/presentation/screen/topUp/top_up_screen.dart';
 import 'package:zippy/presentation/screen/transfer/transfer_screen.dart';
@@ -176,9 +177,20 @@ final GoRouter appRouter = GoRouter(
             return _authGuard(
               context,
               BlocProvider<OfferCubit>(
-                create: (context) => OfferCubit(
-                  RepositoryProvider.of<OfferRepository>(context),
-                ),
+                create: (context) {
+                  final cubit = OfferCubit(
+                    RepositoryProvider.of<OfferRepository>(context),
+                  );
+
+                  // Apply merchant filter if data was provided as extra
+                  if (state.extra is MerchantData) {
+                    final merchantData = state.extra as MerchantData;
+                    // This will be called during initialization
+                    cubit.selectMerchants([merchantData]);
+                  }
+
+                  return cubit;
+                },
                 lazy: false,
                 child: const OfferScreen(),
               ),

@@ -9,6 +9,10 @@ import 'package:zippy/domain/state/offer/offer_state.dart';
 import 'package:zippy/presentation/screen/offer/widgets/merchant_filter_dialog.dart';
 
 class OfferCubit extends Cubit<OfferState> {
+  // Static variables to hold selected data from search
+  static MerchantData? selectedMerchantFromSearch;
+  static CategoryModel? selectedCategoryFromSearch;
+
   final OfferRepository _offerRepository;
   int _currentPage = 1;
   static const int _pageSize = 15;
@@ -23,7 +27,29 @@ class OfferCubit extends Cubit<OfferState> {
   void _init() {
     scrollController.addListener(_onScroll);
     searchController.addListener(_onSearchChanged);
-    loadOffers();
+
+    // Initialize the loadOffers but defer it to handle the search filters first
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      // Handle any pending search filters
+      final tempMerchant = selectedMerchantFromSearch;
+      final tempCategory = selectedCategoryFromSearch;
+
+      // Clear the static variables immediately to avoid any issues
+      selectedMerchantFromSearch = null;
+      selectedCategoryFromSearch = null;
+
+      // Apply filters if they exist
+      if (tempMerchant != null) {
+        print('Applying merchant filter from search: ${tempMerchant.name}');
+        selectMerchants([tempMerchant]);
+      } else if (tempCategory != null) {
+        print('Applying category filter from search: ${tempCategory.name}');
+        selectCategories([tempCategory]);
+      } else {
+        // Otherwise just load all offers
+        loadOffers();
+      }
+    });
   }
 
   @override
@@ -50,8 +76,16 @@ class OfferCubit extends Cubit<OfferState> {
       emit(currentState.copyWith(
         selectedCategories: categories,
       ));
-      await loadOffers(refresh: true);
+    } else {
+      emit(OfferStateLoaded(
+        offers: [],
+        selectedCategories: categories,
+        selectedMerchants: [],
+        sortDirection: 'desc',
+        selectedOfferTypes: [],
+      ));
     }
+    await loadOffers(refresh: true);
   }
 
   void removeCategory(CategoryModel category) async {
@@ -65,14 +99,24 @@ class OfferCubit extends Cubit<OfferState> {
   }
 
   void selectMerchants(List<MerchantData> merchants) async {
+    print(
+        'Select merchants called with: ${merchants.map((m) => m.name).join(", ")}');
+    _currentPage = 1;
     if (state is OfferStateLoaded) {
       final currentState = state as OfferStateLoaded;
-      _currentPage = 1;
       emit(currentState.copyWith(
         selectedMerchants: merchants,
       ));
-      await loadOffers(refresh: true);
+    } else {
+      emit(OfferStateLoaded(
+        offers: [],
+        selectedMerchants: merchants,
+        selectedCategories: [],
+        sortDirection: 'desc',
+        selectedOfferTypes: [],
+      ));
     }
+    await loadOffers(refresh: true);
   }
 
   void removeMerchant(MerchantData merchant) async {
@@ -139,12 +183,14 @@ class OfferCubit extends Cubit<OfferState> {
         'sort_by': currentState?.sortDirection ?? 'desc',
       };
 
+      // Apply category filters
       if (currentState?.selectedCategories.isNotEmpty ?? false) {
         queryParams['category_id'] = currentState!.selectedCategories
             .map((c) => c.id.toString())
             .join(',');
       }
 
+      // Apply merchant filters
       if (currentState?.selectedMerchants.isNotEmpty ?? false) {
         queryParams['merchant_id'] =
             currentState!.selectedMerchants.map((m) => m.hash).join(',');
@@ -155,30 +201,35 @@ class OfferCubit extends Cubit<OfferState> {
         topLimit: _currentPage == 1 ? 5 : 0,
       );
 
+      // Debug logging
+      print('Loaded ${initialData.offers.length} offers');
+      if (currentState?.selectedMerchants.isNotEmpty ?? false) {
+        print(
+            'Applied merchant filter: ${currentState!.selectedMerchants.map((m) => m.name).join(", ")}');
+      }
+
       List<Offer> filteredOffers = initialData.offers;
 
-      // Apply local filtering
+      // Apply discount filters
       if (currentState?.minDiscount != null ||
           currentState?.maxDiscount != null) {
         filteredOffers = filteredOffers.where((offer) {
           final discount = double.tryParse(offer.discount) ?? 0;
           final bonus = double.tryParse(offer.bonus) ?? 0;
           final totalDiscount = discount + bonus;
-
           if (currentState!.minDiscount != null &&
               totalDiscount < currentState.minDiscount!) {
             return false;
           }
-
           if (currentState.maxDiscount != null &&
               totalDiscount > currentState.maxDiscount!) {
             return false;
           }
-
           return true;
         }).toList();
       }
 
+      // Apply offer type filters
       if (currentState?.selectedOfferTypes.isNotEmpty ?? false) {
         filteredOffers = filteredOffers.where((offer) {
           return currentState!.selectedOfferTypes
@@ -191,7 +242,6 @@ class OfferCubit extends Cubit<OfferState> {
           ...currentState.offers,
           ...filteredOffers,
         ];
-
         emit(currentState.copyWith(
           offers: updatedOffers,
           isLoadingMore: false,
