@@ -66,8 +66,6 @@ class PaymentInfoScreen extends StatelessWidget with FadeInAnimationMixin {
                         child: Row(
                           mainAxisSize: MainAxisSize.min,
                           children: [
-                            Text("Balance: ",
-                                style: Theme.of(context).textTheme.titleMedium),
                             Text(
                               '${transaction.currency} 1356.32',
                               style: Theme.of(context)

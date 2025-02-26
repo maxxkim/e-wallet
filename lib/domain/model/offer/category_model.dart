@@ -12,11 +12,12 @@ class CategoryModel {
   });
 
   factory CategoryModel.fromJson(Map<String, dynamic> json) {
+    // Add null checks and default values
     return CategoryModel(
-      id: json['id'] as int,
-      name: json['name'] as String,
-      sort: json['sort'] as int,
-      totalOffers: json['total_offers'] as int,
+      id: json['id'] as int? ?? 0,
+      name: json['name'] as String? ?? '',
+      sort: json['sort'] as int? ?? 0,
+      totalOffers: json['total_offers'] as int? ?? 0, // Default to 0 if null
     );
   }
 }

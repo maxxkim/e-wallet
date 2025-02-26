@@ -5,43 +5,56 @@ import 'package:zippy/presentation/screen/offer/widgets/merchant_filter_dialog.d
 
 class GlobalSearchResponse {
   final String status;
-  final List<ContactModel> contacts;
-  final List<Map<String, dynamic>>
-      transactions; // Changed to handle raw API data
-  final List<Offer> offers;
-  final List<CategoryModel> categories;
-  final List<MerchantSearchResult> merchants;
-  final SearchOptions options;
+  final List<ContactModel>? contacts;
+  final List<Map<String, dynamic>>? transactions;
+  final List<Offer>? offers;
+  final List<CategoryModel>? categories;
+  final List<MerchantSearchResult>? merchants;
+  final SearchOptions? options;
 
   GlobalSearchResponse({
     required this.status,
-    required this.contacts,
-    required this.transactions,
-    required this.offers,
-    required this.categories,
-    required this.merchants,
-    required this.options,
+    this.contacts,
+    this.transactions,
+    this.offers,
+    this.categories,
+    this.merchants,
+    this.options,
   });
 
   factory GlobalSearchResponse.fromJson(Map<String, dynamic> json) {
+    // Add null safety for all lists
     return GlobalSearchResponse(
-      status: json['status'] as String,
-      contacts: (json['contacts'] as List<dynamic>)
-          .map((e) => ContactModel.fromJson(e as Map<String, dynamic>))
-          .toList(),
-      transactions: (json['transactions'] as List<dynamic>)
-          .map((e) => e as Map<String, dynamic>)
-          .toList(),
-      offers: (json['offers'] as List<dynamic>)
-          .map((e) => Offer.fromJson(e as Map<String, dynamic>))
-          .toList(),
-      categories: (json['categories'] as List<dynamic>)
-          .map((e) => CategoryModel.fromJson(e as Map<String, dynamic>))
-          .toList(),
-      merchants: (json['merchants'] as List<dynamic>)
-          .map((e) => MerchantSearchResult.fromJson(e as Map<String, dynamic>))
-          .toList(),
-      options: SearchOptions.fromJson(json['options'] as Map<String, dynamic>),
+      status: json['status'] as String? ?? 'error',
+      contacts: json['contacts'] != null
+          ? (json['contacts'] as List<dynamic>)
+              .map((e) => ContactModel.fromJson(e as Map<String, dynamic>))
+              .toList()
+          : [],
+      transactions: json['transactions'] != null
+          ? (json['transactions'] as List<dynamic>)
+              .map((e) => e as Map<String, dynamic>)
+              .toList()
+          : [],
+      offers: json['offers'] != null
+          ? (json['offers'] as List<dynamic>)
+              .map((e) => Offer.fromJson(e as Map<String, dynamic>))
+              .toList()
+          : [],
+      categories: json['categories'] != null
+          ? (json['categories'] as List<dynamic>)
+              .map((e) => CategoryModel.fromJson(e as Map<String, dynamic>))
+              .toList()
+          : [],
+      merchants: json['merchants'] != null
+          ? (json['merchants'] as List<dynamic>)
+              .map((e) =>
+                  MerchantSearchResult.fromJson(e as Map<String, dynamic>))
+              .toList()
+          : [],
+      options: json['options'] != null
+          ? SearchOptions.fromJson(json['options'] as Map<String, dynamic>)
+          : null,
     );
   }
 }
@@ -57,8 +70,8 @@ class MerchantSearchResult {
 
   factory MerchantSearchResult.fromJson(Map<String, dynamic> json) {
     return MerchantSearchResult(
-      hash: json['hash'] as String,
-      name: json['name'] as String,
+      hash: json['hash'] as String? ?? '',
+      name: json['name'] as String? ?? '',
     );
   }
 
@@ -66,7 +79,7 @@ class MerchantSearchResult {
     return MerchantData(
       hash: hash,
       name: name,
-      totalOffers: 0, // Default value as API doesn't provide this
+      totalOffers: 0, // Default value to prevent null errors
     );
   }
 }
@@ -82,8 +95,8 @@ class SearchOptions {
 
   factory SearchOptions.fromJson(Map<String, dynamic> json) {
     return SearchOptions(
-      search: json['search'] as String,
-      limit: json['limit'] as int,
+      search: json['search'] as String? ?? '',
+      limit: json['limit'] as int? ?? 5,
     );
   }
 }

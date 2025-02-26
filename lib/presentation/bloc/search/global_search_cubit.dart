@@ -22,37 +22,22 @@ class GlobalSearchCubit extends Cubit<GlobalSearchState> {
       return;
     }
 
-    // Reduced debounce time for more responsive search
     _searchDebounce = Timer(const Duration(milliseconds: 300), () {
-      print("Debounce timer fired, searching for: $query");
       search(query);
     });
   }
 
   Future<void> search(String query) async {
     if (query.isEmpty) {
-      print("Empty query, emitting GlobalSearchInitial");
       emit(GlobalSearchInitial());
       return;
     }
 
-    print("Searching for: '$query'");
     emit(GlobalSearchLoading());
-
     try {
       final results = await _searchRepository.searchGlobal(query);
-      print("Search results received: ${results.status}");
-      print("Transactions: ${results.transactions.length}");
-      print("Contacts: ${results.contacts.length}");
-      print("Offers: ${results.offers.length}");
-
-      // Emit the loaded state with showResults explicitly set to true
       emit(GlobalSearchLoaded(results: results, showResults: true));
-
-      // Debug log after emitting state
-      print("Emitted GlobalSearchLoaded state");
     } catch (e) {
-      print("Search error: $e");
       emit(GlobalSearchError(errorMessage: e.toString()));
     }
   }
@@ -68,6 +53,9 @@ class GlobalSearchCubit extends Cubit<GlobalSearchState> {
     if (state is GlobalSearchLoaded) {
       final currentState = state as GlobalSearchLoaded;
       emit(currentState.copyWith(showResults: true));
+    } else if (searchController.text.isNotEmpty) {
+      // If there's text but no loaded state, trigger a search
+      search(searchController.text);
     }
   }
 
