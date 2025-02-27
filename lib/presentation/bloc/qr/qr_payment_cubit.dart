@@ -4,6 +4,7 @@ import 'package:zippy/domain/model/qr/qr_payment_model.dart';
 import 'package:zippy/domain/model/transaction/transaction_model.dart';
 import 'package:zippy/domain/repository/qr/qr_payment_repository.dart';
 import 'package:zippy/domain/state/qr/qr_payment_state.dart';
+import 'package:zippy/presentation/events/transaction_events.dart';
 
 class QrPaymentCubit extends Cubit<QrPaymentState> {
   final QrPaymentRepository _repository;
@@ -94,7 +95,14 @@ class QrPaymentCubit extends Cubit<QrPaymentState> {
         );
 
         emit(QrPaymentSuccess(
-            paymentResponse: paymentResponse, transaction: transaction));
+          paymentResponse: paymentResponse,
+          transaction: transaction,
+        ));
+
+        TransactionEventBus().fire(TransactionEvent(
+          type: TransactionEventType.created,
+          transaction: transaction,
+        ));
       } catch (e) {
         emit(QrPaymentProcessError(_handleError(e)));
         emit(currentState.copyWith(isProcessing: false));

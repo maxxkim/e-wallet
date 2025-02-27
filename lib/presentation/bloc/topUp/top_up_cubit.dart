@@ -3,6 +3,8 @@ import 'package:dio/dio.dart';
 import 'package:go_router/go_router.dart';
 import 'package:zippy/domain/repository/top_up/top_up_repository.dart';
 import 'package:zippy/domain/state/topUp/top_up_state.dart';
+import 'package:zippy/presentation/bloc/dashboard/dashboard_cubit.dart';
+import 'package:zippy/presentation/events/transaction_events.dart';
 
 class TopUpCubit extends Cubit<TopUpState> {
   final TopUpRepository _topUpRepository;
@@ -54,6 +56,12 @@ class TopUpCubit extends Cubit<TopUpState> {
     try {
       final topUpInitiate = await _topUpRepository.initiateTopUp(data);
       emit(TopUpStateInitiated(url: topUpInitiate.paymentUrl));
+
+      // Fire balance change event
+      TransactionEventBus().fire(TransactionEvent(
+        type: TransactionEventType.balanceChanged,
+      ));
+
       router.go('/dashboard');
     } catch (e) {
       emit(TopUpStateError(errorMessage: _handleError(e)));

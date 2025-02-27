@@ -3,6 +3,8 @@ import 'package:dio/dio.dart';
 import 'package:go_router/go_router.dart';
 import 'package:zippy/domain/repository/withdrawal/withdrawal_repository.dart';
 import 'package:zippy/domain/state/withdrawal/withdrawal_state.dart';
+import 'package:zippy/presentation/bloc/dashboard/dashboard_cubit.dart';
+import 'package:zippy/presentation/events/transaction_events.dart';
 
 class WithdrawalCubit extends Cubit<WithdrawalState> {
   final WithdrawalRepository _withdrawalRepository;
@@ -56,6 +58,12 @@ class WithdrawalCubit extends Cubit<WithdrawalState> {
       final withdrawalInitiate =
           await _withdrawalRepository.initiateWithdrawal(data);
       emit(WithdrawalStateInitiated(url: withdrawalInitiate.paymentUrl));
+
+      // Fire balance change event
+      TransactionEventBus().fire(TransactionEvent(
+        type: TransactionEventType.balanceChanged,
+      ));
+
       router.go('/dashboard');
     } catch (e) {
       emit(WithdrawalStateError(errorMessage: _handleError(e)));

@@ -4,6 +4,7 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:zippy/domain/state/navigation/navigation_state.dart';
+import 'package:zippy/presentation/bloc/dashboard/dashboard_cubit.dart';
 import 'package:zippy/presentation/bloc/navigation/navigation_cubit.dart';
 
 class CustomBottomNavBar extends StatelessWidget {
@@ -79,7 +80,18 @@ class CustomBottomNavBar extends StatelessWidget {
   }) {
     final isSelected = selectedTab == tab;
     return InkWell(
-      onTap: () => context.read<NavigationCubit>().setTab(tab, router),
+      onTap: () {
+        // If tapping the home tab when already on it, refresh the dashboard
+        if (tab == NavigationTab.home && selectedTab == NavigationTab.home) {
+          try {
+            context.read<DashboardCubit>().loadData();
+          } catch (_) {
+            // Handle silently
+          }
+        }
+
+        context.read<NavigationCubit>().setTab(tab, router);
+      },
       child: Container(
         decoration: BoxDecoration(
           color: Theme.of(context).scaffoldBackgroundColor,

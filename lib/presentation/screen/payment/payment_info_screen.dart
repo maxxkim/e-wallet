@@ -7,6 +7,7 @@ import 'package:zippy/domain/model/transaction/transaction_model.dart';
 import 'package:zippy/domain/model/transaction/transaction_share_model.dart';
 import 'package:zippy/domain/repository/dashboard/dashboard_repository.dart';
 import 'package:zippy/presentation/animation/fade_animation_mixin.dart';
+import 'package:zippy/presentation/bloc/dashboard/dashboard_cubit.dart';
 import 'package:zippy/presentation/screen/history/widgets/transaction_utils.dart';
 import 'package:zippy/presentation/widget/custom_rectangular_button.dart';
 
@@ -25,6 +26,25 @@ class _PaymentInfoScreenState extends State<PaymentInfoScreen>
   double? _previousBalance;
   double? _currentBalance;
   bool _isLoading = true;
+  bool _hasRefreshedDashboard = false;
+
+  // Add an override for didChangeDependencies to refresh dashboard when screen appears
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (!_hasRefreshedDashboard) {
+      _hasRefreshedDashboard = true;
+      // Only refresh dashboard once
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        try {
+          // Refresh dashboard data
+          context.read<DashboardCubit>().loadData();
+        } catch (_) {
+          // Handle silently
+        }
+      });
+    }
+  }
 
   // Pre-defined container size
   final double _containerHeight = 198.0;

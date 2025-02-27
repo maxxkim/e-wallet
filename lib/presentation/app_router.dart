@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:zippy/domain/model/transaction/transaction_model.dart';
 import 'package:zippy/domain/repository/offer/offer_repository.dart';
+import 'package:zippy/domain/state/dashboard/dashboard_state.dart';
 import 'package:zippy/presentation/bloc/offer/offer_cubit.dart';
 import 'package:zippy/presentation/screen/auth/auth_screen.dart';
 import 'package:zippy/presentation/screen/auth/sms_verification_screen.dart';
@@ -200,6 +201,22 @@ final GoRouter appRouter = GoRouter(
       ],
     ),
   ],
+  redirect: (BuildContext context, GoRouterState state) {
+    // Check if this is a navigation to the dashboard
+    if (state.matchedLocation == '/dashboard' && state.extra != 'skipRefresh') {
+      try {
+        // Refresh the dashboard data
+        final dashboardCubit = context.read<DashboardCubit>();
+        if (dashboardCubit.state is! DashboardStateLoaded) {
+          dashboardCubit.loadData();
+        }
+      } catch (_) {
+        // Handle error silently
+      }
+    }
+    // Return null to continue with the navigation
+    return null;
+  },
   errorBuilder: (BuildContext context, GoRouterState state) {
     return const ErrorScreen(errorMessage: 'Navigation error occurred');
   },

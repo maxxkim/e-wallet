@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:dio/dio.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
@@ -6,9 +7,12 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:zippy/domain/model/transaction/transaction_model.dart';
 import 'package:zippy/domain/repository/dashboard/dashboard_repository.dart';
 import 'package:zippy/domain/state/dashboard/dashboard_state.dart';
+import 'package:zippy/presentation/events/transaction_events.dart';
 
 class DashboardCubit extends Cubit<DashboardState> {
   final DashboardRepository _dashboardRepository;
+  late StreamSubscription<TransactionEvent> _eventSubscription;
+  bool _isRefreshing = false;
 
   DashboardCubit(this._dashboardRepository)
       : super(DashboardStateLoaded(
@@ -18,7 +22,28 @@ class DashboardCubit extends Cubit<DashboardState> {
           transactions: [],
           filteredTransactions: [],
           selectedTab: NavigationTab.home,
-        ));
+        )) {
+    // Listen to transaction events
+    _eventSubscription =
+        TransactionEventBus().events.listen(_handleTransactionEvent);
+  }
+
+  void _handleTransactionEvent(TransactionEvent event) {
+    switch (event.type) {
+      case TransactionEventType.created:
+      case TransactionEventType.updated:
+      case TransactionEventType.deleted:
+      case TransactionEventType.balanceChanged:
+        loadData();
+        break;
+    }
+  }
+
+  @override
+  Future<void> close() {
+    _eventSubscription.cancel();
+    return super.close();
+  }
 
   void selectTab(int index) {
     if (state is DashboardStateLoaded) {
@@ -30,6 +55,10 @@ class DashboardCubit extends Cubit<DashboardState> {
   }
 
   Future<void> loadData() async {
+    // Prevent multiple simultaneous refreshes
+    if (_isRefreshing) return;
+    _isRefreshing = true;
+
     try {
       if (state is DashboardStateLoggedOut) return;
 
@@ -38,9 +67,17 @@ class DashboardCubit extends Cubit<DashboardState> {
 
       if (accessToken.isEmpty) {
         emit(DashboardStateLoggedOut());
+        _isRefreshing = false;
         return;
       }
 
+      // Store current state before loading
+      DashboardStateLoaded? previousState;
+      if (state is DashboardStateLoaded) {
+        previousState = state as DashboardStateLoaded;
+      }
+
+      // Load new data
       final balance = await _dashboardRepository.getBalance();
       final transactions = await _dashboardRepository.getTransactions();
 
@@ -63,11 +100,51 @@ class DashboardCubit extends Cubit<DashboardState> {
           searchQuery: currentState.searchQuery,
           selectedTab: currentState.selectedTab,
         ));
+      } else if (previousState != null) {
+        // Restore previous state with new data
+        final filteredTransactions = _applyFilters(
+          transactions,
+          previousState.filterType,
+          previousState.chosenMonth,
+          previousState.searchQuery,
+        );
+
+        emit(DashboardStateLoaded(
+          filterType: previousState.filterType,
+          chosenMonth: previousState.chosenMonth,
+          balance: balance,
+          transactions: transactions,
+          filteredTransactions: filteredTransactions ?? [],
+          accessToken: accessToken,
+          searchQuery: previousState.searchQuery,
+          selectedTab: previousState.selectedTab,
+        ));
+      } else {
+        // Initial state or after error
+        final filteredTransactions = _applyFilters(
+          transactions,
+          FilterType.period,
+          DateFormat('MMMM').format(DateTime.now()),
+          '',
+        );
+
+        emit(DashboardStateLoaded(
+          filterType: FilterType.period,
+          chosenMonth: DateFormat('MMMM').format(DateTime.now()),
+          balance: balance,
+          transactions: transactions,
+          filteredTransactions: filteredTransactions ?? [],
+          accessToken: accessToken,
+          searchQuery: '',
+          selectedTab: NavigationTab.home,
+        ));
       }
     } catch (e) {
       emit(DashboardStateError(
         errorMessage: _handleError(e),
       ));
+    } finally {
+      _isRefreshing = false;
     }
   }
 
@@ -97,18 +174,19 @@ class DashboardCubit extends Cubit<DashboardState> {
 
     List<Transaction> filtered = [...transactions];
 
-    // Get month number from month name
+    // Apply month filter
     final monthNumber = DateFormat('MMMM').parse(month).month;
 
+    // Apply type filter
     if (filterType == FilterType.deposit) {
       filtered = filtered.where((t) => t.type == 'payin').toList();
     } else if (filterType == FilterType.withdrawal) {
       filtered = filtered.where((t) => t.type == 'payout').toList();
     } else if (filterType == FilterType.period) {
-      // Compare month numbers instead of strings
       filtered = filtered.where((t) => t.date.month == monthNumber).toList();
     }
 
+    // Apply search query
     if (searchQuery.isNotEmpty) {
       final lowercaseQuery = searchQuery.toLowerCase();
       filtered = filtered.where((t) {
@@ -118,7 +196,9 @@ class DashboardCubit extends Cubit<DashboardState> {
       }).toList();
     }
 
+    // Sort by date
     filtered.sort((a, b) => b.date.compareTo(a.date));
+
     return filtered;
   }
 
@@ -185,7 +265,6 @@ class DashboardCubit extends Cubit<DashboardState> {
           error.response?.data['message'] != null) {
         return error.response?.data['message'];
       }
-
       switch (error.type) {
         case DioExceptionType.connectionTimeout:
           return 'Connection error UwU. Please try again!';

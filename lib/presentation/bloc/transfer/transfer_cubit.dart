@@ -1,8 +1,11 @@
-import 'package:dio/dio.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:dio/dio.dart';
 import 'package:zippy/domain/model/transaction/transaction_model.dart';
 import 'package:zippy/domain/repository/transfer/transfer_repository.dart';
 import 'package:zippy/domain/state/transfer/transfer_state.dart';
+import 'package:zippy/presentation/bloc/dashboard/dashboard_cubit.dart';
+import 'package:zippy/presentation/events/transaction_events.dart';
+import 'package:zippy/internal/application.dart'; // Import to access appNavigatorKey
 
 class TransferCubit extends Cubit<TransferState> {
   final TransferRepository transferRepository;
@@ -25,16 +28,13 @@ class TransferCubit extends Cubit<TransferState> {
   }
 
   Future<void> initializeTransfer(Map<String, dynamic> data) async {
-    // First emit the loading state to show the preloader
     emit(TransferStateLoading());
-
     try {
-      // Add a slight delay for UX, so the user can see the loading indicator
+      // Simulate network delay for better UX
       await Future.delayed(const Duration(milliseconds: 800));
-
       final transferInitiate = await transferRepository.initiateTransfer(data);
 
-      // Create a Transaction object from the transfer data
+      // Create a transaction object from the response
       final transaction = Transaction(
         id: transferInitiate.transferHash,
         title: "Transfer to ${data['recipient']}",
@@ -44,6 +44,15 @@ class TransferCubit extends Cubit<TransferState> {
         type: "payout",
         amount: data['amount'] is num ? data['amount'].toDouble() : 0.0,
       );
+
+      // Refresh dashboard data
+      _refreshDashboard();
+
+      // Fire transaction created event
+      TransactionEventBus().fire(TransactionEvent(
+        type: TransactionEventType.created,
+        transaction: transaction,
+      ));
 
       emit(TransferStateSent(
         transferDetails: {
@@ -59,6 +68,17 @@ class TransferCubit extends Cubit<TransferState> {
           errorMessage: errorMessage,
           isRecipientNotFound:
               errorMessage.contains('Recipient user not found')));
+    }
+  }
+
+  void _refreshDashboard() {
+    try {
+      final context = appNavigatorKey.currentContext;
+      if (context != null) {
+        context.read<DashboardCubit>().loadData();
+      }
+    } catch (_) {
+      // Handle error silently
     }
   }
 
