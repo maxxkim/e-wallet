@@ -230,6 +230,7 @@ class ApiService {
   Future<Map<String, dynamic>> getInitialData({
     int limit = 15,
     int topLimit = 5,
+    int page = 1,
   }) async {
     try {
       final response = await _dio.get(
@@ -237,6 +238,7 @@ class ApiService {
         queryParameters: {
           'limit': limit,
           'top_limit': topLimit,
+          'page': page,
         },
       );
 

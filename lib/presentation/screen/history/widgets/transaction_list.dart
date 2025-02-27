@@ -66,6 +66,9 @@ class TransactionList extends StatelessWidget {
       MonthData(12, l10n.monthDecember),
     ];
 
+    // Get the current month number from state
+    final currentMonthNumber = state.selectedMonthNumber;
+
     return Container(
       height: 48.0,
       decoration: BoxDecoration(
@@ -84,18 +87,19 @@ class TransactionList extends StatelessWidget {
         itemCount: months.length,
         itemBuilder: (context, index) {
           final month = months[index];
-          final isSelected = month.number == state.selectedMonthNumber;
+          final isSelected = month.number == currentMonthNumber;
           return GestureDetector(
-            onTap: () => context
-                .read<DashboardCubit>()
-                .selectMonth(month.number.toString()),
+            onTap: () =>
+                context.read<DashboardCubit>().selectMonth(month.localizedName),
             child: Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16.0),
               child: Center(
                 child: Text(
                   month.localizedName,
                   style: isSelected
-                      ? Theme.of(context).textTheme.headlineSmall
+                      ? Theme.of(context).textTheme.headlineSmall?.copyWith(
+                            color: Theme.of(context).colorScheme.primary,
+                          )
                       : Theme.of(context).textTheme.bodyMedium,
                 ),
               ),

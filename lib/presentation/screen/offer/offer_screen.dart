@@ -383,27 +383,63 @@ class OfferScreen extends StatelessWidget with FadeInAnimationMixin {
         break;
       case OfferFilterType.merchant:
         final cubit = context.read<OfferCubit>();
-        showDialog(
-          context: context,
-          builder: (dialogContext) {
-            return Dialog(
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(16),
-              ),
-              child: MerchantFilterDialog(
-                selectedMerchants: selectedItems.cast<MerchantData>(),
-                onMerchantsSelected: (merchants) {
-                  cubit.selectMerchants(merchants);
-                },
-              ),
-            );
-          },
-        );
+        final state = cubit.state;
+
+        if (state is OfferStateLoaded) {
+          final merchants = getUniqueMerchantsFromOffers(state.offers);
+
+          showDialog(
+            context: context,
+            builder: (dialogContext) {
+              return Dialog(
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(16),
+                ),
+                child: MerchantFilterDialog(
+                  selectedMerchants: selectedItems.cast<MerchantData>(),
+                  merchants: merchants, // Pass the unique merchants
+                  onMerchantsSelected: (merchants) {
+                    cubit.selectMerchants(merchants);
+                  },
+                ),
+              );
+            },
+          );
+        }
         break;
       case OfferFilterType.discount:
         _showDiscountFilter(context);
         break;
     }
+  }
+
+  List<MerchantData> getUniqueMerchantsFromOffers(List<Offer> offers) {
+    // Use a Map to track unique merchants by hash
+    final Map<String, MerchantData> merchantMap = {};
+
+    // Count offers per merchant as we go
+    for (final offer in offers) {
+      final merchantHash = offer.merchantId;
+      if (merchantMap.containsKey(merchantHash)) {
+        // Increment total offers for existing merchant
+        final merchant = merchantMap[merchantHash]!;
+        merchantMap[merchantHash] = MerchantData(
+          hash: merchant.hash,
+          name: merchant.name,
+          totalOffers: merchant.totalOffers + 1,
+        );
+      } else {
+        // Add new merchant
+        merchantMap[merchantHash] = MerchantData(
+          hash: merchantHash,
+          name: offer.merchantName,
+          totalOffers: 1,
+        );
+      }
+    }
+
+    // Convert map values to list
+    return merchantMap.values.toList();
   }
 
   void _showDiscountFilter(BuildContext context) {

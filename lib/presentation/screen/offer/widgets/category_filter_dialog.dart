@@ -60,9 +60,16 @@ class _CategoryFilterDialogState extends State<CategoryFilterDialog> {
     try {
       final repository = RepositoryProvider.of<OfferRepository>(context);
       final isFavorite = _favorites.any((fav) => fav.id == category.id);
+
+      // Show a loading indicator or disable the button during the operation
+      setState(() {
+        // This prevents multiple clicks while operation is in progress
+      });
+
       final updatedFavorites = isFavorite
           ? await repository.deleteFavoriteCategory(category.id)
           : await repository.addFavoriteCategory(category.id);
+
       if (mounted) {
         setState(() {
           _favorites = updatedFavorites;

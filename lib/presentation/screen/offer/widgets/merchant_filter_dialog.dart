@@ -1,8 +1,6 @@
 // lib/presentation/screen/offer/widgets/merchant_filter_dialog.dart
 
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:zippy/domain/repository/offer/offer_repository.dart';
 
 class MerchantData {
   final String hash;
@@ -19,11 +17,14 @@ class MerchantData {
 class MerchantFilterDialog extends StatefulWidget {
   final Function(List<MerchantData>) onMerchantsSelected;
   final List<MerchantData> selectedMerchants;
+  final List<MerchantData>
+      merchants; // New parameter to pass merchants from parent
 
   const MerchantFilterDialog({
     Key? key,
     required this.onMerchantsSelected,
     required this.selectedMerchants,
+    required this.merchants, // Require this parameter
   }) : super(key: key);
 
   @override
@@ -33,41 +34,13 @@ class MerchantFilterDialog extends StatefulWidget {
 class _MerchantFilterDialogState extends State<MerchantFilterDialog> {
   List<MerchantData> _merchants = [];
   List<MerchantData> _selectedMerchants = [];
-  bool _isLoading = true;
-  String? _error;
 
   @override
   void initState() {
     super.initState();
     _selectedMerchants = List.from(widget.selectedMerchants);
-    _fetchMerchants();
-  }
-
-  Future<void> _fetchMerchants() async {
-    try {
-      final repository = RepositoryProvider.of<OfferRepository>(context);
-      final initialData = await repository.getInitialData();
-
-      if (mounted) {
-        setState(() {
-          _merchants = initialData.merchants
-              .map((m) => MerchantData(
-                    hash: m.hash,
-                    name: m.name,
-                    totalOffers: m.totalOffers,
-                  ))
-              .toList();
-          _isLoading = false;
-        });
-      }
-    } catch (e) {
-      if (mounted) {
-        setState(() {
-          _error = 'Failed to load merchants >~<';
-          _isLoading = false;
-        });
-      }
-    }
+    _merchants =
+        List.from(widget.merchants); // Use merchants passed from parent
   }
 
   void _toggleMerchant(MerchantData merchant) {
@@ -82,25 +55,7 @@ class _MerchantFilterDialogState extends State<MerchantFilterDialog> {
 
   @override
   Widget build(BuildContext context) {
-    if (_isLoading) {
-      return const SizedBox(
-        height: 200,
-        child: Center(child: CircularProgressIndicator()),
-      );
-    }
-
-    if (_error != null) {
-      return SizedBox(
-        height: 200,
-        child: Center(
-          child: Text(
-            _error!,
-            style: TextStyle(color: Theme.of(context).colorScheme.error),
-          ),
-        ),
-      );
-    }
-
+    // No longer need to check for loading state
     return Container(
       width: double.maxFinite,
       decoration: BoxDecoration(

@@ -15,10 +15,12 @@ class OfferDataRepository implements OfferRepository {
   Future<InitialDataResponse> getInitialData({
     int limit = 15,
     int topLimit = 5,
+    int page = 1,
   }) {
     return _apiUtil.getInitialData(
       limit: limit,
       topLimit: topLimit,
+      page: page,
     );
   }
 

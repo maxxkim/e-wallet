@@ -3,22 +3,27 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:dio/dio.dart';
 import 'package:zippy/domain/model/offer/category_model.dart';
+import 'package:zippy/domain/model/offer/initial_data_model.dart';
 import 'package:zippy/domain/model/offer/offer_model.dart';
 import 'package:zippy/domain/repository/offer/offer_repository.dart';
 import 'package:zippy/domain/state/offer/offer_state.dart';
 import 'package:zippy/presentation/screen/offer/widgets/merchant_filter_dialog.dart';
 
 class OfferCubit extends Cubit<OfferState> {
-  // Static variables to hold selected data from search
   static MerchantData? selectedMerchantFromSearch;
   static CategoryModel? selectedCategoryFromSearch;
-
   final OfferRepository _offerRepository;
   int _currentPage = 1;
   static const int _pageSize = 15;
   final ScrollController scrollController = ScrollController();
   final TextEditingController searchController = TextEditingController();
   Timer? _searchDebounce;
+
+  // Track loading state
+  bool _isLoadingMore = false;
+
+  // Store the last received data to check pagination info
+  InitialDataResponse? _initialData;
 
   OfferCubit(this._offerRepository) : super(OfferStateLoading()) {
     _init();
@@ -28,25 +33,22 @@ class OfferCubit extends Cubit<OfferState> {
     scrollController.addListener(_onScroll);
     searchController.addListener(_onSearchChanged);
 
-    // Initialize the loadOffers but defer it to handle the search filters first
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      // Handle any pending search filters
       final tempMerchant = selectedMerchantFromSearch;
       final tempCategory = selectedCategoryFromSearch;
 
-      // Clear the static variables immediately to avoid any issues
       selectedMerchantFromSearch = null;
       selectedCategoryFromSearch = null;
 
-      // Apply filters if they exist
       if (tempMerchant != null) {
-        print('Applying merchant filter from search: ${tempMerchant.name}');
+        debugPrint(
+            'Applying merchant filter from search: ${tempMerchant.name}');
         selectMerchants([tempMerchant]);
       } else if (tempCategory != null) {
-        print('Applying category filter from search: ${tempCategory.name}');
+        debugPrint(
+            'Applying category filter from search: ${tempCategory.name}');
         selectCategories([tempCategory]);
       } else {
-        // Otherwise just load all offers
         loadOffers();
       }
     });
@@ -99,7 +101,7 @@ class OfferCubit extends Cubit<OfferState> {
   }
 
   void selectMerchants(List<MerchantData> merchants) async {
-    print(
+    debugPrint(
         'Select merchants called with: ${merchants.map((m) => m.name).join(", ")}');
     _currentPage = 1;
     if (state is OfferStateLoaded) {
@@ -155,62 +157,62 @@ class OfferCubit extends Cubit<OfferState> {
   }
 
   void _onScroll() {
+    // Only try to load more if we're near the bottom and not already loading
     if (scrollController.position.pixels >=
         scrollController.position.maxScrollExtent - 200) {
       if (state is OfferStateLoaded &&
-          !(state as OfferStateLoaded).isLoadingMore) {
-        loadOffers();
+          !(state as OfferStateLoaded).isLoadingMore &&
+          !_isLoadingMore) {
+        // Only try to load more if we're not already on the last page
+        if (_currentPage <= (_initialData?.options.lastPage ?? 1)) {
+          loadOffers();
+        } else {
+          debugPrint('🛑 Already on last page, not loading more');
+        }
       }
     }
   }
 
   Future<void> loadOffers({bool refresh = false}) async {
     try {
+      // If already loading more, prevent additional requests
+      if (_isLoadingMore && !refresh) return;
+      _isLoadingMore = true;
+
       final currentState =
           state is OfferStateLoaded ? state as OfferStateLoaded : null;
-
       if (refresh) {
         _currentPage = 1;
         emit(OfferStateLoading());
       } else if (currentState != null) {
-        emit(currentState.copyWith(isLoadingMore: true));
+        // Only emit loading more if we're not on the last page
+        if (_currentPage <= (_initialData?.options.lastPage ?? 1)) {
+          emit(currentState.copyWith(isLoadingMore: true));
+        } else {
+          _isLoadingMore = false;
+          return; // Don't load more if we're already on the last page
+        }
       }
 
-      final queryParams = {
-        'page': _currentPage,
-        'limit': _pageSize,
-        'search': searchController.text,
-        'sort_by': currentState?.sortDirection ?? 'desc',
-      };
+      debugPrint('📱 Fetching offers page $_currentPage');
 
-      // Apply category filters
-      if (currentState?.selectedCategories.isNotEmpty ?? false) {
-        queryParams['category_id'] = currentState!.selectedCategories
-            .map((c) => c.id.toString())
-            .join(',');
-      }
-
-      // Apply merchant filters
-      if (currentState?.selectedMerchants.isNotEmpty ?? false) {
-        queryParams['merchant_id'] =
-            currentState!.selectedMerchants.map((m) => m.hash).join(',');
-      }
-
+      // Pass the page parameter to the repository call
       final initialData = await _offerRepository.getInitialData(
         limit: _pageSize,
         topLimit: _currentPage == 1 ? 5 : 0,
+        page: _currentPage,
       );
 
-      // Debug logging
-      print('Loaded ${initialData.offers.length} offers');
-      if (currentState?.selectedMerchants.isNotEmpty ?? false) {
-        print(
-            'Applied merchant filter: ${currentState!.selectedMerchants.map((m) => m.name).join(", ")}');
-      }
+      debugPrint(
+          '🎁 Loaded ${initialData.offers.length} offers for page $_currentPage');
+      debugPrint(
+          '📄 Last page is: ${initialData.options.lastPage}, Total offers: ${initialData.options.total}');
+
+      // Store the last received data to check pagination info
+      _initialData = initialData;
 
       List<Offer> filteredOffers = initialData.offers;
 
-      // Apply discount filters
       if (currentState?.minDiscount != null ||
           currentState?.maxDiscount != null) {
         filteredOffers = filteredOffers.where((offer) {
@@ -229,7 +231,6 @@ class OfferCubit extends Cubit<OfferState> {
         }).toList();
       }
 
-      // Apply offer type filters
       if (currentState?.selectedOfferTypes.isNotEmpty ?? false) {
         filteredOffers = filteredOffers.where((offer) {
           return currentState!.selectedOfferTypes
@@ -237,15 +238,32 @@ class OfferCubit extends Cubit<OfferState> {
         }).toList();
       }
 
+      // Check for duplicates when appending data
       if (currentState != null && !refresh) {
-        final List<Offer> updatedOffers = [
-          ...currentState.offers,
-          ...filteredOffers,
-        ];
-        emit(currentState.copyWith(
-          offers: updatedOffers,
-          isLoadingMore: false,
-        ));
+        // Create a set of existing offer IDs to prevent duplicates
+        final existingOfferIds = currentState.offers.map((o) => o.id).toSet();
+
+        // Only add new offers that aren't already in the list
+        final newOffers = filteredOffers
+            .where((offer) => !existingOfferIds.contains(offer.id))
+            .toList();
+
+        if (newOffers.isEmpty) {
+          debugPrint(
+              '⚠️ No new offers found on page $_currentPage, stopping pagination');
+          emit(currentState.copyWith(isLoadingMore: false));
+        } else {
+          debugPrint(
+              '✅ Adding ${newOffers.length} new offers from page $_currentPage');
+          final List<Offer> updatedOffers = [
+            ...currentState.offers,
+            ...newOffers,
+          ];
+          emit(currentState.copyWith(
+            offers: updatedOffers,
+            isLoadingMore: false,
+          ));
+        }
       } else {
         emit(OfferStateLoaded(
           offers: filteredOffers,
@@ -255,18 +273,31 @@ class OfferCubit extends Cubit<OfferState> {
           maxDiscount: currentState?.maxDiscount,
           sortDirection: currentState?.sortDirection ?? 'desc',
           selectedOfferTypes: currentState?.selectedOfferTypes ?? [],
+          isLoadingMore: false,
         ));
       }
 
-      if (_currentPage < initialData.options.lastPage) {
+      // Only increment page if we got data and haven't reached the last page
+      // AND if the page we just loaded has the expected number of items
+      if (filteredOffers.isNotEmpty &&
+          _currentPage < initialData.options.lastPage &&
+          filteredOffers.length >= _pageSize) {
         _currentPage++;
+        debugPrint('⏭️ Next page will be: $_currentPage');
+      } else {
+        debugPrint(
+            '🛑 Reached last page or incomplete page. Not incrementing page counter.');
       }
     } catch (e) {
+      debugPrint('❌ Error loading offers: ${e.toString()}');
       if (state is OfferStateLoaded) {
         final currentState = state as OfferStateLoaded;
         emit(currentState.copyWith(isLoadingMore: false));
+      } else {
+        emit(OfferStateError(errorMessage: _handleError(e)));
       }
-      emit(OfferStateError(errorMessage: _handleError(e)));
+    } finally {
+      _isLoadingMore = false;
     }
   }
 

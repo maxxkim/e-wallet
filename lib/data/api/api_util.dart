@@ -133,10 +133,12 @@ class ApiUtil {
   Future<InitialDataResponse> getInitialData({
     int limit = 15,
     int topLimit = 5,
+    int page = 1,
   }) async {
     final result = await _apiService.getInitialData(
       limit: limit,
       topLimit: topLimit,
+      page: page,
     );
     return InitialDataResponse.fromJson(result);
   }
