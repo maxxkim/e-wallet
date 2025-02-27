@@ -75,8 +75,7 @@ class _GlobalSearchWidgetState extends State<GlobalSearchWidget> {
         _performSearch(query);
       }
       _showOverlay();
-      _keepOverlayOpen = true;
-    } else if (!_keepOverlayOpen) {
+    } else {
       Future.delayed(const Duration(milliseconds: 200), () {
         if (!_focusNode.hasFocus && !_keepOverlayOpen) {
           setState(() => _showResults = false);
@@ -195,7 +194,6 @@ class _GlobalSearchWidgetState extends State<GlobalSearchWidget> {
     _overlayEntry!.markNeedsBuild();
   }
 
-  // This is the key method we need to fix
   void _handleResultSelected(dynamic result) {
     if (widget.clearOnSelect) {
       _clearSearch();
@@ -204,7 +202,6 @@ class _GlobalSearchWidgetState extends State<GlobalSearchWidget> {
     setState(() {
       _keepOverlayOpen = false;
     });
-
     if (widget.onResultSelected != null) {
       widget.onResultSelected!(result);
       return;
@@ -264,7 +261,7 @@ class _GlobalSearchWidgetState extends State<GlobalSearchWidget> {
             border: Border.all(
               color: _focusNode.hasFocus || _keepOverlayOpen
                   ? Theme.of(context).colorScheme.secondary
-                  : Theme.of(context).colorScheme.tertiaryContainer,
+                  : Theme.of(context).colorScheme.tertiary,
               width: 1.0,
             ),
           ),
@@ -303,16 +300,19 @@ class _GlobalSearchWidgetState extends State<GlobalSearchWidget> {
       builder: (context) => GestureDetector(
         behavior: HitTestBehavior.translucent,
         onTap: () {
-          _keepOverlayOpen = true;
-          _focusNode.requestFocus();
+          // When tapping outside the search results but on the overlay,
+          // remove focus which will close the keyboard
+          _keepOverlayOpen = false;
+          _focusNode.unfocus();
         },
         child: Stack(
           children: [
+            // Add a transparent full-screen layer to capture taps outside
             Positioned.fill(
               child: GestureDetector(
                 onTap: () {
-                  _keepOverlayOpen = true;
-                  _focusNode.requestFocus();
+                  _keepOverlayOpen = false;
+                  _focusNode.unfocus();
                 },
               ),
             ),
@@ -325,7 +325,8 @@ class _GlobalSearchWidgetState extends State<GlobalSearchWidget> {
                 showWhenUnlinked: false,
                 offset: Offset(0, size.height + 4),
                 child: GestureDetector(
-                  onTap: () {},
+                  onTap:
+                      () {}, // Stop propagation for clicks on the results panel
                   child: Material(
                     elevation: 8,
                     borderRadius: BorderRadius.circular(16),
