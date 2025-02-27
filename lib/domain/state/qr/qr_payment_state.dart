@@ -1,5 +1,6 @@
 import 'package:zippy/domain/model/qr/payment_response_model.dart';
 import 'package:zippy/domain/model/qr/qr_payment_model.dart';
+import 'package:zippy/domain/model/transaction/transaction_model.dart';
 
 abstract class QrPaymentState {}
 
@@ -11,7 +12,6 @@ class QrPaymentScanning extends QrPaymentState {}
 
 class QrPaymentScanError extends QrPaymentState {
   final String message;
-
   QrPaymentScanError(this.message);
 }
 
@@ -41,12 +41,12 @@ class QrPaymentScanSuccess extends QrPaymentState {
 
 class QrPaymentProcessError extends QrPaymentState {
   final String message;
-
   QrPaymentProcessError(this.message);
 }
 
 class QrPaymentSuccess extends QrPaymentState {
   final PaymentResponse paymentResponse;
+  final Transaction transaction;
 
-  QrPaymentSuccess({required this.paymentResponse});
+  QrPaymentSuccess({required this.paymentResponse, required this.transaction});
 }

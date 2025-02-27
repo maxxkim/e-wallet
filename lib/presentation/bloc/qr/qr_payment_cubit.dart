@@ -1,6 +1,7 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:dio/dio.dart';
 import 'package:zippy/domain/model/qr/qr_payment_model.dart';
+import 'package:zippy/domain/model/transaction/transaction_model.dart';
 import 'package:zippy/domain/repository/qr/qr_payment_repository.dart';
 import 'package:zippy/domain/state/qr/qr_payment_state.dart';
 
@@ -51,33 +52,27 @@ class QrPaymentCubit extends Cubit<QrPaymentState> {
     if (state is QrPaymentScanSuccess) {
       final currentState = state as QrPaymentScanSuccess;
       if (currentState.isProcessing) return;
-
       try {
         emit(currentState.copyWith(isProcessing: true, amountError: null));
 
-        // Use fixed amount for FIXED type QR codes, otherwise use entered amount
+        // Calculate payment amount based on QR code type
         double paymentAmount = response.qrCode.type == 'FIXED'
             ? response.qrCode.amount
             : double.parse(amount);
 
-        // Prepare payment data
         Map<String, dynamic> additionalData = {};
 
-        // Add offer/discount related data if available
         if (response.offer != null && response.activation != null) {
           final discountValue = double.tryParse(response.offer!.discount) ?? 0;
           final bonusValue = double.tryParse(response.offer!.bonus) ?? 0;
 
-          // Add activation_id to payment data when present
           additionalData['activation_id'] = response.activation!.id.toString();
-
           if (discountValue > 0) {
             additionalData['discount'] = discountValue;
           } else if (bonusValue > 0) {
             additionalData['bonus'] = bonusValue;
           }
 
-          // Add merchant name for better receipt identification
           additionalData['merchant_name'] = response.offer!.merchantName;
         }
 
@@ -87,7 +82,19 @@ class QrPaymentCubit extends Cubit<QrPaymentState> {
           additionalData: additionalData,
         );
 
-        emit(QrPaymentSuccess(paymentResponse: paymentResponse));
+        // Create a transaction object for the payment info screen
+        final transaction = Transaction(
+          id: response.qrCode.hash,
+          title: "Payment to ${response.merchant.name}",
+          date: DateTime.now(),
+          status: "completed",
+          currency: response.qrCode.currency,
+          type: "payout",
+          amount: paymentAmount,
+        );
+
+        emit(QrPaymentSuccess(
+            paymentResponse: paymentResponse, transaction: transaction));
       } catch (e) {
         emit(QrPaymentProcessError(_handleError(e)));
         emit(currentState.copyWith(isProcessing: false));

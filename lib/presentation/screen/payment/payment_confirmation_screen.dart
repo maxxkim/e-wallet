@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:url_launcher/url_launcher.dart';
+import 'package:go_router/go_router.dart';
 import 'package:zippy/domain/model/qr/qr_payment_model.dart';
 import 'package:zippy/domain/state/qr/qr_payment_state.dart';
 import 'package:zippy/presentation/animation/fade_animation_mixin.dart';
@@ -28,38 +28,17 @@ class QrPaymentConfirmation extends StatelessWidget with FadeInAnimationMixin {
     return BlocListener<QrPaymentCubit, QrPaymentState>(
       listener: (context, state) async {
         if (state is QrPaymentSuccess) {
-          // Check if context is still mounted before using it
-          if (!context.mounted) return;
-
-          final returnUrl = state.paymentResponse.payment.returnUrl;
-          if (returnUrl != null) {
-            final url = Uri.parse(returnUrl);
-            if (!await launchUrl(url, mode: LaunchMode.externalApplication)) {
-              // Check if context is still mounted before using it
-              if (!context.mounted) return;
-
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(
-                    content: Text('Could not launch external browser.')),
-              );
-            }
-          }
-
-          // Check if context is still mounted before using it
-          if (!context.mounted) return;
-
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Payment processed successfully!')),
+          // Navigate to the PaymentInfoScreen with the transaction
+          context.go(
+            '/dashboard/transaction-details',
+            extra: state.transaction,
           );
-          Navigator.of(context).pop();
-          Navigator.of(context).pop();
         } else if (state is QrPaymentProcessError) {
-          // Check if context is still mounted before using it
-          if (!context.mounted) return;
-
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Payment failed: ${state.message}')),
-          );
+          if (context.mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(content: Text('Payment failed: ${state.message}')),
+            );
+          }
         }
       },
       child: BlocBuilder<QrPaymentCubit, QrPaymentState>(
@@ -69,7 +48,7 @@ class QrPaymentConfirmation extends StatelessWidget with FadeInAnimationMixin {
           final amountError =
               state is QrPaymentScanSuccess ? state.amountError : null;
 
-          // Calculate the final amount for display
+          // Calculate discount if applicable
           final originalAmount = double.tryParse(amountController.text) ?? 0.0;
           double discountAmount = 0.0;
           double finalAmount = originalAmount;
@@ -166,7 +145,6 @@ class QrPaymentConfirmation extends StatelessWidget with FadeInAnimationMixin {
 
 class _MerchantInfoCard extends StatelessWidget {
   final QrMerchant merchant;
-
   const _MerchantInfoCard({
     required this.merchant,
   });
@@ -221,7 +199,6 @@ class _PaymentDetailsCard extends StatelessWidget {
   final TextEditingController amountController;
   final String? errorText;
   final bool enabled;
-
   const _PaymentDetailsCard({
     required this.qrCode,
     this.offer,
@@ -233,15 +210,13 @@ class _PaymentDetailsCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Calculate discount and final amount for display only
+    // Calculate discount if applicable
     final originalAmount = double.tryParse(amountController.text) ?? 0.0;
     double discountAmount = 0.0;
     double finalAmount = originalAmount;
-
     if (offer != null && activation != null) {
       final discountValue = double.tryParse(offer!.discount) ?? 0;
       final bonusValue = double.tryParse(offer!.bonus) ?? 0;
-
       if (discountValue > 0) {
         if (offer!.discountType == 'PERCENTAGE') {
           discountAmount = originalAmount * (discountValue / 100);
@@ -255,7 +230,6 @@ class _PaymentDetailsCard extends StatelessWidget {
           discountAmount = bonusValue;
         }
       }
-
       finalAmount = originalAmount - discountAmount;
       if (finalAmount < 0) finalAmount = 0;
     }
@@ -283,8 +257,6 @@ class _PaymentDetailsCard extends StatelessWidget {
             ),
             errorText: errorText,
           ),
-
-          // Display discount information if available - for display purposes only
           if (offer != null && activation != null && discountAmount > 0) ...[
             const SizedBox(height: 16),
             Row(
@@ -348,7 +320,6 @@ class _PaymentDetailsCard extends StatelessWidget {
 class _DetailRow extends StatelessWidget {
   final String label;
   final String value;
-
   const _DetailRow({
     required this.label,
     required this.value,
@@ -377,7 +348,6 @@ class _ActionButtons extends StatelessWidget {
   final VoidCallback onCancel;
   final bool isProcessing;
   final double finalAmount;
-
   const _ActionButtons({
     required this.onConfirm,
     required this.onCancel,

@@ -17,7 +17,6 @@ import 'package:zippy/presentation/widget/custom_bottom_nav_bar.dart';
 import 'package:zippy/presentation/widget/custom_contact_button.dart';
 import 'package:zippy/presentation/widget/custom_contact_button_row.dart';
 import 'package:zippy/domain/model/contacts/contact_model.dart';
-import 'package:zippy/presentation/widget/global_search_widget.dart';
 
 class TransferScreen extends StatefulWidget {
   const TransferScreen({Key? key}) : super(key: key);
@@ -62,7 +61,6 @@ class _TransferScreenState extends State<TransferScreen>
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
-
     return MultiBlocProvider(
       providers: [
         BlocProvider(
@@ -85,30 +83,40 @@ class _TransferScreenState extends State<TransferScreen>
             phoneController.text = state.phoneNumber;
           }
         },
-        child: BlocBuilder<TransferCubit, TransferState>(
-          builder: (context, state) {
-            return Scaffold(
-              // appBar: _buildAppBar(context, l10n),
-              body: Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: RefreshIndicator(
-                  onRefresh: () => _handleRefresh(context),
-                  child: _buildBody(context, state, l10n),
-                ),
-              ),
-              bottomNavigationBar: const CustomBottomNavBar(),
-            );
+        child: BlocListener<TransferCubit, TransferState>(
+          listener: (context, state) {
+            if (state is TransferStateSent) {
+              // Navigate to the PaymentInfoScreen with the transaction data
+              context.go(
+                '/dashboard/transaction-details',
+                extra: state.transaction,
+              );
+            } else if (state is TransferStateError) {
+              if (state.isRecipientNotFound) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text(l10n.transferRecipientNotFound),
+                  ),
+                );
+              }
+            }
           },
+          child: BlocBuilder<TransferCubit, TransferState>(
+            builder: (context, state) {
+              return Scaffold(
+                body: Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: RefreshIndicator(
+                    onRefresh: () => _handleRefresh(context),
+                    child: _buildBody(context, state, l10n),
+                  ),
+                ),
+                bottomNavigationBar: const CustomBottomNavBar(),
+              );
+            },
+          ),
         ),
       ),
-    );
-  }
-
-  PreferredSizeWidget _buildAppBar(
-      BuildContext context, AppLocalizations l10n) {
-    return AppBar(
-      backgroundColor: Colors.transparent,
-      toolbarHeight: 24,
     );
   }
 
@@ -122,23 +130,10 @@ class _TransferScreenState extends State<TransferScreen>
     } else if (state is TransferStateLoaded) {
       return _buildLoadedContent(context, l10n);
     } else if (state is TransferStateError) {
-      if (state.isRecipientNotFound) {
-        WidgetsBinding.instance.addPostFrameCallback((_) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(l10n.transferRecipientNotFound),
-            ),
-          );
-        });
-      }
       return _buildErrorContent(context, state.errorMessage, l10n);
-    } else if (state is TransferStateSent) {
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        context.go('/dashboard');
-      });
+    } else {
       return _buildLoadedContent(context, l10n);
     }
-    return _buildErrorContent(context, l10n.transferUnknownError, l10n);
   }
 
   Widget _buildLoadedContent(
@@ -149,17 +144,6 @@ class _TransferScreenState extends State<TransferScreen>
       child: Column(
         children: staggeredFadeIn([
           const SizedBox(height: 32),
-          /*fadeIn(
-            GlobalSearchWidget(
-              hintText: l10n.transferMobileNumberLabel,
-              onResultSelected: (result) {
-                if (result is ContactModel) {
-                  phoneController.text = result.name;
-                }
-              },
-            ),
-          ),
-          const SizedBox(height: 16),*/
           fadeInFromTop(const TransferDisplay()),
           const SizedBox(height: 16),
           Center(

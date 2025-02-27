@@ -239,5 +239,6 @@
     },
     "offerActivatedSuccess": "Offer activated successfully! ✨",
     "offerActivationError": "Failed to activate offer (◞‸◟；)",
-    "getOfferNow": "Get Now"
+    "getOfferNow": "Get Now",
+    "transferProcessing": "Processing..."
 }

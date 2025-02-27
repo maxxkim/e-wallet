@@ -209,5 +209,6 @@
     },
     "offerActivatedSuccess": "¡Oferta activada con éxito! ✨",
     "offerActivationError": "Error al activar la oferta (◞‸◟；)",
-    "getOfferNow": "Obtener Ahora"
+    "getOfferNow": "Obtener Ahora",
+    "transferProcessing": "Procesando..."
 }
