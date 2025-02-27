@@ -1,5 +1,6 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:dio/dio.dart';
+import 'package:zippy/domain/model/transaction/transaction_model.dart';
 import 'package:zippy/domain/repository/transfer/transfer_repository.dart';
 import 'package:zippy/domain/state/transfer/transfer_state.dart';
 
@@ -25,11 +26,21 @@ class TransferCubit extends Cubit<TransferState> {
   Future<void> initializeTransfer(Map<String, dynamic> data) async {
     try {
       final transferInitiate = await transferRepository.initiateTransfer(data);
-      emit(TransferStateSent(transferDetails: {
-        'transferHash': transferInitiate.transferHash,
-        'status': transferInitiate.status,
-        'wallet': transferInitiate.wallet,
-      }));
+      emit(TransferStateSent(
+          transaction: Transaction(
+            id: "2",
+            title: "Test Withdrawal",
+            date: DateTime(2025, 1, 2),
+            status: "completed",
+            currency: "USD",
+            type: "payout",
+            amount: 50.0,
+          ),
+          transferDetails: {
+            'transferHash': transferInitiate.transferHash,
+            'status': transferInitiate.status,
+            'wallet': transferInitiate.wallet,
+          }));
     } on DioException catch (e) {
       if (e.response?.statusCode == 404) {
         emit(TransferStateError(

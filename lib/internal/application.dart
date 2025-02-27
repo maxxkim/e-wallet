@@ -39,9 +39,7 @@ import 'package:zippy/data/api/service/api_service.dart';
 import 'package:zippy/presentation/theme/theme_cubit.dart';
 import 'package:zippy/presentation/events/transaction_events.dart';
 import 'package:zippy/presentation/bloc/dashboard/dashboard_cubit.dart';
-import 'package:zippy/domain/state/dashboard/dashboard_state.dart'; // Added this import
 
-// Create a global navigator key for app-wide access
 final GlobalKey<NavigatorState> appNavigatorKey = GlobalKey<NavigatorState>();
 
 class ZippyApp extends StatefulWidget {
@@ -70,18 +68,16 @@ class _ZippyAppState extends State<ZippyApp> with WidgetsBindingObserver {
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
     if (state == AppLifecycleState.resumed) {
-      // Refresh dashboard when app is resumed
       try {
         final context = appNavigatorKey.currentContext;
         if (context != null) {
-          // Check if we're on dashboard screen
           final currentLocation = GoRouterState.of(context).matchedLocation;
           if (currentLocation.startsWith('/dashboard')) {
             context.read<DashboardCubit>().loadData();
           }
         }
       } catch (_) {
-        // Handle silently
+        // Silently handle any error
       }
     }
   }
@@ -180,12 +176,11 @@ class _ZippyAppState extends State<ZippyApp> with WidgetsBindingObserver {
                 RepositoryProvider.of<OfferRepository>(context),
               ),
             ),
-            // Add DashboardCubit provider at the app level for global access
             BlocProvider(
               create: (context) => DashboardCubit(
                 RepositoryProvider.of<DashboardRepository>(context),
               ),
-              lazy: false, // Initialize immediately
+              lazy: false,
             ),
           ],
           child: Builder(
@@ -195,18 +190,9 @@ class _ZippyAppState extends State<ZippyApp> with WidgetsBindingObserver {
                 builder: (context, theme) {
                   return BlocBuilder<LocaleCubit, Locale>(
                     builder: (context, locale) {
-                      // Create a new instance of GoRouter with our navigator key
-                      final router = GoRouter(
-                        navigatorKey: appNavigatorKey,
-                        initialLocation: appRouter.initialLocation,
-                        routes: appRouter.routes,
-                        redirect: appRouter.redirect,
-                        errorBuilder: appRouter.errorBuilder,
-                        observers: [DashboardRefreshObserver(context)],
-                      );
-
+                      // Here's our fix! Just use appRouter directly
                       return MaterialApp.router(
-                        routerConfig: router,
+                        routerConfig: appRouter,
                         title: 'Zentro Wallet',
                         locale: locale,
                         theme:
@@ -231,10 +217,8 @@ class _ZippyAppState extends State<ZippyApp> with WidgetsBindingObserver {
   }
 }
 
-// Create a navigation observer to refresh data on screen changes
 class DashboardRefreshObserver extends NavigatorObserver {
   final BuildContext context;
-
   DashboardRefreshObserver(this.context);
 
   @override
@@ -253,21 +237,19 @@ class DashboardRefreshObserver extends NavigatorObserver {
 
   void _checkForDashboardRefresh(Route<dynamic> route) {
     try {
-      // Check if we're navigating to dashboard
       final settings = route.settings;
       final routeName = settings.name;
       if (routeName != null && routeName.startsWith('/dashboard')) {
-        // Trigger refresh of dashboard data
         WidgetsBinding.instance.addPostFrameCallback((_) {
           try {
             context.read<DashboardCubit>().loadData();
           } catch (_) {
-            // Handle silently
+            // Silently handle any error
           }
         });
       }
     } catch (_) {
-      // Handle silently
+      // Silently handle any error
     }
   }
 }
