@@ -38,7 +38,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
                 padding: const EdgeInsets.only(top: 16, left: 16, right: 16),
                 child: Column(
                   children: <Widget>[
-                    GlobalSearchWidget(
+                    /*GlobalSearchWidget(
                       hintText: l10n.historySearchHint,
                       onResultSelected: (result) {
                         // When a transaction is selected from global search,
@@ -53,7 +53,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
                     ).animate().fadeIn(
                           duration: const Duration(milliseconds: 300),
                         ),
-                    const SizedBox(height: 16),
+                    const SizedBox(height: 16),*/
                     _buildHeader(context, state, l10n),
                     const SizedBox(height: 8),
                     _buildStatistics(context, state, l10n),

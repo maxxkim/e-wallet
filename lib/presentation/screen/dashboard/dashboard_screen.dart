@@ -37,7 +37,7 @@ class DashboardScreen extends StatelessWidget with FadeInAnimationMixin {
                   left: 16.0,
                   right: 16.0,
                   bottom: 16.0,
-                  top: 60.0,
+                  top: 49.0,
                 ),
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.start,

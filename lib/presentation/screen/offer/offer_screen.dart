@@ -38,7 +38,7 @@ class OfferScreen extends StatelessWidget with FadeInAnimationMixin {
             padding: const EdgeInsets.all(8.0),
             child: Column(
               children: [
-                fadeInFromTop(
+                /*fadeInFromTop(
                   GlobalSearchWidget(
                     hintText: l10n.offersSearchHint,
                     onResultSelected: (result) {
@@ -52,7 +52,7 @@ class OfferScreen extends StatelessWidget with FadeInAnimationMixin {
                     },
                   ),
                 ),
-                const SizedBox(height: 16),
+                const SizedBox(height: 16),*/
                 SizedBox(
                   height: 120,
                   child: BlocBuilder<OfferCubit, OfferState>(

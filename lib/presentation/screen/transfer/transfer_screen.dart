@@ -149,7 +149,7 @@ class _TransferScreenState extends State<TransferScreen>
       child: Column(
         children: staggeredFadeIn([
           const SizedBox(height: 32),
-          fadeIn(
+          /*fadeIn(
             GlobalSearchWidget(
               hintText: l10n.transferMobileNumberLabel,
               onResultSelected: (result) {
@@ -159,7 +159,7 @@ class _TransferScreenState extends State<TransferScreen>
               },
             ),
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: 16),*/
           fadeInFromTop(const TransferDisplay()),
           const SizedBox(height: 16),
           Center(
