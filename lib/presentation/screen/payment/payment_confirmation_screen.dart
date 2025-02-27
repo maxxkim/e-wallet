@@ -233,7 +233,7 @@ class _PaymentDetailsCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Calculate discount and final amount
+    // Calculate discount and final amount for display only
     final originalAmount = double.tryParse(amountController.text) ?? 0.0;
     double discountAmount = 0.0;
     double finalAmount = originalAmount;
@@ -283,6 +283,8 @@ class _PaymentDetailsCard extends StatelessWidget {
             ),
             errorText: errorText,
           ),
+
+          // Display discount information if available - for display purposes only
           if (offer != null && activation != null && discountAmount > 0) ...[
             const SizedBox(height: 16),
             Row(

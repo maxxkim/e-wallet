@@ -74,8 +74,9 @@ class MockQrPaymentRepository extends _i1.Mock
   @override
   _i5.Future<_i3.PaymentResponse> processPayment(
     String? hash,
-    double? amount,
-  ) =>
+    double? amount, {
+    Map<String, dynamic>? additionalData,
+  }) =>
       (super.noSuchMethod(
         Invocation.method(
           #processPayment,
@@ -83,6 +84,7 @@ class MockQrPaymentRepository extends _i1.Mock
             hash,
             amount,
           ],
+          {#additionalData: additionalData},
         ),
         returnValue:
             _i5.Future<_i3.PaymentResponse>.value(_FakePaymentResponse_1(
@@ -93,6 +95,7 @@ class MockQrPaymentRepository extends _i1.Mock
               hash,
               amount,
             ],
+            {#additionalData: additionalData},
           ),
         )),
       ) as _i5.Future<_i3.PaymentResponse>);

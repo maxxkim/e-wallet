@@ -95,13 +95,17 @@ class ApiUtil {
   }
 
   Future<QrPaymentResponse> checkQrCode(String hash) async {
-    final result = await _apiService.checkQrCode(hash);
-    return QrPaymentResponse.fromJson(result);
+    final response = await _apiService.checkQrCode(hash);
+    return QrPaymentResponse.fromJson(response);
   }
 
-  Future<PaymentResponse> processPayment(String hash, double amount) async {
-    final result = await _apiService.processPayment(hash, amount);
-    return PaymentResponse.fromJson(result); // Now we can parse the result
+  Future<PaymentResponse> processPayment(Map<String, dynamic> data) async {
+    try {
+      final response = await _apiService.processPayment(data);
+      return PaymentResponse.fromJson(response);
+    } catch (e) {
+      rethrow;
+    }
   }
 
   Future<List<ContactModel>> getContacts() async {

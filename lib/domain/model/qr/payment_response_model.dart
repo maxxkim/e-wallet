@@ -1,3 +1,5 @@
+// lib/domain/model/qr/payment_response_model.dart
+
 class PaymentResponse {
   final String status;
   final Payment payment;
@@ -24,6 +26,12 @@ class Payment {
   final double amount;
   final String? returnUrl;
   final String status;
+  // New fields for discount/bonus
+  final double? discount;
+  final String? discountType;
+  final double? bonus;
+  final String? bonusType;
+  final String? merchantName;
 
   Payment({
     required this.hash,
@@ -31,6 +39,11 @@ class Payment {
     required this.amount,
     this.returnUrl,
     required this.status,
+    this.discount,
+    this.discountType,
+    this.bonus,
+    this.bonusType,
+    this.merchantName,
   });
 
   factory Payment.fromJson(Map<String, dynamic> json) {
@@ -40,6 +53,11 @@ class Payment {
       amount: (json['amount'] as num).toDouble(),
       returnUrl: json['return_url'] as String?,
       status: json['status'] as String,
+      discount: json['discount'] != null ? (json['discount'] as num).toDouble() : null,
+      discountType: json['discount_type'] as String?,
+      bonus: json['bonus'] != null ? (json['bonus'] as num).toDouble() : null,
+      bonusType: json['bonus_type'] as String?,
+      merchantName: json['merchant_name'] as String?,
     );
   }
 }

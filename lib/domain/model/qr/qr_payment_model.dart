@@ -197,10 +197,10 @@ class QrPaymentResponse {
       status: json['status'] as String,
       qrCode: QrCode.fromJson(json['qr_code'] as Map<String, dynamic>),
       merchant: QrMerchant.fromJson(json['merchant'] as Map<String, dynamic>),
-      offer: json['offer'] != null
+      offer: (json['offer'] is Map<String, dynamic>)
           ? QrOffer.fromJson(json['offer'] as Map<String, dynamic>)
           : null,
-      activation: json['activation'] != null
+      activation: (json['activation'] is Map<String, dynamic>)
           ? QrActivation.fromJson(json['activation'] as Map<String, dynamic>)
           : null,
     );

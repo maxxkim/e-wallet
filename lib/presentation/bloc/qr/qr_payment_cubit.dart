@@ -15,20 +15,19 @@ class QrPaymentCubit extends Cubit<QrPaymentState> {
           error.response?.data['message'] != null) {
         return error.response?.data['message'];
       }
-
       switch (error.type) {
         case DioExceptionType.connectionTimeout:
-          return 'Connection timeout occurred';
+          return 'Connection timeout occurred UwU~';
         case DioExceptionType.sendTimeout:
-          return 'Send timeout exceeded';
+          return 'Send timeout exceeded >w<';
         case DioExceptionType.receiveTimeout:
-          return 'Receive timeout exceeded';
+          return 'Receive timeout exceeded nyaa~';
         case DioExceptionType.badResponse:
-          return 'Server error: ${error.response?.statusCode}';
+          return 'Server-chan says error: ${error.response?.statusCode}';
         case DioExceptionType.cancel:
-          return 'Request cancelled';
+          return 'Request cancelled uwu';
         default:
-          return 'An unknown error occurred';
+          return 'An unknown error occurred (ᵕ—ᴗ—)';
       }
     }
     return error.toString();
@@ -56,21 +55,36 @@ class QrPaymentCubit extends Cubit<QrPaymentState> {
       try {
         emit(currentState.copyWith(isProcessing: true, amountError: null));
 
-        // Get the base payment amount
+        // Use fixed amount for FIXED type QR codes, otherwise use entered amount
         double paymentAmount = response.qrCode.type == 'FIXED'
             ? response.qrCode.amount
             : double.parse(amount);
 
-        // Apply discount if available
+        // Prepare payment data
+        Map<String, dynamic> additionalData = {};
+
+        // Add offer/discount related data if available
         if (response.offer != null && response.activation != null) {
-          final discountAmount = response.calculateDiscount(paymentAmount);
-          paymentAmount -= discountAmount;
-          if (paymentAmount < 0) paymentAmount = 0;
+          final discountValue = double.tryParse(response.offer!.discount) ?? 0;
+          final bonusValue = double.tryParse(response.offer!.bonus) ?? 0;
+
+          // Add activation_id to payment data when present
+          additionalData['activation_id'] = response.activation!.id.toString();
+
+          if (discountValue > 0) {
+            additionalData['discount'] = discountValue;
+          } else if (bonusValue > 0) {
+            additionalData['bonus'] = bonusValue;
+          }
+
+          // Add merchant name for better receipt identification
+          additionalData['merchant_name'] = response.offer!.merchantName;
         }
 
         final paymentResponse = await _repository.processPayment(
           response.qrCode.hash,
           paymentAmount,
+          additionalData: additionalData,
         );
 
         emit(QrPaymentSuccess(paymentResponse: paymentResponse));
@@ -78,13 +92,6 @@ class QrPaymentCubit extends Cubit<QrPaymentState> {
         emit(QrPaymentProcessError(_handleError(e)));
         emit(currentState.copyWith(isProcessing: false));
       }
-    }
-  }
-
-  void resetError() {
-    if (state is QrPaymentScanSuccess) {
-      final currentState = state as QrPaymentScanSuccess;
-      emit(currentState.copyWith(amountError: null));
     }
   }
 

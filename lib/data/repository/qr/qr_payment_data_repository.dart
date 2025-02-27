@@ -14,7 +14,32 @@ class QrPaymentDataRepository extends QrPaymentRepository {
   }
 
   @override
-  Future<PaymentResponse> processPayment(String hash, double amount) async {
-    return _apiUtil.processPayment(hash, amount);
+  Future<PaymentResponse> processPayment(String hash, double amount,
+      {Map<String, dynamic>? additionalData}) async {
+    // Create base request data
+    final Map<String, dynamic> requestData = {
+      'qr_code_hash': hash,
+      'amount': amount,
+    };
+
+    // Add additional data if provided
+    if (additionalData != null && additionalData.isNotEmpty) {
+      // Add activation_id if present
+      if (additionalData.containsKey('activation_id')) {
+        requestData['activation_id'] = additionalData['activation_id'];
+      }
+
+      // Add discount info if present
+      if (additionalData.containsKey('discount')) {
+        requestData['discount'] = additionalData['discount'];
+      }
+
+      // Add bonus info if present
+      if (additionalData.containsKey('bonus')) {
+        requestData['bonus'] = additionalData['bonus'];
+      }
+    }
+
+    return _apiUtil.processPayment(requestData);
   }
 }

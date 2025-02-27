@@ -1,5 +1,4 @@
 import 'package:dio/dio.dart';
-import 'package:flutter_contacts/contact.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:zippy/data/api/api_auth_initiate.dart';
 import 'package:zippy/data/api/api_auth_refresh.dart';
@@ -18,7 +17,6 @@ import 'package:zippy/data/api/responcses/activation_responses.dart';
 import 'package:zippy/domain/model/auth/country_model.dart';
 import 'package:zippy/domain/model/contacts/contact_model.dart';
 import 'package:zippy/domain/model/offer/activation_model.dart';
-import 'package:zippy/domain/model/offer/offer_model.dart';
 
 class ApiService {
   final Dio _dio = Dio();
@@ -184,16 +182,23 @@ class ApiService {
     return response.data;
   }
 
-  Future<Map<String, dynamic>> processPayment(
-      String hash, double amount) async {
-    final response = await _dio.post(
-      'https://merchant-service-gp4xz.ondigitalocean.app/api/v1/payment',
-      data: {
-        'qr_code_hash': hash,
-        'amount': amount,
-      },
-    );
-    return response.data;
+  Future<Map<String, dynamic>> processPayment(Map<String, dynamic> data) async {
+    try {
+      // Log what we're sending for debugging purposes
+
+      final response = await _dio.post(
+        'https://merchant-service-gp4xz.ondigitalocean.app/api/v1/payment',
+        data: data,
+      );
+
+      if (response.statusCode == 200) {
+        return response.data;
+      } else {
+        throw Exception('Failed to process payment: ${response.statusCode}');
+      }
+    } catch (e) {
+      rethrow;
+    }
   }
 
   Future<List<CountryModel>> getCountries() async {
