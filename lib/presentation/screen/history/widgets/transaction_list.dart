@@ -6,13 +6,14 @@ import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:zippy/domain/model/transaction/transaction_model.dart';
 import 'package:zippy/domain/state/dashboard/dashboard_state.dart';
 import 'package:zippy/presentation/bloc/dashboard/dashboard_cubit.dart';
+import 'package:zippy/presentation/pagination/pagination_mixin.dart';
+import 'package:zippy/presentation/screen/dashboard/dashboard_screen.dart';
 import 'package:zippy/presentation/screen/history/history_screen.dart';
 import 'package:zippy/presentation/screen/history/widgets/transaction_tile.dart';
 
-class TransactionList extends StatelessWidget {
+class TransactionList extends StatefulWidget {
   final List<Transaction> transactions;
   final TransactionListTranslations translations;
-
   const TransactionList({
     super.key,
     required this.transactions,
@@ -20,8 +21,68 @@ class TransactionList extends StatelessWidget {
   });
 
   @override
+  State<TransactionList> createState() => _TransactionListState();
+}
+
+class _TransactionListState extends State<TransactionList>
+    with PaginationMixin {
+  @override
+  int get pageSize => 10;
+
+  String get _currentSearchQuery {
+    final state = context.read<DashboardCubit>().state;
+    if (state is DashboardStateLoaded) {
+      return state.searchQuery;
+    }
+    return '';
+  }
+
+  bool get _hasActiveFilters {
+    final state = context.read<DashboardCubit>().state;
+    if (state is DashboardStateLoaded) {
+      return state.filterType != FilterType.period ||
+          state.searchQuery.isNotEmpty;
+    }
+    return false;
+  }
+
+  @override
+  void loadMoreItems() {
+    if (!isLoadingMore && currentPage * pageSize < widget.transactions.length) {
+      setState(() {
+        isLoadingMore = true;
+        currentPage++;
+      });
+
+      // Simulate network delay (remove in production)
+      Future.delayed(const Duration(milliseconds: 500), () {
+        if (mounted) {
+          setState(() {
+            isLoadingMore = false;
+          });
+        }
+      });
+    }
+  }
+
+  @override
+  void didUpdateWidget(covariant TransactionList oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.transactions != widget.transactions) {
+      // Reset pagination when transactions change
+      resetPagination();
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
-    return BlocBuilder<DashboardCubit, DashboardState>(
+    return BlocConsumer<DashboardCubit, DashboardState>(
+      listener: (context, state) {
+        if (state is DashboardStateLoaded &&
+            state.searchQuery != _currentSearchQuery) {
+          resetPagination();
+        }
+      },
       builder: (context, state) {
         if (state is DashboardStateLoaded) {
           return Expanded(
@@ -35,7 +96,7 @@ class TransactionList extends StatelessWidget {
                 children: [
                   _buildMonthSelector(context, state),
                   Expanded(
-                    child: transactions.isEmpty
+                    child: widget.transactions.isEmpty
                         ? _buildEmptyState(context)
                         : _buildTransactionsList(context),
                   ),
@@ -66,9 +127,7 @@ class TransactionList extends StatelessWidget {
       MonthData(12, l10n.monthDecember),
     ];
 
-    // Get the current month number from state
     final currentMonthNumber = state.selectedMonthNumber;
-
     return Container(
       height: 48.0,
       decoration: BoxDecoration(
@@ -89,8 +148,10 @@ class TransactionList extends StatelessWidget {
           final month = months[index];
           final isSelected = month.number == currentMonthNumber;
           return GestureDetector(
-            onTap: () =>
-                context.read<DashboardCubit>().selectMonth(month.localizedName),
+            onTap: () {
+              resetPagination();
+              context.read<DashboardCubit>().selectMonth(month.localizedName);
+            },
             child: Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16.0),
               child: Center(
@@ -122,7 +183,9 @@ class TransactionList extends StatelessWidget {
           ),
           const SizedBox(height: 16),
           Text(
-            translations.noTransactions,
+            _hasActiveFilters
+                ? widget.translations.noTransactions
+                : widget.translations.noTransactions,
             style: Theme.of(context).textTheme.titleMedium?.copyWith(
                   color: Theme.of(context).colorScheme.primary.withOpacity(0.5),
                 ),
@@ -133,37 +196,80 @@ class TransactionList extends StatelessWidget {
   }
 
   Widget _buildTransactionsList(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+    final displayItemCount = getDisplayItemCount(widget.transactions.length);
+
     return RefreshIndicator(
-      onRefresh: () => context.read<DashboardCubit>().loadData(),
-      child: ListView.builder(
-        itemCount: transactions.length,
-        itemBuilder: (context, index) {
-          return Column(
-            children: [
-              TransactionTile(
-                transaction: transactions[index],
-                onIconTap: () => context.go(
-                  '/dashboard/transaction-details',
-                  extra: transactions[index],
-                ),
+      onRefresh: () {
+        resetPagination();
+        return context.read<DashboardCubit>().loadData();
+      },
+      child: Stack(
+        children: [
+          ListView.builder(
+            controller: scrollController,
+            itemCount: displayItemCount + (isLoadingMore ? 1 : 0),
+            itemBuilder: (context, index) {
+              // Show loading indicator at the bottom
+              if (index == displayItemCount && isLoadingMore) {
+                return Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 16.0),
+                  child: Center(
+                    child: Column(
+                      children: [
+                        const CircularProgressIndicator(strokeWidth: 2),
+                        const SizedBox(height: 8),
+                        Text(
+                          l10n.historyLoadingMore,
+                          style: Theme.of(context).textTheme.bodySmall,
+                        ),
+                      ],
+                    ),
+                  ),
+                );
+              }
+
+              // Regular transaction item
+              if (index < displayItemCount) {
+                return Column(
+                  children: [
+                    TransactionTile(
+                      transaction: widget.transactions[index],
+                      onIconTap: () => context.go(
+                        '/dashboard/transaction-details',
+                        extra: widget.transactions[index],
+                      ),
+                    ).animate().fadeIn(
+                          duration: const Duration(milliseconds: 300),
+                          delay: Duration(milliseconds: index % pageSize * 50),
+                        ),
+                    Container(
+                      height: 1,
+                      color: Theme.of(context).scaffoldBackgroundColor,
+                    ),
+                  ],
+                );
+              }
+
+              return const SizedBox.shrink();
+            },
+          ),
+          // Scroll to top button (only show if we've scrolled down)
+          if (currentPage > 1)
+            Positioned(
+              right: 16,
+              bottom: 16,
+              child: FloatingActionButton.small(
+                heroTag: 'scrollToTopBtn',
+                tooltip: l10n.historyScrollToTop,
+                onPressed: scrollToTop,
+                child: const Icon(Icons.arrow_upward),
               ).animate().fadeIn(
                     duration: const Duration(milliseconds: 300),
-                    delay: Duration(milliseconds: index * 50),
                   ),
-              Container(
-                height: 1,
-                color: Theme.of(context).scaffoldBackgroundColor,
-              ),
-            ],
-          );
-        },
+            ),
+        ],
       ),
     );
   }
-}
-
-class MonthData {
-  final int number;
-  final String localizedName;
-  MonthData(this.number, this.localizedName);
 }

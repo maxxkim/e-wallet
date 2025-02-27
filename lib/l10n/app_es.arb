@@ -210,5 +210,8 @@
     "offerActivatedSuccess": "¡Oferta activada con éxito! ✨",
     "offerActivationError": "Error al activar la oferta (◞‸◟；)",
     "getOfferNow": "Obtener Ahora",
+    "historyNoSearchResults": "No hay transacciones que coincidan con tu búsqueda UwU",
+    "historyLoadingMore": "Cargando más transacciones...",
+    "historyScrollToTop": "Desplazarse hacia arriba",
     "transferProcessing": "Procesando..."
 }

@@ -20,6 +20,9 @@ class HistoryScreen extends StatefulWidget {
 }
 
 class _HistoryScreenState extends State<HistoryScreen> {
+  bool _isSearchActive = false;
+  bool _isRefreshing = false;
+
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
@@ -38,22 +41,23 @@ class _HistoryScreenState extends State<HistoryScreen> {
                 padding: const EdgeInsets.only(top: 16, left: 16, right: 16),
                 child: Column(
                   children: <Widget>[
-                    /*GlobalSearchWidget(
+                    GlobalSearchWidget(
                       hintText: l10n.historySearchHint,
                       onResultSelected: (result) {
-                        // When a transaction is selected from global search,
-                        // update the dashboard filter to show it in the list
                         if (result is Map<String, dynamic> &&
                             result['type'] == 'transaction') {
                           context
                               .read<DashboardCubit>()
                               .searchTransactions(result['query']);
                         }
+                        setState(() {
+                          _isSearchActive = true;
+                        });
                       },
                     ).animate().fadeIn(
                           duration: const Duration(milliseconds: 300),
                         ),
-                    const SizedBox(height: 16),*/
+                    const SizedBox(height: 16),
                     _buildHeader(context, state, l10n),
                     const SizedBox(height: 8),
                     _buildStatistics(context, state, l10n),
@@ -65,7 +69,9 @@ class _HistoryScreenState extends State<HistoryScreen> {
                     TransactionList(
                       transactions: state.filteredTransactions ?? [],
                       translations: TransactionListTranslations(
-                        noTransactions: l10n.historyNoTransactions,
+                        noTransactions: _isSearchActive
+                            ? l10n.historyNoSearchResults
+                            : l10n.historyNoTransactions,
                       ),
                     ),
                   ],
@@ -85,11 +91,48 @@ class _HistoryScreenState extends State<HistoryScreen> {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        Text(getMonthName(state.selectedMonthNumber, l10n),
-            style: Theme.of(context).textTheme.titleSmall),
+        Row(
+          children: [
+            Text(
+              getMonthName(state.selectedMonthNumber, l10n),
+              style: Theme.of(context).textTheme.titleSmall,
+            ),
+            if (_isSearchActive)
+              GestureDetector(
+                onTap: () {
+                  context.read<DashboardCubit>().searchTransactions('');
+                  setState(() {
+                    _isSearchActive = false;
+                  });
+                },
+                child: Padding(
+                  padding: const EdgeInsets.only(left: 8.0),
+                  child: Icon(
+                    Icons.close,
+                    size: 16,
+                    color: Theme.of(context).colorScheme.primary,
+                  ),
+                ),
+              ),
+          ],
+        ),
         const SizedBox(width: 8),
-        Text("${l10n.historyTotal}: \$ ${state.balance.toStringAsFixed(2)}",
-            style: Theme.of(context).textTheme.titleSmall),
+        if (!_isRefreshing)
+          Text(
+            "${l10n.historyTotal}: \$ ${state.balance.toStringAsFixed(2)}",
+            style: Theme.of(context).textTheme.titleSmall,
+          )
+        else
+          SizedBox(
+            width: 16,
+            height: 16,
+            child: CircularProgressIndicator(
+              strokeWidth: 2,
+              valueColor: AlwaysStoppedAnimation<Color>(
+                Theme.of(context).colorScheme.primary,
+              ),
+            ),
+          ),
       ],
     );
   }
@@ -175,10 +218,28 @@ class _HistoryScreenState extends State<HistoryScreen> {
   }
 
   Widget _buildTransactionHeader(BuildContext context, AppLocalizations l10n) {
-    return Align(
-      alignment: Alignment.centerLeft,
-      child: Text(l10n.dashboardTransactionHistory,
-          style: Theme.of(context).textTheme.titleSmall),
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        Text(l10n.dashboardTransactionHistory,
+            style: Theme.of(context).textTheme.titleSmall),
+        GestureDetector(
+          onTap: () async {
+            setState(() {
+              _isRefreshing = true;
+            });
+            await context.read<DashboardCubit>().loadData();
+            setState(() {
+              _isRefreshing = false;
+            });
+          },
+          child: Icon(
+            Icons.refresh,
+            size: 18,
+            color: Theme.of(context).colorScheme.primary,
+          ),
+        ),
+      ],
     );
   }
 
@@ -278,6 +339,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
 
 class TransactionListTranslations {
   final String noTransactions;
+
   TransactionListTranslations({
     required this.noTransactions,
   });

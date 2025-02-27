@@ -240,5 +240,8 @@
     "offerActivatedSuccess": "Offer activated successfully! ✨",
     "offerActivationError": "Failed to activate offer (◞‸◟；)",
     "getOfferNow": "Get Now",
+    "historyNoSearchResults": "No transactions match your search criteria UwU",
+    "historyLoadingMore": "Loading more transactions...",
+    "historyScrollToTop": "Scroll to top",
     "transferProcessing": "Processing..."
 }
