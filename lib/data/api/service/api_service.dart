@@ -178,11 +178,8 @@ class ApiService {
   }
 
   Future<Map<String, dynamic>> checkQrCode(String hash) async {
-    final response = await _dio.post(
-      'https://merchant-service-gp4xz.ondigitalocean.app/api/v1/qr_code/exist',
-      data: {
-        'hash': hash,
-      },
+    final response = await _dio.get(
+      'https://merchant-service-gp4xz.ondigitalocean.app/api/v1/qr_code/check/$hash',
     );
     return response.data;
   }

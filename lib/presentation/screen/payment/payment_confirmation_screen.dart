@@ -27,24 +27,36 @@ class QrPaymentConfirmation extends StatelessWidget with FadeInAnimationMixin {
   Widget build(BuildContext context) {
     return BlocListener<QrPaymentCubit, QrPaymentState>(
       listener: (context, state) async {
-        if (state is QrPaymentSuccess && state.paymentResponse != null) {
-          // Launch return URL
+        if (state is QrPaymentSuccess) {
+          // Check if context is still mounted before using it
+          if (!context.mounted) return;
+
           final returnUrl = state.paymentResponse.payment.returnUrl;
           if (returnUrl != null) {
             final url = Uri.parse(returnUrl);
             if (!await launchUrl(url, mode: LaunchMode.externalApplication)) {
+              // Check if context is still mounted before using it
+              if (!context.mounted) return;
+
               ScaffoldMessenger.of(context).showSnackBar(
                 const SnackBar(
                     content: Text('Could not launch external browser.')),
               );
             }
           }
+
+          // Check if context is still mounted before using it
+          if (!context.mounted) return;
+
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(content: Text('Payment processed successfully!')),
           );
           Navigator.of(context).pop();
           Navigator.of(context).pop();
         } else if (state is QrPaymentProcessError) {
+          // Check if context is still mounted before using it
+          if (!context.mounted) return;
+
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(content: Text('Payment failed: ${state.message}')),
           );
@@ -57,8 +69,20 @@ class QrPaymentConfirmation extends StatelessWidget with FadeInAnimationMixin {
           final amountError =
               state is QrPaymentScanSuccess ? state.amountError : null;
 
-          return WillPopScope(
-            onWillPop: () async => !isProcessing,
+          // Calculate the final amount for display
+          final originalAmount = double.tryParse(amountController.text) ?? 0.0;
+          double discountAmount = 0.0;
+          double finalAmount = originalAmount;
+
+          if (paymentDetails.offer != null &&
+              paymentDetails.activation != null) {
+            discountAmount = paymentDetails.calculateDiscount(originalAmount);
+            finalAmount = originalAmount - discountAmount;
+            if (finalAmount < 0) finalAmount = 0;
+          }
+
+          return PopScope(
+            canPop: !isProcessing,
             child: Scaffold(
               appBar: AppBar(
                 backgroundColor: Theme.of(context).colorScheme.primary,
@@ -85,6 +109,8 @@ class QrPaymentConfirmation extends StatelessWidget with FadeInAnimationMixin {
                           const SizedBox(height: 24),
                           _PaymentDetailsCard(
                             qrCode: paymentDetails.qrCode,
+                            offer: paymentDetails.offer,
+                            activation: paymentDetails.activation,
                             amountController: amountController,
                             errorText: amountError,
                             enabled: !isProcessing,
@@ -100,6 +126,7 @@ class QrPaymentConfirmation extends StatelessWidget with FadeInAnimationMixin {
                             },
                             onCancel: onCancel,
                             isProcessing: isProcessing,
+                            finalAmount: finalAmount,
                           ),
                         ]),
                       ),
@@ -107,7 +134,7 @@ class QrPaymentConfirmation extends StatelessWidget with FadeInAnimationMixin {
                   ),
                   if (isProcessing)
                     Container(
-                      color: Colors.black54,
+                      color: Colors.black.withAlpha(138),
                       child: const Center(
                         child: Column(
                           mainAxisSize: MainAxisSize.min,
@@ -158,7 +185,7 @@ class _MerchantInfoCard extends StatelessWidget {
             width: 48,
             height: 48,
             decoration: BoxDecoration(
-              color: Theme.of(context).colorScheme.primary.withOpacity(0.1),
+              color: Theme.of(context).colorScheme.primary.withAlpha(26),
               shape: BoxShape.circle,
             ),
             child: Icon(
@@ -189,12 +216,16 @@ class _MerchantInfoCard extends StatelessWidget {
 
 class _PaymentDetailsCard extends StatelessWidget {
   final QrCode qrCode;
+  final QrOffer? offer;
+  final QrActivation? activation;
   final TextEditingController amountController;
   final String? errorText;
   final bool enabled;
 
   const _PaymentDetailsCard({
     required this.qrCode,
+    this.offer,
+    this.activation,
     required this.amountController,
     this.errorText,
     required this.enabled,
@@ -202,6 +233,33 @@ class _PaymentDetailsCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // Calculate discount and final amount
+    final originalAmount = double.tryParse(amountController.text) ?? 0.0;
+    double discountAmount = 0.0;
+    double finalAmount = originalAmount;
+
+    if (offer != null && activation != null) {
+      final discountValue = double.tryParse(offer!.discount) ?? 0;
+      final bonusValue = double.tryParse(offer!.bonus) ?? 0;
+
+      if (discountValue > 0) {
+        if (offer!.discountType == 'PERCENTAGE') {
+          discountAmount = originalAmount * (discountValue / 100);
+        } else {
+          discountAmount = discountValue;
+        }
+      } else if (bonusValue > 0) {
+        if (offer!.bonusType == 'PERCENTAGE') {
+          discountAmount = originalAmount * (bonusValue / 100);
+        } else {
+          discountAmount = bonusValue;
+        }
+      }
+
+      finalAmount = originalAmount - discountAmount;
+      if (finalAmount < 0) finalAmount = 0;
+    }
+
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -225,6 +283,50 @@ class _PaymentDetailsCard extends StatelessWidget {
             ),
             errorText: errorText,
           ),
+          if (offer != null && activation != null && discountAmount > 0) ...[
+            const SizedBox(height: 16),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  'Discount:',
+                  style: Theme.of(context).textTheme.bodyMedium,
+                ),
+                Text(
+                  '- ${qrCode.currency} ${discountAmount.toStringAsFixed(2)}',
+                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                        color: Theme.of(context).colorScheme.error,
+                      ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 8),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  'Final Amount:',
+                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                        fontWeight: FontWeight.bold,
+                      ),
+                ),
+                Text(
+                  '${qrCode.currency} ${finalAmount.toStringAsFixed(2)}',
+                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                        color: Theme.of(context).colorScheme.scrim,
+                        fontWeight: FontWeight.bold,
+                      ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 8),
+            Text(
+              'Discount provided by ${offer!.merchantName}',
+              style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                    fontStyle: FontStyle.italic,
+                  ),
+            ),
+          ],
           const SizedBox(height: 16),
           _DetailRow(
             label: 'Payment Type',
@@ -272,11 +374,13 @@ class _ActionButtons extends StatelessWidget {
   final VoidCallback onConfirm;
   final VoidCallback onCancel;
   final bool isProcessing;
+  final double finalAmount;
 
   const _ActionButtons({
     required this.onConfirm,
     required this.onCancel,
     required this.isProcessing,
+    required this.finalAmount,
   });
 
   @override
@@ -284,7 +388,9 @@ class _ActionButtons extends StatelessWidget {
     return Column(
       children: [
         RectangularButton(
-          label: isProcessing ? "Processing..." : "Confirm Payment",
+          label: isProcessing
+              ? "Processing..."
+              : "Confirm Payment of ${finalAmount.toStringAsFixed(2)}",
           onPressed: isProcessing ? null : onConfirm,
         ),
         const SizedBox(height: 16),

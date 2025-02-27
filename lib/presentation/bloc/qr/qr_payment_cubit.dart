@@ -55,13 +55,24 @@ class QrPaymentCubit extends Cubit<QrPaymentState> {
 
       try {
         emit(currentState.copyWith(isProcessing: true, amountError: null));
-        final paymentAmount = response.qrCode.type == 'FIXED'
+
+        // Get the base payment amount
+        double paymentAmount = response.qrCode.type == 'FIXED'
             ? response.qrCode.amount
             : double.parse(amount);
+
+        // Apply discount if available
+        if (response.offer != null && response.activation != null) {
+          final discountAmount = response.calculateDiscount(paymentAmount);
+          paymentAmount -= discountAmount;
+          if (paymentAmount < 0) paymentAmount = 0;
+        }
+
         final paymentResponse = await _repository.processPayment(
           response.qrCode.hash,
           paymentAmount,
         );
+
         emit(QrPaymentSuccess(paymentResponse: paymentResponse));
       } catch (e) {
         emit(QrPaymentProcessError(_handleError(e)));

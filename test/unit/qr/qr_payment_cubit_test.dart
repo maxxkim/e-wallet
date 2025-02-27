@@ -7,7 +7,6 @@ import 'package:zippy/domain/model/qr/qr_payment_model.dart';
 import 'package:zippy/domain/repository/qr/qr_payment_repository.dart';
 import 'package:zippy/domain/state/qr/qr_payment_state.dart';
 import 'package:zippy/presentation/bloc/qr/qr_payment_cubit.dart';
-
 import 'qr_payment_cubit_test.mocks.dart';
 
 @GenerateMocks([QrPaymentRepository])
@@ -36,10 +35,11 @@ void main() {
         amount: 100.0,
         type: 'FIXED',
         status: 'active',
+        isTemporary: 0,
       ),
       merchant: QrMerchant(
         name: 'Test Merchant',
-        url: 'https://test.com',
+        url: 'https://example.com',
       ),
     );
 
