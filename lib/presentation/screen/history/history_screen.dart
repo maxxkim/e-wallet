@@ -244,7 +244,10 @@ class _HistoryScreenState extends State<HistoryScreen> {
   }
 
   Widget _buildFilterButtons(
-      BuildContext context, DashboardStateLoaded state, AppLocalizations l10n) {
+    BuildContext context,
+    DashboardStateLoaded state,
+    AppLocalizations l10n,
+  ) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
       children: [
@@ -278,18 +281,26 @@ class _HistoryScreenState extends State<HistoryScreen> {
     FilterType type,
     bool isSelected,
   ) {
-    const double buttonHeight = 40.0;
-    const double buttonWidth = 114.0;
+    const double buttonHeight = 36.0;
+    const double buttonWidth = 116.0;
+
     return SizedBox(
       width: buttonWidth,
       height: buttonHeight,
       child: isSelected
           ? Container(
+              height: 36,
               decoration: BoxDecoration(
                 gradient: Theme.of(context)
                     .extension<ThemeGradients>()
                     ?.darkBlueGradient,
                 borderRadius: BorderRadius.circular(32.0),
+                border: !isSelected
+                    ? Border.all(
+                        color: deepBlueColor,
+                        width: 1.5,
+                      )
+                    : null,
               ),
               child: FilledButton(
                 onPressed: () =>
@@ -321,20 +332,20 @@ class _HistoryScreenState extends State<HistoryScreen> {
             ),
     );
   }
+}
 
-  double _calculateExpense(DashboardStateLoaded state) {
-    return state.filteredTransactions
-            ?.where((t) => t.type == 'payout')
-            .fold(0.0, (sum, t) => sum! + t.amount) ??
-        0.0;
-  }
+double _calculateExpense(DashboardStateLoaded state) {
+  return state.filteredTransactions
+          ?.where((t) => t.type == 'payout')
+          .fold(0.0, (sum, t) => sum! + t.amount) ??
+      0.0;
+}
 
-  double _calculateIncome(DashboardStateLoaded state) {
-    return state.filteredTransactions
-            ?.where((t) => t.type == 'payin')
-            .fold(0.0, (sum, t) => sum! + t.amount) ??
-        0.0;
-  }
+double _calculateIncome(DashboardStateLoaded state) {
+  return state.filteredTransactions
+          ?.where((t) => t.type == 'payin')
+          .fold(0.0, (sum, t) => sum! + t.amount) ??
+      0.0;
 }
 
 class TransactionListTranslations {

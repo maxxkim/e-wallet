@@ -10,7 +10,11 @@ import 'package:zippy/domain/model/transaction/transaction_model.dart';
 import 'package:zippy/domain/repository/search/global_search_repository.dart';
 import 'package:zippy/presentation/bloc/dashboard/dashboard_cubit.dart';
 import 'package:zippy/presentation/bloc/offer/offer_cubit.dart';
+import 'package:zippy/presentation/theme/app_theme.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:logging/logging.dart';
+
+// Import our custom extension
 
 class GlobalSearchWidget extends StatefulWidget {
   final Function(dynamic)? onResultSelected;
@@ -34,6 +38,8 @@ class GlobalSearchWidget extends StatefulWidget {
 }
 
 class _GlobalSearchWidgetState extends State<GlobalSearchWidget> {
+  static final Logger _logger = Logger('GlobalSearchWidget');
+
   final TextEditingController _searchController = TextEditingController();
   final FocusNode _focusNode = FocusNode();
   final LayerLink _layerLink = LayerLink();
@@ -114,13 +120,13 @@ class _GlobalSearchWidgetState extends State<GlobalSearchWidget> {
         return '${date.year}-${date.month.toString().padLeft(2, '0')}-${date.day.toString().padLeft(2, '0')}';
       }
     } catch (e) {
-      print("Error formatting date: $e");
+      _logger.warning("Error formatting date: $e");
     }
     return '';
   }
 
   Future<void> _performSearch(String query) async {
-    print("UwU Performing search for: $query");
+    _logger.info("Performing search for: $query");
     if (query.isEmpty) {
       setState(() {
         _searchResults = null;
@@ -130,24 +136,21 @@ class _GlobalSearchWidgetState extends State<GlobalSearchWidget> {
       _updateOverlay();
       return;
     }
-
     setState(() {
       _isLoading = true;
       _errorMessage = '';
     });
     _updateOverlay();
-
     try {
       final repository = RepositoryProvider.of<GlobalSearchRepository>(context);
       final results = await repository.searchGlobal(query);
-
       if (results != null) {
         setState(() {
           _searchResults = results;
           _isLoading = false;
         });
-        print(
-            "Kawaii~ Search completed with ${results.transactions?.length} transactions, ${results.contacts?.length} contacts");
+        _logger.info(
+            "Search completed with ${results.transactions?.length} transactions, ${results.contacts?.length} contacts");
       } else {
         setState(() {
           _searchResults = null;
@@ -160,7 +163,7 @@ class _GlobalSearchWidgetState extends State<GlobalSearchWidget> {
         _errorMessage = e.toString();
         _isLoading = false;
       });
-      print("Error in search: $e");
+      _logger.warning("Error in search: $e");
     }
     _updateOverlay();
   }
@@ -206,7 +209,6 @@ class _GlobalSearchWidgetState extends State<GlobalSearchWidget> {
       widget.onResultSelected!(result);
       return;
     }
-
     if (result is Map<String, dynamic> && result['type'] == 'transaction') {
       final transactionData = result['data'];
       final transaction = Transaction(
@@ -227,17 +229,10 @@ class _GlobalSearchWidgetState extends State<GlobalSearchWidget> {
     } else if (result is Offer) {
       context.go('/dashboard/offers', extra: result);
     } else if (result is MerchantSearchResult) {
-      // Create a new approach: store the merchant data in a singleton or static variable
-      // that the OfferCubit can check when it initializes
       final merchantData = result.toMerchantData();
-
-      // Store the merchant data in a static variable that can be accessed by OfferCubit
       OfferCubit.selectedMerchantFromSearch = merchantData;
-
-      // Now navigate to the offers screen
       context.go('/dashboard/offers');
     } else if (result is CategoryModel) {
-      // Similar approach for categories
       OfferCubit.selectedCategoryFromSearch = result;
       context.go('/dashboard/offers');
     }
@@ -300,14 +295,11 @@ class _GlobalSearchWidgetState extends State<GlobalSearchWidget> {
       builder: (context) => GestureDetector(
         behavior: HitTestBehavior.translucent,
         onTap: () {
-          // When tapping outside the search results but on the overlay,
-          // remove focus which will close the keyboard
           _keepOverlayOpen = false;
           _focusNode.unfocus();
         },
         child: Stack(
           children: [
-            // Add a transparent full-screen layer to capture taps outside
             Positioned.fill(
               child: GestureDetector(
                 onTap: () {
@@ -325,8 +317,7 @@ class _GlobalSearchWidgetState extends State<GlobalSearchWidget> {
                 showWhenUnlinked: false,
                 offset: Offset(0, size.height + 4),
                 child: GestureDetector(
-                  onTap:
-                      () {}, // Stop propagation for clicks on the results panel
+                  onTap: () {},
                   child: Material(
                     elevation: 8,
                     borderRadius: BorderRadius.circular(16),
@@ -348,7 +339,6 @@ class _GlobalSearchWidgetState extends State<GlobalSearchWidget> {
 
   Widget _buildSearchResults(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
-
     if (_isLoading) {
       return const Center(
         child: Padding(
@@ -357,7 +347,6 @@ class _GlobalSearchWidgetState extends State<GlobalSearchWidget> {
         ),
       );
     }
-
     if (_errorMessage.isNotEmpty) {
       return Padding(
         padding: const EdgeInsets.all(16.0),
@@ -367,20 +356,16 @@ class _GlobalSearchWidgetState extends State<GlobalSearchWidget> {
         ),
       );
     }
-
     if (_searchResults == null || !_showResults) {
       return const SizedBox.shrink();
     }
-
     final results = _searchResults!;
 
-    // Safely check if lists are not null before checking if they're not empty
     final hasContacts = results.contacts?.isNotEmpty ?? false;
     final hasTransactions = results.transactions?.isNotEmpty ?? false;
     final hasOffers = results.offers?.isNotEmpty ?? false;
     final hasCategories = results.categories?.isNotEmpty ?? false;
     final hasMerchants = results.merchants?.isNotEmpty ?? false;
-
     final hasResults = hasContacts ||
         hasTransactions ||
         hasOffers ||
@@ -479,7 +464,6 @@ class _GlobalSearchWidgetState extends State<GlobalSearchWidget> {
               },
               itemBuilder: (context, index) {
                 final categoriesLength = results.categories?.length ?? 0;
-
                 if (index < categoriesLength && results.categories != null) {
                   if (index < 0 || index >= results.categories!.length) {
                     return const SizedBox(height: 0);
@@ -515,14 +499,14 @@ class _GlobalSearchWidgetState extends State<GlobalSearchWidget> {
           Icon(
             Icons.search_off,
             size: 48,
-            color: Theme.of(context).colorScheme.primary.withOpacity(0.5),
+            color: Theme.of(context).colorScheme.primary.withAlpha(128),
           ),
           const SizedBox(height: 16),
           Text(
             AppLocalizations.of(context)!.historyNoTransactions,
             textAlign: TextAlign.center,
             style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                  color: Theme.of(context).colorScheme.primary.withOpacity(0.7),
+                  color: Theme.of(context).colorScheme.primary.withAlpha(178),
                 ),
           ),
         ],
@@ -540,7 +524,6 @@ class _GlobalSearchWidgetState extends State<GlobalSearchWidget> {
     required int itemCount,
   }) {
     final displayCount = itemCount > 3 ? 3 : itemCount;
-
     return Column(
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -587,7 +570,7 @@ class _GlobalSearchWidgetState extends State<GlobalSearchWidget> {
                 height: 4,
                 width: 32,
                 decoration: BoxDecoration(
-                  color: Theme.of(context).colorScheme.primary.withOpacity(0.2),
+                  color: Theme.of(context).colorScheme.primary.withAlpha(51),
                   borderRadius: BorderRadius.circular(2),
                 ),
               ),
@@ -599,17 +582,14 @@ class _GlobalSearchWidgetState extends State<GlobalSearchWidget> {
 
   Widget _buildApiTransactionItem(
       BuildContext context, Map<String, dynamic> transaction) {
-    // Safely handle potentially null values
     String type = transaction['type']?.toString().toLowerCase() ?? '';
     bool isInbound = type == 'payin';
 
-    // Safely get transactionId and substring
     String transactionId = '';
     if (transaction['transactionId'] != null) {
       String id = transaction['transactionId'].toString();
       transactionId = id.length > 8 ? id.substring(0, 8) : id;
     }
-
     String displayAmount = '0';
     try {
       final amount = transaction['amount'];
@@ -621,15 +601,13 @@ class _GlobalSearchWidgetState extends State<GlobalSearchWidget> {
         }
       }
     } catch (e) {
-      print("Error parsing amount: $e");
+      _logger.warning("Error parsing amount: $e");
       displayAmount = '0';
     }
-
     String currencySymbol = transaction['currency']?.toString() ?? '\$';
-
     return ListTile(
       leading: CircleAvatar(
-        backgroundColor: Theme.of(context).colorScheme.primary.withOpacity(0.1),
+        backgroundColor: Theme.of(context).colorScheme.primary.withAlpha(26),
         child: Icon(
           isInbound ? Icons.arrow_downward : Icons.arrow_upward,
           color: isInbound
@@ -649,12 +627,9 @@ class _GlobalSearchWidgetState extends State<GlobalSearchWidget> {
       ),
       trailing: Text(
         '${isInbound ? '+' : '-'} $currencySymbol $displayAmount',
-        style: TextStyle(
-          color: isInbound
-              ? Theme.of(context).colorScheme.scrim
-              : Theme.of(context).colorScheme.error,
-          fontWeight: FontWeight.w600,
-        ),
+        style: isInbound
+            ? Theme.of(context).textTheme.inText
+            : Theme.of(context).textTheme.outText,
       ),
       onTap: () => _handleResultSelected({
         'type': 'transaction',
@@ -666,7 +641,7 @@ class _GlobalSearchWidgetState extends State<GlobalSearchWidget> {
   Widget _buildContactItem(BuildContext context, ContactModel contact) {
     return ListTile(
       leading: CircleAvatar(
-        backgroundColor: Theme.of(context).colorScheme.primary.withOpacity(0.1),
+        backgroundColor: Theme.of(context).colorScheme.primary.withAlpha(26),
         child: Icon(
           Icons.person,
           color: Theme.of(context).colorScheme.primary,
@@ -689,7 +664,7 @@ class _GlobalSearchWidgetState extends State<GlobalSearchWidget> {
   Widget _buildOfferItem(BuildContext context, Offer offer) {
     return ListTile(
       leading: CircleAvatar(
-        backgroundColor: Theme.of(context).colorScheme.primary.withOpacity(0.1),
+        backgroundColor: Theme.of(context).colorScheme.primary.withAlpha(26),
         child: Icon(
           Icons.card_giftcard,
           color: Theme.of(context).colorScheme.primary,
@@ -727,7 +702,7 @@ class _GlobalSearchWidgetState extends State<GlobalSearchWidget> {
   Widget _buildCategoryItem(BuildContext context, CategoryModel category) {
     return ListTile(
       leading: CircleAvatar(
-        backgroundColor: Theme.of(context).colorScheme.primary.withOpacity(0.1),
+        backgroundColor: Theme.of(context).colorScheme.primary.withAlpha(26),
         child: Icon(
           Icons.category,
           color: Theme.of(context).colorScheme.primary,
@@ -751,7 +726,7 @@ class _GlobalSearchWidgetState extends State<GlobalSearchWidget> {
       BuildContext context, MerchantSearchResult merchant) {
     return ListTile(
       leading: CircleAvatar(
-        backgroundColor: Theme.of(context).colorScheme.primary.withOpacity(0.1),
+        backgroundColor: Theme.of(context).colorScheme.primary.withAlpha(26),
         child: Icon(
           Icons.store,
           color: Theme.of(context).colorScheme.primary,

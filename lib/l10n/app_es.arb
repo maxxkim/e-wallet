@@ -82,7 +82,7 @@
     "@transferConfirmMessage": {
         "placeholders": {
             "amount": {
-                "type": "String"
+                "type": "Object"
             },
             "recipient": {
                 "type": "String"
@@ -99,7 +99,6 @@
     "topUpAmount": "Monto",
     "topUpContinue": "Continuar",
     "topUpSelectProvider": "Seleccionar proveedor:",
-    "topUpError": "Error: {error}",
     "@topUpError": {
         "placeholders": {
             "error": {
@@ -107,6 +106,7 @@
             }
         }
     },
+    "topUpError": "Error: {error}",
     "@_WITHDRAWAL": {},
     "withdrawalTitle": "Retiro",
     "withdrawalLoading": "Cargando opciones de retiro...",
@@ -114,7 +114,6 @@
     "withdrawalAmount": "Monto",
     "withdrawalContinue": "Continuar",
     "withdrawalSelectMethod": "Seleccionar método de retiro:",
-    "withdrawalError": "Error: {error}",
     "@withdrawalError": {
         "placeholders": {
             "error": {
@@ -122,6 +121,7 @@
             }
         }
     },
+    "withdrawalError": "Error: {error}",
     "@_FORM_VALIDATION": {},
     "fieldRequired": "Este campo es obligatorio",
     "invalidNumber": "Por favor ingrese un número válido",
@@ -159,17 +159,28 @@
     "transferAmountLabel": "Monto",
     "transferFillFieldsError": "Por favor complete todos los campos UwU",
     "transferContinueButton": "Continuar",
-    "transferConfirmationText": "Para transferir el monto de {amount}\nal número {phone}, presione continuar.",
     "@transferConfirmationText": {
         "placeholders": {
-            "amount": {},
-            "phone": {}
+            "amount": {
+                "type": "Object"
+            },
+            "phone": {
+                "type": "Object"
+            }
         }
     },
+    "transferConfirmationText": "Para transferir el monto de {amount}\nal número {phone}, presione continuar.",
     "contactsTitle": "Contactos Zentro",
     "contactsAddNew": "Agregar Nuevo Contacto",
     "contactsMyContacts": "Mis Contactos",
     "contactsDeleteConfirmTitle": "Eliminar Contacto",
+    "@contactsDeleteConfirmMessage": {
+        "placeholders": {
+            "name": {
+                "type": "String"
+            }
+        }
+    },
     "contactsDeleteConfirmMessage": "¿Estás seguro que deseas eliminar a {name}?",
     "contactsCancel": "Cancelar",
     "contactsDelete": "Eliminar",
@@ -177,8 +188,22 @@
     "contactsPhone": "Teléfono",
     "contactsName": "Nombre (Opcional)",
     "contactsCopySuccess": "¡Detalles del contacto copiados al portapapeles! 📋",
+    "@contactsCopyError": {
+        "placeholders": {
+            "error": {
+                "type": "String"
+            }
+        }
+    },
     "contactsCopyError": "Error al copiar: {error}",
     "contactsShareSuccess": "¡Detalles del contacto compartidos exitosamente!",
+    "@contactsShareError": {
+        "placeholders": {
+            "error": {
+                "type": "String"
+            }
+        }
+    },
     "contactsShareError": "Error al compartir: {error}",
     "contactsEdit": "Editar",
     "contactsCopy": "Copiar",
@@ -199,7 +224,6 @@
     "offersCategories": "Categorías",
     "offersTopOffers": "Ofertas Principales",
     "offersCategoryDialogTitle": "Seleccionar Categoría",
-    "offersTotalOffers": "{count} ofertas",
     "@offersTotalOffers": {
         "placeholders": {
             "count": {
@@ -207,6 +231,7 @@
             }
         }
     },
+    "offersTotalOffers": "{count} ofertas",
     "offerActivatedSuccess": "¡Oferta activada con éxito! ✨",
     "offerActivationError": "Error al activar la oferta (◞‸◟；)",
     "getOfferNow": "Obtener Ahora",

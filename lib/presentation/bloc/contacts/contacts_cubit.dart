@@ -4,7 +4,6 @@ import 'package:zippy/domain/state/contacts/contacts_state.dart';
 
 class ContactsCubit extends Cubit<ContactsState> {
   final ContactsRepository _contactsRepository;
-
   ContactsCubit(this._contactsRepository) : super(ContactsStateLoading()) {
     loadContacts();
   }
@@ -37,10 +36,10 @@ class ContactsCubit extends Cubit<ContactsState> {
     }
   }
 
-  Future<void> updateContact(int id, String phone, String? nickname) async {
+  Future<void> updateContact(String phone, String? nickname) async {
     try {
       emit(ContactsStateLoading());
-      await _contactsRepository.updateContact(id, phone, nickname);
+      await _contactsRepository.updateContact(phone, nickname);
       await loadContacts();
     } catch (e) {
       emit(ContactsStateError(
@@ -53,13 +52,20 @@ class ContactsCubit extends Cubit<ContactsState> {
   Future<void> deleteContact(String phone) async {
     try {
       emit(ContactsStateLoading());
+      // This is a synchronous operation - wait for it to complete
       await _contactsRepository.deleteContact(phone);
-      await loadContacts();
+
+      // We're not trying to refresh the list anymore,
+      // as we'll redirect to another screen and handle UI refresh there
+      emit(ContactsStateLoaded(
+        contacts: [], // Empty list since we're navigating away anyway
+        timestamp: DateTime.now().millisecondsSinceEpoch,
+      ));
     } catch (e) {
       emit(ContactsStateError(
         errorMessage: _handleError(e),
       ));
-      await loadContacts();
+      throw e; // Rethrow so we can catch it in the UI
     }
   }
 

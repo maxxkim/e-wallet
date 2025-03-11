@@ -159,8 +159,7 @@ class ApiService {
     return ContactModel.fromJson(response.data);
   }
 
-  Future<ContactModel> updateContact(
-      int id, String phone, String? nickname) async {
+  Future<ContactModel> updateContact(String phone, String? nickname) async {
     final response = await _dio.patch(
       'https://contact-service-w42s8.ondigitalocean.app/api/v1/contacts/$phone',
       data: {

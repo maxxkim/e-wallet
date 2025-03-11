@@ -15,10 +15,6 @@ import 'package:zippy/presentation/widget/custom_rectangular_button.dart';
 class ContactsScreen extends StatelessWidget {
   const ContactsScreen({Key? key}) : super(key: key);
 
-  void _refreshScreen(BuildContext context) {
-    context.go('/dashboard/transfer/contacts');
-  }
-
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
@@ -39,9 +35,6 @@ class ContactsScreen extends StatelessWidget {
                   ScaffoldMessenger.of(context).showSnackBar(
                     SnackBar(content: Text(state.errorMessage)),
                   );
-                }
-                if (state is ContactsStateLoaded) {
-                  _refreshScreen(context);
                 }
               },
               builder: (context, state) {
@@ -128,7 +121,10 @@ class ContactsScreen extends StatelessWidget {
     showDialog(
       context: context,
       builder: (context) => ContactDialog(contact: contact),
-    );
+    ).then((_) {
+      // Reload contacts after dialog is dismissed
+      context.read<ContactsCubit>().loadContacts();
+    });
   }
 
   void _showDeleteDialog(BuildContext context, ContactModel contact) {
@@ -140,9 +136,49 @@ class ContactsScreen extends StatelessWidget {
         content: Text(l10n.contactsDeleteConfirmMessage(contact.name)),
         actions: [
           TextButton(
-            onPressed: () {
-              context.read<ContactsCubit>().deleteContact(contact.name);
+            onPressed: () => Navigator.pop(context),
+            child: Text("Cancel"),
+          ),
+          TextButton(
+            onPressed: () async {
+              // First close the dialog
               Navigator.pop(context);
+
+              // Show loading indicator
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text("Deleting contact... Nya~"),
+                  duration: const Duration(seconds: 1),
+                ),
+              );
+
+              try {
+                // Delete the contact
+                await context.read<ContactsCubit>().deleteContact(contact.name);
+
+                // Show success message and navigate back to transfer screen
+                if (context.mounted) {
+                  // Navigate to transfer screen
+                  context.go('/dashboard/transfer');
+
+                  // Show success message after navigation
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text("Contact deleted successfully! UwU"),
+                      backgroundColor: Colors.green,
+                    ),
+                  );
+                }
+              } catch (e) {
+                if (context.mounted) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text("Error deleting contact: $e"),
+                      backgroundColor: Colors.red,
+                    ),
+                  );
+                }
+              }
             },
             child: Text(l10n.contactsDelete),
           ),
@@ -153,18 +189,13 @@ class ContactsScreen extends StatelessWidget {
 
   Future<void> _shareContact(BuildContext context, ContactModel contact) async {
     try {
-      final shareText = '''
-Contact Details
-─────────────────
-Name: ${contact.name}
-${contact.nickname != null ? 'Nickname: ${contact.nickname}\n' : ''}Phone: ${contact.name}
-Country: ${contact.country}
-''';
+      final shareText =
+          '''Contact Details─────────────────Name: ${contact.name}${contact.nickname != null ? 'Nickname: ${contact.nickname}\n' : ''}Phone: ${contact.name}Country: ${contact.country}''';
       await Share.share(shareText, subject: 'Contact Details');
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
-            content: Text('Contact details shared successfully!'),
+            content: Text('Contact details shared successfully! ✨'),
           ),
         );
       }

@@ -4,13 +4,13 @@
     "signUpButton": "Sign Up",
     "signInButton": "Sign In",
     "invalidPhoneError": "Please enter a valid phone number",
-    "termsAndSupport": "Terms & Conditions | Support",
+    "termsAndSupport": "Terms and conditions | Support",
     "@_SMS_VERIFICATION": {},
     "smsVerificationSent": "We've sent a verification\ncode to",
-    "smsVerificationCantReceive": "Can't receive a verification code?",
+    "smsVerificationCantReceive": "Can't receive the code?",
     "smsVerificationTruoraRedirect": "You will be redirected to Truora verification platform",
-    "smsVerificationError": "Verification code is not sent. We are working on this issue. Please try again later.",
-    "iAgree": "I agree to ",
+    "smsVerificationError": "Verification code was not sent. We're working on this issue. Please try again later.",
+    "iAgree": "I agree to the ",
     "termsOfUse": "Terms of Use",
     "continueButton": "Continue",
     "@_DASHBOARD": {},
@@ -22,7 +22,7 @@
     "dashboardSelectFromContacts": "Select from contacts",
     "dashboardPeriod": "Period",
     "dashboardDeposit": "Deposit",
-    "dashboardWithdrawal": "Withdrawal",
+    "dashboardWithdrawal": "Withdraw",
     "dashboardTransactionHistory": "Transaction History",
     "dashboardNoTransactions": "No transactions available",
     "dashboardViewAll": "View All",
@@ -54,7 +54,7 @@
     "transactionHelp": "Help",
     "transactionCopy": "Copy",
     "transactionShare": "Share",
-    "transactionNeedHelp": "Need Help? 🤔",
+    "transactionNeedHelp": "Need help? 🤔",
     "transactionSupportMessage": "Contact our support team for assistance with your transaction.",
     "transactionClose": "Close",
     "transactionCopiedSuccess": "Transaction details copied to clipboard! 📋",
@@ -66,9 +66,10 @@
         }
     },
     "transactionCopyError": "Failed to copy: {error}",
-    "transferLoading": "Loading Transfer options...",
-    "transferUnknownError": "Unknown error occurred",
+    "transferLoading": "Loading transfer options...",
+    "transferUnknownError": "An unknown error occurred",
     "transferNewContact": "New\nContact",
+    "transferRecipientNotFound": "Recipient not found",
     "transferNewTransaction": "New\nTransaction",
     "retry": "Retry",
     "contactEnrique": "Enrique\nIglesias",
@@ -78,27 +79,26 @@
     "contactXimena": "Ximena\nMerino",
     "transferRecipientLabel": "Mobile number",
     "transferAmountLabel": "Amount",
-    "transferRecipientNotFound": "Could not find the recipient",
     "@transferConfirmMessage": {
         "placeholders": {
             "amount": {
-                "type": "String"
+                "type": "Object"
             },
             "recipient": {
                 "type": "String"
             }
         }
     },
-    "transferConfirmMessage": "To transfer the amount of {amount} to the number {recipient}, press continue.",
+    "transferConfirmMessage": "To transfer the amount of {amount} to number {recipient}, press continue.",
+    "@_TOPUP": {},
     "topUpTitle": "Top Up",
     "topUpLoading": "Loading providers...",
     "topUpNoProviders": "No providers available",
     "retry": "Retry",
-    "unknownError": "Unknown error occurred",
+    "unknownError": "An unknown error occurred",
     "topUpAmount": "Amount",
     "topUpContinue": "Continue",
     "topUpSelectProvider": "Select provider:",
-    "topUpError": "Error: {error}",
     "@topUpError": {
         "placeholders": {
             "error": {
@@ -106,13 +106,14 @@
             }
         }
     },
+    "topUpError": "Error: {error}",
+    "@_WITHDRAWAL": {},
     "withdrawalTitle": "Withdrawal",
     "withdrawalLoading": "Loading withdrawal options...",
     "withdrawalNoMethods": "No withdrawal methods available",
     "withdrawalAmount": "Amount",
     "withdrawalContinue": "Continue",
     "withdrawalSelectMethod": "Select withdrawal method:",
-    "withdrawalError": "Error: {error}",
     "@withdrawalError": {
         "placeholders": {
             "error": {
@@ -120,6 +121,7 @@
             }
         }
     },
+    "withdrawalError": "Error: {error}",
     "@_FORM_VALIDATION": {},
     "fieldRequired": "This field is required",
     "invalidNumber": "Please enter a valid number",
@@ -148,7 +150,7 @@
         }
     },
     "operationError": "Operation failed: {error}",
-    "totalBalance": "Total balance",
+    "totalBalance": "Total Balance",
     "navHistory": "History",
     "navTransfer": "Transfer",
     "navOffers": "Offers",
@@ -157,66 +159,59 @@
     "transferAmountLabel": "Amount",
     "transferFillFieldsError": "Please fill in all fields UwU",
     "transferContinueButton": "Continue",
-    "transferConfirmationText": "To transfer the amount of {amount}\nto the number {phone}, press continue.",
     "@transferConfirmationText": {
         "placeholders": {
-            "amount": {},
-            "phone": {}
+            "amount": {
+                "type": "Object"
+            },
+            "phone": {
+                "type": "Object"
+            }
         }
     },
+    "transferConfirmationText": "To transfer the amount of {amount}\nto the number {phone}, press continue.",
     "contactsTitle": "Zentro Contacts",
     "contactsAddNew": "Add New Contact",
     "contactsMyContacts": "My Contacts",
     "contactsDeleteConfirmTitle": "Delete Contact",
+    "@contactsDeleteConfirmMessage": {
+        "placeholders": {
+            "name": {
+                "type": "String"
+            }
+        }
+    },
     "contactsDeleteConfirmMessage": "Are you sure you want to delete {name}?",
     "contactsCancel": "Cancel",
     "contactsDelete": "Delete",
-    "contactsEdit": "Edit Contact",
     "contactsSave": "Save",
     "contactsPhone": "Phone",
     "contactsName": "Name (Optional)",
-    "contactsDeleteConfirmTitle": "Delete Contact",
-    "@contactsDeleteConfirmTitle": {
-        "description": "Title of the confirmation dialog when deleting a contact"
-    },
-    "contactsDeleteConfirmMessage": "Are you sure you want to delete {name}?",
-    "@contactsDeleteConfirmMessage": {
-        "description": "Confirmation message when deleting a contact",
-        "placeholders": {
-            "name": {
-                "type": "String",
-                "example": "John Doe"
-            }
-        }
-    },
     "contactsCopySuccess": "Contact details copied to clipboard! 📋",
-    "contactsCopyError": "Failed to copy: {error}",
     "@contactsCopyError": {
-        "description": "Error message when copying contact details fails",
         "placeholders": {
             "error": {
-                "type": "String",
-                "example": "Permission denied"
+                "type": "String"
             }
         }
     },
+    "contactsCopyError": "Error copying: {error}",
     "contactsShareSuccess": "Contact details shared successfully!",
-    "contactsShareError": "Failed to share: {error}",
     "@contactsShareError": {
-        "description": "Error message when sharing contact details fails",
         "placeholders": {
             "error": {
-                "type": "String",
-                "example": "Permission denied"
+                "type": "String"
             }
         }
     },
+    "contactsShareError": "Error sharing: {error}",
+    "contactsEdit": "Edit",
     "contactsCopy": "Copy",
     "contactsShare": "Share",
     "transferZentroContacts": "Zentro Contacts",
     "offersSearchHint": "Search",
-    "offersNoData": "No offers available yet",
-    "offersDiscount": "OFF",
+    "offersNoData": "No offers available",
+    "offersDiscount": "DSCT",
     "offersBonus": "Bonus",
     "offerFilterCategory": "Category",
     "offerFilterMerchant": "Merchant",
@@ -229,7 +224,6 @@
     "offersCategories": "Categories",
     "offersTopOffers": "Top Offers",
     "offersCategoryDialogTitle": "Select Category",
-    "offersTotalOffers": "{count} offers",
     "@offersTotalOffers": {
         "placeholders": {
             "count": {
@@ -237,10 +231,11 @@
             }
         }
     },
+    "offersTotalOffers": "{count} offers",
     "offerActivatedSuccess": "Offer activated successfully! ✨",
-    "offerActivationError": "Failed to activate offer (◞‸◟；)",
+    "offerActivationError": "Error activating offer (◞‸◟；)",
     "getOfferNow": "Get Now",
-    "historyNoSearchResults": "No transactions match your search criteria UwU",
+    "historyNoSearchResults": "No transactions match your search UwU",
     "historyLoadingMore": "Loading more transactions...",
     "historyScrollToTop": "Scroll to top",
     "transferProcessing": "Processing..."

@@ -1,10 +1,9 @@
 import 'package:flutter/material.dart';
 
+// Define colors
 const Color bluePurpleColor = Color(0xFF0F0A54);
-// Gradient colors for darkBlueGradient
 const Color darkBlueGradientStartColor = Color(0xFF0b3eb4);
 const Color darkBlueGradientEndColor = Color(0xFF0B3597);
-// Gradient colors for deepBlueGradient
 const Color aquaBlueColor = Color(0xFF7BE7D7);
 const Color deepBlueColor = Color(0xFF1258FD);
 const Color darkGreyColor = Color(0xFF878787);
@@ -18,7 +17,17 @@ const Color whiteColor = Color(0xFFFFFFFF);
 const Color lightYellowColor = Color(0xFFFFF7E3);
 const Color yellowColor = Color(0xFFFFAB6D);
 
-// Define the gradients UwU
+// Helper method to create color with alpha for withOpacity replacement
+Color colorWithAlpha(Color color, int alpha) {
+  return Color.fromARGB(
+    alpha,
+    color.red,
+    color.green,
+    color.blue,
+  );
+}
+
+// Define gradients
 const LinearGradient darkBlueGradient = LinearGradient(
   begin: Alignment.topCenter,
   end: Alignment.bottomCenter,
@@ -28,7 +37,6 @@ const LinearGradient darkBlueGradient = LinearGradient(
   ],
 );
 
-// Pretty new gradient with multiple color stops ✨
 const LinearGradient deepBlueGradient = LinearGradient(
   begin: Alignment.topLeft,
   end: Alignment.bottomRight,
@@ -43,6 +51,12 @@ final ThemeData appThemeDark = ThemeData(
   secondaryHeaderColor: bluePurpleColor,
   brightness: Brightness.light,
   scaffoldBackgroundColor: Colors.black,
+
+  // Use DialogTheme instead of dialogBackgroundColor
+  dialogTheme: const DialogTheme(
+    backgroundColor: lightGreyColor,
+  ),
+
   colorScheme: const ColorScheme.light(
     primary: bluePurpleColor,
     secondary: deepBlueColor,
@@ -139,16 +153,6 @@ final ThemeData appThemeDark = ThemeData(
         fontSize: 16,
         fontWeight: FontWeight.w600,
         fontFamily: 'RobotoFlex'),
-    inText: TextStyle(
-        color: greenColor,
-        fontSize: 16,
-        fontWeight: FontWeight.w600,
-        fontFamily: 'RobotoFlex'),
-    outText: TextStyle(
-        color: redColor,
-        fontSize: 16,
-        fontWeight: FontWeight.w600,
-        fontFamily: 'RobotoFlex'),
   ),
   appBarTheme: const AppBarTheme(
     toolbarHeight: 0,
@@ -165,17 +169,17 @@ final ThemeData appThemeDark = ThemeData(
   ),
   elevatedButtonTheme: ElevatedButtonThemeData(
     style: ButtonStyle(
-      backgroundColor: WidgetStateProperty.all(bluePurpleColor),
+      backgroundColor: MaterialStatePropertyAll(bluePurpleColor),
       padding:
-          WidgetStateProperty.all(const EdgeInsets.symmetric(vertical: 16.0)),
-      textStyle: WidgetStateProperty.all(
-        const TextStyle(
+          const MaterialStatePropertyAll(EdgeInsets.symmetric(vertical: 16.0)),
+      textStyle: const MaterialStatePropertyAll(
+        TextStyle(
           fontWeight: FontWeight.w600,
           fontSize: 16,
           color: whiteColor,
         ),
       ),
-      shape: WidgetStateProperty.all(
+      shape: MaterialStatePropertyAll(
         RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(15),
         ),
@@ -208,16 +212,16 @@ final ThemeData appThemeDark = ThemeData(
   ),
   textButtonTheme: TextButtonThemeData(
     style: ButtonStyle(
-      foregroundColor: WidgetStateProperty.all(bluePurpleColor),
+      foregroundColor: MaterialStatePropertyAll(bluePurpleColor),
       padding:
-          WidgetStateProperty.all(const EdgeInsets.symmetric(vertical: 8.0)),
-      textStyle: WidgetStateProperty.all(
-        const TextStyle(
+          const MaterialStatePropertyAll(EdgeInsets.symmetric(vertical: 8.0)),
+      textStyle: const MaterialStatePropertyAll(
+        TextStyle(
           fontWeight: FontWeight.w600,
           fontSize: 12,
         ),
       ),
-      shape: WidgetStateProperty.all(
+      shape: MaterialStatePropertyAll(
         RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(15.0),
           side: const BorderSide(color: bluePurpleColor, width: 1),
@@ -229,16 +233,14 @@ final ThemeData appThemeDark = ThemeData(
     activeTrackColor: midLightAquamarineColor,
     inactiveTrackColor: lightAquamarineColor,
     thumbColor: bluePurpleColor,
-    overlayColor: bluePurpleColor.withOpacity(0.2),
+    overlayColor: colorWithAlpha(bluePurpleColor, 51), // 0.2 opacity equivalent
   ),
   cardColor: lightAquamarineColor,
-  dialogBackgroundColor: lightGreyColor,
 );
 
 class ThemeGradients extends ThemeExtension<ThemeGradients> {
   final LinearGradient darkBlueGradient;
   final LinearGradient deepBlueGradient;
-
   const ThemeGradients({
     required this.darkBlueGradient,
     required this.deepBlueGradient,
@@ -282,10 +284,6 @@ class ThemeGradients extends ThemeExtension<ThemeGradients> {
               deepBlueGradient.colors[0], other.deepBlueGradient.colors[0], t)!,
           Color.lerp(
               deepBlueGradient.colors[1], other.deepBlueGradient.colors[1], t)!,
-          Color.lerp(
-              deepBlueGradient.colors[2], other.deepBlueGradient.colors[2], t)!,
-          Color.lerp(
-              deepBlueGradient.colors[3], other.deepBlueGradient.colors[3], t)!,
         ],
         stops: deepBlueGradient.stops,
       ),

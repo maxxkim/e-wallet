@@ -17,9 +17,7 @@ class ContactDialog extends StatefulWidget {
 class ContactDialogState extends State<ContactDialog> {
   late TextEditingController _phoneController;
   late TextEditingController _nameController;
-
   final _formKey = GlobalKey<FormState>();
-
   String? _phoneError;
   String? _nameError;
   bool _isLoading = false;
@@ -42,7 +40,6 @@ class ContactDialogState extends State<ContactDialog> {
     if (value == null || value.isEmpty) {
       return 'Phone number is required';
     }
-
     final phoneRegex = RegExp(r'^\+?[\d\s-]{8,}$');
     if (!phoneRegex.hasMatch(value)) {
       return 'Please enter a valid phone number';
@@ -62,7 +59,6 @@ class ContactDialogState extends State<ContactDialog> {
 
   void _validateAndSubmit() async {
     if (_isLoading) return;
-
     setState(() {
       _phoneError = null;
       _nameError = null;
@@ -89,7 +85,6 @@ class ContactDialogState extends State<ContactDialog> {
             );
       } else {
         await context.read<ContactsCubit>().updateContact(
-              widget.contact!.id,
               _phoneController.text,
               _nameController.text.isEmpty ? null : _nameController.text,
             );
@@ -97,7 +92,6 @@ class ContactDialogState extends State<ContactDialog> {
 
       if (mounted) {
         Navigator.of(context).pop();
-        context.read<ContactsCubit>().loadContacts();
       }
     } finally {
       if (mounted) {
@@ -114,7 +108,7 @@ class ContactDialogState extends State<ContactDialog> {
     return BlocListener<ContactsCubit, ContactsState>(
       listener: (context, state) {
         if (state is ContactsStateLoaded) {
-          Navigator.of(context).pop();
+          Navigator.of(context).pop(true); // Return true to indicate success
         }
       },
       child: AlertDialog(

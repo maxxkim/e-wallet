@@ -116,9 +116,8 @@ class ApiUtil {
     return _apiService.addContact(phone, nickname);
   }
 
-  Future<ContactModel> updateContact(
-      int id, String phone, String? nickname) async {
-    return _apiService.updateContact(id, phone, nickname);
+  Future<ContactModel> updateContact(String phone, String? nickname) async {
+    return _apiService.updateContact(phone, nickname);
   }
 
   Future<void> deleteContact(String phone) async {
