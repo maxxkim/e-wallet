@@ -1,8 +1,5 @@
 import 'package:flutter/material.dart';
 
-// Import custom text theme extension
-
-// Define colors
 const Color bluePurpleColor = Color(0xFF0F0A54);
 const Color darkBlueGradientStartColor = Color(0xFF0b3eb4);
 const Color darkBlueGradientEndColor = Color(0xFF0B3597);
@@ -19,7 +16,6 @@ const Color whiteColor = Color(0xFFFFFFFF);
 const Color lightYellowColor = Color(0xFFFFF7E3);
 const Color yellowColor = Color(0xFFFFAB6D);
 
-// Define gradients
 const LinearGradient darkBlueGradient = LinearGradient(
   begin: Alignment.topCenter,
   end: Alignment.bottomCenter,
@@ -38,7 +34,6 @@ const LinearGradient deepBlueGradient = LinearGradient(
   ],
 );
 
-// Helper method to create color with alpha for withOpacity replacement
 Color colorWithAlpha(Color color, int alpha) {
   return Color.fromARGB(
     alpha,
@@ -53,12 +48,9 @@ final ThemeData appTheme = ThemeData(
   secondaryHeaderColor: bluePurpleColor,
   brightness: Brightness.light,
   scaffoldBackgroundColor: whiteColor,
-
-  // Use proper DialogTheme instead of dialogBackgroundColor
   dialogTheme: const DialogTheme(
     backgroundColor: whiteColor,
   ),
-
   colorScheme: const ColorScheme.light(
     primary: bluePurpleColor,
     secondary: deepBlueColor,
@@ -78,7 +70,6 @@ final ThemeData appTheme = ThemeData(
       deepBlueGradient: deepBlueGradient,
     ),
   ],
-
   textTheme: const TextTheme(
     titleSmall: TextStyle(
         color: bluePurpleColor,
@@ -156,12 +147,12 @@ final ThemeData appTheme = ThemeData(
         fontWeight: FontWeight.w600,
         fontFamily: 'RobotoFlex'),
     inText: TextStyle(
-        color: const Color(0xFF54C099), // greenColor
+        color: greenColor,
         fontSize: 16,
         fontWeight: FontWeight.w600,
         fontFamily: 'RobotoFlex'),
     outText: TextStyle(
-        color: const Color(0xFFDC4949), // redColor
+        color: redColor,
         fontSize: 16,
         fontWeight: FontWeight.w600,
         fontFamily: 'RobotoFlex'),
@@ -193,17 +184,17 @@ final ThemeData appTheme = ThemeData(
   ),
   elevatedButtonTheme: ElevatedButtonThemeData(
     style: ButtonStyle(
-      backgroundColor: const MaterialStatePropertyAll(bluePurpleColor),
+      backgroundColor: const WidgetStatePropertyAll(bluePurpleColor),
       padding:
-          const MaterialStatePropertyAll(EdgeInsets.symmetric(vertical: 16.0)),
-      textStyle: const MaterialStatePropertyAll(
+          const WidgetStatePropertyAll(EdgeInsets.symmetric(vertical: 16.0)),
+      textStyle: const WidgetStatePropertyAll(
         TextStyle(
           fontWeight: FontWeight.w600,
           fontSize: 16,
           color: whiteColor,
         ),
       ),
-      shape: MaterialStatePropertyAll(
+      shape: WidgetStatePropertyAll(
         RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(15),
         ),
@@ -238,14 +229,14 @@ final ThemeData appTheme = ThemeData(
     style: ButtonStyle(
       foregroundColor: const WidgetStatePropertyAll(bluePurpleColor),
       padding:
-          const MaterialStatePropertyAll(EdgeInsets.symmetric(vertical: 8.0)),
-      textStyle: const MaterialStatePropertyAll(
+          const WidgetStatePropertyAll(EdgeInsets.symmetric(vertical: 8.0)),
+      textStyle: const WidgetStatePropertyAll(
         TextStyle(
           fontWeight: FontWeight.w600,
           fontSize: 12,
         ),
       ),
-      shape: MaterialStatePropertyAll(
+      shape: WidgetStatePropertyAll(
         RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(15.0),
           side: const BorderSide(color: bluePurpleColor, width: 1),
@@ -257,7 +248,7 @@ final ThemeData appTheme = ThemeData(
     activeTrackColor: midLightAquamarineColor,
     inactiveTrackColor: lightAquamarineColor,
     thumbColor: bluePurpleColor,
-    overlayColor: colorWithAlpha(bluePurpleColor, 51), // 0.2 opacity equivalent
+    overlayColor: colorWithAlpha(bluePurpleColor, 51),
   ),
   cardColor: lightAquamarineColor,
 );
