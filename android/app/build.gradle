@@ -29,7 +29,7 @@ if (flutterVersionName == null) {
 
 android {
     namespace "com.example.zippy"
-    compileSdkVersion 34  // Changed to 34 instead of 35
+    compileSdkVersion 34
     ndkVersion flutter.ndkVersion
 
     compileOptions {
@@ -51,6 +51,7 @@ android {
         targetSdkVersion flutter.targetSdkVersion
         versionCode flutterVersionCode.toInteger()
         versionName flutterVersionName
+        multiDexEnabled true
     }
 
     buildTypes {
@@ -65,5 +66,19 @@ flutter {
 }
 
 dependencies {
-    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:1.7.10"
+    // Use the updated Kotlin version
+    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.8.10"
+    
+    // Add multidex support
+    implementation 'androidx.multidex:multidex:2.0.1'
+    
+    // Add this line to properly include Flutter embedding
+    implementation 'androidx.annotation:annotation:1.7.1'
+}
+
+// This is needed to avoid errors with importing the Flutter embedding
+android {
+    lintOptions {
+        disable 'InvalidPackage'
+    }
 }

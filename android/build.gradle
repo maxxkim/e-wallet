@@ -1,12 +1,13 @@
 buildscript {
-    ext.kotlin_version = '1.9.0'
+    // Update to Kotlin 1.8.10 as recommended by Flutter
+    ext.kotlin_version = '1.8.10'
     repositories {
         google()
         mavenCentral()
     }
 
     dependencies {
-        classpath 'com.android.tools.build:gradle:8.1.0'  // Updated to 8.1.0
+        classpath 'com.android.tools.build:gradle:8.1.0'
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
     }
 }
@@ -15,6 +16,15 @@ allprojects {
     repositories {
         google()
         mavenCentral()
+    }
+    
+    // Add this to enforce consistent Kotlin version across all projects
+    configurations.all {
+        resolutionStrategy.eachDependency { details ->
+            if (details.requested.group == 'org.jetbrains.kotlin') {
+                details.useVersion "$kotlin_version"
+            }
+        }
     }
 }
 
