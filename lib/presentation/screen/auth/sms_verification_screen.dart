@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:go_router/go_router.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:zippy/domain/repository/auth/auth_repository.dart';
 import 'package:zippy/domain/state/auth/auth_state.dart';
@@ -10,21 +10,18 @@ import 'package:zippy/presentation/animation/fade_animation_mixin.dart';
 import 'package:zippy/presentation/bloc/auth/auth_cubit.dart';
 import 'package:zippy/presentation/screen/error_screen.dart';
 import 'package:zippy/presentation/session/session_cubit.dart';
-import 'package:zippy/presentation/widget/custom_rectangular_button.dart';
 
 class SmsVerificationScreen extends StatelessWidget with FadeInAnimationMixin {
   final String phoneNumber;
   final String countryCode;
-  SmsVerificationScreen(
+
+  const SmsVerificationScreen(
       {Key? key, required this.phoneNumber, required this.countryCode})
       : super(key: key);
-
-  final List<String> _verificationCode = ['', '', '', ''];
 
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
-
     return FutureBuilder<AuthCubit>(
       future: _createAuthCubit(context),
       builder: (context, snapshot) {
@@ -70,7 +67,17 @@ class SmsVerificationScreen extends StatelessWidget with FadeInAnimationMixin {
                               ),
                             ),
                             const SizedBox(height: 40),
-                            _buildVerificationFields(context, state),
+                            OTPVerificationCodeInput(
+                              state: state,
+                              onCompleted: (code) async {
+                                await authCubit.verifyCode(code);
+                                if (context.mounted) {
+                                  await context
+                                      .read<SessionCubit>()
+                                      .checkAuthentication();
+                                }
+                              },
+                            ),
                             const SizedBox(height: 40),
                             fadeIn(
                               Text(
@@ -80,8 +87,6 @@ class SmsVerificationScreen extends StatelessWidget with FadeInAnimationMixin {
                               delay: 300,
                             ),
                             const SizedBox(height: 32),
-                            /*_buildTermsSection(context, state, l10n),
-                            const SizedBox(height: 16),*/
                             fadeIn(
                               Center(
                                 child: Text(
@@ -92,22 +97,6 @@ class SmsVerificationScreen extends StatelessWidget with FadeInAnimationMixin {
                               ),
                               delay: 400,
                             ),
-                            /*fadeIn(
-                              Padding(
-                                padding:
-                                    const EdgeInsets.symmetric(horizontal: 40),
-                                child: RectangularButton(
-                                  label: l10n.continueButton,
-                                  onPressed: state.termsAccepted &&
-                                          state.codeStatus == CodeStatus.correct
-                                      ? () {
-                                          context.go('/dashboard');
-                                        }
-                                      : null,
-                                ),
-                              ),
-                              delay: 500,
-                            ),*/
                           ]),
                         ),
                       ),
@@ -128,26 +117,99 @@ class SmsVerificationScreen extends StatelessWidget with FadeInAnimationMixin {
     );
   }
 
-  Widget _buildVerificationFields(BuildContext context, AuthStateLoaded state) {
-    if (state.codeStatus == CodeStatus.none) {
+  Future<AuthCubit> _createAuthCubit(BuildContext context) async {
+    final authRepository = RepositoryProvider.of<AuthRepository>(context);
+    final cubit =
+        await AuthCubit.create(authRepository, phoneNumber, countryCode);
+    return cubit;
+  }
+}
+
+class OTPVerificationCodeInput extends StatefulWidget {
+  final AuthStateLoaded state;
+  final Function(String) onCompleted;
+
+  const OTPVerificationCodeInput({
+    Key? key,
+    required this.state,
+    required this.onCompleted,
+  }) : super(key: key);
+
+  @override
+  State<OTPVerificationCodeInput> createState() =>
+      _OTPVerificationCodeInputState();
+}
+
+class _OTPVerificationCodeInputState extends State<OTPVerificationCodeInput>
+    with FadeInAnimationMixin {
+  final List<FocusNode> _focusNodes = List.generate(4, (_) => FocusNode());
+  final List<TextEditingController> _controllers =
+      List.generate(4, (_) => TextEditingController());
+  final _form = GlobalKey<FormState>();
+
+  @override
+  void initState() {
+    super.initState();
+    _addListeners();
+  }
+
+  void _addListeners() {
+    for (int i = 0; i < 4; i++) {
+      _controllers[i].addListener(() {
+        // Clear invalid characters (anything but numbers)
+        final text = _controllers[i].text;
+        final numericOnly = text.replaceAll(RegExp(r'[^0-9]'), '');
+
+        if (text != numericOnly) {
+          _controllers[i].text = numericOnly;
+          _controllers[i].selection = TextSelection.fromPosition(
+              TextPosition(offset: numericOnly.length));
+        }
+
+        // Move to next field if this one has a character
+        if (numericOnly.length == 1 && i < 3) {
+          _focusNodes[i + 1].requestFocus();
+        }
+      });
+    }
+  }
+
+  @override
+  void dispose() {
+    for (final controller in _controllers) {
+      controller.dispose();
+    }
+    for (final node in _focusNodes) {
+      node.dispose();
+    }
+    super.dispose();
+  }
+
+  String _getCode() {
+    return _controllers.map((c) => c.text).join();
+  }
+
+  void _checkComplete() {
+    final code = _getCode();
+    if (code.length == 4) {
+      widget.onCompleted(code);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    if (widget.state.codeStatus == CodeStatus.none) {
       return fadeIn(
-        Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children:
-              List.generate(4, (i) => _buildInputField(context, state, i)),
-        ),
+        _buildCodeInputs(),
         delay: 200,
       );
-    } else if (state.codeStatus == CodeStatus.invalid && state.shakeKey) {
+    } else if (widget.state.codeStatus == CodeStatus.invalid &&
+        widget.state.shakeKey) {
       return Animate(
         effects: const [ShakeEffect(), FadeEffect()],
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children:
-              List.generate(4, (i) => _buildInputField(context, state, i)),
-        ),
+        child: _buildCodeInputs(),
       );
-    } else if (state.codeStatus == CodeStatus.correct) {
+    } else if (widget.state.codeStatus == CodeStatus.correct) {
       return Padding(
         padding: const EdgeInsets.all(12.0),
         child: fadeIn(
@@ -159,8 +221,46 @@ class SmsVerificationScreen extends StatelessWidget with FadeInAnimationMixin {
     return const SizedBox();
   }
 
-  Widget _buildInputField(
-      BuildContext context, AuthStateLoaded state, int index) {
+  Widget _buildCodeInputs() {
+    return RawKeyboardListener(
+      focusNode: FocusNode(),
+      onKey: (RawKeyEvent event) {
+        if (event is RawKeyDownEvent) {
+          if (event.logicalKey == LogicalKeyboardKey.backspace) {
+            _handleBackspace();
+          }
+        }
+      },
+      child: Form(
+        key: _form,
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children:
+              List.generate(4, (index) => _buildInputField(context, index)),
+        ),
+      ),
+    );
+  }
+
+  void _handleBackspace() {
+    // Find the focused field
+    int focusedIndex = -1;
+    for (int i = 0; i < 4; i++) {
+      if (_focusNodes[i].hasFocus) {
+        focusedIndex = i;
+        break;
+      }
+    }
+
+    if (focusedIndex == -1) return;
+
+    // If current field is empty and not the first field, move to previous
+    if (_controllers[focusedIndex].text.isEmpty && focusedIndex > 0) {
+      _focusNodes[focusedIndex - 1].requestFocus();
+    }
+  }
+
+  Widget _buildInputField(BuildContext context, int index) {
     return Padding(
       padding: EdgeInsets.only(right: index < 3 ? 12 : 0),
       child: Container(
@@ -170,15 +270,17 @@ class SmsVerificationScreen extends StatelessWidget with FadeInAnimationMixin {
           color: Theme.of(context).scaffoldBackgroundColor,
           borderRadius: BorderRadius.circular(16),
           border: Border.all(
-            color: getContainerColor(state.codeStatus, context),
+            color: getContainerColor(widget.state.codeStatus, context),
             width: 1,
           ),
         ),
         child: TextFormField(
-          initialValue: _verificationCode[index],
+          controller: _controllers[index],
+          focusNode: _focusNodes[index],
           textAlign: TextAlign.center,
           keyboardType: TextInputType.number,
           maxLength: 1,
+          inputFormatters: [FilteringTextInputFormatter.digitsOnly],
           decoration: const InputDecoration(
             counterText: "",
             border: InputBorder.none,
@@ -192,95 +294,26 @@ class SmsVerificationScreen extends StatelessWidget with FadeInAnimationMixin {
               .textTheme
               .headlineMedium
               ?.copyWith(fontWeight: FontWeight.bold),
-          onChanged: (value) async {
-            if (value.length == 1) {
-              _verificationCode[index] = value;
-              if (index < 3) {
-                FocusScope.of(context).nextFocus();
-              } else {
-                if (state.shakeKey) {
-                  context.read<AuthCubit>().restoreShake();
-                }
-                String code = _verificationCode.join('');
-                await context.read<AuthCubit>().verifyCode(code);
-                await context.read<SessionCubit>().checkAuthentication();
-              }
-            } else if (value.isEmpty && index > 0) {
-              _verificationCode[index] = '';
-              FocusScope.of(context).previousFocus();
+          onChanged: (value) {
+            if (value.length == 1 && index < 3) {
+              _focusNodes[index + 1].requestFocus();
+            }
+            if (index == 3 && value.isNotEmpty) {
+              _checkComplete();
+            }
+          },
+          textInputAction:
+              index < 3 ? TextInputAction.next : TextInputAction.done,
+          onFieldSubmitted: (_) {
+            if (index < 3) {
+              _focusNodes[index + 1].requestFocus();
+            } else {
+              _checkComplete();
             }
           },
         ),
       ),
     );
-  }
-
-  Widget _buildTermsSection(
-      BuildContext context, AuthStateLoaded state, AppLocalizations l10n) {
-    return fadeIn(
-      Wrap(
-        // Changed from Row to Wrap
-        alignment: WrapAlignment.center,
-        crossAxisAlignment: WrapCrossAlignment.center,
-        spacing: 16, // Horizontal spacing
-        runSpacing: 8, // Vertical spacing between lines
-        children: [
-          GestureDetector(
-            onTap: () {
-              context.read<SessionCubit>().checkAuthentication();
-              context.read<AuthCubit>().toggleTerms();
-            },
-            child: Container(
-              height: 32,
-              width: 32,
-              decoration: BoxDecoration(
-                color: Theme.of(context).scaffoldBackgroundColor,
-                border: Border.all(
-                  color: getContainerColor(state.codeStatus, context),
-                ),
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: Column(
-                children: [
-                  if (state.termsAccepted)
-                    Padding(
-                      padding: const EdgeInsets.only(top: 4.0),
-                      child: Icon(
-                        Icons.check,
-                        color: Theme.of(context).colorScheme.secondary,
-                      ),
-                    ),
-                ],
-              ),
-            ),
-          ),
-          Wrap(
-            // Use another Wrap for the text part
-            children: [
-              Text(
-                l10n.iAgree,
-                style: Theme.of(context).textTheme.displayLarge,
-              ),
-              Text(
-                l10n.termsOfUse,
-                style: Theme.of(context)
-                    .textTheme
-                    .displayLarge
-                    ?.copyWith(fontWeight: FontWeight.w600),
-              ),
-            ],
-          ),
-        ],
-      ),
-      delay: 350,
-    );
-  }
-
-  Future<AuthCubit> _createAuthCubit(BuildContext context) async {
-    final authRepository = RepositoryProvider.of<AuthRepository>(context);
-    final cubit =
-        await AuthCubit.create(authRepository, phoneNumber, countryCode);
-    return cubit;
   }
 
   Color getContainerColor(CodeStatus status, BuildContext context) {
