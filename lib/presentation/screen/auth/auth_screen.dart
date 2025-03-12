@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -13,10 +14,42 @@ import 'package:zippy/domain/model/auth/country_model.dart';
 import 'package:zippy/data/api/service/api_service.dart';
 
 class AuthScreen extends StatefulWidget {
-  AuthScreen({super.key});
+  const AuthScreen({super.key});
 
   @override
   State<AuthScreen> createState() => _AuthScreenState();
+}
+
+/// A TextInputFormatter that prevents deletion of the country code prefix
+class CountryCodeFormatter extends TextInputFormatter {
+  final String countryCode;
+
+  CountryCodeFormatter(this.countryCode);
+
+  @override
+  TextEditingValue formatEditUpdate(
+      TextEditingValue oldValue, TextEditingValue newValue) {
+    // If attempting to delete the country code
+    if (newValue.text.length < countryCode.length) {
+      return TextEditingValue(
+        text: countryCode,
+        selection: TextSelection.collapsed(offset: countryCode.length),
+      );
+    }
+
+    // If replacing text that includes the country code
+    if (newValue.text.length >= countryCode.length &&
+        !newValue.text.startsWith(countryCode)) {
+      return TextEditingValue(
+        text: countryCode +
+            newValue.text.substring(newValue.text.length -
+                (newValue.text.length - oldValue.text.length)),
+        selection: TextSelection.collapsed(offset: countryCode.length),
+      );
+    }
+
+    return newValue;
+  }
 }
 
 class _AuthScreenState extends State<AuthScreen> {
@@ -49,7 +82,7 @@ class _AuthScreenState extends State<AuthScreen> {
       setState(() {
         countries = loadedCountries;
         selectedCountry = loadedCountries.first;
-        _updateMask(loadedCountries.first);
+        _initializePhoneWithCountryCode(selectedCountry!);
         isLoading = false;
       });
     } catch (e) {
@@ -60,27 +93,99 @@ class _AuthScreenState extends State<AuthScreen> {
     }
   }
 
-  void _updateMask(CountryModel country) {
+  void _initializePhoneWithCountryCode(CountryModel country) {
+    // Extract country code from the phone mask
+    String countryCode = _extractCountryCode(country);
+
+    // Create mask formatter that preserves the country code
+    String mask = country.phoneMask;
+    if (!mask.startsWith('+')) {
+      mask = '+$mask';
+    }
+
     maskFormatter = MaskTextInputFormatter(
-      mask: country.phoneMask,
+      mask: mask,
       filter: {"#": RegExp(r'[0-9]')},
+      initialText: countryCode,
     );
-    phoneController.text = '';
+
+    // Set the country code as initial value and prevent its deletion
+    phoneController.text = countryCode;
+    phoneController.selection = TextSelection.fromPosition(
+      TextPosition(offset: countryCode.length),
+    );
+  }
+
+  String _extractCountryCode(CountryModel country) {
+    // Try to extract country code from the phone mask
+    if (country.phoneMask.contains('+')) {
+      // Extract digits after + until first non-digit
+      final RegExp regex = RegExp(r'\+(\d+)');
+      final match = regex.firstMatch(country.phoneMask);
+      if (match != null && match.groupCount >= 1) {
+        return '+${match.group(1)}';
+      }
+    }
+
+    // Try to extract from pattern
+    if (country.phonePattern.contains('+')) {
+      final RegExp regex = RegExp(r'\+(\d+)');
+      final match = regex.firstMatch(country.phonePattern);
+      if (match != null && match.groupCount >= 1) {
+        return '+${match.group(1)}';
+      }
+    }
+
+    // Try to extract from example
+    if (country.phoneExample.startsWith('+')) {
+      final RegExp regex = RegExp(r'\+(\d+)');
+      final match = regex.firstMatch(country.phoneExample);
+      if (match != null && match.groupCount >= 1) {
+        return '+${match.group(1)}';
+      }
+    }
+
+    // If no country code found, use the first digit after '+'
+    if (country.phoneMask.isNotEmpty) {
+      return '+${country.code.substring(0, 1)}';
+    }
+
+    // Last resort fallback
+    return '+';
+  }
+
+  void _updateCountry(CountryModel? newCountry) {
+    if (newCountry == null) return;
+
+    setState(() {
+      selectedCountry = newCountry;
+      _initializePhoneWithCountryCode(newCountry);
+    });
+  }
+
+  // Create a text input formatter that specifically protects the country code
+  List<TextInputFormatter> _createFormatters(String countryCode) {
+    return [
+      maskFormatter!,
+      CountryCodeFormatter(countryCode),
+    ];
   }
 
   bool _isValidPhone(String phone, String pattern) {
+    // Clean the phone number for validation
+    final cleanPhone = phone.replaceAll(RegExp(r'[^0-9+]'), '');
     final RegExp regex = RegExp(pattern);
-    return regex.hasMatch(phone);
+    return regex.hasMatch(cleanPhone);
   }
 
   String _formatPhoneForApi(String phone) {
-    return phone.replaceAll(' ', '');
+    // Make sure to remove all non-essential characters for API submission
+    return phone.replaceAll(RegExp(r'[^0-9+]'), '');
   }
 
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
-
     if (isLoading) {
       return Scaffold(
         body: Center(
@@ -88,7 +193,6 @@ class _AuthScreenState extends State<AuthScreen> {
         ),
       );
     }
-
     if (errorMessage != null) {
       return Scaffold(
         body: Center(
@@ -145,14 +249,13 @@ class _AuthScreenState extends State<AuthScreen> {
                 placeholder: selectedCountry?.phoneExample,
                 selectedCountry: selectedCountry,
                 countries: countries,
-                onCountryChanged: (CountryModel? newValue) {
-                  setState(() {
-                    selectedCountry = newValue;
-                    if (newValue != null) {
-                      _updateMask(newValue);
-                    }
-                  });
-                },
+                onCountryChanged: _updateCountry,
+                countryCode: selectedCountry != null
+                    ? _extractCountryCode(selectedCountry!)
+                    : '+',
+                formatters: selectedCountry != null
+                    ? _createFormatters(_extractCountryCode(selectedCountry!))
+                    : null,
               ).animate().slideX(
                     begin: -1,
                     end: 0,

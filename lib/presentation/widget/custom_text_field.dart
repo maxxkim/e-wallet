@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:mask_text_input_formatter/mask_text_input_formatter.dart';
 
 class CustomTextField extends StatelessWidget {
   final TextEditingController controller;
@@ -10,6 +11,8 @@ class CustomTextField extends StatelessWidget {
   final FormFieldValidator? validator;
   final bool? enabled;
   final String? errorText;
+  final bool isPhoneInput;
+  final MaskTextInputFormatter? maskFormatter;
 
   const CustomTextField({
     Key? key,
@@ -22,13 +25,23 @@ class CustomTextField extends StatelessWidget {
     this.enabled,
     this.errorText,
     this.keyboardType = TextInputType.text,
+    this.isPhoneInput = false,
+    this.maskFormatter,
   }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
+    // Default phone formatter with + prefix if none provided
+    final phoneFormatter = maskFormatter ??
+        MaskTextInputFormatter(
+          mask: "+# (###) ### ## ##",
+          filter: {"#": RegExp(r'[0-9]')},
+        );
+
     return TextFormField(
       controller: controller,
       autofocus: autofocus ?? false,
+      inputFormatters: isPhoneInput ? [phoneFormatter] : null,
       decoration: InputDecoration(
         contentPadding:
             const EdgeInsets.symmetric(vertical: 8.0, horizontal: 12.0),
@@ -66,12 +79,27 @@ class CustomTextField extends StatelessWidget {
           ),
         ),
         labelText: labelText,
-        hintText: hintText,
+        hintText: isPhoneInput ? "+1 (234) 567 89 00" : hintText,
         errorText: errorText,
-        prefixIcon: icon,
+        prefixIcon: icon ??
+            (isPhoneInput
+                ? const Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 12.0),
+                    child: Text(
+                      "+",
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  )
+                : null),
+        prefixIconConstraints: isPhoneInput && icon == null
+            ? const BoxConstraints(minWidth: 0, minHeight: 0)
+            : null,
       ),
       style: const TextStyle(color: Colors.black, fontSize: 14),
-      keyboardType: keyboardType,
+      keyboardType: isPhoneInput ? TextInputType.phone : keyboardType,
       enabled: enabled,
       validator: validator,
     );

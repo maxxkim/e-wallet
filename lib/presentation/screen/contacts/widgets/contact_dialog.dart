@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:mask_text_input_formatter/mask_text_input_formatter.dart';
 import 'package:zippy/domain/model/contacts/contact_model.dart';
 import 'package:zippy/domain/state/contacts/contacts_state.dart';
 import 'package:zippy/presentation/bloc/contacts/contacts_cubit.dart';
@@ -21,11 +22,29 @@ class ContactDialogState extends State<ContactDialog> {
   String? _phoneError;
   String? _nameError;
   bool _isLoading = false;
+  late MaskTextInputFormatter _phoneMaskFormatter;
 
   @override
   void initState() {
     super.initState();
-    _phoneController = TextEditingController(text: widget.contact?.name);
+    // Initialize phone mask formatter with +
+    _phoneMaskFormatter = MaskTextInputFormatter(
+        mask: "+######################",
+        filter: {"#": RegExp(r'[0-9]')},
+        initialText: widget.contact?.name);
+
+    // If there's existing contact, try to apply the mask
+    if (widget.contact?.name != null) {
+      final phoneNumber = widget.contact!.name;
+      if (phoneNumber.startsWith('+')) {
+        _phoneController = TextEditingController(text: phoneNumber);
+      } else {
+        _phoneController = TextEditingController(text: "+$phoneNumber");
+      }
+    } else {
+      _phoneController = TextEditingController(text: "+");
+    }
+
     _nameController = TextEditingController(text: widget.contact?.nickname);
   }
 
@@ -37,10 +56,10 @@ class ContactDialogState extends State<ContactDialog> {
   }
 
   String? _validatePhone(String? value) {
-    if (value == null || value.isEmpty) {
+    if (value == null || value.isEmpty || value == "+") {
       return 'Phone number is required';
     }
-    final phoneRegex = RegExp(r'^\+?[\d\s-]{8,}$');
+    final phoneRegex = RegExp(r'^\+[\d\s\-\(\)]{8,}$');
     if (!phoneRegex.hasMatch(value)) {
       return 'Please enter a valid phone number';
     }
@@ -64,10 +83,8 @@ class ContactDialogState extends State<ContactDialog> {
       _nameError = null;
       _isLoading = true;
     });
-
     final phoneError = _validatePhone(_phoneController.text);
     final nameError = _validateName(_nameController.text);
-
     if (phoneError != null || nameError != null) {
       setState(() {
         _phoneError = phoneError;
@@ -89,7 +106,6 @@ class ContactDialogState extends State<ContactDialog> {
               _nameController.text.isEmpty ? null : _nameController.text,
             );
       }
-
       if (mounted) {
         Navigator.of(context).pop();
       }
@@ -108,7 +124,7 @@ class ContactDialogState extends State<ContactDialog> {
     return BlocListener<ContactsCubit, ContactsState>(
       listener: (context, state) {
         if (state is ContactsStateLoaded) {
-          Navigator.of(context).pop(true); // Return true to indicate success
+          Navigator.of(context).pop(true);
         }
       },
       child: AlertDialog(
@@ -123,10 +139,12 @@ class ContactDialogState extends State<ContactDialog> {
               TextField(
                 controller: _phoneController,
                 enabled: !_isLoading,
+                inputFormatters: [_phoneMaskFormatter],
                 decoration: InputDecoration(
                   labelText: l10n.contactsPhone,
                   errorText: _phoneError,
                   prefixIcon: const Icon(Icons.phone),
+                  hintText: "+ (123) 456 78 90",
                 ),
                 keyboardType: TextInputType.phone,
               ),

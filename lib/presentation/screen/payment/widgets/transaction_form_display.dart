@@ -2,15 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:mask_text_input_formatter/mask_text_input_formatter.dart';
 import 'package:zippy/domain/state/transfer/transfer_state.dart';
 import 'package:zippy/presentation/bloc/transfer/transfer_cubit.dart';
 import 'package:zippy/presentation/theme/app_theme.dart';
-import 'package:zippy/presentation/widget/custom_text_field.dart';
 
-class TransactionFormDisplay extends StatelessWidget {
+class TransactionFormDisplay extends StatefulWidget {
   final TextEditingController emailController;
   final TextEditingController amountController;
-
   const TransactionFormDisplay({
     Key? key,
     required this.emailController,
@@ -18,15 +17,37 @@ class TransactionFormDisplay extends StatelessWidget {
   }) : super(key: key);
 
   @override
+  State<TransactionFormDisplay> createState() => _TransactionFormDisplayState();
+}
+
+class _TransactionFormDisplayState extends State<TransactionFormDisplay> {
+  late MaskTextInputFormatter phoneMaskFormatter;
+
+  @override
+  void initState() {
+    super.initState();
+    // Initialize phone mask formatter with +
+    phoneMaskFormatter = MaskTextInputFormatter(
+      mask: "+################################",
+      filter: {"#": RegExp(r'[0-9]')},
+    );
+
+    // Pre-fill with + if empty
+    if (widget.emailController.text.isEmpty) {
+      widget.emailController.text = "+";
+    } else if (!widget.emailController.text.startsWith('+')) {
+      widget.emailController.text = "+${widget.emailController.text}";
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
-
     return BlocBuilder<TransferCubit, TransferState>(
       builder: (context, state) {
         final bool isLoading = state is TransferStateLoading;
-
         return Container(
-          height: 268,
+          height: 272,
           decoration: BoxDecoration(
             color: Theme.of(context).colorScheme.tertiaryContainer,
             borderRadius: BorderRadius.circular(16),
@@ -41,27 +62,39 @@ class TransactionFormDisplay extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    CustomTextField(
-                      controller: emailController,
-                      labelText: l10n.transferMobileNumberLabel,
-                      keyboardType: const TextInputType.numberWithOptions(),
+                    TextField(
+                      controller: widget.emailController,
+                      inputFormatters: [phoneMaskFormatter],
+                      decoration: InputDecoration(
+                        labelText: l10n.transferMobileNumberLabel,
+                        hintText: "+ (123) 456 78 90",
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(16.0),
+                        ),
+                      ),
+                      keyboardType: TextInputType.phone,
                       enabled: !isLoading,
                     ),
                     const SizedBox(height: 16),
-                    CustomTextField(
-                      controller: amountController,
-                      labelText: l10n.transferAmountLabel,
+                    TextField(
+                      controller: widget.amountController,
+                      decoration: InputDecoration(
+                        labelText: l10n.transferAmountLabel,
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(16.0),
+                        ),
+                        prefixIcon: Padding(
+                          padding: const EdgeInsets.all(12.0),
+                          child: SvgPicture.asset(
+                            'assets/images/icon_coin.svg',
+                            width: 8,
+                            height: 8,
+                          ),
+                        ),
+                      ),
                       keyboardType:
                           const TextInputType.numberWithOptions(decimal: true),
                       enabled: !isLoading,
-                      icon: Padding(
-                        padding: const EdgeInsets.all(12.0),
-                        child: SvgPicture.asset(
-                          'assets/images/icon_coin.svg',
-                          width: 8,
-                          height: 8,
-                        ),
-                      ),
                     ),
                   ],
                 ),
@@ -75,7 +108,8 @@ class TransactionFormDisplay extends StatelessWidget {
                     Expanded(
                       child: Text(
                         l10n.transferConfirmationText(
-                            amountController.text, emailController.text),
+                            widget.amountController.text,
+                            widget.emailController.text),
                         style: Theme.of(context).textTheme.bodyMedium,
                         maxLines: 6,
                         overflow: TextOverflow.ellipsis,
@@ -89,12 +123,13 @@ class TransactionFormDisplay extends StatelessWidget {
                 onTap: isLoading
                     ? null
                     : () {
-                        if (emailController.text.isNotEmpty &&
-                            amountController.text.isNotEmpty) {
+                        if (widget.emailController.text.isNotEmpty &&
+                            widget.amountController.text.isNotEmpty) {
                           context.read<TransferCubit>().initializeTransfer({
                             "amount":
-                                double.tryParse(amountController.text) ?? 0,
-                            "recipient": emailController.text,
+                                double.tryParse(widget.amountController.text) ??
+                                    0,
+                            "recipient": widget.emailController.text,
                           });
                         } else {
                           ScaffoldMessenger.of(context).showSnackBar(

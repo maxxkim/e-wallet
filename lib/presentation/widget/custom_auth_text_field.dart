@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:mask_text_input_formatter/mask_text_input_formatter.dart';
 import 'package:zippy/presentation/bloc/locale/locale_cubit.dart';
 import 'package:zippy/domain/model/auth/country_model.dart';
+import 'package:zippy/presentation/screen/auth/auth_screen.dart';
 
 class AuthTextField extends StatelessWidget {
   final String label;
@@ -15,6 +17,8 @@ class AuthTextField extends StatelessWidget {
   final CountryModel? selectedCountry;
   final List<CountryModel> countries;
   final ValueChanged<CountryModel?> onCountryChanged;
+  final String countryCode;
+  final List<TextInputFormatter>? formatters;
 
   const AuthTextField({
     Key? key,
@@ -27,11 +31,28 @@ class AuthTextField extends StatelessWidget {
     required this.selectedCountry,
     required this.countries,
     required this.onCountryChanged,
+    this.countryCode = '+',
+    this.formatters,
   }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     final currentLocale = Localizations.localeOf(context);
+
+    // Create a formatter that prevents deletion of the country code
+    final effectiveMaskFormatter = maskFormatter ??
+        MaskTextInputFormatter(
+          mask: "+# (###) ### ## ##",
+          filter: {"#": RegExp(r'[0-9]')},
+        );
+
+    // Use provided formatters or create a default one
+    final List<TextInputFormatter> inputFormatters = formatters ??
+        [
+          effectiveMaskFormatter,
+          CountryCodeFormatter(countryCode),
+        ];
+
     return Container(
       margin: const EdgeInsets.symmetric(vertical: 10),
       child: Column(
@@ -127,7 +148,15 @@ class AuthTextField extends StatelessWidget {
             height: 72.0,
             child: TextField(
               controller: controller,
-              inputFormatters: maskFormatter != null ? [maskFormatter!] : null,
+              inputFormatters: inputFormatters,
+              // When focusing, put cursor at the end of the text
+              onTap: () {
+                if (controller.selection.baseOffset == 0) {
+                  controller.selection = TextSelection.fromPosition(
+                    TextPosition(offset: controller.text.length),
+                  );
+                }
+              },
               decoration: InputDecoration(
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(16.0),
@@ -169,7 +198,7 @@ class AuthTextField extends StatelessWidget {
                   ),
                 ),
                 hintText: placeholder ??
-                    maskFormatter?.getMask() ??
+                    effectiveMaskFormatter.getMask() ??
                     "+ 66 (119) 345 97 90",
                 hintStyle: Theme.of(context).textTheme.labelMedium,
                 contentPadding: const EdgeInsets.symmetric(
@@ -183,3 +212,5 @@ class AuthTextField extends StatelessWidget {
     );
   }
 }
+
+// Note: The CountryCodeFormatter class is now imported from auth_screen.dart
