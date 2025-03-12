@@ -149,7 +149,6 @@ class AuthTextField extends StatelessWidget {
             child: TextField(
               controller: controller,
               inputFormatters: inputFormatters,
-              // When focusing, put cursor at the end of the text
               onTap: () {
                 if (controller.selection.baseOffset == 0) {
                   controller.selection = TextSelection.fromPosition(
@@ -212,5 +211,3 @@ class AuthTextField extends StatelessWidget {
     );
   }
 }
-
-// Note: The CountryCodeFormatter class is now imported from auth_screen.dart

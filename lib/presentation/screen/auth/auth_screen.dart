@@ -70,18 +70,26 @@ class _AuthScreenState extends State<AuthScreen> {
   Future<void> _loadCountries() async {
     try {
       final loadedCountries = await _apiService.getCountries();
-      final CountryModel russia = CountryModel(
+
+      // Update or add Chile with the correct mask that doesn't include the 9
+      final CountryModel chile = CountryModel(
           code: 'CL',
-          name: "Russia",
-          currency: "RUB",
-          phoneMask: "+7 ### ### ####",
-          phonePattern: "^\\+?7[0-9]{10}\$",
-          phoneExample: "+79670553338",
-          icon: ":ru:");
-      loadedCountries.add(russia);
+          name: "Chile",
+          currency: "CLP",
+          phoneMask: "+56 ### ### ###", // No 9 in the mask
+          phonePattern: r"^\+56[0-9]{9}$",
+          phoneExample: "+56967553338",
+          icon: ":cl:");
+
+      // Remove existing Chile if present
+      loadedCountries.removeWhere((country) => country.code == 'CL');
+      loadedCountries.add(chile);
+
       setState(() {
         countries = loadedCountries;
-        selectedCountry = loadedCountries.first;
+        selectedCountry = countries.firstWhere(
+            (country) => country.code == 'CL',
+            orElse: () => countries.first);
         _initializePhoneWithCountryCode(selectedCountry!);
         isLoading = false;
       });

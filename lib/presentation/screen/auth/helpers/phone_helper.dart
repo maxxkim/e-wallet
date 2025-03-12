@@ -6,9 +6,13 @@ import 'package:zippy/domain/model/auth/country_model.dart';
 class PhoneHelper {
   /// Extracts country code from a given country model
   static String extractCountryCode(CountryModel country) {
-    // Try to extract country code from the phone mask
+    // For Chile, return just +56 without the 9
+    if (country.code == 'CL') {
+      return '+56';
+    }
+
+    // Regular extraction logic for other countries
     if (country.phoneMask.contains('+')) {
-      // Extract digits after + until first non-digit
       final RegExp regex = RegExp(r'\+(\d+)');
       final match = regex.firstMatch(country.phoneMask);
       if (match != null && match.groupCount >= 1) {
@@ -16,7 +20,6 @@ class PhoneHelper {
       }
     }
 
-    // If no code found in the mask, try to extract from pattern
     if (country.phonePattern.contains('+')) {
       final RegExp regex = RegExp(r'\+(\d+)');
       final match = regex.firstMatch(country.phonePattern);
@@ -25,7 +28,6 @@ class PhoneHelper {
       }
     }
 
-    // Last resort, check the phone example
     if (country.phoneExample.startsWith('+')) {
       final RegExp regex = RegExp(r'\+(\d+)');
       final match = regex.firstMatch(country.phoneExample);
@@ -34,7 +36,6 @@ class PhoneHelper {
       }
     }
 
-    // Fallback to the country code
     return '+${country.code.substring(0, 1)}';
   }
 
