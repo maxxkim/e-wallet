@@ -52,20 +52,13 @@ class ContactsCubit extends Cubit<ContactsState> {
   Future<void> deleteContact(String phone) async {
     try {
       emit(ContactsStateLoading());
-      // This is a synchronous operation - wait for it to complete
       await _contactsRepository.deleteContact(phone);
-
-      // We're not trying to refresh the list anymore,
-      // as we'll redirect to another screen and handle UI refresh there
-      emit(ContactsStateLoaded(
-        contacts: [], // Empty list since we're navigating away anyway
-        timestamp: DateTime.now().millisecondsSinceEpoch,
-      ));
+      await loadContacts();
     } catch (e) {
       emit(ContactsStateError(
         errorMessage: _handleError(e),
       ));
-      throw e; // Rethrow so we can catch it in the UI
+      await loadContacts();
     }
   }
 

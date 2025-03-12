@@ -122,7 +122,6 @@ class ContactsScreen extends StatelessWidget {
       context: context,
       builder: (context) => ContactDialog(contact: contact),
     ).then((_) {
-      // Reload contacts after dialog is dismissed
       context.read<ContactsCubit>().loadContacts();
     });
   }
@@ -137,44 +136,23 @@ class ContactsScreen extends StatelessWidget {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: Text("Cancel"),
+            child: const Text("Cancel"),
           ),
           TextButton(
             onPressed: () async {
-              // First close the dialog
               Navigator.pop(context);
-
-              // Show loading indicator
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
-                  content: Text("Deleting contact... Nya~"),
-                  duration: const Duration(seconds: 1),
-                ),
-              );
-
               try {
-                // Delete the contact
                 await context.read<ContactsCubit>().deleteContact(contact.name);
-
-                // Show success message and navigate back to transfer screen
-                if (context.mounted) {
-                  // Navigate to transfer screen
-                  context.go('/dashboard/transfer');
-
-                  // Show success message after navigation
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      content: Text("Contact deleted successfully! UwU"),
-                      backgroundColor: Colors.green,
-                    ),
-                  );
-                }
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(
+                    content: Text("Contact deleted successfully! UwU"),
+                  ),
+                );
               } catch (e) {
                 if (context.mounted) {
                   ScaffoldMessenger.of(context).showSnackBar(
                     SnackBar(
                       content: Text("Error deleting contact: $e"),
-                      backgroundColor: Colors.red,
                     ),
                   );
                 }
@@ -184,7 +162,10 @@ class ContactsScreen extends StatelessWidget {
           ),
         ],
       ),
-    );
+    ).then((_) {
+      // Reload contacts after dialog is dismissed
+      context.read<ContactsCubit>().loadContacts();
+    });
   }
 
   Future<void> _shareContact(BuildContext context, ContactModel contact) async {
