@@ -4,6 +4,7 @@ import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:zippy/domain/model/auth/country_model.dart';
 import 'package:zippy/domain/repository/auth/auth_repository.dart';
 import 'package:zippy/domain/state/auth/auth_state.dart';
 import 'package:zippy/presentation/animation/fade_animation_mixin.dart';
@@ -14,9 +15,13 @@ import 'package:zippy/presentation/session/session_cubit.dart';
 class SmsVerificationScreen extends StatelessWidget with FadeInAnimationMixin {
   final String phoneNumber;
   final String countryCode;
+  final CountryModel? countryModel;
 
   const SmsVerificationScreen(
-      {Key? key, required this.phoneNumber, required this.countryCode})
+      {Key? key,
+      required this.phoneNumber,
+      required this.countryCode,
+      this.countryModel})
       : super(key: key);
 
   @override
@@ -119,8 +124,9 @@ class SmsVerificationScreen extends StatelessWidget with FadeInAnimationMixin {
 
   Future<AuthCubit> _createAuthCubit(BuildContext context) async {
     final authRepository = RepositoryProvider.of<AuthRepository>(context);
-    final cubit =
-        await AuthCubit.create(authRepository, phoneNumber, countryCode);
+    final cubit = await AuthCubit.create(
+        authRepository, phoneNumber, countryCode,
+        countryModel: countryModel);
     return cubit;
   }
 }

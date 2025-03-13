@@ -6,10 +6,10 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:mask_text_input_formatter/mask_text_input_formatter.dart';
+import 'package:zippy/presentation/screen/auth/helpers/phone_mask_helper.dart';
 import 'package:zippy/presentation/theme/theme_cubit.dart';
 import 'package:zippy/presentation/widget/custom_auth_text_field.dart';
 import 'package:zippy/presentation/widget/custom_rectangular_button.dart';
-import 'package:zippy/presentation/widget/custom_outlined_button.dart';
 import 'package:zippy/domain/model/auth/country_model.dart';
 import 'package:zippy/data/api/service/api_service.dart';
 
@@ -286,8 +286,10 @@ class _AuthScreenState extends State<AuthScreen> {
                             )) {
                           final formattedPhone =
                               _formatPhoneForApi(phoneNumber);
+                          PhoneMaskHelper.savePhoneMaskInfo(selectedCountry!);
                           context.go(
-                              '/sms/$formattedPhone/${selectedCountry?.code}');
+                              '/sms/$formattedPhone/${selectedCountry?.code}',
+                              extra: {'countryModel': selectedCountry});
                         } else {
                           ScaffoldMessenger.of(context).showSnackBar(
                             SnackBar(

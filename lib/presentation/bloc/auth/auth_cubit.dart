@@ -3,11 +3,14 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:zippy/domain/model/auth/auth_inititate_model.dart';
 import 'package:zippy/domain/model/auth/auth_verify_model.dart';
+import 'package:zippy/domain/model/auth/country_model.dart';
 import 'package:zippy/domain/repository/auth/auth_repository.dart';
 import 'package:zippy/domain/state/auth/auth_state.dart';
+import 'package:zippy/presentation/screen/auth/helpers/phone_mask_helper.dart';
 
 class AuthCubit extends Cubit<AuthState> {
   final AuthRepository _authRepository;
+  CountryModel? _currentCountryModel;
 
   AuthCubit(this._authRepository)
       : super(AuthStateLoaded(
@@ -21,7 +24,6 @@ class AuthCubit extends Cubit<AuthState> {
   Future<void> verifyCode(String code) async {
     if (state is AuthStateLoaded) {
       final currentState = state as AuthStateLoaded;
-
       try {
         final AuthVerify authVerify = await _authRepository.verifyAuth(
           code,
@@ -33,6 +35,15 @@ class AuthCubit extends Cubit<AuthState> {
           final SharedPreferences prefs = await SharedPreferences.getInstance();
           await prefs.setString('accessToken', authVerify.accessToken ?? '');
           await prefs.setString('refreshToken', authVerify.refreshToken ?? '');
+
+          // Save the phone mask information if we have it from initialization
+          if (currentState.authInitiateResponse != null) {
+            // Retrieve the country model that was used during initialization
+            // This would need to be passed or stored during the loadData method
+            if (_currentCountryModel != null) {
+              await PhoneMaskHelper.savePhoneMaskInfo(_currentCountryModel!);
+            }
+          }
 
           emit(currentState.copyWith(
             codeStatus: CodeStatus.correct,
@@ -56,14 +67,21 @@ class AuthCubit extends Cubit<AuthState> {
   }
 
   static Future<AuthCubit> create(
-      AuthRepository authRepository, String phone, String countryCode) async {
+      AuthRepository authRepository, String phone, String countryCode,
+      {CountryModel? countryModel}) async {
     final cubit = AuthCubit(authRepository);
-    await cubit.loadData(phone, countryCode);
+    await cubit.loadData(phone, countryCode, countryModel: countryModel);
     return cubit;
   }
 
-  Future<void> loadData(String phone, String countryCode) async {
+  Future<void> loadData(String phone, String countryCode,
+      {CountryModel? countryModel}) async {
     try {
+      // Store the country model if provided
+      if (countryModel != null) {
+        _currentCountryModel = countryModel;
+      }
+
       final AuthInitiate authInitiate =
           await _authRepository.initiateAuth(phone, countryCode);
       emit(AuthStateLoaded(

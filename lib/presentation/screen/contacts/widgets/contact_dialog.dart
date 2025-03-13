@@ -5,11 +5,12 @@ import 'package:zippy/domain/model/contacts/contact_model.dart';
 import 'package:zippy/domain/state/contacts/contacts_state.dart';
 import 'package:zippy/presentation/bloc/contacts/contacts_cubit.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:zippy/presentation/screen/auth/helpers/phone_mask_helper.dart';
 import 'package:zippy/presentation/widget/custom_rectangular_button.dart';
 
 class ContactDialog extends StatefulWidget {
   final ContactModel? contact;
-  const ContactDialog({this.contact});
+  const ContactDialog({this.contact, Key? key}) : super(key: key);
 
   @override
   ContactDialogState createState() => ContactDialogState();
@@ -23,16 +24,20 @@ class ContactDialogState extends State<ContactDialog> {
   String? _nameError;
   bool _isLoading = false;
   late MaskTextInputFormatter _phoneMaskFormatter;
+  bool _isPhoneMaskLoaded = false;
+  String? _phonePattern;
 
   @override
   void initState() {
     super.initState();
 
+    // Initialize with a default formatter that allows any input
     _phoneMaskFormatter = MaskTextInputFormatter(
-        mask: "+######################",
-        filter: {"#": RegExp(r'[0-9]')},
-        initialText: widget.contact?.name);
+      mask: "+################################",
+      filter: {"#": RegExp(r'[0-9]')},
+    );
 
+    // Set initial phone value
     if (widget.contact?.name != null) {
       final phoneNumber = widget.contact!.name;
       if (phoneNumber.startsWith('+')) {
@@ -43,7 +48,44 @@ class ContactDialogState extends State<ContactDialog> {
     } else {
       _phoneController = TextEditingController(text: "+");
     }
+
     _nameController = TextEditingController(text: widget.contact?.nickname);
+
+    // Load the saved phone mask
+    _loadPhoneMask();
+  }
+
+  Future<void> _loadPhoneMask() async {
+    try {
+      final formatter = await PhoneMaskHelper.getMaskFormatter();
+      final pattern = await PhoneMaskHelper.getPhonePattern();
+
+      if (mounted) {
+        setState(() {
+          _phoneMaskFormatter = formatter;
+          _phonePattern = pattern;
+          _isPhoneMaskLoaded = true;
+
+          // Reformat the phone number with the loaded mask if available
+          if (_phoneController.text.isNotEmpty) {
+            // Preserve the current text
+            final currentText = _phoneController.text;
+            // Clean it and apply formatting
+            final cleanPhone = currentText.replaceAll(RegExp(r'[^0-9+]'), '');
+            if (cleanPhone.startsWith('+')) {
+              // Apply the mask without changing the underlying value
+              _phoneController.value = TextEditingValue(
+                text: _phoneMaskFormatter.maskText(cleanPhone),
+                selection: TextSelection.collapsed(
+                    offset: _phoneMaskFormatter.maskText(cleanPhone).length),
+              );
+            }
+          }
+        });
+      }
+    } catch (e) {
+      print("Error loading phone mask: $e");
+    }
   }
 
   @override
@@ -57,16 +99,30 @@ class ContactDialogState extends State<ContactDialog> {
     if (value == null || value.isEmpty || value == "+") {
       return 'Phone number is required';
     }
-    final phoneRegex = RegExp(r'^\+[\d\s\-\(\)]{8,}$');
-    if (!phoneRegex.hasMatch(value)) {
-      return 'Please enter a valid phone number';
+
+    // Clean the phone number for validation
+    final cleanPhone = value.replaceAll(RegExp(r'[^0-9+]'), '');
+
+    // Use the saved phone pattern if available
+    if (_phonePattern != null) {
+      final phoneRegex = RegExp(_phonePattern!);
+      if (!phoneRegex.hasMatch(cleanPhone)) {
+        return 'Please enter a valid phone number';
+      }
+    } else {
+      // Fallback pattern
+      final phoneRegex = RegExp(r'^\+[\d]{8,}$');
+      if (!phoneRegex.hasMatch(cleanPhone)) {
+        return 'Please enter a valid phone number';
+      }
     }
+
     return null;
   }
 
   String? _validateName(String? value) {
     if (value == null || value.isEmpty) {
-      return 'Name is required ';
+      return 'Name is required';
     }
     if (value.length < 2) {
       return 'Name must be at least 2 characters';
@@ -76,14 +132,19 @@ class ContactDialogState extends State<ContactDialog> {
 
   void _validateAndSubmit() async {
     if (_isLoading) return;
+
     setState(() {
       _phoneError = null;
       _nameError = null;
       _isLoading = true;
     });
 
-    final phoneError = _validatePhone(_phoneController.text);
+    // Get the clean phone number for validation and submission
+    final cleanPhone = _phoneController.text.replaceAll(RegExp(r'[^0-9+]'), '');
+
+    final phoneError = _validatePhone(cleanPhone);
     final nameError = _validateName(_nameController.text);
+
     if (phoneError != null || nameError != null) {
       setState(() {
         _phoneError = phoneError;
@@ -97,24 +158,29 @@ class ContactDialogState extends State<ContactDialog> {
       final contactsCubit = context.read<ContactsCubit>();
       if (widget.contact == null) {
         await contactsCubit.addContact(
-          _phoneController.text,
+          cleanPhone,
           _nameController.text.isEmpty ? null : _nameController.text,
         );
       } else {
         await contactsCubit.updateContact(
-          _phoneController.text,
+          cleanPhone,
           _nameController.text.isEmpty ? null : _nameController.text,
         );
       }
 
       if (mounted) {
-        // Display the message from cubit if available
         if (contactsCubit.lastMessage != null) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(content: Text(contactsCubit.lastMessage!)),
           );
         }
         Navigator.of(context).pop();
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text("Error: $e")),
+        );
       }
     } finally {
       if (mounted) {
@@ -128,16 +194,15 @@ class ContactDialogState extends State<ContactDialog> {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
+
     return BlocListener<ContactsCubit, ContactsState>(
       listener: (context, state) {
         if (state is ContactsStateLoaded) {
-          // Check if there's a message to display
           final message = context.read<ContactsCubit>().lastMessage;
           if (message != null) {
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(content: Text(message)),
             );
-            // Reset the message after displaying
             context.read<ContactsCubit>().lastMessage = null;
           }
           Navigator.of(context).pop(true);
@@ -160,7 +225,9 @@ class ContactDialogState extends State<ContactDialog> {
                   labelText: l10n.contactsPhone,
                   errorText: _phoneError,
                   prefixIcon: const Icon(Icons.phone),
-                  hintText: "+ (123) 456 78 90",
+                  hintText: _isPhoneMaskLoaded
+                      ? _phoneMaskFormatter.getMask()
+                      : "+ (123) 456 78 90",
                 ),
                 keyboardType: TextInputType.phone,
               ),

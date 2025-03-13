@@ -6,6 +6,7 @@ import 'package:mask_text_input_formatter/mask_text_input_formatter.dart';
 import 'package:zippy/domain/state/transfer/transfer_state.dart';
 import 'package:zippy/presentation/bloc/transfer/transfer_cubit.dart';
 import 'package:zippy/presentation/theme/app_theme.dart';
+import 'package:zippy/presentation/screen/auth/helpers/phone_mask_helper.dart';
 
 class TransactionFormDisplay extends StatefulWidget {
   final TextEditingController emailController;
@@ -22,6 +23,7 @@ class TransactionFormDisplay extends StatefulWidget {
 
 class _TransactionFormDisplayState extends State<TransactionFormDisplay> {
   late MaskTextInputFormatter phoneMaskFormatter;
+  bool _isPhoneMaskLoaded = false;
 
   @override
   void initState() {
@@ -31,12 +33,24 @@ class _TransactionFormDisplayState extends State<TransactionFormDisplay> {
       mask: "+################################",
       filter: {"#": RegExp(r'[0-9]')},
     );
-
+    _loadPhoneMask();
     // Pre-fill with + if empty
     if (widget.emailController.text.isEmpty) {
       widget.emailController.text = "+";
     } else if (!widget.emailController.text.startsWith('+')) {
       widget.emailController.text = "+${widget.emailController.text}";
+    }
+  }
+
+  Future<void> _loadPhoneMask() async {
+    try {
+      final formatter = await PhoneMaskHelper.getMaskFormatter();
+      setState(() {
+        phoneMaskFormatter = formatter;
+        _isPhoneMaskLoaded = true;
+      });
+    } catch (e) {
+      print("Error loading phone mask: $e");
     }
   }
 
@@ -67,7 +81,9 @@ class _TransactionFormDisplayState extends State<TransactionFormDisplay> {
                       inputFormatters: [phoneMaskFormatter],
                       decoration: InputDecoration(
                         labelText: l10n.transferMobileNumberLabel,
-                        hintText: "+ (123) 456 78 90",
+                        hintText: _isPhoneMaskLoaded
+                            ? phoneMaskFormatter.getMask()
+                            : "+ (123) 456 78 90",
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(16.0),
                         ),
