@@ -12,7 +12,7 @@ class ContactsDataRepository extends ContactsRepository {
   }
 
   @override
-  Future<ContactModel> addContact(String phone, String? nickname) async {
+  Future<String?> addContact(String phone, String? nickname) async {
     return await _apiUtil.addContact(phone, nickname);
   }
 

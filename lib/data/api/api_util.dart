@@ -112,7 +112,7 @@ class ApiUtil {
     return _apiService.getContacts();
   }
 
-  Future<ContactModel> addContact(String phone, String? nickname) async {
+  Future<String?> addContact(String phone, String? nickname) async {
     return _apiService.addContact(phone, nickname);
   }
 

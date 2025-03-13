@@ -148,7 +148,7 @@ class ApiService {
         .toList();
   }
 
-  Future<ContactModel> addContact(String phone, String? nickname) async {
+  Future<String?> addContact(String phone, String? nickname) async {
     final response = await _dio.post(
       'https://contact-service-w42s8.ondigitalocean.app/api/v1/contacts',
       data: {
@@ -156,7 +156,7 @@ class ApiService {
         'nickname': nickname,
       },
     );
-    return ContactModel.fromJson(response.data);
+    return response.data['message'];
   }
 
   Future<ContactModel> updateContact(String phone, String? nickname) async {

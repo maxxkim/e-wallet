@@ -27,13 +27,12 @@ class ContactDialogState extends State<ContactDialog> {
   @override
   void initState() {
     super.initState();
-    // Initialize phone mask formatter with +
+
     _phoneMaskFormatter = MaskTextInputFormatter(
         mask: "+######################",
         filter: {"#": RegExp(r'[0-9]')},
         initialText: widget.contact?.name);
 
-    // If there's existing contact, try to apply the mask
     if (widget.contact?.name != null) {
       final phoneNumber = widget.contact!.name;
       if (phoneNumber.startsWith('+')) {
@@ -44,7 +43,6 @@ class ContactDialogState extends State<ContactDialog> {
     } else {
       _phoneController = TextEditingController(text: "+");
     }
-
     _nameController = TextEditingController(text: widget.contact?.nickname);
   }
 
@@ -83,6 +81,7 @@ class ContactDialogState extends State<ContactDialog> {
       _nameError = null;
       _isLoading = true;
     });
+
     final phoneError = _validatePhone(_phoneController.text);
     final nameError = _validateName(_nameController.text);
     if (phoneError != null || nameError != null) {
@@ -95,18 +94,26 @@ class ContactDialogState extends State<ContactDialog> {
     }
 
     try {
+      final contactsCubit = context.read<ContactsCubit>();
       if (widget.contact == null) {
-        await context.read<ContactsCubit>().addContact(
-              _phoneController.text,
-              _nameController.text.isEmpty ? null : _nameController.text,
-            );
+        await contactsCubit.addContact(
+          _phoneController.text,
+          _nameController.text.isEmpty ? null : _nameController.text,
+        );
       } else {
-        await context.read<ContactsCubit>().updateContact(
-              _phoneController.text,
-              _nameController.text.isEmpty ? null : _nameController.text,
-            );
+        await contactsCubit.updateContact(
+          _phoneController.text,
+          _nameController.text.isEmpty ? null : _nameController.text,
+        );
       }
+
       if (mounted) {
+        // Display the message from cubit if available
+        if (contactsCubit.lastMessage != null) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text(contactsCubit.lastMessage!)),
+          );
+        }
         Navigator.of(context).pop();
       }
     } finally {
@@ -124,6 +131,15 @@ class ContactDialogState extends State<ContactDialog> {
     return BlocListener<ContactsCubit, ContactsState>(
       listener: (context, state) {
         if (state is ContactsStateLoaded) {
+          // Check if there's a message to display
+          final message = context.read<ContactsCubit>().lastMessage;
+          if (message != null) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(content: Text(message)),
+            );
+            // Reset the message after displaying
+            context.read<ContactsCubit>().lastMessage = null;
+          }
           Navigator.of(context).pop(true);
         }
       },

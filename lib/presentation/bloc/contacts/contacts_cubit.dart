@@ -4,6 +4,8 @@ import 'package:zippy/domain/state/contacts/contacts_state.dart';
 
 class ContactsCubit extends Cubit<ContactsState> {
   final ContactsRepository _contactsRepository;
+  String? lastMessage;
+
   ContactsCubit(this._contactsRepository) : super(ContactsStateLoading()) {
     loadContacts();
   }
@@ -26,11 +28,17 @@ class ContactsCubit extends Cubit<ContactsState> {
   Future<void> addContact(String phone, String? nickname) async {
     try {
       emit(ContactsStateLoading());
-      await _contactsRepository.addContact(phone, nickname);
+      String? message = await _contactsRepository.addContact(phone, nickname);
+      if (message != null) {
+        lastMessage = message;
+      } else {
+        lastMessage = "Success!";
+      }
       await loadContacts();
     } catch (e) {
+      lastMessage = _handleError(e); // Store the error message
       emit(ContactsStateError(
-        errorMessage: _handleError(e),
+        errorMessage: lastMessage!,
       ));
       await loadContacts();
     }
@@ -40,10 +48,13 @@ class ContactsCubit extends Cubit<ContactsState> {
     try {
       emit(ContactsStateLoading());
       await _contactsRepository.updateContact(phone, nickname);
+      lastMessage =
+          "Contact updated successfully! UwU"; // Success message for update
       await loadContacts();
     } catch (e) {
+      lastMessage = _handleError(e);
       emit(ContactsStateError(
-        errorMessage: _handleError(e),
+        errorMessage: lastMessage!,
       ));
       await loadContacts();
     }
@@ -53,10 +64,13 @@ class ContactsCubit extends Cubit<ContactsState> {
     try {
       emit(ContactsStateLoading());
       await _contactsRepository.deleteContact(phone);
+      lastMessage =
+          "Contact deleted successfully! OwO"; // Success message for delete
       await loadContacts();
     } catch (e) {
+      lastMessage = _handleError(e);
       emit(ContactsStateError(
-        errorMessage: _handleError(e),
+        errorMessage: lastMessage!,
       ));
       await loadContacts();
     }

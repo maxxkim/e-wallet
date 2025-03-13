@@ -35,6 +35,16 @@ class ContactsScreen extends StatelessWidget {
                   ScaffoldMessenger.of(context).showSnackBar(
                     SnackBar(content: Text(state.errorMessage)),
                   );
+                } else if (state is ContactsStateLoaded) {
+                  // Display any message stored in cubit
+                  final message = context.read<ContactsCubit>().lastMessage;
+                  if (message != null) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(content: Text(message)),
+                    );
+                    // Reset the message after displaying
+                    context.read<ContactsCubit>().lastMessage = null;
+                  }
                 }
               },
               builder: (context, state) {
@@ -143,11 +153,7 @@ class ContactsScreen extends StatelessWidget {
               Navigator.pop(context);
               try {
                 await context.read<ContactsCubit>().deleteContact(contact.name);
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(
-                    content: Text("Contact deleted successfully! UwU"),
-                  ),
-                );
+                // Snackbar will be displayed via BlocListener
               } catch (e) {
                 if (context.mounted) {
                   ScaffoldMessenger.of(context).showSnackBar(
@@ -163,7 +169,6 @@ class ContactsScreen extends StatelessWidget {
         ],
       ),
     ).then((_) {
-      // Reload contacts after dialog is dismissed
       context.read<ContactsCubit>().loadContacts();
     });
   }
