@@ -17,12 +17,98 @@ import 'package:zippy/data/api/responcses/activation_responses.dart';
 import 'package:zippy/domain/model/auth/country_model.dart';
 import 'package:zippy/domain/model/contacts/contact_model.dart';
 import 'package:zippy/domain/model/offer/activation_model.dart';
+import 'package:zippy/internal/services/secure_storage_service.dart';
 
 class ApiService {
   final Dio _dio = Dio();
+  final SecureStorageService _secureStorage = SecureStorageService();
 
   ApiService() {
-    _addTokenInterceptor();
+    _configureInterceptors();
+  }
+
+  void _configureInterceptors() {
+    _dio.interceptors.clear();
+
+    // Add request interceptor
+    _dio.interceptors.add(
+      InterceptorsWrapper(
+        onRequest: (options, handler) async {
+          // Add API key to all requests
+          options.headers['x-api-key'] = 'TV99UCUiCfmayqRqPVXnTxPpmuqKxrT3';
+
+          // Add authorization header if token exists
+          String? accessToken = await _secureStorage.getAccessToken();
+          if (accessToken != null) {
+            options.headers['Authorization'] = 'Bearer $accessToken';
+          }
+
+          return handler.next(options);
+        },
+        onError: (DioException error, ErrorInterceptorHandler handler) async {
+          // Handle 401 Unauthorized errors
+          if (error.response?.statusCode == 401) {
+            // Try to refresh the token
+            try {
+              String? refreshToken = await _secureStorage.getRefreshToken();
+              if (refreshToken != null) {
+                final response = await _dio.post(
+                  'https://api.zentro.io/v1/auth/refresh',
+                  data: {
+                    'refreshToken': refreshToken,
+                  },
+                );
+
+                final ApiAuthRefresh refreshResponse =
+                    ApiAuthRefresh.fromApi(response.data);
+
+                if (refreshResponse.accessToken != null) {
+                  await _secureStorage
+                      .saveAccessToken(refreshResponse.accessToken!);
+                  if (refreshResponse.refreshToken != null) {
+                    await _secureStorage
+                        .saveRefreshToken(refreshResponse.refreshToken!);
+                  }
+
+                  // Retry the original request with new token
+                  final opts = Options(
+                    method: error.requestOptions.method,
+                    headers: {
+                      ...error.requestOptions.headers,
+                      'Authorization': 'Bearer ${refreshResponse.accessToken}',
+                    },
+                  );
+
+                  final response = await _dio.request(
+                    error.requestOptions.path,
+                    options: opts,
+                    data: error.requestOptions.data,
+                    queryParameters: error.requestOptions.queryParameters,
+                  );
+
+                  return handler.resolve(response);
+                }
+              }
+            } catch (e) {
+              // If token refresh fails, clear tokens and let the error continue
+              await _secureStorage.clearAllTokens();
+            }
+          }
+
+          return handler.next(error);
+        },
+      ),
+    );
+
+    // Add logging interceptor in debug mode
+    assert(() {
+      _dio.interceptors.add(LogInterceptor(
+        requestBody: true,
+        responseBody: true,
+        logPrint: (obj) => print('API Log: $obj'),
+      ));
+      return true;
+    }());
   }
 
   Future<ApiBalance> getBalance() async {

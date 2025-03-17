@@ -3,14 +3,15 @@ import 'package:dio/dio.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:zippy/domain/model/transaction/transaction_model.dart';
 import 'package:zippy/domain/repository/dashboard/dashboard_repository.dart';
 import 'package:zippy/domain/state/dashboard/dashboard_state.dart';
+import 'package:zippy/internal/services/secure_storage_service.dart';
 import 'package:zippy/presentation/events/transaction_events.dart';
 
 class DashboardCubit extends Cubit<DashboardState> {
   final DashboardRepository _dashboardRepository;
+  final SecureStorageService _secureStorage = SecureStorageService();
   late StreamSubscription<TransactionEvent> _eventSubscription;
   bool _isRefreshing = false;
 
@@ -23,7 +24,7 @@ class DashboardCubit extends Cubit<DashboardState> {
           filteredTransactions: [],
           selectedTab: NavigationTab.home,
         )) {
-    // Listen to transaction events
+    // Listen to transaction events to refresh data when needed
     _eventSubscription =
         TransactionEventBus().events.listen(_handleTransactionEvent);
   }
@@ -58,29 +59,26 @@ class DashboardCubit extends Cubit<DashboardState> {
     // Prevent multiple simultaneous refreshes
     if (_isRefreshing) return;
     _isRefreshing = true;
-
     try {
       if (state is DashboardStateLoggedOut) return;
 
-      final SharedPreferences prefs = await SharedPreferences.getInstance();
-      final String accessToken = prefs.getString('accessToken') ?? '';
-
-      if (accessToken.isEmpty) {
+      // Use SecureStorage instead of SharedPreferences
+      final String? accessToken = await _secureStorage.getAccessToken();
+      if (accessToken == null || accessToken.isEmpty) {
         emit(DashboardStateLoggedOut());
         _isRefreshing = false;
         return;
       }
 
-      // Store current state before loading
+      // Store previous state if available
       DashboardStateLoaded? previousState;
       if (state is DashboardStateLoaded) {
         previousState = state as DashboardStateLoaded;
       }
 
-      // Load new data
+      // Fetch new data
       final balance = await _dashboardRepository.getBalance();
       final transactions = await _dashboardRepository.getTransactions();
-
       if (state is DashboardStateLoaded) {
         final currentState = state as DashboardStateLoaded;
         final filteredTransactions = _applyFilters(
@@ -89,7 +87,6 @@ class DashboardCubit extends Cubit<DashboardState> {
           currentState.chosenMonth,
           currentState.searchQuery,
         );
-
         emit(DashboardStateLoaded(
           filterType: currentState.filterType,
           chosenMonth: currentState.chosenMonth,
@@ -101,14 +98,13 @@ class DashboardCubit extends Cubit<DashboardState> {
           selectedTab: currentState.selectedTab,
         ));
       } else if (previousState != null) {
-        // Restore previous state with new data
+        // Restore previous filters if state was lost
         final filteredTransactions = _applyFilters(
           transactions,
           previousState.filterType,
           previousState.chosenMonth,
           previousState.searchQuery,
         );
-
         emit(DashboardStateLoaded(
           filterType: previousState.filterType,
           chosenMonth: previousState.chosenMonth,
@@ -120,14 +116,13 @@ class DashboardCubit extends Cubit<DashboardState> {
           selectedTab: previousState.selectedTab,
         ));
       } else {
-        // Initial state or after error
+        // Default state for first load
         final filteredTransactions = _applyFilters(
           transactions,
           FilterType.period,
           DateFormat('MMMM').format(DateTime.now()),
           '',
         );
-
         emit(DashboardStateLoaded(
           filterType: FilterType.period,
           chosenMonth: DateFormat('MMMM').format(DateTime.now()),
@@ -171,13 +166,11 @@ class DashboardCubit extends Cubit<DashboardState> {
     String searchQuery,
   ) {
     if (transactions == null) return null;
-
     List<Transaction> filtered = [...transactions];
 
     // Apply month filter
     final monthNumber = DateFormat('MMMM').parse(month).month;
 
-    // Apply type filter
     if (filterType == FilterType.deposit) {
       filtered = filtered.where((t) => t.type == 'payin').toList();
     } else if (filterType == FilterType.withdrawal) {
@@ -186,7 +179,7 @@ class DashboardCubit extends Cubit<DashboardState> {
       filtered = filtered.where((t) => t.date.month == monthNumber).toList();
     }
 
-    // Apply search query
+    // Apply search filter
     if (searchQuery.isNotEmpty) {
       final lowercaseQuery = searchQuery.toLowerCase();
       filtered = filtered.where((t) {
@@ -196,9 +189,8 @@ class DashboardCubit extends Cubit<DashboardState> {
       }).toList();
     }
 
-    // Sort by date
+    // Sort by date (newest first)
     filtered.sort((a, b) => b.date.compareTo(a.date));
-
     return filtered;
   }
 
@@ -247,9 +239,8 @@ class DashboardCubit extends Cubit<DashboardState> {
 
   Future<void> logout(GoRouter router) async {
     try {
-      final SharedPreferences prefs = await SharedPreferences.getInstance();
-      await prefs.remove('accessToken');
-      await prefs.remove('refreshToken');
+      // Use SecureStorage instead of SharedPreferences
+      await _secureStorage.clearAllTokens();
       emit(DashboardStateLoggedOut());
     } catch (e) {
       emit(DashboardStateError(

@@ -6,10 +6,12 @@ import 'package:zippy/domain/model/auth/auth_verify_model.dart';
 import 'package:zippy/domain/model/auth/country_model.dart';
 import 'package:zippy/domain/repository/auth/auth_repository.dart';
 import 'package:zippy/domain/state/auth/auth_state.dart';
+import 'package:zippy/internal/services/secure_storage_service.dart';
 import 'package:zippy/presentation/screen/auth/helpers/phone_mask_helper.dart';
 
 class AuthCubit extends Cubit<AuthState> {
   final AuthRepository _authRepository;
+  final SecureStorageService _secureStorage = SecureStorageService();
   CountryModel? _currentCountryModel;
 
   AuthCubit(this._authRepository)
@@ -30,19 +32,22 @@ class AuthCubit extends Cubit<AuthState> {
           currentState.phone,
           currentState.userId,
         );
-
         if (authVerify.isVerified) {
-          final SharedPreferences prefs = await SharedPreferences.getInstance();
-          await prefs.setString('accessToken', authVerify.accessToken ?? '');
-          await prefs.setString('refreshToken', authVerify.refreshToken ?? '');
+          // Use SecureStorageService instead of SharedPreferences
+          if (authVerify.accessToken != null) {
+            await _secureStorage.saveAccessToken(authVerify.accessToken!);
+          }
+          if (authVerify.refreshToken != null) {
+            await _secureStorage.saveRefreshToken(authVerify.refreshToken!);
+          }
 
-          // Save the phone mask information if we have it from initialization
-          if (currentState.authInitiateResponse != null) {
-            // Retrieve the country model that was used during initialization
-            // This would need to be passed or stored during the loadData method
-            if (_currentCountryModel != null) {
-              await PhoneMaskHelper.savePhoneMaskInfo(_currentCountryModel!);
-            }
+          // Save last login time
+          await _secureStorage.saveLastLoginTime();
+
+          // Save phone mask info if available
+          if (currentState.authInitiateResponse != null &&
+              _currentCountryModel != null) {
+            await PhoneMaskHelper.savePhoneMaskInfo(_currentCountryModel!);
           }
 
           emit(currentState.copyWith(

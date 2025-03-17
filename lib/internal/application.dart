@@ -10,6 +10,8 @@ import 'package:zippy/data/repository/search/global_search_data_repository.dart'
 import 'package:zippy/domain/repository/activation/activation_repository.dart';
 import 'package:zippy/domain/repository/offer/offer_repository.dart';
 import 'package:zippy/domain/repository/search/global_search_repository.dart';
+import 'package:zippy/internal/services/biometric_auth_service.dart';
+import 'package:zippy/internal/services/secure_storage_service.dart';
 import 'package:zippy/l10n/l10n.dart';
 import 'package:zippy/data/repository/auth/auth_data_repository.dart';
 import 'package:zippy/data/repository/dashboard/dashboard_data_repository.dart';
@@ -24,6 +26,7 @@ import 'package:zippy/domain/repository/transfer/transfer_repository.dart';
 import 'package:zippy/domain/repository/withdrawal/withdrawal_repository.dart';
 import 'package:zippy/domain/repository/contacts/contacts_repository.dart';
 import 'package:zippy/presentation/app_router.dart';
+import 'package:zippy/presentation/bloc/auth/app_lock_screen.dart';
 import 'package:zippy/presentation/bloc/locale/locale_cubit.dart';
 import 'package:zippy/presentation/bloc/navigation/navigation_cubit.dart';
 import 'package:zippy/presentation/bloc/contacts/contacts_cubit.dart';
@@ -51,11 +54,29 @@ class ZippyApp extends StatefulWidget {
 
 class _ZippyAppState extends State<ZippyApp> with WidgetsBindingObserver {
   final TransactionEventBus _eventBus = TransactionEventBus();
+  final BiometricAuthService _biometricAuth = BiometricAuthService();
+  final SecureStorageService _secureStorage = SecureStorageService();
+
+  bool _isLocked = false;
+  DateTime? _pausedTime;
+  static const int _lockTimeoutSeconds =
+      60; // Lock after 1 minute in background
 
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
+    _checkBiometricSettings();
+  }
+
+  Future<void> _checkBiometricSettings() async {
+    // Initialize biometric settings if not already set
+    if (await _secureStorage.read(key: 'biometrics_enabled') == null) {
+      final canUseBiometrics = await _biometricAuth.isBiometricAvailable();
+      await _secureStorage.write(
+          key: 'biometrics_enabled',
+          value: canUseBiometrics ? 'true' : 'false');
+    }
   }
 
   @override
@@ -67,23 +88,61 @@ class _ZippyAppState extends State<ZippyApp> with WidgetsBindingObserver {
 
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
-    if (state == AppLifecycleState.resumed) {
-      try {
-        final context = appNavigatorKey.currentContext;
-        if (context != null) {
-          final currentLocation = GoRouterState.of(context).matchedLocation;
-          if (currentLocation.startsWith('/dashboard')) {
-            context.read<DashboardCubit>().loadData();
+    if (state == AppLifecycleState.paused) {
+      // App went to background
+      _pausedTime = DateTime.now();
+    } else if (state == AppLifecycleState.resumed) {
+      // App came back to foreground
+      _handleAppResume();
+    }
+  }
+
+  Future<void> _handleAppResume() async {
+    try {
+      // Check if we need to show the lock screen
+      final context = appNavigatorKey.currentContext;
+      if (context != null) {
+        // Check if app was in background long enough to lock
+        if (_pausedTime != null) {
+          final now = DateTime.now();
+          final backgroundDuration = now.difference(_pausedTime!).inSeconds;
+
+          if (backgroundDuration >= _lockTimeoutSeconds) {
+            final biometricsEnabled =
+                await _biometricAuth.isBiometricsEnabled();
+            if (biometricsEnabled) {
+              setState(() {
+                _isLocked = true;
+              });
+              return;
+            }
           }
         }
-      } catch (_) {
-        // Silently handle any error
+
+        // Refresh dashboard data
+        final currentLocation = GoRouterState.of(context).matchedLocation;
+        if (currentLocation.startsWith('/dashboard')) {
+          context.read<DashboardCubit>().loadData();
+        }
       }
+    } catch (_) {
+      // Handle exceptions silently
     }
+  }
+
+  void _onAuthenticated() {
+    setState(() {
+      _isLocked = false;
+    });
   }
 
   @override
   Widget build(BuildContext context) {
+    // If app is locked, show lock screen
+    if (_isLocked) {
+      return AppLockScreen(onAuthenticated: _onAuthenticated);
+    }
+
     return KeyboardDismisser(
       gestures: const [
         GestureType.onTap,
@@ -190,7 +249,6 @@ class _ZippyAppState extends State<ZippyApp> with WidgetsBindingObserver {
                 builder: (context, theme) {
                   return BlocBuilder<LocaleCubit, Locale>(
                     builder: (context, locale) {
-                      // Here's our fix! Just use appRouter directly
                       return MaterialApp.router(
                         routerConfig: appRouter,
                         title: 'Zentro Wallet',
@@ -244,12 +302,12 @@ class DashboardRefreshObserver extends NavigatorObserver {
           try {
             context.read<DashboardCubit>().loadData();
           } catch (_) {
-            // Silently handle any error
+            // Handle exceptions silently
           }
         });
       }
     } catch (_) {
-      // Silently handle any error
+      // Handle exceptions silently
     }
   }
 }

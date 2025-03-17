@@ -1,15 +1,15 @@
 import 'dart:async';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:zippy/domain/repository/auth/auth_repository.dart';
+import 'package:zippy/internal/services/secure_storage_service.dart';
 import 'package:zippy/presentation/session/session_state.dart';
 
 class SessionCubit extends Cubit<SessionState> {
   final AuthRepository _authRepository;
+  final SecureStorageService _secureStorage = SecureStorageService();
   Timer? _timer;
 
   SessionCubit(this._authRepository) : super(InitialLoading()) {
-    // Don't immediately call checkAuthentication to let tests control the flow
     _initTimer();
   }
 
@@ -20,13 +20,12 @@ class SessionCubit extends Cubit<SessionState> {
   }
 
   Future<void> checkAuthentication() async {
-    if (isClosed) return; // Prevent emission after closing
+    if (isClosed) return;
 
-    emit(InitialLoading()); // Always emit initial loading first
+    emit(InitialLoading());
 
     try {
-      SharedPreferences prefs = await SharedPreferences.getInstance();
-      final String? accessToken = prefs.getString('accessToken');
+      final String? accessToken = await _secureStorage.getAccessToken();
 
       if (accessToken == null || accessToken.isEmpty) {
         if (!isClosed) emit(Unauthenticated());
@@ -39,14 +38,13 @@ class SessionCubit extends Cubit<SessionState> {
           if (isValid) {
             emit(Authenticated(accessToken));
           } else {
-            await prefs.remove('accessToken');
-            emit(Unauthenticated());
+            // Try to refresh token
+            await _tryRefreshToken();
           }
         }
       } catch (e) {
         if (!isClosed) {
-          await prefs.remove('accessToken');
-          emit(Unauthenticated());
+          await _tryRefreshToken();
         }
       }
     } catch (e) {
@@ -54,13 +52,37 @@ class SessionCubit extends Cubit<SessionState> {
     }
   }
 
+  Future<void> _tryRefreshToken() async {
+    try {
+      emit(RefreshingTokens());
+      final refreshToken = await _secureStorage.getRefreshToken();
+
+      if (refreshToken == null || refreshToken.isEmpty) {
+        await _secureStorage.clearAllTokens();
+        emit(Unauthenticated());
+        return;
+      }
+
+      final authRefresh = await _authRepository.refreshAuth(refreshToken);
+
+      if (authRefresh.accessToken != null && authRefresh.refreshToken != null) {
+        await _secureStorage.saveAccessToken(authRefresh.accessToken!);
+        await _secureStorage.saveRefreshToken(authRefresh.refreshToken!);
+        emit(Authenticated(authRefresh.accessToken!));
+      } else {
+        await _secureStorage.clearAllTokens();
+        emit(Unauthenticated());
+      }
+    } catch (e) {
+      await _secureStorage.clearAllTokens();
+      emit(Unauthenticated());
+    }
+  }
+
   Future<void> logout() async {
     if (isClosed) return;
-
     try {
-      SharedPreferences prefs = await SharedPreferences.getInstance();
-      await prefs.remove('accessToken');
-      await prefs.remove('refreshToken');
+      await _secureStorage.clearAllTokens();
       if (!isClosed) emit(Unauthenticated());
     } catch (e) {
       if (!isClosed) emit(Unauthenticated());

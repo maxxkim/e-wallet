@@ -1,32 +1,29 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter/material.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:zippy/internal/services/secure_storage_service.dart';
 
 class LocaleCubit extends Cubit<Locale> {
+  final SecureStorageService _secureStorage = SecureStorageService();
+
   LocaleCubit() : super(const Locale('en')) {
     _loadSavedLocale();
   }
 
-  static const String _localeKey = 'selected_locale';
   static const List<String> _supportedLocales = ['en', 'es'];
 
   Future<void> _loadSavedLocale() async {
-    final prefs = await SharedPreferences.getInstance();
-    final savedLocale = prefs.getString(_localeKey);
+    final savedLocale = await _secureStorage.getLocale();
 
-    // Check if saved locale is supported
     if (savedLocale != null && _supportedLocales.contains(savedLocale)) {
       emit(Locale(savedLocale));
     } else {
-      // Default to 'en' for invalid locales
-      await prefs.setString(_localeKey, 'en');
+      await _secureStorage.saveLocale('en');
       emit(const Locale('en'));
     }
   }
 
   Future<void> changeLocale(Locale newLocale) async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setString(_localeKey, newLocale.languageCode);
+    await _secureStorage.saveLocale(newLocale.languageCode);
     emit(newLocale);
   }
 }
