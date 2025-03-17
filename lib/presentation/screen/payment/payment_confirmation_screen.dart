@@ -382,57 +382,57 @@ class _PaymentDetailsCard extends StatelessWidget {
   Widget _buildProductItem(
       BuildContext context, Product product, String currency) {
     final productPrice = product.price * product.quantity;
-    final discountAmount = product.discount > 0
-        ? (product.price * product.discount / 100) * product.quantity
-        : 0.0;
+    final discountAmount =
+        product.discount > 0 ? product.discount * product.quantity : 0.0;
 
     return Padding(
       padding: const EdgeInsets.only(bottom: 12),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            product.name,
-            style: Theme.of(context).textTheme.titleMedium,
-          ),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      child: Container(
+        decoration: BoxDecoration(
+          color: Theme.of(context).scaffoldBackgroundColor,
+          borderRadius: BorderRadius.circular(16),
+        ),
+        child: Padding(
+          padding: const EdgeInsets.all(12.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                product.inOffer ? 'discount:' : '',
-                style: TextStyle(
-                  color: Colors.red,
-                  fontSize: 12,
-                ),
-              ),
-              Text(
-                '$currency ${product.price.toStringAsFixed(2)} × ${product.quantity}',
-                style: Theme.of(context).textTheme.bodyMedium,
-              ),
-              Text(
-                '$currency ${productPrice.toStringAsFixed(2)}',
+                product.name,
                 style: Theme.of(context).textTheme.titleMedium,
               ),
-            ],
-          ),
-          if (product.discount > 0)
-            Padding(
-              padding: const EdgeInsets.only(top: 4),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.end,
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Text(
-                    '- $currency ${discountAmount.toStringAsFixed(2)}',
-                    style: TextStyle(
-                      color: Colors.red,
-                      fontSize: 12,
-                    ),
+                    '$currency ${product.price.toStringAsFixed(2)} × ${product.quantity}',
+                    style: Theme.of(context).textTheme.bodyMedium,
+                  ),
+                  Text(
+                    '$currency ${productPrice.toStringAsFixed(2)}',
+                    style: Theme.of(context).textTheme.titleMedium,
                   ),
                 ],
               ),
-            ),
-          const Divider(),
-        ],
+              if (product.discount > 0)
+                Padding(
+                  padding: const EdgeInsets.only(top: 4),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: [
+                      Text(
+                        '- $currency ${discountAmount.toStringAsFixed(2)}',
+                        style: TextStyle(
+                          color: Colors.red,
+                          fontSize: 12,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+            ],
+          ),
+        ),
       ),
     );
   }
