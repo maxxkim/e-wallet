@@ -238,5 +238,57 @@
     "historyNoSearchResults": "No hay transacciones que coincidan con tu búsqueda UwU",
     "historyLoadingMore": "Cargando más transacciones...",
     "historyScrollToTop": "Desplazarse hacia arriba",
-    "transferProcessing": "Procesando..."
+    "transferProcessing": "Procesando...",
+    "settingsTitle": "Configuración",
+    "settingsAppSection": "APLICACIÓN",
+    "settingsSecuritySection": "SEGURIDAD",
+    "settingsAccountSection": "CUENTA",
+    
+    "settingsTheme": "Tema",
+    "settingsThemeLight": "Claro",
+    "settingsThemeDark": "Oscuro",
+    
+    "settingsLanguage": "Idioma",
+    "settingsLanguageEnglish": "Inglés",
+    "settingsLanguageSpanish": "Español",
+    
+    "settingsBiometrics": "Autenticación Biométrica",
+    "settingsBiometricsEnabled": "Activada",
+    "settingsBiometricsDisabled": "Desactivada",
+    "settingsBiometricsNotAvailable": "Biometría No Disponible",
+    "settingsBiometricsNotAvailableDescription": "Tu dispositivo no soporta autenticación biométrica, o no la has configurado aún.",
+    
+    "settingsEnableBiometrics": "Activar Autenticación Biométrica",
+    "settingsEnableBiometricsDescription": "Usar huella dactilar, reconocimiento facial u otros métodos biométricos para desbloquear la aplicación.",
+    
+    "settingsRequireOnAppStart": "Requerir al Iniciar",
+    "settingsRequireOnAppStartDescription": "Requerir autenticación biométrica al abrir la aplicación.",
+    
+    "settingsRequireForTransactions": "Requerir para Transacciones",
+    "settingsRequireForTransactionsDescription": "Requerir autenticación biométrica al realizar pagos o transferencias.",
+    
+    "settingsLockTimeout": "Tiempo de Bloqueo",
+    "settingsLockTimeoutDescription": "Cuánto tiempo después de cerrar la aplicación debe permanecer desbloqueada sin requerir autenticación.",
+    "settingsLockTimeoutShorter": "Más corto",
+    "settingsLockTimeoutLonger": "Más largo",
+    
+    "settingsSeconds": "segundos",
+    "settingsMinutes": "minutos",
+    
+    "settingsBiometricTest": "Probar Autenticación Biométrica",
+    "settingsBiometricTestSuccess": "¡Autenticación exitosa!",
+    "settingsBiometricTestFailed": "Autenticación fallida.",
+    
+    "settingsAvailableBiometrics": "Métodos Biométricos Disponibles",
+    "settingsBiometricFingerprint": "Huella Dactilar",
+    "settingsBiometricFace": "Reconocimiento Facial",
+    "settingsBiometricIris": "Escaneo de Iris",
+    "settingsBiometricStrong": "Biometría Fuerte",
+    "settingsBiometricWeak": "Biometría Débil",
+    "settingsBiometricOther": "Otra Biometría",
+    
+    "settingsLogout": "Cerrar Sesión",
+    "settingsLogoutConfirmTitle": "Confirmar Cierre de Sesión",
+    "settingsLogoutConfirmMessage": "¿Estás seguro de que quieres cerrar sesión en tu cuenta?",
+    "cancel": "Cancelar"
 }

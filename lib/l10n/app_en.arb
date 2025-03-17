@@ -238,5 +238,58 @@
     "historyNoSearchResults": "No transactions match your search UwU",
     "historyLoadingMore": "Loading more transactions...",
     "historyScrollToTop": "Scroll to top",
-    "transferProcessing": "Processing..."
+    "transferProcessing": "Processing...",
+      "settingsTitle": "Settings",
+  "settingsAppSection": "APPLICATION",
+  "settingsSecuritySection": "SECURITY",
+  "settingsAccountSection": "ACCOUNT",
+  
+  "settingsTheme": "Theme",
+  "settingsThemeLight": "Light",
+  "settingsThemeDark": "Dark",
+  
+  "settingsLanguage": "Language",
+  "settingsLanguageEnglish": "English",
+  "settingsLanguageSpanish": "Spanish",
+  
+  "settingsBiometrics": "Biometric Authentication",
+  "settingsBiometricsEnabled": "Enabled",
+  "settingsBiometricsDisabled": "Disabled",
+  "settingsBiometricsNotAvailable": "Biometrics Not Available",
+  "settingsBiometricsNotAvailableDescription": "Your device doesn't support biometric authentication, or you haven't set it up yet.",
+  
+  "settingsEnableBiometrics": "Enable Biometric Authentication",
+  "settingsEnableBiometricsDescription": "Use fingerprint, face recognition or other biometric methods to unlock the app.",
+  
+  "settingsRequireOnAppStart": "Require on App Start",
+  "settingsRequireOnAppStartDescription": "Require biometric authentication when opening the app.",
+  
+  "settingsRequireForTransactions": "Require for Transactions",
+  "settingsRequireForTransactionsDescription": "Require biometric authentication when making payments or transfers.",
+  
+  "settingsLockTimeout": "Lock Timeout",
+  "settingsLockTimeoutDescription": "How long after closing the app should it remain unlocked without requiring authentication.",
+  "settingsLockTimeoutShorter": "Shorter",
+  "settingsLockTimeoutLonger": "Longer",
+  
+  "settingsSeconds": "seconds",
+  "settingsMinutes": "minutes",
+  
+  "settingsBiometricTest": "Test Biometric Authentication",
+  "settingsBiometricTestSuccess": "Authentication successful!",
+  "settingsBiometricTestFailed": "Authentication failed.",
+  
+  "settingsAvailableBiometrics": "Available Biometric Methods",
+  "settingsBiometricFingerprint": "Fingerprint",
+  "settingsBiometricFace": "Face Recognition",
+  "settingsBiometricIris": "Iris Scan",
+  "settingsBiometricStrong": "Strong Biometrics",
+  "settingsBiometricWeak": "Weak Biometrics",
+  "settingsBiometricOther": "Other Biometrics",
+  
+  "settingsLogout": "Logout",
+  "settingsLogoutConfirmTitle": "Confirm Logout",
+  "settingsLogoutConfirmMessage": "Are you sure you want to logout from your account?",
+  
+  "cancel": "Cancel"
 }

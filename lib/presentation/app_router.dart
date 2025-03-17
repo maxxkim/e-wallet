@@ -1,3 +1,4 @@
+// lib/presentation/app_router.dart
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
@@ -13,6 +14,8 @@ import 'package:zippy/presentation/screen/history/history_screen.dart';
 import 'package:zippy/presentation/screen/offer/offer_screen.dart';
 import 'package:zippy/presentation/screen/offer/widgets/merchant_filter_dialog.dart';
 import 'package:zippy/presentation/screen/payment/payment_info_screen.dart';
+import 'package:zippy/presentation/screen/settings/biometrics/biometrics_settings_screen.dart';
+import 'package:zippy/presentation/screen/settings/settings_screen.dart';
 import 'package:zippy/presentation/screen/topUp/top_up_screen.dart';
 import 'package:zippy/presentation/screen/transfer/transfer_screen.dart';
 import 'package:zippy/presentation/screen/withdrawal/withdrawal_screen.dart';
@@ -183,13 +186,11 @@ final GoRouter appRouter = GoRouter(
                     RepositoryProvider.of<OfferRepository>(context),
                   );
 
-                  // Apply merchant filter if data was provided as extra
                   if (state.extra is MerchantData) {
                     final merchantData = state.extra as MerchantData;
-                    // This will be called during initialization
+
                     cubit.selectMerchants([merchantData]);
                   }
-
                   return cubit;
                 },
                 lazy: false,
@@ -198,23 +199,37 @@ final GoRouter appRouter = GoRouter(
             );
           },
         ),
+        // Add settings routes
+        GoRoute(
+          path: 'settings',
+          builder: (BuildContext context, GoRouterState state) {
+            return _authGuard(context, const SettingsScreen());
+          },
+          routes: [
+            GoRoute(
+              path: 'biometrics',
+              builder: (BuildContext context, GoRouterState state) {
+                return _authGuard(context, const BiometricSettingsScreen());
+              },
+            ),
+          ],
+        ),
       ],
     ),
   ],
   redirect: (BuildContext context, GoRouterState state) {
-    // Check if this is a navigation to the dashboard
     if (state.matchedLocation == '/dashboard' && state.extra != 'skipRefresh') {
       try {
-        // Refresh the dashboard data
         final dashboardCubit = context.read<DashboardCubit>();
+
         if (dashboardCubit.state is! DashboardStateLoaded) {
           dashboardCubit.loadData();
         }
       } catch (_) {
-        // Handle error silently
+        // Silently handle errors
       }
     }
-    // Return null to continue with the navigation
+
     return null;
   },
   errorBuilder: (BuildContext context, GoRouterState state) {
@@ -231,22 +246,22 @@ String _handleError(dynamic error) {
     }
     switch (error.type) {
       case DioExceptionType.connectionTimeout:
-        return 'Connection timeout occurred UwU. Please check your internet!';
+        return 'Connection timeout occurred. Please check your internet!';
       case DioExceptionType.sendTimeout:
-        return 'Send timeout exceeded >w<. Try again!';
+        return 'Send timeout exceeded. Try again!';
       case DioExceptionType.receiveTimeout:
-        return 'Receive timeout exceeded. Nyaa~ please try again!';
+        return 'Receive timeout exceeded. Please try again!';
       case DioExceptionType.badResponse:
-        return 'Server error: ${error.response?.statusCode}. Gomenasai!';
+        return 'Server error: ${error.response?.statusCode}.';
       case DioExceptionType.cancel:
-        return 'Request was cancelled. Nya~';
+        return 'Request was cancelled.';
       case DioExceptionType.unknown:
         if (error.error is String) {
           return error.error as String;
         }
-        return 'An unexpected error occurred UwU. Please try again!';
+        return 'An unexpected error occurred. Please try again!';
       default:
-        return 'An error occurred >_<. Please try again!';
+        return 'An error occurred. Please try again!';
     }
   }
   return error.toString();

@@ -1,3 +1,4 @@
+// lib/internal/application.dart
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:keyboard_dismisser/keyboard_dismisser.dart';
@@ -26,7 +27,8 @@ import 'package:zippy/domain/repository/transfer/transfer_repository.dart';
 import 'package:zippy/domain/repository/withdrawal/withdrawal_repository.dart';
 import 'package:zippy/domain/repository/contacts/contacts_repository.dart';
 import 'package:zippy/presentation/app_router.dart';
-import 'package:zippy/presentation/bloc/auth/app_lock_screen.dart';
+import 'package:zippy/presentation/bloc/biometrics/biometrics_cubit.dart';
+import 'package:zippy/presentation/screen/auth/app_lock_screen.dart';
 import 'package:zippy/presentation/bloc/locale/locale_cubit.dart';
 import 'package:zippy/presentation/bloc/navigation/navigation_cubit.dart';
 import 'package:zippy/presentation/bloc/contacts/contacts_cubit.dart';
@@ -59,8 +61,6 @@ class _ZippyAppState extends State<ZippyApp> with WidgetsBindingObserver {
 
   bool _isLocked = false;
   DateTime? _pausedTime;
-  static const int _lockTimeoutSeconds =
-      60; // Lock after 1 minute in background
 
   @override
   void initState() {
@@ -70,13 +70,8 @@ class _ZippyAppState extends State<ZippyApp> with WidgetsBindingObserver {
   }
 
   Future<void> _checkBiometricSettings() async {
-    // Initialize biometric settings if not already set
-    if (await _secureStorage.read(key: 'biometrics_enabled') == null) {
-      final canUseBiometrics = await _biometricAuth.isBiometricAvailable();
-      await _secureStorage.write(
-          key: 'biometrics_enabled',
-          value: canUseBiometrics ? 'true' : 'false');
-    }
+    // Initialize biometric settings if they don't exist yet
+    await _biometricAuth.getBiometricSettings();
   }
 
   @override
@@ -89,25 +84,23 @@ class _ZippyAppState extends State<ZippyApp> with WidgetsBindingObserver {
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
     if (state == AppLifecycleState.paused) {
-      // App went to background
+      // Record time when app went to background
       _pausedTime = DateTime.now();
     } else if (state == AppLifecycleState.resumed) {
-      // App came back to foreground
+      // Handle app resume (check if we need to lock)
       _handleAppResume();
     }
   }
 
   Future<void> _handleAppResume() async {
     try {
-      // Check if we need to show the lock screen
+      // Get current context and settings
       final context = appNavigatorKey.currentContext;
       if (context != null) {
-        // Check if app was in background long enough to lock
+        // Check if we need to lock based on time elapsed
         if (_pausedTime != null) {
-          final now = DateTime.now();
-          final backgroundDuration = now.difference(_pausedTime!).inSeconds;
-
-          if (backgroundDuration >= _lockTimeoutSeconds) {
+          final shouldLock = await _biometricAuth.shouldLockApp(_pausedTime!);
+          if (shouldLock) {
             final biometricsEnabled =
                 await _biometricAuth.isBiometricsEnabled();
             if (biometricsEnabled) {
@@ -119,14 +112,14 @@ class _ZippyAppState extends State<ZippyApp> with WidgetsBindingObserver {
           }
         }
 
-        // Refresh dashboard data
+        // If we didn't lock, refresh dashboard data if we're on that screen
         final currentLocation = GoRouterState.of(context).matchedLocation;
         if (currentLocation.startsWith('/dashboard')) {
           context.read<DashboardCubit>().loadData();
         }
       }
     } catch (_) {
-      // Handle exceptions silently
+      // Handle errors silently
     }
   }
 
@@ -138,7 +131,7 @@ class _ZippyAppState extends State<ZippyApp> with WidgetsBindingObserver {
 
   @override
   Widget build(BuildContext context) {
-    // If app is locked, show lock screen
+    // Show lock screen if the app is locked
     if (_isLocked) {
       return AppLockScreen(onAuthenticated: _onAuthenticated);
     }
@@ -241,6 +234,12 @@ class _ZippyAppState extends State<ZippyApp> with WidgetsBindingObserver {
               ),
               lazy: false,
             ),
+            // Add BiometricSettingsCubit
+            BlocProvider(
+              create: (context) => BiometricSettingsCubit(
+                _biometricAuth,
+              ),
+            ),
           ],
           child: Builder(
             builder: (context) {
@@ -302,12 +301,12 @@ class DashboardRefreshObserver extends NavigatorObserver {
           try {
             context.read<DashboardCubit>().loadData();
           } catch (_) {
-            // Handle exceptions silently
+            // Handle errors silently
           }
         });
       }
     } catch (_) {
-      // Handle exceptions silently
+      // Handle errors silently
     }
   }
 }

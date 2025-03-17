@@ -1,6 +1,6 @@
 import 'package:equatable/equatable.dart';
 
-enum NavigationTab { history, transfer, home, offers, support }
+enum NavigationTab { history, transfer, home, offers, settings }
 
 class NavigationState extends Equatable {
   final NavigationTab selectedTab;

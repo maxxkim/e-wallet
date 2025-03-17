@@ -7,13 +7,13 @@ class NavigationCubit extends Cubit<NavigationState> {
   NavigationCubit() : super(const NavigationState());
 
   void setTab(NavigationTab tab, GoRouter router) {
-    // Check if we're navigating to the home tab
+    // Check if we're already on home tab and going to home tab again
     final wasOnHomeTab = state.selectedTab == NavigationTab.home;
     final goingToHomeTab = tab == NavigationTab.home;
 
     emit(state.copyWith(selectedTab: tab));
 
-    // If navigating to home tab, refresh dashboard if we weren't already there
+    // Only refresh data if we're navigating back to home from another tab
     if (goingToHomeTab && !wasOnHomeTab) {
       try {
         final context = router.routerDelegate.navigatorKey.currentContext;
@@ -21,7 +21,7 @@ class NavigationCubit extends Cubit<NavigationState> {
           context.read<DashboardCubit>().loadData();
         }
       } catch (_) {
-        // Handle silently
+        // Ignore errors during data loading
       }
     }
 
@@ -42,8 +42,8 @@ class NavigationCubit extends Cubit<NavigationState> {
       case NavigationTab.offers:
         router.go('/dashboard/offers');
         break;
-      case NavigationTab.support:
-        // Handle support tab
+      case NavigationTab.settings:
+        router.go('/dashboard/settings');
         break;
     }
   }
