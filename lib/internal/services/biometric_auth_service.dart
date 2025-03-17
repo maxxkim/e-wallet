@@ -40,22 +40,30 @@ class BiometricAuthService {
     String localizedReason = 'Authenticate to access your wallet',
   }) async {
     try {
+      // Check if biometrics are available first
+      final canAuthenticateWithBiometrics = await _localAuth.canCheckBiometrics;
+      final canAuthenticate =
+          canAuthenticateWithBiometrics || await _localAuth.isDeviceSupported();
+
+      if (!canAuthenticate) {
+        print("Biometrics not available on this device (◡﹏◡✿)");
+        return false;
+      }
+
+      // Use stickyAuth to handle app going to background during authentication
       return await _localAuth.authenticate(
         localizedReason: localizedReason,
         options: const AuthenticationOptions(
           stickyAuth: true,
           biometricOnly: true,
+          useErrorDialogs: true, // Show system dialogs for errors
         ),
       );
     } on PlatformException catch (e) {
-      if (e.code == auth_error.notAvailable ||
-          e.code == auth_error.notEnrolled ||
-          e.code == auth_error.passcodeNotSet) {
-        // Handle specific errors if needed
-        return false;
-      }
+      print("Biometric authentication error: $e UwU");
       return false;
-    } catch (_) {
+    } catch (e) {
+      print("Unexpected error during biometric auth: $e >.<");
       return false;
     }
   }
@@ -101,11 +109,30 @@ class BiometricAuthService {
 
   // For backward compatibility
   Future<void> enableBiometrics() async {
-    await updateBiometricSetting(enabled: true);
+    // First check if biometrics are available and prompt authentication
+    final canAuthenticate = await isBiometricAvailable();
+    if (!canAuthenticate) {
+      return;
+    }
+
+    // Try to authenticate before enabling
+    final authenticated = await authenticateWithBiometrics();
+    if (authenticated) {
+      await updateBiometricSetting(enabled: true);
+    }
   }
 
   Future<void> disableBiometrics() async {
-    await updateBiometricSetting(enabled: false);
+    // For disabling, we should also authenticate first
+    final isEnabled = await isBiometricsEnabled();
+    if (isEnabled) {
+      final authenticated = await authenticateWithBiometrics();
+      if (authenticated) {
+        await updateBiometricSetting(enabled: false);
+      }
+    } else {
+      await updateBiometricSetting(enabled: false);
+    }
   }
 
   Future<bool> isBiometricsEnabled() async {

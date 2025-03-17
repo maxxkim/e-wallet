@@ -38,8 +38,24 @@ class BiometricSettingsCubit extends Cubit<BiometricSettingsState> {
   // Enable/disable biometrics
   Future<void> toggleBiometrics(bool enabled) async {
     try {
-      await _biometricAuthService.updateBiometricSetting(enabled: enabled);
-      await loadSettings();
+      bool success;
+      if (enabled) {
+        // When enabling, we should authenticate first
+        success = await _biometricAuthService.authenticateWithBiometrics(
+            localizedReason: 'Authenticate to enable biometric login');
+        if (success) {
+          await _biometricAuthService.updateBiometricSetting(enabled: true);
+          await loadSettings();
+        }
+      } else {
+        // When disabling, we should also authenticate
+        success = await _biometricAuthService.authenticateWithBiometrics(
+            localizedReason: 'Authenticate to disable biometric login');
+        if (success) {
+          await _biometricAuthService.updateBiometricSetting(enabled: false);
+          await loadSettings();
+        }
+      }
     } catch (e) {
       emit(BiometricSettingsError('Failed to update biometric settings: $e'));
     }

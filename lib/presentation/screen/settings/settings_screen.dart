@@ -100,31 +100,34 @@ class SettingsScreen extends StatelessWidget {
           // Biometric authentication settings
           BlocBuilder<BiometricSettingsCubit, BiometricSettingsState>(
             builder: (context, state) {
-              bool biometricsEnabled = false;
+              bool biometricsAvailable = false;
               if (state is BiometricSettingsLoaded) {
-                biometricsEnabled = state.settings.enabled;
+                biometricsAvailable = state.isBiometricsAvailable;
               }
 
-              return ListTile(
-                leading: Icon(
-                  Icons.fingerprint,
-                  color: Theme.of(context).colorScheme.primary,
-                ),
-                title: Text(l10n.settingsBiometrics),
-                subtitle: Text(
-                  biometricsEnabled
-                      ? l10n.settingsBiometricsEnabled
-                      : l10n.settingsBiometricsDisabled,
-                ),
-                trailing: Icon(
-                  Icons.arrow_forward_ios,
-                  size: 16,
-                  color: Theme.of(context).colorScheme.secondary,
-                ),
-                onTap: () {
-                  context.go('/dashboard/settings/biometrics');
-                },
-              );
+              return biometricsAvailable
+                  ? ListTile(
+                      leading: Icon(
+                        Icons.fingerprint,
+                        color: Theme.of(context).colorScheme.primary,
+                      ),
+                      title: Text(l10n.settingsBiometrics),
+                      subtitle: Text(
+                        state is BiometricSettingsLoaded &&
+                                state.settings.enabled
+                            ? l10n.settingsBiometricsEnabled
+                            : l10n.settingsBiometricsDisabled,
+                      ),
+                      trailing: Icon(
+                        Icons.arrow_forward_ios,
+                        size: 16,
+                        color: Theme.of(context).colorScheme.secondary,
+                      ),
+                      onTap: () {
+                        context.go('/dashboard/settings/biometrics');
+                      },
+                    )
+                  : const SizedBox.shrink();
             },
           ),
 

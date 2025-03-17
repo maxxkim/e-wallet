@@ -129,7 +129,6 @@ class BiometricSettingsScreen extends StatelessWidget {
                       color: Theme.of(context).colorScheme.primary,
                     ),
                   ),
-                  const Divider(),
                   // Enable for app start
                   SwitchListTile(
                     title: Text(l10n.settingsRequireOnAppStart),
@@ -147,7 +146,6 @@ class BiometricSettingsScreen extends StatelessWidget {
                       color: Theme.of(context).colorScheme.primary,
                     ),
                   ),
-                  const Divider(),
                   // Enable for transactions
                   SwitchListTile(
                     title: Text(l10n.settingsRequireForTransactions),
@@ -225,12 +223,8 @@ class BiometricSettingsScreen extends StatelessWidget {
     final biometricTypes = state.availableBiometricTypes;
     if (biometricTypes.isEmpty) return const SizedBox.shrink();
 
-    return Card(
-      elevation: 0,
+    return Container(
       color: Theme.of(context).colorScheme.tertiaryContainer,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(16),
-      ),
       child: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
@@ -276,8 +270,7 @@ class BiometricSettingsScreen extends StatelessWidget {
                 return Chip(
                   avatar: Icon(icon, size: 18),
                   label: Text(label),
-                  backgroundColor:
-                      Theme.of(context).colorScheme.secondaryContainer,
+                  backgroundColor: Theme.of(context).scaffoldBackgroundColor,
                 );
               }).toList(),
             ),
