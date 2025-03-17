@@ -23,7 +23,7 @@ class SettingsScreen extends StatelessWidget {
 
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: Theme.of(context).colorScheme.primary,
+        backgroundColor: Theme.of(context).scaffoldBackgroundColor,
         title: Text(
           l10n.settingsTitle,
           style: Theme.of(context).textTheme.displaySmall,

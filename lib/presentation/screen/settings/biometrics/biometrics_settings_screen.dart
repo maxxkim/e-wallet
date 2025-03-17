@@ -18,21 +18,6 @@ class BiometricSettingsScreen extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: Text(l10n.settingsBiometrics),
-        actions: [
-          BlocBuilder<BiometricSettingsCubit, BiometricSettingsState>(
-            builder: (context, state) {
-              if (state is BiometricSettingsLoaded) {
-                return IconButton(
-                  icon: const Icon(Icons.refresh),
-                  onPressed: () =>
-                      context.read<BiometricSettingsCubit>().loadSettings(),
-                  tooltip: l10n.refresh,
-                );
-              }
-              return const SizedBox.shrink();
-            },
-          ),
-        ],
       ),
       body: BlocBuilder<BiometricSettingsCubit, BiometricSettingsState>(
         builder: (context, state) {
@@ -223,58 +208,64 @@ class BiometricSettingsScreen extends StatelessWidget {
     final biometricTypes = state.availableBiometricTypes;
     if (biometricTypes.isEmpty) return const SizedBox.shrink();
 
-    return Container(
+    return Card(
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(16),
+      ),
+      elevation: 0,
       color: Theme.of(context).colorScheme.tertiaryContainer,
       child: Padding(
         padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              l10n.settingsAvailableBiometrics,
-              style: Theme.of(context).textTheme.titleMedium,
-            ),
-            const SizedBox(height: 12),
-            Wrap(
-              spacing: 8,
-              runSpacing: 8,
-              children: biometricTypes.map((type) {
-                IconData icon;
-                String label;
-                switch (type) {
-                  case BiometricType.face:
-                    icon = Icons.face;
-                    label = l10n.settingsBiometricFace;
-                    break;
-                  case BiometricType.fingerprint:
-                    icon = Icons.fingerprint;
-                    label = l10n.settingsBiometricFingerprint;
-                    break;
-                  case BiometricType.iris:
-                    icon = Icons.remove_red_eye;
-                    label = l10n.settingsBiometricIris;
-                    break;
-                  case BiometricType.strong:
-                    icon = Icons.security;
-                    label = l10n.settingsBiometricStrong;
-                    break;
-                  case BiometricType.weak:
-                    icon = Icons.lock_open;
-                    label = l10n.settingsBiometricWeak;
-                    break;
-                  default:
-                    icon = Icons.security;
-                    label = l10n.settingsBiometricOther;
-                }
+        child: Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                l10n.settingsAvailableBiometrics,
+                style: Theme.of(context).textTheme.titleMedium,
+              ),
+              const SizedBox(height: 12),
+              Wrap(
+                spacing: 8,
+                runSpacing: 8,
+                children: biometricTypes.map((type) {
+                  IconData icon;
+                  String label;
+                  switch (type) {
+                    case BiometricType.face:
+                      icon = Icons.face;
+                      label = l10n.settingsBiometricFace;
+                      break;
+                    case BiometricType.fingerprint:
+                      icon = Icons.fingerprint;
+                      label = l10n.settingsBiometricFingerprint;
+                      break;
+                    case BiometricType.iris:
+                      icon = Icons.remove_red_eye;
+                      label = l10n.settingsBiometricIris;
+                      break;
+                    case BiometricType.strong:
+                      icon = Icons.security;
+                      label = l10n.settingsBiometricStrong;
+                      break;
+                    case BiometricType.weak:
+                      icon = Icons.lock_open;
+                      label = l10n.settingsBiometricWeak;
+                      break;
+                    default:
+                      icon = Icons.security;
+                      label = l10n.settingsBiometricOther;
+                  }
 
-                return Chip(
-                  avatar: Icon(icon, size: 18),
-                  label: Text(label),
-                  backgroundColor: Theme.of(context).scaffoldBackgroundColor,
-                );
-              }).toList(),
-            ),
-          ],
+                  return Chip(
+                    avatar: Icon(icon, size: 18),
+                    label: Text(label),
+                    backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+                  );
+                }).toList(),
+              ),
+            ],
+          ),
         ),
       ),
     );
