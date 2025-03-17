@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:zippy/domain/model/qr/product_model.dart'; // Import the new model
 import 'package:zippy/domain/model/qr/qr_payment_model.dart';
 import 'package:zippy/domain/state/qr/qr_payment_state.dart';
 import 'package:zippy/presentation/animation/fade_animation_mixin.dart';
@@ -28,7 +29,6 @@ class QrPaymentConfirmation extends StatelessWidget with FadeInAnimationMixin {
     return BlocListener<QrPaymentCubit, QrPaymentState>(
       listener: (context, state) async {
         if (state is QrPaymentSuccess) {
-          // Navigate to the PaymentInfoScreen with the transaction
           context.go(
             '/dashboard/transaction-details',
             extra: state.transaction,
@@ -48,17 +48,41 @@ class QrPaymentConfirmation extends StatelessWidget with FadeInAnimationMixin {
           final amountError =
               state is QrPaymentScanSuccess ? state.amountError : null;
 
-          // Calculate discount if applicable
+          // Calculate discount and final amounts
           final originalAmount = double.tryParse(amountController.text) ?? 0.0;
           double discountAmount = 0.0;
           double finalAmount = originalAmount;
 
-          if (paymentDetails.offer != null &&
-              paymentDetails.activation != null) {
-            discountAmount = paymentDetails.calculateDiscount(originalAmount);
-            finalAmount = originalAmount - discountAmount;
-            if (finalAmount < 0) finalAmount = 0;
+          // Get discount from QR code directly if available
+          if (paymentDetails.qrCode.discount != null &&
+              paymentDetails.qrCode.discount! > 0) {
+            discountAmount = paymentDetails.qrCode.discount!;
           }
+          // Otherwise calculate from offer/activation if available
+          else if (paymentDetails.offer != null &&
+              paymentDetails.activation != null) {
+            final discountValue =
+                double.tryParse(paymentDetails.offer!.discount) ?? 0;
+            final bonusValue =
+                double.tryParse(paymentDetails.offer!.bonus) ?? 0;
+
+            if (discountValue > 0) {
+              if (paymentDetails.offer!.discountType == 'PERCENTAGE') {
+                discountAmount = originalAmount * (discountValue / 100);
+              } else {
+                discountAmount = discountValue;
+              }
+            } else if (bonusValue > 0) {
+              if (paymentDetails.offer!.bonusType == 'PERCENTAGE') {
+                discountAmount = originalAmount * (bonusValue / 100);
+              } else {
+                discountAmount = bonusValue;
+              }
+            }
+          }
+
+          finalAmount = originalAmount - discountAmount;
+          if (finalAmount < 0) finalAmount = 0;
 
           return PopScope(
             canPop: !isProcessing,
@@ -93,6 +117,7 @@ class QrPaymentConfirmation extends StatelessWidget with FadeInAnimationMixin {
                             amountController: amountController,
                             errorText: amountError,
                             enabled: !isProcessing,
+                            merchantName: paymentDetails.merchant.name,
                           ),
                           const SizedBox(height: 32),
                           _ActionButtons(
@@ -106,6 +131,7 @@ class QrPaymentConfirmation extends StatelessWidget with FadeInAnimationMixin {
                             onCancel: onCancel,
                             isProcessing: isProcessing,
                             finalAmount: finalAmount,
+                            currency: paymentDetails.qrCode.currency,
                           ),
                         ]),
                       ),
@@ -199,6 +225,8 @@ class _PaymentDetailsCard extends StatelessWidget {
   final TextEditingController amountController;
   final String? errorText;
   final bool enabled;
+  final String merchantName;
+
   const _PaymentDetailsCard({
     required this.qrCode,
     this.offer,
@@ -206,17 +234,27 @@ class _PaymentDetailsCard extends StatelessWidget {
     required this.amountController,
     this.errorText,
     required this.enabled,
+    required this.merchantName,
   });
 
   @override
   Widget build(BuildContext context) {
-    // Calculate discount if applicable
+    // Original amount (before discount)
     final originalAmount = double.tryParse(amountController.text) ?? 0.0;
+
+    // Calculate discount amount and final amount based on various factors
     double discountAmount = 0.0;
     double finalAmount = originalAmount;
-    if (offer != null && activation != null) {
+
+    // Check if there's a discount directly in the QR code
+    if (qrCode.discount != null && qrCode.discount! > 0) {
+      discountAmount = qrCode.discount!;
+      finalAmount = originalAmount - discountAmount;
+    } else if (offer != null && activation != null) {
+      // If no direct discount, calculate from offer
       final discountValue = double.tryParse(offer!.discount) ?? 0;
       final bonusValue = double.tryParse(offer!.bonus) ?? 0;
+
       if (discountValue > 0) {
         if (offer!.discountType == 'PERCENTAGE') {
           discountAmount = originalAmount * (discountValue / 100);
@@ -230,9 +268,11 @@ class _PaymentDetailsCard extends StatelessWidget {
           discountAmount = bonusValue;
         }
       }
+
       finalAmount = originalAmount - discountAmount;
-      if (finalAmount < 0) finalAmount = 0;
     }
+
+    if (finalAmount < 0) finalAmount = 0;
 
     return Container(
       padding: const EdgeInsets.all(16),
@@ -243,21 +283,30 @@ class _PaymentDetailsCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          CustomTextField(
-            controller: amountController,
-            labelText: 'Amount',
-            enabled: enabled && qrCode.type != 'FIXED',
-            keyboardType: const TextInputType.numberWithOptions(decimal: true),
-            icon: Padding(
-              padding: const EdgeInsets.all(12.0),
-              child: Text(
-                qrCode.currency,
-                style: Theme.of(context).textTheme.titleMedium,
+          // Amount input field - only show if it's not a product list
+          if (qrCode.products == null || qrCode.products!.isEmpty)
+            CustomTextField(
+              controller: amountController,
+              labelText: 'Amount',
+              enabled: enabled && qrCode.type != 'FIXED',
+              keyboardType:
+                  const TextInputType.numberWithOptions(decimal: true),
+              icon: Padding(
+                padding: const EdgeInsets.all(12.0),
+                child: Text(
+                  qrCode.currency,
+                  style: Theme.of(context).textTheme.titleMedium,
+                ),
               ),
+              errorText: errorText,
             ),
-            errorText: errorText,
-          ),
-          if (offer != null && activation != null && discountAmount > 0) ...[
+
+          // Product list - show if available
+          if (qrCode.products != null && qrCode.products!.isNotEmpty)
+            _buildProductList(context, qrCode.products!, qrCode.currency),
+
+          // Discount info
+          if (discountAmount > 0) ...[
             const SizedBox(height: 16),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -295,12 +344,13 @@ class _PaymentDetailsCard extends StatelessWidget {
             ),
             const SizedBox(height: 8),
             Text(
-              'Discount provided by ${offer!.merchantName}',
+              'Discount provided by ${offer?.merchantName ?? merchantName}',
               style: Theme.of(context).textTheme.bodySmall?.copyWith(
                     fontStyle: FontStyle.italic,
                   ),
             ),
           ],
+
           const SizedBox(height: 16),
           _DetailRow(
             label: 'Payment Type',
@@ -311,6 +361,77 @@ class _PaymentDetailsCard extends StatelessWidget {
             label: 'Transaction ID',
             value: qrCode.hash.substring(0, 8),
           ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildProductList(
+      BuildContext context, List<Product> products, String currency) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const SizedBox(height: 8),
+        ...products
+            .map((product) => _buildProductItem(context, product, currency))
+            .toList(),
+      ],
+    );
+  }
+
+  Widget _buildProductItem(
+      BuildContext context, Product product, String currency) {
+    final productPrice = product.price * product.quantity;
+    final discountAmount = product.discount > 0
+        ? (product.price * product.discount / 100) * product.quantity
+        : 0.0;
+
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 12),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            product.name,
+            style: Theme.of(context).textTheme.titleMedium,
+          ),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                product.inOffer ? 'discount:' : '',
+                style: TextStyle(
+                  color: Colors.red,
+                  fontSize: 12,
+                ),
+              ),
+              Text(
+                '$currency ${product.price.toStringAsFixed(2)} × ${product.quantity}',
+                style: Theme.of(context).textTheme.bodyMedium,
+              ),
+              Text(
+                '$currency ${productPrice.toStringAsFixed(2)}',
+                style: Theme.of(context).textTheme.titleMedium,
+              ),
+            ],
+          ),
+          if (product.discount > 0)
+            Padding(
+              padding: const EdgeInsets.only(top: 4),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
+                  Text(
+                    '- $currency ${discountAmount.toStringAsFixed(2)}',
+                    style: TextStyle(
+                      color: Colors.red,
+                      fontSize: 12,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          const Divider(),
         ],
       ),
     );
@@ -348,11 +469,14 @@ class _ActionButtons extends StatelessWidget {
   final VoidCallback onCancel;
   final bool isProcessing;
   final double finalAmount;
+  final String currency;
+
   const _ActionButtons({
     required this.onConfirm,
     required this.onCancel,
     required this.isProcessing,
     required this.finalAmount,
+    required this.currency,
   });
 
   @override
@@ -362,7 +486,7 @@ class _ActionButtons extends StatelessWidget {
         RectangularButton(
           label: isProcessing
               ? "Processing..."
-              : "Confirm Payment of ${finalAmount.toStringAsFixed(2)}",
+              : "Confirm Payment of $currency ${finalAmount.toStringAsFixed(2)}",
           onPressed: isProcessing ? null : onConfirm,
         ),
         const SizedBox(height: 16),

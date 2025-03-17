@@ -53,37 +53,63 @@ class QrPaymentCubit extends Cubit<QrPaymentState> {
     if (state is QrPaymentScanSuccess) {
       final currentState = state as QrPaymentScanSuccess;
       if (currentState.isProcessing) return;
+
       try {
         emit(currentState.copyWith(isProcessing: true, amountError: null));
 
-        // Calculate payment amount based on QR code type
+        // Use fixed amount if type is FIXED, otherwise use the entered amount
         double paymentAmount = response.qrCode.type == 'FIXED'
             ? response.qrCode.amount
             : double.parse(amount);
 
-        Map<String, dynamic> additionalData = {};
+        // Prepare the request data
+        Map<String, dynamic> requestData = {
+          'qr_code_hash': response.qrCode.hash,
+          'amount': paymentAmount,
+        };
 
+        // Add discount if available from QR code
+        if (response.qrCode.discount != null && response.qrCode.discount! > 0) {
+          requestData['discount'] = response.qrCode.discount;
+        }
+
+        // Add activation_id if offer and activation are available
         if (response.offer != null && response.activation != null) {
-          final discountValue = double.tryParse(response.offer!.discount) ?? 0;
-          final bonusValue = double.tryParse(response.offer!.bonus) ?? 0;
+          requestData['activation_id'] = response.activation!.id.toString();
 
-          additionalData['activation_id'] = response.activation!.id.toString();
-          if (discountValue > 0) {
-            additionalData['discount'] = discountValue;
-          } else if (bonusValue > 0) {
-            additionalData['bonus'] = bonusValue;
+          // Add discount from offer if not already added from QR code
+          if (response.qrCode.discount == null ||
+              response.qrCode.discount == 0) {
+            final discountValue =
+                double.tryParse(response.offer!.discount) ?? 0;
+            final bonusValue = double.tryParse(response.offer!.bonus) ?? 0;
+
+            if (discountValue > 0) {
+              if (response.offer!.discountType == 'PERCENTAGE') {
+                double calculatedDiscount =
+                    paymentAmount * (discountValue / 100);
+                requestData['discount'] = calculatedDiscount;
+              } else {
+                requestData['discount'] = discountValue;
+              }
+            } else if (bonusValue > 0) {
+              if (response.offer!.bonusType == 'PERCENTAGE') {
+                double calculatedBonus = paymentAmount * (bonusValue / 100);
+                requestData['bonus'] = calculatedBonus;
+              } else {
+                requestData['bonus'] = bonusValue;
+              }
+            }
           }
-
-          additionalData['merchant_name'] = response.offer!.merchantName;
         }
 
         final paymentResponse = await _repository.processPayment(
           response.qrCode.hash,
           paymentAmount,
-          additionalData: additionalData,
+          additionalData: requestData,
         );
 
-        // Create a transaction object for the payment info screen
+        // Create transaction object
         final transaction = Transaction(
           id: response.qrCode.hash,
           title: "Payment to ${response.merchant.name}",

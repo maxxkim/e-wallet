@@ -1,5 +1,7 @@
 // In lib/domain/model/qr/qr_payment_model.dart
 
+import 'package:zippy/domain/model/qr/product_model.dart';
+
 class QrMerchant {
   final String name;
   final String url;
@@ -21,6 +23,8 @@ class QrCode {
   final String hash;
   final String currency;
   final double amount;
+  final double? discount;
+  final List<Product>? products;
   final String? outPaymentId;
   final String type;
   final String status;
@@ -32,6 +36,8 @@ class QrCode {
     required this.hash,
     required this.currency,
     required this.amount,
+    this.discount,
+    this.products,
     this.outPaymentId,
     required this.type,
     required this.status,
@@ -41,10 +47,21 @@ class QrCode {
   });
 
   factory QrCode.fromJson(Map<String, dynamic> json) {
+    List<Product>? productsList;
+    if (json['products'] != null) {
+      productsList = (json['products'] as List)
+          .map((product) => Product.fromJson(product as Map<String, dynamic>))
+          .toList();
+    }
+
     return QrCode(
       hash: json['hash'] as String,
       currency: json['currency'] as String,
       amount: (json['amount'] as num).toDouble(),
+      discount: json['discount'] != null
+          ? (json['discount'] as num).toDouble()
+          : null,
+      products: productsList,
       outPaymentId: json['out_payment_id'] as String?,
       type: json['type'] as String,
       status: json['status'] as String,
