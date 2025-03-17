@@ -7,7 +7,7 @@ class BiometricSettings {
 
   const BiometricSettings({
     this.enabled = false,
-    this.lockTimeoutSeconds = 60,
+    this.lockTimeoutSeconds = 15,
     this.requireOnAppStart = true,
     this.requireForTransactions = true,
   });

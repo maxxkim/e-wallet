@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:local_auth/local_auth.dart';
-import 'package:go_router/go_router.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:zippy/domain/state/biometrics/biometrics_settings_state.dart';
 import 'package:zippy/presentation/bloc/biometrics/biometrics_cubit.dart';
@@ -157,7 +156,7 @@ class BiometricSettingsScreen extends StatelessWidget {
             if (settings.enabled) _buildTimeoutSlider(context, state, l10n),
             const SizedBox(height: 24),
             // Test biometrics button
-            if (settings.enabled) _buildTestButton(context, l10n),
+            //if (settings.enabled) _buildTestButton(context, l10n),
           ],
         ),
       ),
@@ -252,9 +251,6 @@ class BiometricSettingsScreen extends StatelessWidget {
                       icon = Icons.lock_open;
                       label = l10n.settingsBiometricWeak;
                       break;
-                    default:
-                      icon = Icons.security;
-                      label = l10n.settingsBiometricOther;
                   }
 
                   return Chip(
@@ -365,7 +361,7 @@ class BiometricSettingsScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildTestButton(BuildContext context, AppLocalizations l10n) {
+  /*Widget _buildTestButton(BuildContext context, AppLocalizations l10n) {
     return Center(
       child: ElevatedButton.icon(
         onPressed: () async {
@@ -391,5 +387,5 @@ class BiometricSettingsScreen extends StatelessWidget {
         ),
       ),
     );
-  }
+  }*/
 }

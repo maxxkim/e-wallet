@@ -1,7 +1,5 @@
-import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:local_auth/local_auth.dart';
 import 'package:zippy/domain/model/settings/biometric_setting_model.dart';
-import 'package:zippy/internal/services/biometric_auth_service.dart';
 
 abstract class BiometricSettingsState {}
 
