@@ -4,7 +4,6 @@ import 'package:zippy/internal/services/biometric_auth_service.dart';
 
 class BiometricSettingsCubit extends Cubit<BiometricSettingsState> {
   final BiometricAuthService _biometricAuthService;
-
   BiometricSettingsCubit(this._biometricAuthService)
       : super(BiometricSettingsLoading()) {
     loadSettings();
@@ -14,17 +13,13 @@ class BiometricSettingsCubit extends Cubit<BiometricSettingsState> {
     try {
       emit(BiometricSettingsLoading());
 
-      // Get if biometrics are available on this device
       final isBiometricsAvailable =
           await _biometricAuthService.isBiometricAvailable();
 
-      // Get available biometric types (fingerprint, face, etc)
       final biometricTypes =
           await _biometricAuthService.getAvailableBiometrics();
 
-      // Get current settings from storage
       final settings = await _biometricAuthService.getBiometricSettings();
-
       emit(BiometricSettingsLoaded(
         settings: settings,
         isBiometricsAvailable: isBiometricsAvailable,
@@ -35,12 +30,11 @@ class BiometricSettingsCubit extends Cubit<BiometricSettingsState> {
     }
   }
 
-  // Enable/disable biometrics
+  // Biometrics Methods
   Future<void> toggleBiometrics(bool enabled) async {
     try {
       bool success;
       if (enabled) {
-        // When enabling, we should authenticate first
         success = await _biometricAuthService.authenticateWithBiometrics(
             localizedReason: 'Authenticate to enable biometric login');
         if (success) {
@@ -48,7 +42,6 @@ class BiometricSettingsCubit extends Cubit<BiometricSettingsState> {
           await loadSettings();
         }
       } else {
-        // When disabling, we should also authenticate
         success = await _biometricAuthService.authenticateWithBiometrics(
             localizedReason: 'Authenticate to disable biometric login');
         if (success) {
@@ -61,7 +54,6 @@ class BiometricSettingsCubit extends Cubit<BiometricSettingsState> {
     }
   }
 
-  // Update lock timeout
   Future<void> updateLockTimeout(int seconds) async {
     try {
       await _biometricAuthService.updateBiometricSetting(
@@ -72,7 +64,6 @@ class BiometricSettingsCubit extends Cubit<BiometricSettingsState> {
     }
   }
 
-  // Toggle require on app start
   Future<void> toggleRequireOnAppStart(bool required) async {
     try {
       await _biometricAuthService.updateBiometricSetting(
@@ -83,7 +74,6 @@ class BiometricSettingsCubit extends Cubit<BiometricSettingsState> {
     }
   }
 
-  // Toggle require for transactions
   Future<void> toggleRequireForTransactions(bool required) async {
     try {
       await _biometricAuthService.updateBiometricSetting(
@@ -94,7 +84,39 @@ class BiometricSettingsCubit extends Cubit<BiometricSettingsState> {
     }
   }
 
-  // Authenticate using biometrics (can be used to test)
+  // PIN Methods
+  Future<bool> setPinCode(String pin) async {
+    try {
+      bool success = await _biometricAuthService.setPinCode(pin);
+      if (success) {
+        await loadSettings();
+        return true;
+      }
+      return false;
+    } catch (e) {
+      emit(BiometricSettingsError('Failed to set PIN code: $e'));
+      return false;
+    }
+  }
+
+  Future<void> disablePin() async {
+    try {
+      await _biometricAuthService.disablePin();
+      await loadSettings();
+    } catch (e) {
+      emit(BiometricSettingsError('Failed to disable PIN: $e'));
+    }
+  }
+
+  Future<bool> verifyPinCode(String pin) async {
+    try {
+      return await _biometricAuthService.verifyPinCode(pin);
+    } catch (e) {
+      emit(BiometricSettingsError('Failed to verify PIN code: $e'));
+      return false;
+    }
+  }
+
   Future<bool> authenticate() async {
     return await _biometricAuthService.authenticateWithBiometrics();
   }

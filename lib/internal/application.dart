@@ -1,4 +1,3 @@
-// lib/internal/application.dart
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:keyboard_dismisser/keyboard_dismisser.dart';
@@ -44,6 +43,7 @@ import 'package:zippy/data/api/service/api_service.dart';
 import 'package:zippy/presentation/theme/theme_cubit.dart';
 import 'package:zippy/presentation/events/transaction_events.dart';
 import 'package:zippy/presentation/bloc/dashboard/dashboard_cubit.dart';
+import 'dart:developer' as developer;
 
 final GlobalKey<NavigatorState> appNavigatorKey = GlobalKey<NavigatorState>();
 
@@ -58,24 +58,87 @@ class _ZippyAppState extends State<ZippyApp> with WidgetsBindingObserver {
   final TransactionEventBus _eventBus = TransactionEventBus();
   final BiometricAuthService _biometricAuth = BiometricAuthService();
   final SecureStorageService _secureStorage = SecureStorageService();
-
   bool _isLocked = false;
   DateTime? _pausedTime;
+  static const String _lastAppCloseTimeKey = 'last_app_close_time';
 
   @override
   void initState() {
     super.initState();
+    _logEvent('⭐️ App InitState called');
     WidgetsBinding.instance.addObserver(this);
     _checkBiometricSettings();
+    _checkLockStatusOnStart();
+  }
+
+  void _logEvent(String message) {
+    developer.log(message, name: 'ZippyApp');
+    print('🔒 BIOMETRIC DEBUG: $message');
+  }
+
+  Future<void> _checkLockStatusOnStart() async {
+    try {
+      _logEvent('Checking lock status on app start...');
+
+      // First check if either biometrics or PIN is enabled
+      final biometricsEnabled = await _biometricAuth.isBiometricsEnabled();
+      final pinEnabled = await _biometricAuth.isPinEnabled();
+
+      _logEvent(
+          'Authentication status: Biometrics enabled: $biometricsEnabled, PIN enabled: $pinEnabled');
+
+      if (!biometricsEnabled && !pinEnabled) {
+        _logEvent(
+            'Neither biometrics nor PIN enabled, not locking app on start');
+        return;
+      }
+
+      final lastCloseTimeStr =
+          await _secureStorage.read(key: _lastAppCloseTimeKey);
+      _logEvent('Last app close time from storage: $lastCloseTimeStr');
+
+      if (lastCloseTimeStr != null) {
+        final lastCloseTime = DateTime.parse(lastCloseTimeStr);
+        final now = DateTime.now();
+        final appClosedDuration = now.difference(lastCloseTime);
+        _logEvent('App was closed for ${appClosedDuration.inSeconds} seconds');
+
+        final biometricSettings = await _biometricAuth.getBiometricSettings();
+        _logEvent('Biometric settings: enabled=${biometricSettings.enabled}, '
+            'pinEnabled=${biometricSettings.pinEnabled}, '
+            'timeout=${biometricSettings.lockTimeoutSeconds}s');
+
+        final shouldLock = await _biometricAuth.shouldLockApp(lastCloseTime);
+        _logEvent('Should lock app based on timeout? $shouldLock');
+
+        if (shouldLock) {
+          _logEvent('🔒 LOCKING APP on start!');
+          setState(() {
+            _isLocked = true;
+          });
+        } else {
+          _logEvent('Not locking app on start (timeout not reached)');
+        }
+      } else {
+        _logEvent('No previous app close time found in storage');
+      }
+    } catch (e) {
+      _logEvent('❌ Error checking app lock on start: $e');
+    }
   }
 
   Future<void> _checkBiometricSettings() async {
-    // Initialize biometric settings if they don't exist yet
-    await _biometricAuth.getBiometricSettings();
+    try {
+      final settings = await _biometricAuth.getBiometricSettings();
+      _logEvent('Retrieved biometric settings: $settings');
+    } catch (e) {
+      _logEvent('Error retrieving biometric settings: $e');
+    }
   }
 
   @override
   void dispose() {
+    _logEvent('App Dispose called');
     WidgetsBinding.instance.removeObserver(this);
     _eventBus.dispose();
     super.dispose();
@@ -83,59 +146,110 @@ class _ZippyAppState extends State<ZippyApp> with WidgetsBindingObserver {
 
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
+    _logEvent('App lifecycle state changed to: $state');
     if (state == AppLifecycleState.paused) {
-      // Record time when app went to background
       _pausedTime = DateTime.now();
+      _logEvent('App paused at: $_pausedTime');
+      _secureStorage
+          .write(
+        key: _lastAppCloseTimeKey,
+        value: _pausedTime!.toIso8601String(),
+      )
+          .then((_) {
+        _logEvent('Saved app pause time to secure storage');
+      }).catchError((e) {
+        _logEvent('❌ Error saving pause time: $e');
+      });
     } else if (state == AppLifecycleState.resumed) {
-      // Handle app resume (check if we need to lock)
+      _logEvent('App resumed, calling _handleAppResume()');
       _handleAppResume();
+    } else if (state == AppLifecycleState.detached) {
+      _logEvent('App detached - might be terminating');
     }
   }
 
   Future<void> _handleAppResume() async {
+    _logEvent('_handleAppResume() called');
     try {
-      // Get current context and settings
-      final context = appNavigatorKey.currentContext;
-      if (context != null) {
-        // Check if we need to lock based on time elapsed
-        if (_pausedTime != null) {
-          final shouldLock = await _biometricAuth.shouldLockApp(_pausedTime!);
-          if (shouldLock) {
-            final biometricsEnabled =
-                await _biometricAuth.isBiometricsEnabled();
-            if (biometricsEnabled) {
-              setState(() {
-                _isLocked = true;
-              });
-              return;
-            }
-          }
+      if (_isLocked) {
+        _logEvent('App is already locked, skipping lock check');
+        return;
+      }
+
+      if (_pausedTime != null) {
+        final now = DateTime.now();
+        final backgroundDuration = now.difference(_pausedTime!);
+        _logEvent(
+            'App was in background for ${backgroundDuration.inSeconds} seconds');
+
+        final biometricsEnabled = await _biometricAuth.isBiometricsEnabled();
+        final pinEnabled = await _biometricAuth.isPinEnabled();
+        _logEvent(
+            'Authentication status: Biometrics enabled: $biometricsEnabled, PIN enabled: $pinEnabled');
+
+        if (!biometricsEnabled && !pinEnabled) {
+          _logEvent('Neither biometrics nor PIN enabled, not locking app');
+          return;
         }
 
-        // If we didn't lock, refresh dashboard data if we're on that screen
-        final currentLocation = GoRouterState.of(context).matchedLocation;
-        if (currentLocation.startsWith('/dashboard')) {
-          context.read<DashboardCubit>().loadData();
+        final shouldLock = await _biometricAuth.shouldLockApp(_pausedTime!);
+        _logEvent('Should lock app based on time? $shouldLock');
+
+        if (shouldLock) {
+          _logEvent('🔒 LOCKING APP on resume!');
+          setState(() {
+            _isLocked = true;
+          });
+          return;
+        }
+      } else {
+        _logEvent('No _pausedTime available, skipping lock check');
+      }
+
+      if (!_isLocked) {
+        final context = appNavigatorKey.currentContext;
+        if (context != null) {
+          try {
+            final currentLocation = GoRouterState.of(context).matchedLocation;
+            _logEvent('Current location: $currentLocation');
+            if (currentLocation.startsWith('/dashboard')) {
+              _logEvent('On dashboard, refreshing data');
+
+              try {
+                context.read<DashboardCubit>().loadData();
+              } catch (e) {
+                _logEvent('Non-critical error refreshing dashboard: $e');
+              }
+            }
+          } catch (e) {
+            _logEvent('Error refreshing dashboard: $e');
+          }
+        } else {
+          _logEvent('No valid context available for dashboard refresh');
         }
       }
-    } catch (_) {
-      // Handle errors silently
+    } catch (e) {
+      _logEvent('❌ Error handling app resume: $e');
     }
   }
 
   void _onAuthenticated() {
+    _logEvent('Authentication successful, unlocking app');
     setState(() {
       _isLocked = false;
+
+      _pausedTime = DateTime.now();
     });
   }
 
   @override
   Widget build(BuildContext context) {
-    // Show lock screen if the app is locked
     if (_isLocked) {
+      _logEvent('Building UI: showing lock screen');
       return AppLockScreen(onAuthenticated: _onAuthenticated);
     }
 
+    _logEvent('Building UI: showing main app');
     return KeyboardDismisser(
       gestures: const [
         GestureType.onTap,
@@ -234,7 +348,6 @@ class _ZippyAppState extends State<ZippyApp> with WidgetsBindingObserver {
               ),
               lazy: false,
             ),
-            // Add BiometricSettingsCubit
             BlocProvider(
               create: (context) => BiometricSettingsCubit(
                 _biometricAuth,
@@ -271,42 +384,5 @@ class _ZippyAppState extends State<ZippyApp> with WidgetsBindingObserver {
         ),
       ),
     );
-  }
-}
-
-class DashboardRefreshObserver extends NavigatorObserver {
-  final BuildContext context;
-  DashboardRefreshObserver(this.context);
-
-  @override
-  void didPush(Route<dynamic> route, Route<dynamic>? previousRoute) {
-    super.didPush(route, previousRoute);
-    _checkForDashboardRefresh(route);
-  }
-
-  @override
-  void didPop(Route<dynamic> route, Route<dynamic>? previousRoute) {
-    super.didPop(route, previousRoute);
-    if (previousRoute != null) {
-      _checkForDashboardRefresh(previousRoute);
-    }
-  }
-
-  void _checkForDashboardRefresh(Route<dynamic> route) {
-    try {
-      final settings = route.settings;
-      final routeName = settings.name;
-      if (routeName != null && routeName.startsWith('/dashboard')) {
-        WidgetsBinding.instance.addPostFrameCallback((_) {
-          try {
-            context.read<DashboardCubit>().loadData();
-          } catch (_) {
-            // Handle errors silently
-          }
-        });
-      }
-    } catch (_) {
-      // Handle errors silently
-    }
   }
 }

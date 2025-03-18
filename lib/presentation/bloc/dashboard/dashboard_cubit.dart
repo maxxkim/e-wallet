@@ -56,13 +56,19 @@ class DashboardCubit extends Cubit<DashboardState> {
   }
 
   Future<void> loadData() async {
-    // Prevent multiple simultaneous refreshes
+    // If the cubit is already closed, return silently
+    if (isClosed) {
+      print('🏃‍♀️ Skipping loadData because cubit is closed UwU');
+      return;
+    }
+
+    // If already refreshing, avoid duplicate refreshes
     if (_isRefreshing) return;
     _isRefreshing = true;
     try {
       if (state is DashboardStateLoggedOut) return;
 
-      // Use SecureStorage instead of SharedPreferences
+      // Get access token
       final String? accessToken = await _secureStorage.getAccessToken();
       if (accessToken == null || accessToken.isEmpty) {
         emit(DashboardStateLoggedOut());
@@ -76,9 +82,16 @@ class DashboardCubit extends Cubit<DashboardState> {
         previousState = state as DashboardStateLoaded;
       }
 
-      // Fetch new data
+      // Fetch data
       final balance = await _dashboardRepository.getBalance();
       final transactions = await _dashboardRepository.getTransactions();
+
+      // If the cubit is closed while we're fetching data, don't emit a new state
+      if (isClosed) {
+        _isRefreshing = false;
+        return;
+      }
+
       if (state is DashboardStateLoaded) {
         final currentState = state as DashboardStateLoaded;
         final filteredTransactions = _applyFilters(
@@ -98,7 +111,7 @@ class DashboardCubit extends Cubit<DashboardState> {
           selectedTab: currentState.selectedTab,
         ));
       } else if (previousState != null) {
-        // Restore previous filters if state was lost
+        // Reuse previous state settings
         final filteredTransactions = _applyFilters(
           transactions,
           previousState.filterType,
@@ -116,7 +129,7 @@ class DashboardCubit extends Cubit<DashboardState> {
           selectedTab: previousState.selectedTab,
         ));
       } else {
-        // Default state for first load
+        // Create new state with defaults
         final filteredTransactions = _applyFilters(
           transactions,
           FilterType.period,
@@ -135,9 +148,12 @@ class DashboardCubit extends Cubit<DashboardState> {
         ));
       }
     } catch (e) {
-      emit(DashboardStateError(
-        errorMessage: _handleError(e),
-      ));
+      // Only emit error if the cubit is still active
+      if (!isClosed) {
+        emit(DashboardStateError(
+          errorMessage: _handleError(e),
+        ));
+      }
     } finally {
       _isRefreshing = false;
     }
