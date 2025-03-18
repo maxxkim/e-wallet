@@ -3,6 +3,8 @@ import 'package:zippy/internal/services/biometric_auth_service.dart';
 import 'package:zippy/presentation/bloc/auth/widgets/pin_entry_widget.dart';
 import 'dart:developer' as developer;
 
+import 'package:zippy/presentation/theme/app_theme.dart';
+
 class PinLockScreen extends StatefulWidget {
   final VoidCallback onAuthenticated;
 
@@ -72,19 +74,16 @@ class _PinLockScreenState extends State<PinLockScreen> {
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      theme: ThemeData(
-        primaryColor: Theme.of(context).colorScheme.primary,
-        colorScheme: Theme.of(context).colorScheme,
-      ),
+      theme: appTheme,
       home: Scaffold(
         body: Container(
           decoration: BoxDecoration(
             gradient: LinearGradient(
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
+              begin: Alignment.topCenter,
+              end: Alignment.bottomCenter,
               colors: [
-                Theme.of(context).colorScheme.primary.withAlpha(204),
-                Theme.of(context).colorScheme.secondary,
+                Theme.of(context).colorScheme.primary.withAlpha(40),
+                Theme.of(context).scaffoldBackgroundColor,
               ],
             ),
           ),
