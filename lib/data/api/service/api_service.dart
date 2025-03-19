@@ -1,5 +1,6 @@
 import 'package:dio/dio.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:talker_dio_logger/talker_dio_logger.dart';
 import 'package:zippy/data/api/api_auth_initiate.dart';
 import 'package:zippy/data/api/api_auth_refresh.dart';
 import 'package:zippy/data/api/api_auth_verify.dart';
@@ -31,6 +32,17 @@ class ApiService {
     _dio.interceptors.clear();
 
     // Add request interceptor
+    _dio.interceptors.add(
+      TalkerDioLogger(
+        settings: const TalkerDioLoggerSettings(
+          printRequestHeaders: false,
+          printResponseHeaders: false,
+          printResponseMessage: false,
+          printResponseData: false,
+          printRequestData: false,
+        ),
+      ),
+    );
     _dio.interceptors.add(
       InterceptorsWrapper(
         onRequest: (options, handler) async {
@@ -100,15 +112,14 @@ class ApiService {
       ),
     );
 
-    // Add logging interceptor in debug mode
+    /*// Add logging interceptor in debug mode
     assert(() {
       _dio.interceptors.add(LogInterceptor(
         requestBody: true,
         responseBody: true,
-        logPrint: (obj) => print('API Log: $obj'),
       ));
       return true;
-    }());
+    }());*/
   }
 
   Future<ApiBalance> getBalance() async {
