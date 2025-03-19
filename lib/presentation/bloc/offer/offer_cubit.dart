@@ -7,6 +7,7 @@ import 'package:zippy/domain/model/offer/initial_data_model.dart';
 import 'package:zippy/domain/model/offer/offer_model.dart';
 import 'package:zippy/domain/repository/offer/offer_repository.dart';
 import 'package:zippy/domain/state/offer/offer_state.dart';
+import 'package:zippy/internal/services/logger_service.dart';
 import 'package:zippy/presentation/screen/offer/widgets/merchant_filter_dialog.dart';
 
 class OfferCubit extends Cubit<OfferState> {
@@ -24,6 +25,9 @@ class OfferCubit extends Cubit<OfferState> {
 
   // Store the last received data to check pagination info
   InitialDataResponse? _initialData;
+  void _logEvent(String message) {
+    LoggerService().debug('🎁 OFFER SCREEN: $message');
+  }
 
   OfferCubit(this._offerRepository) : super(OfferStateLoading()) {
     _init();
@@ -41,12 +45,10 @@ class OfferCubit extends Cubit<OfferState> {
       selectedCategoryFromSearch = null;
 
       if (tempMerchant != null) {
-        debugPrint(
-            'Applying merchant filter from search: ${tempMerchant.name}');
+        _logEvent('Applying merchant filter from search: ${tempMerchant.name}');
         selectMerchants([tempMerchant]);
       } else if (tempCategory != null) {
-        debugPrint(
-            'Applying category filter from search: ${tempCategory.name}');
+        _logEvent('Applying category filter from search: ${tempCategory.name}');
         selectCategories([tempCategory]);
       } else {
         loadOffers();
@@ -101,7 +103,7 @@ class OfferCubit extends Cubit<OfferState> {
   }
 
   void selectMerchants(List<MerchantData> merchants) async {
-    debugPrint(
+    _logEvent(
         'Select merchants called with: ${merchants.map((m) => m.name).join(", ")}');
     _currentPage = 1;
     if (state is OfferStateLoaded) {
@@ -167,7 +169,7 @@ class OfferCubit extends Cubit<OfferState> {
         if (_currentPage <= (_initialData?.options.lastPage ?? 1)) {
           loadOffers();
         } else {
-          debugPrint('🛑 Already on last page, not loading more');
+          _logEvent('Already on last page, not loading more');
         }
       }
     }
@@ -194,7 +196,7 @@ class OfferCubit extends Cubit<OfferState> {
         }
       }
 
-      debugPrint('📱 Fetching offers page $_currentPage');
+      _logEvent('📱 Fetching offers page $_currentPage');
 
       // Pass the page parameter to the repository call
       final initialData = await _offerRepository.getInitialData(
@@ -203,10 +205,10 @@ class OfferCubit extends Cubit<OfferState> {
         page: _currentPage,
       );
 
-      debugPrint(
-          '🎁 Loaded ${initialData.offers.length} offers for page $_currentPage');
-      debugPrint(
-          '📄 Last page is: ${initialData.options.lastPage}, Total offers: ${initialData.options.total}');
+      _logEvent(
+          'Loaded ${initialData.offers.length} offers for page $_currentPage');
+      _logEvent(
+          'Last page is: ${initialData.options.lastPage}, Total offers: ${initialData.options.total}');
 
       // Store the last received data to check pagination info
       _initialData = initialData;
@@ -249,11 +251,11 @@ class OfferCubit extends Cubit<OfferState> {
             .toList();
 
         if (newOffers.isEmpty) {
-          debugPrint(
+          _logEvent(
               '⚠️ No new offers found on page $_currentPage, stopping pagination');
           emit(currentState.copyWith(isLoadingMore: false));
         } else {
-          debugPrint(
+          _logEvent(
               '✅ Adding ${newOffers.length} new offers from page $_currentPage');
           final List<Offer> updatedOffers = [
             ...currentState.offers,
@@ -283,13 +285,13 @@ class OfferCubit extends Cubit<OfferState> {
           _currentPage < initialData.options.lastPage &&
           filteredOffers.length >= _pageSize) {
         _currentPage++;
-        debugPrint('⏭️ Next page will be: $_currentPage');
+        _logEvent('⏭️ Next page will be: $_currentPage');
       } else {
-        debugPrint(
+        _logEvent(
             '🛑 Reached last page or incomplete page. Not incrementing page counter.');
       }
     } catch (e) {
-      debugPrint('❌ Error loading offers: ${e.toString()}');
+      _logEvent('❌ Error loading offers: ${e.toString()}');
       if (state is OfferStateLoaded) {
         final currentState = state as OfferStateLoaded;
         emit(currentState.copyWith(isLoadingMore: false));
