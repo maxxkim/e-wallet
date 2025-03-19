@@ -4,6 +4,7 @@ import 'package:keyboard_dismisser/keyboard_dismisser.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:go_router/go_router.dart';
+import 'package:zippy/data/api/api_key_manager.dart';
 import 'package:zippy/data/repository/activation/activation_data_repository.dart';
 import 'package:zippy/data/repository/offer/offer_data_repository.dart';
 import 'package:zippy/data/repository/search/global_search_data_repository.dart';
@@ -28,6 +29,7 @@ import 'package:zippy/domain/repository/withdrawal/withdrawal_repository.dart';
 import 'package:zippy/domain/repository/contacts/contacts_repository.dart';
 import 'package:zippy/presentation/app_router.dart';
 import 'package:zippy/presentation/bloc/biometrics/biometrics_cubit.dart';
+import 'package:zippy/presentation/screen/api_error_screen.dart';
 import 'package:zippy/presentation/screen/auth/app_lock_screen.dart';
 import 'package:zippy/presentation/bloc/locale/locale_cubit.dart';
 import 'package:zippy/presentation/bloc/navigation/navigation_cubit.dart';
@@ -44,7 +46,6 @@ import 'package:zippy/data/api/service/api_service.dart';
 import 'package:zippy/presentation/theme/theme_cubit.dart';
 import 'package:zippy/presentation/events/transaction_events.dart';
 import 'package:zippy/presentation/bloc/dashboard/dashboard_cubit.dart';
-import 'dart:developer' as developer;
 
 final GlobalKey<NavigatorState> appNavigatorKey = GlobalKey<NavigatorState>();
 
@@ -59,8 +60,11 @@ class _ZippyAppState extends State<ZippyApp> with WidgetsBindingObserver {
   final TransactionEventBus _eventBus = TransactionEventBus();
   final BiometricAuthService _biometricAuth = BiometricAuthService();
   final SecureStorageService _secureStorage = SecureStorageService();
+  final SecureApiKeyManager _apiKeyManager = SecureApiKeyManager();
+
   bool _isLocked = false;
   DateTime? _pausedTime;
+  bool _apiKeysValid = true;
   static const String _lastAppCloseTimeKey = 'last_app_close_time';
 
   @override
@@ -70,10 +74,37 @@ class _ZippyAppState extends State<ZippyApp> with WidgetsBindingObserver {
     WidgetsBinding.instance.addObserver(this);
     _checkBiometricSettings();
     _checkLockStatusOnStart();
+    _verifyApiKeys();
   }
 
   void _logEvent(String message) {
     LoggerService().info('🔒 BIOMETRIC DEBUG: $message');
+  }
+
+  Future<void> _verifyApiKeys() async {
+    // Verify API keys are still valid
+    final mainApiKey =
+        await _apiKeyManager.getApiKey(SecureApiKeyManager.kMainApiKey);
+
+    if (mainApiKey == null || mainApiKey.isEmpty) {
+      _logEvent('❌ API keys invalid or missing! Attempting to reinitialize...');
+      final initialized = await _apiKeyManager.initialize();
+
+      setState(() {
+        _apiKeysValid = initialized;
+      });
+
+      if (!initialized) {
+        _logEvent('❌ Failed to initialize API keys even after retry!');
+      } else {
+        _logEvent('✅ API keys reinitialized successfully!');
+      }
+    } else {
+      _logEvent('✅ API keys verified!');
+      setState(() {
+        _apiKeysValid = true;
+      });
+    }
   }
 
   Future<void> _checkLockStatusOnStart() async {
@@ -244,6 +275,30 @@ class _ZippyAppState extends State<ZippyApp> with WidgetsBindingObserver {
 
   @override
   Widget build(BuildContext context) {
+    if (!_apiKeysValid) {
+      return MaterialApp(
+        home: ApiInitializationErrorScreen(
+          onRetry: () async {
+            // Attempt to initialize again
+            bool success = await _apiKeyManager.initialize();
+
+            if (mounted) {
+              setState(() {
+                _apiKeysValid = success;
+              });
+            }
+          },
+        ),
+        theme: ThemeData(
+          primarySwatch: Colors.indigo,
+          colorScheme: ColorScheme.fromSwatch(
+            primarySwatch: Colors.indigo,
+            brightness: Brightness.light,
+          ),
+        ),
+      );
+    }
+
     if (_isLocked) {
       _logEvent('Building UI: showing lock screen');
       return AppLockScreen(onAuthenticated: _onAuthenticated);

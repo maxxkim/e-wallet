@@ -46,4 +46,5 @@ app.*.map.json
 
 # Custom files
 extract.sh
+api_keys.json
 extracted

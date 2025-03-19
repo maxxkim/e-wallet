@@ -1,11 +1,11 @@
 import 'package:dio/dio.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:zippy/domain/model/auth/auth_inititate_model.dart';
 import 'package:zippy/domain/model/auth/auth_verify_model.dart';
 import 'package:zippy/domain/model/auth/country_model.dart';
 import 'package:zippy/domain/repository/auth/auth_repository.dart';
 import 'package:zippy/domain/state/auth/auth_state.dart';
+import 'package:zippy/internal/services/logger_service.dart';
 import 'package:zippy/internal/services/secure_storage_service.dart';
 import 'package:zippy/presentation/screen/auth/helpers/phone_mask_helper.dart';
 
@@ -23,31 +23,51 @@ class AuthCubit extends Cubit<AuthState> {
           phone: "",
         ));
 
+  void _logEvent(String message) {
+    final logger = LoggerService();
+    logger.info('🔐 AUTH: $message');
+  }
+
   Future<void> verifyCode(String code) async {
     if (state is AuthStateLoaded) {
       final currentState = state as AuthStateLoaded;
       try {
+        _logEvent('📱 Attempting to verify code: $code');
+
         final AuthVerify authVerify = await _authRepository.verifyAuth(
           code,
           currentState.phone,
           currentState.userId,
         );
+
         if (authVerify.isVerified) {
-          // Use SecureStorageService instead of SharedPreferences
+          _logEvent('✅ Code verified successfully! Token received!');
+
+          // Store tokens
           if (authVerify.accessToken != null) {
             await _secureStorage.saveAccessToken(authVerify.accessToken!);
+            _logEvent(
+                '💾 Access token saved (${authVerify.accessToken!.substring(0, 10)}...)');
+          } else {
+            _logEvent('⚠️ No access token received!');
           }
+
           if (authVerify.refreshToken != null) {
             await _secureStorage.saveRefreshToken(authVerify.refreshToken!);
+            _logEvent('💾 Refresh token saved');
+          } else {
+            _logEvent('⚠️ No refresh token received!');
           }
 
-          // Save last login time
+          // Save login time
           await _secureStorage.saveLastLoginTime();
 
-          // Save phone mask info if available
+          // Save country model for phone mask
           if (currentState.authInitiateResponse != null &&
               _currentCountryModel != null) {
             await PhoneMaskHelper.savePhoneMaskInfo(_currentCountryModel!);
+            _logEvent(
+                '📞 Phone mask info saved for country: ${_currentCountryModel!.code}');
           }
 
           emit(currentState.copyWith(
@@ -55,7 +75,19 @@ class AuthCubit extends Cubit<AuthState> {
             authVerifyResponse: authVerify,
             shakeKey: false,
           ));
+
+          // Test if the token works
+          try {
+            final isTokenValid =
+                await _authRepository.verifyToken(authVerify.accessToken ?? '');
+            _logEvent(isTokenValid
+                ? '✅ Token validation successful!'
+                : '❌ Token validation failed!');
+          } catch (e) {
+            _logEvent('❌ Token validation error: $e');
+          }
         } else {
+          _logEvent('❌ Code verification failed');
           emit(currentState.copyWith(
             codeStatus: CodeStatus.invalid,
             authVerifyResponse: authVerify,
@@ -63,6 +95,7 @@ class AuthCubit extends Cubit<AuthState> {
           ));
         }
       } catch (e) {
+        _logEvent('❌ Error during code verification: $e');
         emit(currentState.copyWith(
           codeStatus: CodeStatus.invalid,
           shakeKey: true,
