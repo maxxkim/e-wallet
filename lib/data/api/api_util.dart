@@ -16,6 +16,7 @@ import 'package:zippy/domain/model/auth/auth_refresh_mode.dart';
 import 'package:zippy/domain/model/auth/auth_verify_model.dart';
 import 'package:zippy/domain/model/contacts/contact_model.dart';
 import 'package:zippy/domain/model/offer/activation_model.dart';
+import 'package:zippy/domain/model/offer/banner_model.dart';
 import 'package:zippy/domain/model/offer/category_model.dart';
 import 'package:zippy/domain/model/offer/initial_data_model.dart';
 import 'package:zippy/domain/model/offer/offer_model.dart';
@@ -198,5 +199,10 @@ class ApiUtil {
       {int limit = 5}) async {
     final result = await _apiService.searchGlobal(query, limit: limit);
     return result.toDomain();
+  }
+
+  Future<BannerResponse> getBanners() async {
+    final result = await _apiService.getBanners();
+    return BannerResponse.fromJson(result);
   }
 }

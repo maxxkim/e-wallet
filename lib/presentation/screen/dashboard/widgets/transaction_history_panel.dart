@@ -13,7 +13,6 @@ class TransactionHistoryPanel extends StatelessWidget
     with FadeInAnimationMixin {
   final DashboardStateLoaded state;
   final TransactionHistoryTranslations translations;
-
   const TransactionHistoryPanel({
     super.key,
     required this.state,
@@ -26,6 +25,12 @@ class TransactionHistoryPanel extends StatelessWidget
       return _buildEmptyState(context);
     }
 
+    // Determine how many items to display
+    // Show up to 10 items on the dashboard instead of just 5
+    final displayCount = state.filteredTransactions!.length > 10
+        ? 10
+        : state.filteredTransactions!.length;
+
     return RefreshIndicator(
       color: Theme.of(context).colorScheme.secondary,
       backgroundColor: Theme.of(context).scaffoldBackgroundColor,
@@ -35,8 +40,8 @@ class TransactionHistoryPanel extends StatelessWidget
           Expanded(
             child: ListView.builder(
               padding: EdgeInsets.zero,
-              itemCount:
-                  _getDisplayedItemCount(state.filteredTransactions!.length),
+              // Don't limit number of items to 5 anymore
+              itemCount: displayCount,
               itemBuilder: (context, index) {
                 final transaction = state.filteredTransactions![index];
                 return Column(
@@ -58,8 +63,8 @@ class TransactionHistoryPanel extends StatelessWidget
               },
             ),
           ),
-          if (state.filteredTransactions!.length > 5)
-            _buildViewAllButton(context),
+          // Only show "View All" button if there are more than 10 transactions
+          _buildViewAllButton(context),
         ],
       ),
     );
@@ -135,9 +140,5 @@ class TransactionHistoryPanel extends StatelessWidget
         ],
       ),
     );
-  }
-
-  int _getDisplayedItemCount(int totalItems) {
-    return totalItems > 5 ? 5 : totalItems;
   }
 }

@@ -1,3 +1,4 @@
+import 'package:zippy/domain/model/offer/banner_model.dart';
 import 'package:zippy/domain/model/transaction/transaction_model.dart';
 
 enum FilterType { period, deposit, withdrawal }
@@ -15,7 +16,7 @@ class DashboardStateLoaded extends DashboardState {
   final List<Transaction>? filteredTransactions;
   final String searchQuery;
   final NavigationTab selectedTab;
-
+  final List<OfferBanner>? banners;
   DashboardStateLoaded({
     required this.filterType,
     required this.chosenMonth,
@@ -25,6 +26,7 @@ class DashboardStateLoaded extends DashboardState {
     this.accessToken,
     this.searchQuery = '',
     this.selectedTab = NavigationTab.home,
+    this.banners,
   });
 
   int get selectedMonthNumber {
@@ -54,6 +56,7 @@ class DashboardStateLoaded extends DashboardState {
     String? accessToken,
     String? searchQuery,
     NavigationTab? selectedTab,
+    List<OfferBanner>? banners,
   }) {
     return DashboardStateLoaded(
       filterType: filterType ?? this.filterType,
@@ -64,6 +67,7 @@ class DashboardStateLoaded extends DashboardState {
       accessToken: accessToken ?? this.accessToken,
       searchQuery: searchQuery ?? this.searchQuery,
       selectedTab: selectedTab ?? this.selectedTab,
+      banners: banners ?? this.banners,
     );
   }
 }

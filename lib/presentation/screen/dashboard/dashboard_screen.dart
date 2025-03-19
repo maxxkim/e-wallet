@@ -9,6 +9,7 @@ import 'package:zippy/domain/state/dashboard/dashboard_state.dart';
 import 'package:zippy/presentation/animation/fade_animation_mixin.dart';
 import 'package:zippy/presentation/bloc/dashboard/dashboard_cubit.dart';
 import 'package:zippy/presentation/bloc/search/global_search_cubit.dart';
+import 'package:zippy/presentation/screen/dashboard/widgets/banner_carousel.dart';
 import 'package:zippy/presentation/screen/dashboard/widgets/filter_button_row.dart';
 import 'package:zippy/presentation/screen/dashboard/widgets/transaction_history_panel.dart';
 import 'package:zippy/presentation/screen/error_screen.dart';
@@ -22,97 +23,113 @@ class DashboardScreen extends StatelessWidget with FadeInAnimationMixin {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
-    // Create GlobalSearchCubit lazily so it's only created when needed
+
     return BlocProvider(
       create: (context) => GlobalSearchCubit(
           RepositoryProvider.of<GlobalSearchRepository>(context)),
-      lazy: false, // Create immediately to ensure it's ready
+      lazy: false,
       child: BlocBuilder<DashboardCubit, DashboardState>(
         builder: (context, state) {
           if (state is DashboardStateLoggedOut) {}
           if (state is DashboardStateLoaded) {
             return Scaffold(
-              body: Padding(
-                padding: const EdgeInsets.only(
-                  left: 16.0,
-                  right: 16.0,
-                  bottom: 16.0,
-                  top: 49.0,
-                ),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  children: staggeredFadeIn([
-                    fadeInFromTop(
-                      GlobalSearchWidget(
-                        hintText: l10n.historySearchHint,
-                        fullWidth: true,
-                        autofocus: false,
-                      ),
+              body: RefreshIndicator(
+                onRefresh: () => context.read<DashboardCubit>().loadData(),
+                child: SingleChildScrollView(
+                  physics: const AlwaysScrollableScrollPhysics(),
+                  child: Padding(
+                    padding: const EdgeInsets.only(
+                      left: 16.0,
+                      right: 16.0,
+                      bottom: 16.0,
+                      top: 49.0,
                     ),
-                    const SizedBox(height: 16),
-                    fadeInFromTop(
-                      BalanceDisplay(
-                        balance: state.balance,
-                        translations: DashboardTranslations(
-                          totalBalance: l10n.refresh,
-                          topUp: l10n.dashboardTopUp,
-                          withdraw: l10n.dashboardWithdraw,
-                          scan: l10n.dashboardScan,
-                          transfer: l10n.dashboardTransfer,
-                          selectFromContacts: l10n.dashboardSelectFromContacts,
-                        ),
-                      ),
-                    ),
-                    const SizedBox(height: 16),
-                    fadeIn(
-                      FilterButtonRow(
-                        state: state,
-                        translations: FilterTranslations(
-                          period: l10n.dashboardPeriod,
-                          deposit: l10n.dashboardDeposit,
-                          withdrawal: l10n.dashboardWithdrawal,
-                        ),
-                      ),
-                      delay: 100,
-                    ),
-                    const SizedBox(height: 16),
-                    Expanded(
-                      child: fadeIn(
-                        Container(
-                          decoration: BoxDecoration(
-                            color:
-                                Theme.of(context).colorScheme.tertiaryContainer,
-                            borderRadius: BorderRadius.circular(32),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      children: staggeredFadeIn([
+                        fadeInFromTop(
+                          GlobalSearchWidget(
+                            hintText: l10n.historySearchHint,
+                            fullWidth: true,
+                            autofocus: false,
                           ),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.end,
-                            children: [
-                              if (state.filterType == FilterType.period)
-                                fadeIn(
-                                  _buildMonthSelector(context, state),
-                                  delay: 200,
-                                ),
-                              Expanded(
-                                child: fadeIn(
-                                  TransactionHistoryPanel(
-                                    state: state,
-                                    translations:
-                                        TransactionHistoryTranslations(
-                                      noTransactions:
-                                          l10n.dashboardNoTransactions,
-                                      viewAll: l10n.dashboardViewAll,
-                                    ),
+                        ),
+                        const SizedBox(height: 16),
+                        fadeInFromTop(
+                          BalanceDisplay(
+                            balance: state.balance,
+                            translations: DashboardTranslations(
+                              totalBalance: l10n.refresh,
+                              topUp: l10n.dashboardTopUp,
+                              withdraw: l10n.dashboardWithdraw,
+                              scan: l10n.dashboardScan,
+                              transfer: l10n.dashboardTransfer,
+                              selectFromContacts:
+                                  l10n.dashboardSelectFromContacts,
+                            ),
+                          ),
+                        ),
+                        const SizedBox(height: 16),
+                        if (state.banners != null)
+                          fadeIn(
+                            BannerCarousel(banners: state.banners ?? []),
+                            delay: 50,
+                          ),
+                        const SizedBox(height: 16),
+                        fadeIn(
+                          FilterButtonRow(
+                            state: state,
+                            translations: FilterTranslations(
+                              period: l10n.dashboardPeriod,
+                              deposit: l10n.dashboardDeposit,
+                              withdrawal: l10n.dashboardWithdrawal,
+                            ),
+                          ),
+                          delay: 100,
+                        ),
+                        const SizedBox(height: 16),
+                        fadeIn(
+                          Container(
+                            decoration: BoxDecoration(
+                              color: Theme.of(context)
+                                  .colorScheme
+                                  .tertiaryContainer,
+                              borderRadius: BorderRadius.circular(32),
+                            ),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.end,
+                              children: [
+                                if (state.filterType == FilterType.period)
+                                  fadeIn(
+                                    _buildMonthSelector(context, state),
+                                    delay: 200,
                                   ),
-                                  delay: 300,
+                                // Increase the transaction history panel height
+                                SizedBox(
+                                  height:
+                                      MediaQuery.of(context).size.height * 0.5,
+                                  child: fadeIn(
+                                    TransactionHistoryPanel(
+                                      state: state,
+                                      translations:
+                                          TransactionHistoryTranslations(
+                                        noTransactions:
+                                            l10n.dashboardNoTransactions,
+                                        viewAll: l10n.dashboardViewAll,
+                                      ),
+                                    ),
+                                    delay: 300,
+                                  ),
                                 ),
-                              ),
-                            ],
+                              ],
+                            ),
                           ),
+                          delay: 150,
                         ),
-                        delay: 150,
-                      ),
+                        // Add extra padding at the bottom to avoid the bottom nav bar
+                      ]),
                     ),
-                  ]),
+                  ),
                 ),
               ),
               bottomNavigationBar: const CustomBottomNavBar(),
@@ -177,7 +194,6 @@ class DashboardScreen extends StatelessWidget with FadeInAnimationMixin {
       MonthData(11, l10n.monthNovember),
       MonthData(12, l10n.monthDecember),
     ];
-
     final currentMonthNumber =
         DateFormat('MMMM').parse(state.chosenMonth).month;
     return Container(

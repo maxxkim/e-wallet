@@ -6,6 +6,7 @@ import 'package:intl/intl.dart';
 import 'package:zippy/domain/model/transaction/transaction_model.dart';
 import 'package:zippy/domain/repository/dashboard/dashboard_repository.dart';
 import 'package:zippy/domain/state/dashboard/dashboard_state.dart';
+import 'package:zippy/internal/services/logger_service.dart';
 import 'package:zippy/internal/services/secure_storage_service.dart';
 import 'package:zippy/presentation/events/transaction_events.dart';
 
@@ -23,6 +24,7 @@ class DashboardCubit extends Cubit<DashboardState> {
           transactions: [],
           filteredTransactions: [],
           selectedTab: NavigationTab.home,
+          banners: [],
         )) {
     // Listen to transaction events to refresh data when needed
     _eventSubscription =
@@ -58,7 +60,8 @@ class DashboardCubit extends Cubit<DashboardState> {
   Future<void> loadData() async {
     // If the cubit is already closed, return silently
     if (isClosed) {
-      print('🏃‍♀️ Skipping loadData because cubit is closed UwU');
+      LoggerService()
+          .info('🏃‍♀️ Skipping loadData because cubit is closed UwU');
       return;
     }
 
@@ -82,9 +85,14 @@ class DashboardCubit extends Cubit<DashboardState> {
         previousState = state as DashboardStateLoaded;
       }
 
-      // Fetch data
-      final balance = await _dashboardRepository.getBalance();
-      final transactions = await _dashboardRepository.getTransactions();
+      final balanceFuture = _dashboardRepository.getBalance();
+      final transactionsFuture = _dashboardRepository.getTransactions();
+      final bannersFuture = _dashboardRepository.getBanners();
+
+      final balance = await balanceFuture;
+      final transactions = await transactionsFuture;
+      final bannersResponse = await bannersFuture;
+      final banners = bannersResponse.banners;
 
       // If the cubit is closed while we're fetching data, don't emit a new state
       if (isClosed) {
@@ -109,6 +117,7 @@ class DashboardCubit extends Cubit<DashboardState> {
           accessToken: accessToken,
           searchQuery: currentState.searchQuery,
           selectedTab: currentState.selectedTab,
+          banners: banners,
         ));
       } else if (previousState != null) {
         // Reuse previous state settings
@@ -118,15 +127,12 @@ class DashboardCubit extends Cubit<DashboardState> {
           previousState.chosenMonth,
           previousState.searchQuery,
         );
-        emit(DashboardStateLoaded(
-          filterType: previousState.filterType,
-          chosenMonth: previousState.chosenMonth,
+        emit(previousState.copyWith(
           balance: balance,
           transactions: transactions,
           filteredTransactions: filteredTransactions ?? [],
           accessToken: accessToken,
-          searchQuery: previousState.searchQuery,
-          selectedTab: previousState.selectedTab,
+          banners: banners, // Add banners to state
         ));
       } else {
         // Create new state with defaults
@@ -145,6 +151,7 @@ class DashboardCubit extends Cubit<DashboardState> {
           accessToken: accessToken,
           searchQuery: '',
           selectedTab: NavigationTab.home,
+          banners: banners,
         ));
       }
     } catch (e) {

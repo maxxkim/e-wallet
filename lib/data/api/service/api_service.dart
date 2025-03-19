@@ -430,6 +430,13 @@ class ApiService {
     return ApiGlobalSearchResponse.fromApi(response.data);
   }
 
+  Future<Map<String, dynamic>> getBanners() async {
+    final response = await _dio.get(
+      'https://offer-service-xn3b9.ondigitalocean.app/api/v1/banners',
+    );
+    return response.data;
+  }
+
   void _addTokenInterceptor() {
     _dio.interceptors.add(
       InterceptorsWrapper(
