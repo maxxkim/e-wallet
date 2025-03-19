@@ -6,28 +6,31 @@ import 'package:zippy/internal/observers/bloc_observer.dart';
 import 'package:zippy/internal/services/logger_service.dart';
 import 'dart:async';
 
-void main() async {
-  WidgetsFlutterBinding.ensureInitialized();
-
-  // Initialize logger service
+void main() {
+  // Create a top-level error handler first
   final logger = LoggerService();
-
-  // Set up global error handling
   final talker = logger.talker;
 
-  FlutterError.onError = (details) {
-    FlutterError.presentError(details);
-    talker.handle(details.exception, details.stack);
-  };
-
-  // Set up Bloc observer
-  Bloc.observer = AppBlocObserver();
-
-  // Log app start
-  logger.kawaii('✧*。Zentro Wallet is starting up!。*✧');
-
+  // Wrap everything in a runZonedGuarded to capture all errors
   runZonedGuarded(
-    () => runApp(const ZippyApp()),
+    () {
+      // Initialize flutter bindings INSIDE the same zone
+      WidgetsFlutterBinding.ensureInitialized();
+
+      // Set up error handlers
+      FlutterError.onError = (details) {
+        FlutterError.presentError(details);
+        talker.handle(details.exception, details.stack);
+      };
+
+      // Initialize Bloc observer
+      Bloc.observer = AppBlocObserver();
+
+      logger.kawaii('✧*。Zentro Wallet is starting up!。*✧');
+
+      // Run the app inside the same zone where binding was initialized
+      runApp(const ZippyApp());
+    },
     (error, stackTrace) {
       talker.handle(error, stackTrace);
     },
