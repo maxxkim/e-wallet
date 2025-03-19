@@ -1,6 +1,7 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_contacts/flutter_contacts.dart';
 import 'package:zippy/domain/state/transfer/contact_picker_state.dart';
+import 'package:zippy/internal/services/logger_service.dart';
 
 class ContactPickerCubit extends Cubit<ContactPickerState> {
   ContactPickerCubit() : super(ContactPickerInitial());
@@ -30,11 +31,11 @@ class ContactPickerCubit extends Cubit<ContactPickerState> {
         }
       } else {
         // Handle permission denied
-        print("Contact permission denied");
+        LoggerService().error("Contact permission denied");
         emit(ContactPickerInitial());
       }
     } catch (e) {
-      print("Error picking contact: $e");
+      LoggerService().error("Error picking contact: $e");
       emit(ContactPickerInitial());
     }
   }
