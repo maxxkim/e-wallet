@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:zippy/internal/services/biometric_auth_service.dart';
+import 'package:zippy/internal/services/logger_service.dart';
 import 'package:zippy/presentation/bloc/auth/pin_lock_screen.dart';
-import 'dart:developer' as developer;
 
 class AppLockScreen extends StatefulWidget {
   final VoidCallback onAuthenticated;
@@ -29,8 +29,7 @@ class _AppLockScreenState extends State<AppLockScreen>
   bool _isLoading = true;
 
   void _logEvent(String message) {
-    developer.log(message, name: 'AppLockScreen');
-    print('🔒 LOCK SCREEN: $message');
+    LoggerService().info('🔒 LOCK SCREEN: $message');
   }
 
   @override

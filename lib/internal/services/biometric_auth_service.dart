@@ -3,8 +3,8 @@ import 'package:flutter/services.dart';
 import 'package:local_auth/local_auth.dart';
 import 'package:local_auth/error_codes.dart' as auth_error;
 import 'package:zippy/domain/model/settings/biometric_setting_model.dart';
+import 'package:zippy/internal/services/logger_service.dart';
 import 'package:zippy/internal/services/secure_storage_service.dart';
-import 'dart:developer' as developer;
 
 class BiometricAuthService {
   static final BiometricAuthService _instance =
@@ -19,8 +19,7 @@ class BiometricAuthService {
   BiometricAuthService._internal();
 
   void _logEvent(String message) {
-    developer.log(message, name: 'BiometricAuthService');
-    print('🔐 BIOMETRIC SERVICE: $message');
+    LoggerService().info('🔐 BIOMETRIC SERVICE: $message');
   }
 
   Future<bool> isBiometricAvailable() async {

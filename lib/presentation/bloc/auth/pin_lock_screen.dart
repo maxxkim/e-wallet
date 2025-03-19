@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:zippy/internal/services/biometric_auth_service.dart';
+import 'package:zippy/internal/services/logger_service.dart';
 import 'package:zippy/presentation/bloc/auth/widgets/pin_entry_widget.dart';
-import 'dart:developer' as developer;
 
 import 'package:zippy/presentation/theme/app_theme.dart';
 
@@ -25,8 +25,7 @@ class _PinLockScreenState extends State<PinLockScreen> {
   bool _isVerifying = false;
 
   void _logEvent(String message) {
-    developer.log(message, name: 'PinLockScreen');
-    print('🔢 PIN LOCK SCREEN: $message');
+    LoggerService().info('🔢 PIN LOCK SCREEN: $message');
   }
 
   @override

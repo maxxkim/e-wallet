@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:zippy/internal/services/biometric_auth_service.dart';
+import 'package:zippy/internal/services/logger_service.dart';
 import 'dart:developer' as developer;
 
 import 'package:zippy/presentation/bloc/auth/widgets/pin_entry_widget.dart';
@@ -25,8 +26,7 @@ class _PinSetupScreenState extends State<PinSetupScreen> {
   bool _isSettingUp = false;
 
   void _logEvent(String message) {
-    developer.log(message, name: 'PinSetupScreen');
-    print('🔢 PIN SETUP SCREEN: $message');
+    LoggerService().info('🔢 PIN SETUP SCREEN: $message');
   }
 
   @override

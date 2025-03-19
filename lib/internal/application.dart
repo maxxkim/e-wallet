@@ -11,6 +11,7 @@ import 'package:zippy/domain/repository/activation/activation_repository.dart';
 import 'package:zippy/domain/repository/offer/offer_repository.dart';
 import 'package:zippy/domain/repository/search/global_search_repository.dart';
 import 'package:zippy/internal/services/biometric_auth_service.dart';
+import 'package:zippy/internal/services/logger_service.dart';
 import 'package:zippy/internal/services/secure_storage_service.dart';
 import 'package:zippy/l10n/l10n.dart';
 import 'package:zippy/data/repository/auth/auth_data_repository.dart';
@@ -72,8 +73,7 @@ class _ZippyAppState extends State<ZippyApp> with WidgetsBindingObserver {
   }
 
   void _logEvent(String message) {
-    developer.log(message, name: 'ZippyApp');
-    print('🔒 BIOMETRIC DEBUG: $message');
+    LoggerService().info('🔒 BIOMETRIC DEBUG: $message');
   }
 
   Future<void> _checkLockStatusOnStart() async {
