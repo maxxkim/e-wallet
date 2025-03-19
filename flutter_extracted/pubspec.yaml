@@ -33,6 +33,9 @@ dependencies:
   material_design_icons_flutter: ^7.0.7296
   flutter_secure_storage: ^8.0.0
   local_auth: ^2.3.0
+  talker: ^3.1.0
+  talker_flutter: ^3.3.0
+  talker_bloc_logger: ^2.4.0
 
 dev_dependencies:
   flutter_test:

@@ -5,10 +5,12 @@ import 'package:go_router/go_router.dart';
 import 'package:zippy/domain/model/transaction/transaction_model.dart';
 import 'package:zippy/domain/repository/offer/offer_repository.dart';
 import 'package:zippy/domain/state/dashboard/dashboard_state.dart';
+import 'package:zippy/internal/services/logger_service.dart';
 import 'package:zippy/presentation/bloc/offer/offer_cubit.dart';
 import 'package:zippy/presentation/screen/auth/auth_screen.dart';
 import 'package:zippy/presentation/screen/auth/sms_verification_screen.dart';
 import 'package:zippy/presentation/screen/dashboard/dashboard_screen.dart';
+import 'package:zippy/presentation/screen/debug/talker_logger_screen.dart';
 import 'package:zippy/presentation/screen/error_screen.dart';
 import 'package:zippy/presentation/screen/history/history_screen.dart';
 import 'package:zippy/presentation/screen/offer/offer_screen.dart';
@@ -213,6 +215,13 @@ final GoRouter appRouter = GoRouter(
               },
             ),
           ],
+        ),
+        GoRoute(
+          path: 'logs',
+          builder: (BuildContext context, GoRouterState state) {
+            LoggerService().debug('Navigating to logs screen');
+            return _authGuard(context, const TalkerLoggerScreen());
+          },
         ),
       ],
     ),

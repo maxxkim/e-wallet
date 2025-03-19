@@ -5,6 +5,7 @@ import 'package:flutter_animate/flutter_animate.dart';
 import 'package:go_router/go_router.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:zippy/domain/state/biometrics/biometrics_settings_state.dart';
+import 'package:zippy/internal/services/logger_service.dart';
 import 'package:zippy/presentation/bloc/biometrics/biometrics_cubit.dart';
 import 'package:zippy/presentation/bloc/locale/locale_cubit.dart';
 import 'package:zippy/presentation/session/session_cubit.dart';
@@ -20,7 +21,7 @@ class SettingsScreen extends StatelessWidget {
     final l10n = AppLocalizations.of(context)!;
     final currentTheme = context.watch<ThemeCubit>().state;
     final currentLocale = Localizations.localeOf(context);
-
+    LoggerService().debug('User is viewing settings screen nyaa~');
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Theme.of(context).scaffoldBackgroundColor,
@@ -56,6 +57,8 @@ class SettingsScreen extends StatelessWidget {
               ),
               onPressed: () {
                 context.read<ThemeCubit>().toggleTheme();
+                LoggerService().info(
+                    'Theme toggled to: ${context.read<ThemeCubit>().state == AppTheme.light ? "light" : "dark"}');
               },
             ),
           ),
@@ -80,6 +83,7 @@ class SettingsScreen extends StatelessWidget {
               onSelected: (value) {
                 final newLocale = Locale(value);
                 context.read<LocaleCubit>().changeLocale(newLocale);
+                LoggerService().info('Language changed to: $value');
               },
               itemBuilder: (context) => [
                 PopupMenuItem(
@@ -124,6 +128,8 @@ class SettingsScreen extends StatelessWidget {
                         color: Theme.of(context).colorScheme.secondary,
                       ),
                       onTap: () {
+                        LoggerService()
+                            .info('Navigating to biometrics settings');
                         context.go('/dashboard/settings/biometrics');
                       },
                     )
@@ -145,6 +151,7 @@ class SettingsScreen extends StatelessWidget {
               style: TextStyle(color: Theme.of(context).colorScheme.error),
             ),
             onTap: () {
+              LoggerService().warning('User initiating logout');
               _showLogoutConfirmationDialog(context, l10n);
             },
           ),
