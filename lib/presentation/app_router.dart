@@ -59,7 +59,7 @@ Widget _authGuard(BuildContext context, Widget child) {
     },
     child: BlocBuilder<SessionCubit, SessionState>(
       builder: (context, state) {
-        if (state is InitialLoading || state is RefreshingTokens) {
+        if (state is InitialLoading) {
           return _loadingScreen();
         }
         if (state is Authenticated) {

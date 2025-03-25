@@ -14,15 +14,13 @@ class SessionCubit extends Cubit<SessionState> {
   }
 
   void _initTimer() {
-    _timer = Timer.periodic(const Duration(minutes: 5), (_) {
+    _timer = Timer.periodic(const Duration(seconds: 10), (_) {
       checkAuthentication();
     });
   }
 
   Future<void> checkAuthentication() async {
     if (isClosed) return;
-
-    emit(InitialLoading());
 
     try {
       final String? accessToken = await _secureStorage.getAccessToken();
