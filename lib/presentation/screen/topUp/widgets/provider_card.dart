@@ -58,10 +58,6 @@ class _ProviderCardState extends State<ProviderCard>
       curve: Curves.easeInOut,
     );
 
-    LoggerService().debug(_validParameters[0].name);
-    LoggerService().debug(_validParameters[0].mask);
-    LoggerService().debug(_validParameters[0].min);
-    LoggerService().debug(_validParameters[0].max);
     // Initialize controllers for each parameter
     for (var param in _validParameters) {
       _controllers[param.name] = TextEditingController();
