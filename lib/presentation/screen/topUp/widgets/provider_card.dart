@@ -6,12 +6,14 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:zippy/domain/model/top_up/parameter_model.dart';
 import 'package:zippy/domain/model/top_up/provider_model.dart';
+import 'package:zippy/internal/services/logger_service.dart';
 import 'package:zippy/presentation/bloc/topUp/top_up_cubit.dart';
 import 'package:zippy/presentation/bloc/withdrawal/withdrawal_cubit.dart';
 import 'package:zippy/domain/state/topUp/top_up_state.dart';
 import 'package:zippy/domain/state/withdrawal/withdrawal_state.dart';
+import 'package:zippy/presentation/screen/topUp/widgets/enum_parameter_input_field.dart';
+import 'package:zippy/presentation/screen/topUp/widgets/provider_parameter_inpuit_field.dart';
 import 'package:zippy/presentation/theme/app_theme.dart';
-import 'package:zippy/presentation/widget/custom_text_field.dart';
 
 class ProviderCard extends StatefulWidget {
   final Provider provider;
@@ -56,7 +58,11 @@ class _ProviderCardState extends State<ProviderCard>
       curve: Curves.easeInOut,
     );
 
-    // Only initialize controllers for non-null parameters
+    LoggerService().debug(_validParameters[0].name);
+    LoggerService().debug(_validParameters[0].mask);
+    LoggerService().debug(_validParameters[0].min);
+    LoggerService().debug(_validParameters[0].max);
+    // Initialize controllers for each parameter
     for (var param in _validParameters) {
       _controllers[param.name] = TextEditingController();
       _errors[param.name] = null;
@@ -83,52 +89,23 @@ class _ProviderCardState extends State<ProviderCard>
     });
   }
 
-  String? _validateField(Parameter param, String? value) {
-    final l10n = AppLocalizations.of(context)!;
-
-    if (value == null || value.isEmpty) {
-      if (param.required == "true") {
-        return param.description?.error ?? l10n.fieldRequired;
-      }
-      return null;
-    }
-
-    if (param.type == "number") {
-      final number = double.tryParse(value);
-      if (number == null) {
-        return l10n.invalidNumber;
-      }
-      if (param.min != null && number < double.parse(param.min!)) {
-        return l10n.valueTooSmall(param.min!);
-      }
-      if (param.max != null && number > double.parse(param.max!)) {
-        return l10n.valueTooLarge(param.max!);
-      }
-    }
-
-    if (param.pattern != null) {
-      final regex = RegExp(param.pattern!);
-      if (!regex.hasMatch(value)) {
-        return param.description?.error ?? l10n.invalidFormat;
-      }
-    }
-    return null;
-  }
-
   Future<void> _handleSubmit() async {
     if (_isLoading) return;
     final l10n = AppLocalizations.of(context)!;
-    bool isValid = true;
 
+    // Validate all fields
+    bool isValid = true;
     setState(() {
       for (var param in _validParameters) {
-        final error = _validateField(param, _controllers[param.name]?.text);
+        final value = _controllers[param.name]?.text;
+        final error = _validateField(param, value);
         _errors[param.name] = error;
         if (error != null) {
           isValid = false;
         }
       }
     });
+
     if (!isValid) return;
 
     setState(() {
@@ -136,6 +113,7 @@ class _ProviderCardState extends State<ProviderCard>
     });
 
     try {
+      // Build request body
       final Map<String, dynamic> body = {};
       for (var param in _validParameters) {
         body[param.name] = _controllers[param.name]?.text ?? '';
@@ -159,16 +137,61 @@ class _ProviderCardState extends State<ProviderCard>
     }
   }
 
-  TextInputType _getKeyboardType(String type) {
-    switch (type) {
-      case 'number':
-        return TextInputType.number;
-      case 'email':
-        return TextInputType.emailAddress;
-      case 'phone':
-        return TextInputType.phone;
-      default:
-        return TextInputType.text;
+  String? _validateField(Parameter param, String? value) {
+    if (value == null || value.isEmpty) {
+      if (param.required == "true") {
+        return param.description?.error ?? "Este campo es obligatorio";
+      }
+      return null;
+    }
+
+    // Validate field length
+    if (param.min != null && value.length < int.parse(param.min!)) {
+      return param.description?.error ?? "El valor es demasiado corto";
+    }
+
+    if (param.max != null && value.length > int.parse(param.max!)) {
+      return param.description?.error ?? "El valor es demasiado largo";
+    }
+
+    // Validate against regex pattern if provided
+    if (param.pattern != null && param.pattern!.isNotEmpty) {
+      final RegExp regex = RegExp(param.pattern!);
+      if (!regex.hasMatch(value)) {
+        return param.description?.error ?? "Formato inválido";
+      }
+    }
+
+    return null;
+  }
+
+  Widget _buildParameterInput(Parameter param) {
+    // For enum parameters (dropdown selections)
+    if (param.enumValues != null && param.enumValues!.isNotEmpty) {
+      return EnumParameterInputField(
+        parameter: param,
+        controller: _controllers[param.name]!,
+        errorText: _errors[param.name],
+        enabled: !_isLoading,
+        onChanged: (value) {
+          setState(() {
+            _errors[param.name] = _validateField(param, value);
+          });
+        },
+      );
+    } else {
+      // For text input parameters
+      return ParameterInputField(
+        parameter: param,
+        controller: _controllers[param.name]!,
+        errorText: _errors[param.name],
+        enabled: !_isLoading,
+        onChanged: (value) {
+          setState(() {
+            _errors[param.name] = _validateField(param, value);
+          });
+        },
+      );
     }
   }
 
@@ -176,7 +199,6 @@ class _ProviderCardState extends State<ProviderCard>
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
 
-    // If parameters is null or empty, don't build the card
     if (_validParameters.isEmpty) {
       return const SizedBox.shrink();
     }
@@ -216,22 +238,29 @@ class _ProviderCardState extends State<ProviderCard>
           padding: const EdgeInsets.symmetric(horizontal: 24.0),
           child: Row(
             children: [
-              if (widget.provider.logo != null)
-                SvgPicture.string(widget.provider.logo!),
-              const Spacer(),
-              Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    widget.provider.title ?? "",
-                    style: Theme.of(context).textTheme.titleMedium,
-                  ),
-                  Text(
-                    widget.provider.description,
-                    style: Theme.of(context).textTheme.bodySmall,
-                  ),
-                ],
+              if (widget.provider.logo != null &&
+                  widget.provider.logo!.isNotEmpty)
+                Container(
+                  width: 32,
+                  height: 32,
+                  margin: const EdgeInsets.only(right: 12),
+                  child: SvgPicture.string(widget.provider.logo!),
+                ),
+              Expanded(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      widget.provider.title ?? "",
+                      style: Theme.of(context).textTheme.titleMedium,
+                    ),
+                    Text(
+                      widget.provider.description,
+                      style: Theme.of(context).textTheme.bodySmall,
+                    ),
+                  ],
+                ),
               ),
               RotationTransition(
                 turns: Tween(begin: 0.0, end: 0.5).animate(_expandAnimation),
@@ -262,6 +291,7 @@ class _ProviderCardState extends State<ProviderCard>
             child: Form(
               key: _formKey,
               child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: _validParameters.map((param) {
                   bool isLastParam = _validParameters.last == param;
                   return _buildParameterRow(param, isLastParam, l10n);
@@ -278,20 +308,12 @@ class _ProviderCardState extends State<ProviderCard>
       Parameter param, bool isLastParam, AppLocalizations l10n) {
     return Padding(
       padding: EdgeInsets.only(bottom: isLastParam ? 0 : 16.0),
-      child: Row(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Expanded(
-            child: CustomTextField(
-              controller: _controllers[param.name]!,
-              labelText: param.description?.label ?? param.name,
-              hintText: param.description?.placeholder,
-              keyboardType: _getKeyboardType(param.type),
-              enabled: !_isLoading,
-              errorText: _errors[param.name],
-            ),
-          ),
+          _buildParameterInput(param),
           if (isLastParam) ...[
-            const SizedBox(width: 16),
+            const SizedBox(height: 16),
             _buildSubmitButton(l10n),
           ],
         ],
@@ -309,7 +331,7 @@ class _ProviderCardState extends State<ProviderCard>
       ),
       child: Container(
         height: 40,
-        width: 96,
+        width: double.infinity,
         decoration: BoxDecoration(
           gradient:
               Theme.of(context).extension<ThemeGradients>()?.darkBlueGradient,
@@ -353,6 +375,7 @@ class _ProviderCardState extends State<ProviderCard>
         child: content,
       );
     }
+
     return BlocListener<TopUpCubit, TopUpState>(
       listener: (context, state) {
         if (state is TopUpStateInitiated) {

@@ -26,16 +26,18 @@ class Parameter {
   final String name;
   final String required;
   final String type;
+  final String? mask;
   final String? min;
   final String? max;
   final String? pattern; // Made nullable
   final ParameterDescription? description; // Made nullable
-  final List<String>? enumValues;
+  final List<dynamic>? enumValues;
 
   Parameter({
     required this.name,
     required this.required,
     required this.type,
+    this.mask,
     this.min,
     this.max,
     this.pattern,
@@ -50,12 +52,13 @@ class Parameter {
       type: json['type'] as String,
       min: json['min']?.toString(),
       max: json['max']?.toString(),
+      mask: json['mask'] as String?,
       pattern: json['pattern'] as String?,
       description: json['description'] != null
           ? ParameterDescription.fromJson(
               json['description'] as Map<String, dynamic>)
           : null,
-      enumValues: (json['enum'] as List<dynamic>?)?.cast<String>(),
+      enumValues: (json['enum'] as List<dynamic>?)?.cast<dynamic>(),
     );
   }
 }

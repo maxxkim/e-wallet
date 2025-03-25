@@ -88,7 +88,8 @@ class SecureApiKeyManager {
 
       try {
         // Load the API keys from the JSON file in the root directory
-        final String apiKeysJson = await rootBundle.loadString('api_keys.json');
+        final String apiKeysJson =
+            await rootBundle.loadString('assets/config/api_keys.json');
         final Map<String, dynamic> apiKeys = jsonDecode(apiKeysJson);
 
         bool allSuccess = true;

@@ -52,6 +52,7 @@ flutter:
 
   assets:
     - assets/images/
+    - assets/config/
   
   fonts:
     - family: RobotoFlex

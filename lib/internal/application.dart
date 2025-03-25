@@ -78,7 +78,7 @@ class _ZippyAppState extends State<ZippyApp> with WidgetsBindingObserver {
   }
 
   void _logEvent(String message) {
-    LoggerService().info('🔒 BIOMETRIC DEBUG: $message');
+    LoggerService().info('📱 APP: $message');
   }
 
   Future<void> _verifyApiKeys() async {
