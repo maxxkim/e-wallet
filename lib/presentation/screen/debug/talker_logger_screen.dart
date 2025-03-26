@@ -12,11 +12,6 @@ class TalkerLoggerScreen extends StatelessWidget {
     return TalkerScreen(
       talker: talker,
       appBarTitle: 'Zentro Wallet Logs ✨',
-      theme: TalkerScreenTheme(
-        backgroundColor: Theme.of(context).scaffoldBackgroundColor,
-        textColor: Theme.of(context).colorScheme.primary,
-        cardColor: Theme.of(context).colorScheme.tertiaryContainer,
-      ),
     );
   }
 }

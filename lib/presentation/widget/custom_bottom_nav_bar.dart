@@ -61,15 +61,11 @@ class CustomBottomNavBar extends StatelessWidget {
                   ),
                   _buildNavItem(
                     context,
-                    tab: NavigationTab.settings,
-                    label: l10n.settingsTitle,
-                    icon: Icon(Icons.settings_outlined,
-                        size: 24, color: Theme.of(context).colorScheme.primary),
-                    selectedIcon: Icon(
-                      Icons.settings,
-                      size: 24,
-                      color: Theme.of(context).colorScheme.secondary,
-                    ),
+                    tab: NavigationTab.support,
+                    label: l10n.navSupport,
+                    icon: SvgPicture.asset('assets/images/navbar_support.svg'),
+                    selectedIcon: SvgPicture.asset(
+                        'assets/images/navbar_support_active.svg'),
                     selectedTab: state.selectedTab,
                     router: router,
                   ),

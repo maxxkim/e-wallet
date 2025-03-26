@@ -42,8 +42,8 @@ class NavigationCubit extends Cubit<NavigationState> {
       case NavigationTab.offers:
         router.go('/dashboard/offers');
         break;
-      case NavigationTab.settings:
-        router.go('/dashboard/settings');
+      case NavigationTab.support:
+        router.go('/dashboard/logs');
         break;
     }
   }

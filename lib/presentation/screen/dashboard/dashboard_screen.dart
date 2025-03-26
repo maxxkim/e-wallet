@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:flutter_svg/svg.dart';
+import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 import 'package:zippy/domain/repository/search/global_search_repository.dart';
 import 'package:zippy/domain/state/dashboard/dashboard_state.dart';
@@ -48,10 +50,26 @@ class DashboardScreen extends StatelessWidget with FadeInAnimationMixin {
                       mainAxisAlignment: MainAxisAlignment.start,
                       children: staggeredFadeIn([
                         fadeInFromTop(
-                          GlobalSearchWidget(
-                            hintText: l10n.historySearchHint,
-                            fullWidth: true,
-                            autofocus: false,
+                          Row(
+                            children: [
+                              Expanded(
+                                child: GlobalSearchWidget(
+                                  hintText: l10n.historySearchHint,
+                                  fullWidth:
+                                      false, // Changed to false since we're now in a Row
+                                  autofocus: false,
+                                ),
+                              ),
+                              const SizedBox(width: 8),
+                              GestureDetector(
+                                onTap: () => context.go('/dashboard/settings'),
+                                child: SvgPicture.asset(
+                                  'assets/images/icon_profile.svg',
+                                  height: 48.0,
+                                  width: 48.0,
+                                ),
+                              ),
+                            ],
                           ),
                         ),
                         const SizedBox(height: 16),
