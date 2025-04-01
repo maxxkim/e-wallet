@@ -112,10 +112,17 @@ class _ProviderCardState extends State<ProviderCard>
       // Build request body
       final Map<String, dynamic> body = {};
       for (var param in _validParameters) {
-        body[param.name] = _controllers[param.name]?.text ?? '';
+        // Special handling for amount field: strip all non-digit characters
+        if (param.name == 'amount') {
+          // Remove all non-digit characters
+          final rawValue = _controllers[param.name]?.text ?? '';
+          final digitsOnly = rawValue.replaceAll(RegExp(r'[^\d]'), '');
+          body[param.name] = digitsOnly;
+        } else {
+          body[param.name] = _controllers[param.name]?.text ?? '';
+        }
       }
       body['provider'] = widget.provider.name;
-
       final router = GoRouter.of(context);
       await widget.onSubmit(body, router);
     } catch (e) {
