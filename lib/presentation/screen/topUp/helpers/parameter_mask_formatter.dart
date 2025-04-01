@@ -2,6 +2,7 @@ import 'package:flutter/services.dart';
 import 'package:mask_text_input_formatter/mask_text_input_formatter.dart';
 import 'package:zippy/domain/model/top_up/parameter_model.dart';
 import 'package:zippy/internal/services/logger_service.dart';
+import 'package:zippy/presentation/screen/topUp/helpers/thousand_separator_formatter.dart';
 
 class ParameterMaskFormatter {
   /// Creates and returns appropriate TextInputFormatter based on parameter type and mask
@@ -14,6 +15,10 @@ class ParameterMaskFormatter {
 
     LoggerService().debug("$mask");
     // Handle different mask patterns
+    if (mask.contains('\$')) {
+      // Create a custom formatter that applies the mask from the end
+      return ThousandSeparatorFormatter(mask);
+    }
     if (mask.contains('#')) {
       LoggerService().debug("$mask");
       Map<String, RegExp> filter = {"#": RegExp(r'[0-9]')};
