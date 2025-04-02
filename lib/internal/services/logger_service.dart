@@ -1,6 +1,6 @@
-import 'package:flutter/foundation.dart';
 import 'package:talker_flutter/talker_flutter.dart';
 import 'package:zippy/internal/observers/custom_talker_observer.dart';
+import 'package:zippy/internal/observers/talker_api_observer.dart'; // Import our new observer
 
 class LoggerService {
   static final LoggerService _instance = LoggerService._internal();
@@ -8,16 +8,16 @@ class LoggerService {
   late final Talker talker;
 
   LoggerService._internal() {
-    // Initialize Talker instance with cute settings nya~! 🌸
+    // Initialize Talker with both observers
     talker = TalkerFlutter.init(
       settings: TalkerSettings(
-        enabled: kDebugMode,
+        enabled: true, // Enable in all builds, not just debug
         maxHistoryItems: 1000,
         useConsoleLogs: true,
       ),
-      // Fix #1: Replace abstract class instantiation with a constructor
-      observer: CustomTalkerObserver(), // Using constructor instead of const
+      observer: TalkerApiObserver(), // Add our new API observer
     );
+
     talker.info('✨ Talker initialized successfully nyaa~! UwU ✨');
   }
 
@@ -50,10 +50,6 @@ class LoggerService {
   }
 
   void dispose() {
-    // Fix #2: Remove the invocation of non-function expression
-    // talker(); <- This was the problem! Talker is not callable UwU
-    // Instead, we should just close or handle the talker properly
-    // Since there's no explicit 'close' method, we'll just leave this empty
-    // or you could implement proper cleanup if needed
+    // Nothing to dispose for Talker
   }
 }

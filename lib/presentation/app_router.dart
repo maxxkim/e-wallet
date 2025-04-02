@@ -1,4 +1,3 @@
-// lib/presentation/app_router.dart
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
@@ -9,6 +8,7 @@ import 'package:zippy/internal/services/logger_service.dart';
 import 'package:zippy/presentation/bloc/offer/offer_cubit.dart';
 import 'package:zippy/presentation/screen/auth/auth_screen.dart';
 import 'package:zippy/presentation/screen/auth/sms_verification_screen.dart';
+import 'package:zippy/presentation/screen/auth/truora_verification_screen.dart';
 import 'package:zippy/presentation/screen/dashboard/dashboard_screen.dart';
 import 'package:zippy/presentation/screen/debug/talker_logger_screen.dart';
 import 'package:zippy/presentation/screen/error_screen.dart';
@@ -117,6 +117,29 @@ final GoRouter appRouter = GoRouter(
               return ErrorScreen(errorMessage: _handleError(e));
             }
           },
+          routes: [
+            GoRoute(
+              path: 'truora-verification',
+              builder: (BuildContext context, GoRouterState state) {
+                try {
+                  final Map<String, dynamic> extra =
+                      state.extra as Map<String, dynamic>;
+                  final String userId = extra['userId'] ?? '';
+                  final String phoneNumber = extra['phoneNumber'] ?? '';
+
+                  return _authGuard2(
+                    context,
+                    TruoraVerificationScreen(
+                      userId: userId,
+                      phoneNumber: phoneNumber,
+                    ),
+                  );
+                } catch (e) {
+                  return ErrorScreen(errorMessage: _handleError(e));
+                }
+              },
+            ),
+          ],
         ),
       ],
     ),
@@ -187,10 +210,8 @@ final GoRouter appRouter = GoRouter(
                   final cubit = OfferCubit(
                     RepositoryProvider.of<OfferRepository>(context),
                   );
-
                   if (state.extra is MerchantData) {
                     final merchantData = state.extra as MerchantData;
-
                     cubit.selectMerchants([merchantData]);
                   }
                   return cubit;
@@ -201,7 +222,6 @@ final GoRouter appRouter = GoRouter(
             );
           },
         ),
-        // Add settings routes
         GoRoute(
           path: 'settings',
           builder: (BuildContext context, GoRouterState state) {
@@ -230,15 +250,13 @@ final GoRouter appRouter = GoRouter(
     if (state.matchedLocation == '/dashboard' && state.extra != 'skipRefresh') {
       try {
         final dashboardCubit = context.read<DashboardCubit>();
-
         if (dashboardCubit.state is! DashboardStateLoaded) {
           dashboardCubit.loadData();
         }
       } catch (_) {
-        // Silently handle errors
+        // Dashboard cubit might not be available yet
       }
     }
-
     return null;
   },
   errorBuilder: (BuildContext context, GoRouterState state) {

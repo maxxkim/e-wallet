@@ -4,6 +4,7 @@ import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:go_router/go_router.dart';
 import 'package:zippy/domain/model/auth/country_model.dart';
 import 'package:zippy/domain/repository/auth/auth_repository.dart';
 import 'package:zippy/domain/state/auth/auth_state.dart';
@@ -77,9 +78,27 @@ class SmsVerificationScreen extends StatelessWidget with FadeInAnimationMixin {
                               onCompleted: (code) async {
                                 await authCubit.verifyCode(code);
                                 if (context.mounted) {
-                                  await context
-                                      .read<SessionCubit>()
-                                      .checkAuthentication();
+                                  final currentState = authCubit.state;
+                                  if (currentState is AuthStateLoaded &&
+                                      currentState.codeStatus ==
+                                          CodeStatus.correct) {
+                                    // Instead of just checking authentication and going to dashboard,
+                                    // navigate to Truora verification screen first
+                                    final userId = currentState.userId;
+                                    final phone = currentState.phone;
+
+                                    context.go(
+                                        '/sms/$phone/${countryCode ?? "CL"}/truora-verification',
+                                        extra: {
+                                          'userId': userId,
+                                          'phoneNumber': phone,
+                                        });
+                                  } else {
+                                    // Verification failed, stay on this screen
+                                    await context
+                                        .read<SessionCubit>()
+                                        .checkAuthentication();
+                                  }
                                 }
                               },
                             ),
