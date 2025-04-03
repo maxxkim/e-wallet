@@ -35,7 +35,7 @@ class _TruoraVerificationScreenState extends State<TruoraVerificationScreen> {
   static const String _token =
       'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhY2NvdW50X2lkIjoiIiwiYWRkaXRpb25hbF9kYXRhIjoie30iLCJjbGllbnRfaWQiOiJUQ0kyODNlN2U4YjhkYzQ1ZTMyZGY2MThkNTE0YTkxMzU5YiIsImV4cCI6MzMxOTg2OTE3OSwiZ3JhbnQiOiIiLCJpYXQiOjE3NDMwNjkxNzksImlzcyI6Imh0dHBzOi8vY29nbml0by1pZHAudXMtZWFzdC0xLmFtYXpvbmF3cy5jb20vdXMtZWFzdC0xX2VxdkNWMDcxMSIsImp0aSI6IjA3ZWY5MjUwLTY0MjUtNDBlYS05OTc1LTFhOGMwNjM5M2Q2MCIsImtleV9uYW1lIjoiemVudHJvd2FsbGV0Iiwia2V5X3R5cGUiOiJiYWNrZW5kIiwidXNlcm5hbWUiOiJ6aXBweS16ZW50cm93YWxsZXQifQ.lI6U7e50p6hjKJcbNbVkCf-R3fJCF0qIcF9lpKbFYHo';
   void _logEvent(String message) {
-    LoggerService().info('🧪 TRUORA: $message');
+    LoggerService().info('🧪 TRUORA (${widget.phoneNumber}): $message');
   }
 
   @override
@@ -58,46 +58,71 @@ class _TruoraVerificationScreenState extends State<TruoraVerificationScreen> {
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               const SizedBox(height: 24),
-              _isLoading
-                  ? const Center(child: CircularProgressIndicator())
-                  : Icon(
-                      Icons.verified_user,
-                      size: 72,
-                      color: Theme.of(context).colorScheme.primary,
-                    ),
-              const SizedBox(height: 24),
-              Text(
-                _isVerificationComplete
-                    ? 'Verification Completed! (ﾉ◕ヮ◕)ﾉ*:・ﾟ✧'
-                    : 'Verify Your Identity',
-                style: Theme.of(context).textTheme.headlineMedium,
-                textAlign: TextAlign.center,
-              ),
-              const SizedBox(height: 16),
-              Text(
-                _isVerificationComplete
-                    ? 'Thank you for verifying your identity! You can now access your Zentro Wallet.'
-                    : 'For your security and to comply with regulations, we need to verify your identity before you can use Zentro Wallet features! Nyaa~',
-                style: Theme.of(context).textTheme.bodyLarge,
-                textAlign: TextAlign.center,
-              ),
-              const SizedBox(height: 32),
-              if (_errorMessage != null)
+
+              // Show either the intro content or the TruoraSDK widget
+              if (_truoraSDK != null)
+                // Wrap TruoraSDK with fixed size container
                 Container(
-                  padding: const EdgeInsets.all(12),
-                  decoration: BoxDecoration(
-                    color: Theme.of(context).colorScheme.error.withAlpha(25),
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: Text(
-                    _errorMessage!,
-                    style: TextStyle(
-                      color: Theme.of(context).colorScheme.error,
-                    ),
-                    textAlign: TextAlign.center,
+                  height: MediaQuery.of(context).size.height *
+                      0.7, // Adjust as needed
+                  width: double.infinity,
+                  child: _truoraSDK!,
+                )
+              else
+                // Intro content - only shown when TruoraSDK is not active
+                Container(
+                  height: MediaQuery.of(context).size.height *
+                      0.7, // Adjust as needed
+                  width: double.infinity,
+                  child: Column(
+                    children: [
+                      _isLoading
+                          ? const Center(child: CircularProgressIndicator())
+                          : Icon(
+                              Icons.verified_user,
+                              size: 72,
+                              color: Theme.of(context).colorScheme.primary,
+                            ),
+                      const SizedBox(height: 24),
+                      Text(
+                        _isVerificationComplete
+                            ? 'Verification Completed! (ﾉ◕ヮ◕)ﾉ*:・ﾟ✧'
+                            : 'Verify Your Identity',
+                        style: Theme.of(context).textTheme.headlineMedium,
+                        textAlign: TextAlign.center,
+                      ),
+                      const SizedBox(height: 16),
+                      Text(
+                        _isVerificationComplete
+                            ? 'Thank you for verifying your identity! You can now access your Zentro Wallet.'
+                            : 'For your security and to comply with regulations, we need to verify your identity before you can use Zentro Wallet features! Nyaa~',
+                        style: Theme.of(context).textTheme.bodyLarge,
+                        textAlign: TextAlign.center,
+                      ),
+                      const SizedBox(height: 32),
+                      if (_errorMessage != null)
+                        Container(
+                          padding: const EdgeInsets.all(12),
+                          decoration: BoxDecoration(
+                            color: Theme.of(context)
+                                .colorScheme
+                                .error
+                                .withAlpha(25),
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: Text(
+                            _errorMessage!,
+                            style: TextStyle(
+                              color: Theme.of(context).colorScheme.error,
+                            ),
+                            textAlign: TextAlign.center,
+                          ),
+                        ),
+                      const SizedBox(height: 32),
+                    ],
                   ),
                 ),
-              const SizedBox(height: 32),
+              const SizedBox(height: 16),
               if (!_isVerificationComplete)
                 RectangularButton(
                   label: _isLoading
@@ -105,8 +130,6 @@ class _TruoraVerificationScreenState extends State<TruoraVerificationScreen> {
                       : 'Start Verification Process',
                   onPressed: _isLoading ? null : _startVerification,
                 ),
-              const SizedBox(height: 16),
-              if (_truoraSDK != null) _truoraSDK!,
             ],
           ),
         ),
