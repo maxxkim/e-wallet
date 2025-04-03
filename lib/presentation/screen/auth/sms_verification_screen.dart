@@ -4,6 +4,7 @@ import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:go_router/go_router.dart';
 import 'package:zippy/domain/model/auth/country_model.dart';
 import 'package:zippy/domain/repository/auth/auth_repository.dart';
 import 'package:zippy/domain/state/auth/auth_state.dart';
@@ -77,9 +78,25 @@ class SmsVerificationScreen extends StatelessWidget with FadeInAnimationMixin {
                               onCompleted: (code) async {
                                 await authCubit.verifyCode(code);
                                 if (context.mounted) {
-                                  await context
-                                      .read<SessionCubit>()
-                                      .checkAuthentication();
+                                  final currentState = authCubit.state;
+                                  if (currentState is AuthStateLoaded &&
+                                      currentState.codeStatus ==
+                                          CodeStatus.correct) {
+                                    // Instead of just checking authentication and going to dashboard,
+                                    // navigate to Truora verification screen first
+                                    final userId = currentState.userId;
+                                    final phone = currentState.phone;
+                                    final authVerifyResponse =
+                                        currentState.authVerifyResponse;
+                                    context.go(
+                                        '/sms/$phone/${countryCode ?? "CL"}/truora-verification',
+                                        extra: {
+                                          'userId': userId,
+                                          'phoneNumber': phone,
+                                          'authVerifyResponse':
+                                              authVerifyResponse,
+                                        });
+                                  }
                                 }
                               },
                             ),
@@ -134,7 +151,6 @@ class SmsVerificationScreen extends StatelessWidget with FadeInAnimationMixin {
 class OTPVerificationCodeInput extends StatefulWidget {
   final AuthStateLoaded state;
   final Function(String) onCompleted;
-
   const OTPVerificationCodeInput({
     Key? key,
     required this.state,
@@ -162,17 +178,14 @@ class _OTPVerificationCodeInputState extends State<OTPVerificationCodeInput>
   void _addListeners() {
     for (int i = 0; i < 4; i++) {
       _controllers[i].addListener(() {
-        // Clear invalid characters (anything but numbers)
         final text = _controllers[i].text;
         final numericOnly = text.replaceAll(RegExp(r'[^0-9]'), '');
-
         if (text != numericOnly) {
           _controllers[i].text = numericOnly;
           _controllers[i].selection = TextSelection.fromPosition(
               TextPosition(offset: numericOnly.length));
         }
 
-        // Move to next field if this one has a character
         if (numericOnly.length == 1 && i < 3) {
           _focusNodes[i + 1].requestFocus();
         }

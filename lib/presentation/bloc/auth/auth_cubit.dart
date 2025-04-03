@@ -33,42 +33,16 @@ class AuthCubit extends Cubit<AuthState> {
       final currentState = state as AuthStateLoaded;
       try {
         _logEvent('📱 Attempting to verify code: $code');
-
         final AuthVerify authVerify = await _authRepository.verifyAuth(
           code,
           currentState.phone,
           currentState.userId,
         );
-
         if (authVerify.isVerified) {
           _logEvent('✅ Code verified successfully! Token received!');
 
-          // Store tokens
-          if (authVerify.accessToken != null) {
-            await _secureStorage.saveAccessToken(authVerify.accessToken!);
-            _logEvent(
-                '💾 Access token saved (${authVerify.accessToken!.substring(0, 10)}...)');
-          } else {
-            _logEvent('⚠️ No access token received!');
-          }
-
-          if (authVerify.refreshToken != null) {
-            await _secureStorage.saveRefreshToken(authVerify.refreshToken!);
-            _logEvent('💾 Refresh token saved');
-          } else {
-            _logEvent('⚠️ No refresh token received!');
-          }
-
-          // Save login time
-          await _secureStorage.saveLastLoginTime();
-
-          // Save country model for phone mask
-          if (currentState.authInitiateResponse != null &&
-              _currentCountryModel != null) {
-            await PhoneMaskHelper.savePhoneMaskInfo(_currentCountryModel!);
-            _logEvent(
-                '📞 Phone mask info saved for country: ${_currentCountryModel!.code}');
-          }
+          // Store tokens temporarily but don't save to secure storage yet
+          // We'll save them after Truora verification
 
           emit(currentState.copyWith(
             codeStatus: CodeStatus.correct,
@@ -76,16 +50,12 @@ class AuthCubit extends Cubit<AuthState> {
             shakeKey: false,
           ));
 
-          // Test if the token works
-          try {
-            final isTokenValid =
-                await _authRepository.verifyToken(authVerify.accessToken ?? '');
-            _logEvent(isTokenValid
-                ? '✅ Token validation successful!'
-                : '❌ Token validation failed!');
-          } catch (e) {
-            _logEvent('❌ Token validation error: $e');
-          }
+          _logEvent('🔐 Tokens will be saved after Truora verification~');
+
+          // Notice we're NOT saving tokens to secure storage here
+          // await _secureStorage.saveAccessToken(authVerify.accessToken!);
+          // await _secureStorage.saveRefreshToken(authVerify.refreshToken!);
+          // await _secureStorage.saveLastLoginTime();
         } else {
           _logEvent('❌ Code verification failed');
           emit(currentState.copyWith(
