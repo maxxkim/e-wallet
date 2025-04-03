@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:truora_sdk/truora_sdk.dart';
+import 'package:zippy/domain/model/auth/auth_verify_model.dart';
 import 'package:zippy/internal/services/logger_service.dart';
 import 'package:zippy/internal/services/secure_storage_service.dart';
 import 'package:zippy/presentation/session/session_cubit.dart';
@@ -10,11 +11,13 @@ import 'package:zippy/presentation/widget/custom_rectangular_button.dart';
 class TruoraVerificationScreen extends StatefulWidget {
   final String userId;
   final String phoneNumber;
+  final AuthVerify? authVerifyResponse; // Add this parameter to receive tokens
 
   const TruoraVerificationScreen({
     Key? key,
     required this.userId,
     required this.phoneNumber,
+    this.authVerifyResponse, // Add this parameter
   }) : super(key: key);
 
   @override
@@ -29,11 +32,10 @@ class _TruoraVerificationScreenState extends State<TruoraVerificationScreen> {
   TruoraSDK? _truoraSDK;
   final SecureStorageService _secureStorage = SecureStorageService();
 
-  // This would be your actual Truora token
-  static const String _token = 'YOUR_TRUORA_TOKEN';
-
+  static const String _token =
+      'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhY2NvdW50X2lkIjoiIiwiYWRkaXRpb25hbF9kYXRhIjoie30iLCJjbGllbnRfaWQiOiJUQ0kyODNlN2U4YjhkYzQ1ZTMyZGY2MThkNTE0YTkxMzU5YiIsImV4cCI6MzMxOTg2OTE3OSwiZ3JhbnQiOiIiLCJpYXQiOjE3NDMwNjkxNzksImlzcyI6Imh0dHBzOi8vY29nbml0by1pZHAudXMtZWFzdC0xLmFtYXpvbmF3cy5jb20vdXMtZWFzdC0xX2VxdkNWMDcxMSIsImp0aSI6IjA3ZWY5MjUwLTY0MjUtNDBlYS05OTc1LTFhOGMwNjM5M2Q2MCIsImtleV9uYW1lIjoiemVudHJvd2FsbGV0Iiwia2V5X3R5cGUiOiJiYWNrZW5kIiwidXNlcm5hbWUiOiJ6aXBweS16ZW50cm93YWxsZXQifQ.lI6U7e50p6hjKJcbNbVkCf-R3fJCF0qIcF9lpKbFYHo';
   void _logEvent(String message) {
-    LoggerService().info('🧪 TRUORA VERIFICATION: $message');
+    LoggerService().info('🧪 TRUORA: $message');
   }
 
   @override
@@ -56,15 +58,14 @@ class _TruoraVerificationScreenState extends State<TruoraVerificationScreen> {
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               const SizedBox(height: 24),
-
-              Icon(
-                Icons.verified_user,
-                size: 72,
-                color: Theme.of(context).colorScheme.primary,
-              ),
-
+              _isLoading
+                  ? const Center(child: CircularProgressIndicator())
+                  : Icon(
+                      Icons.verified_user,
+                      size: 72,
+                      color: Theme.of(context).colorScheme.primary,
+                    ),
               const SizedBox(height: 24),
-
               Text(
                 _isVerificationComplete
                     ? 'Verification Completed! (ﾉ◕ヮ◕)ﾉ*:・ﾟ✧'
@@ -72,9 +73,7 @@ class _TruoraVerificationScreenState extends State<TruoraVerificationScreen> {
                 style: Theme.of(context).textTheme.headlineMedium,
                 textAlign: TextAlign.center,
               ),
-
               const SizedBox(height: 16),
-
               Text(
                 _isVerificationComplete
                     ? 'Thank you for verifying your identity! You can now access your Zentro Wallet.'
@@ -82,9 +81,7 @@ class _TruoraVerificationScreenState extends State<TruoraVerificationScreen> {
                 style: Theme.of(context).textTheme.bodyLarge,
                 textAlign: TextAlign.center,
               ),
-
               const SizedBox(height: 32),
-
               if (_errorMessage != null)
                 Container(
                   padding: const EdgeInsets.all(12),
@@ -100,9 +97,7 @@ class _TruoraVerificationScreenState extends State<TruoraVerificationScreen> {
                     textAlign: TextAlign.center,
                   ),
                 ),
-
               const SizedBox(height: 32),
-
               if (!_isVerificationComplete)
                 RectangularButton(
                   label: _isLoading
@@ -110,22 +105,7 @@ class _TruoraVerificationScreenState extends State<TruoraVerificationScreen> {
                       : 'Start Verification Process',
                   onPressed: _isLoading ? null : _startVerification,
                 ),
-
               const SizedBox(height: 16),
-
-              // Skip button for development (remove in production)
-              TextButton(
-                onPressed: _isLoading ? null : _skipVerification,
-                child: Text(
-                  'Skip Verification (dev only)',
-                  style: TextStyle(
-                    color: Theme.of(context).colorScheme.secondary,
-                    decoration: TextDecoration.underline,
-                  ),
-                ),
-              ),
-
-              // This is where we put the TruoraSDK widget when verification starts
               if (_truoraSDK != null) _truoraSDK!,
             ],
           ),

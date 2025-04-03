@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:zippy/domain/model/auth/auth_verify_model.dart';
 import 'package:zippy/domain/model/transaction/transaction_model.dart';
 import 'package:zippy/domain/repository/offer/offer_repository.dart';
 import 'package:zippy/domain/state/dashboard/dashboard_state.dart';
@@ -126,12 +127,16 @@ final GoRouter appRouter = GoRouter(
                       state.extra as Map<String, dynamic>;
                   final String userId = extra['userId'] ?? '';
                   final String phoneNumber = extra['phoneNumber'] ?? '';
+                  final AuthVerify? authVerifyResponse =
+                      extra['authVerifyResponse']; // New parameter
 
                   return _authGuard2(
                     context,
                     TruoraVerificationScreen(
                       userId: userId,
                       phoneNumber: phoneNumber,
+                      authVerifyResponse:
+                          authVerifyResponse, // Pass it to the TruoraVerificationScreen
                     ),
                   );
                 } catch (e) {

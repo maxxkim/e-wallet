@@ -86,18 +86,16 @@ class SmsVerificationScreen extends StatelessWidget with FadeInAnimationMixin {
                                     // navigate to Truora verification screen first
                                     final userId = currentState.userId;
                                     final phone = currentState.phone;
-
+                                    final authVerifyResponse =
+                                        currentState.authVerifyResponse;
                                     context.go(
                                         '/sms/$phone/${countryCode ?? "CL"}/truora-verification',
                                         extra: {
                                           'userId': userId,
                                           'phoneNumber': phone,
+                                          'authVerifyResponse':
+                                              authVerifyResponse,
                                         });
-                                  } else {
-                                    // Verification failed, stay on this screen
-                                    await context
-                                        .read<SessionCubit>()
-                                        .checkAuthentication();
                                   }
                                 }
                               },
@@ -153,7 +151,6 @@ class SmsVerificationScreen extends StatelessWidget with FadeInAnimationMixin {
 class OTPVerificationCodeInput extends StatefulWidget {
   final AuthStateLoaded state;
   final Function(String) onCompleted;
-
   const OTPVerificationCodeInput({
     Key? key,
     required this.state,
@@ -181,17 +178,14 @@ class _OTPVerificationCodeInputState extends State<OTPVerificationCodeInput>
   void _addListeners() {
     for (int i = 0; i < 4; i++) {
       _controllers[i].addListener(() {
-        // Clear invalid characters (anything but numbers)
         final text = _controllers[i].text;
         final numericOnly = text.replaceAll(RegExp(r'[^0-9]'), '');
-
         if (text != numericOnly) {
           _controllers[i].text = numericOnly;
           _controllers[i].selection = TextSelection.fromPosition(
               TextPosition(offset: numericOnly.length));
         }
 
-        // Move to next field if this one has a character
         if (numericOnly.length == 1 && i < 3) {
           _focusNodes[i + 1].requestFocus();
         }
