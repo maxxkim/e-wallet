@@ -38,6 +38,7 @@ dependencies:
   talker_dio_logger: ^2.4.0
   dio_http_formatter: ^3.3.0
   truora_sdk: ^0.0.1
+  webview_flutter: ^4.9.0
 
 dev_dependencies:
   flutter_test:

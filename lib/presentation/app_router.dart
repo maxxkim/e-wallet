@@ -23,6 +23,7 @@ import 'package:zippy/presentation/screen/topUp/top_up_screen.dart';
 import 'package:zippy/presentation/screen/transfer/transfer_screen.dart';
 import 'package:zippy/presentation/screen/withdrawal/withdrawal_screen.dart';
 import 'package:zippy/presentation/screen/contacts/contacts_screen.dart';
+import 'package:zippy/presentation/screen/chat/chat_screen.dart';
 import 'package:zippy/presentation/session/session_cubit.dart';
 import 'package:zippy/presentation/session/session_state.dart';
 import 'package:zippy/domain/repository/dashboard/dashboard_repository.dart';
@@ -246,6 +247,14 @@ final GoRouter appRouter = GoRouter(
           builder: (BuildContext context, GoRouterState state) {
             LoggerService().debug('Navigating to logs screen');
             return _authGuard(context, const TalkerLoggerScreen());
+          },
+        ),
+        GoRoute(
+          path: 'support/chat',
+          builder: (BuildContext context, GoRouterState state) {
+            LoggerService().kawaii(
+                '✧･ﾟ: *✧･ﾟ Navigating to support chat screen! *:･ﾟ✧*:･ﾟ✧');
+            return _authGuard(context, const SupportChatScreen());
           },
         ),
       ],

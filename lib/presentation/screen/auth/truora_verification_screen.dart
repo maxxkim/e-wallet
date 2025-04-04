@@ -7,6 +7,7 @@ import 'package:zippy/internal/services/logger_service.dart';
 import 'package:zippy/internal/services/secure_storage_service.dart';
 import 'package:zippy/presentation/session/session_cubit.dart';
 import 'package:zippy/presentation/widget/custom_rectangular_button.dart';
+import 'package:zippy/presentation/widget/edge_tier_chat.dart';
 
 class TruoraVerificationScreen extends StatefulWidget {
   final String userId;
@@ -66,7 +67,8 @@ class _TruoraVerificationScreenState extends State<TruoraVerificationScreen> {
                   height: MediaQuery.of(context).size.height *
                       0.7, // Adjust as needed
                   width: double.infinity,
-                  child: _truoraSDK!,
+                  // child: _truoraSDK!,
+                  child: EdgeTierChatWidget(setupId: '1'),
                 )
               else
                 // Intro content - only shown when TruoraSDK is not active

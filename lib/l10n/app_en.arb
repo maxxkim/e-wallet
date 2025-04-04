@@ -291,5 +291,26 @@
   "settingsLogoutConfirmTitle": "Confirm Logout",
   "settingsLogoutConfirmMessage": "Are you sure you want to logout from your account?",
   
-  "cancel": "Cancel"
+  "cancel": "Cancel",
+  "supportTitle": "Support",
+  "supportChatTitle": "Customer Support Chat",
+  "supportChatDescription": "Get assistance from our dedicated support team through our live chat feature.",
+  "supportChatInfo": "About Our Support Chat",
+  "supportAgentsTitle": "Expert Agents",
+  "supportAgentsDescription": "Our support team consists of trained professionals who can assist with all your Zentro Wallet needs.",
+  "supportHoursTitle": "Service Hours",
+  "supportHoursDescription": "Our chat support is available Monday to Friday, 9 AM to 7 PM Eastern Time.",
+  "supportSecurityTitle": "Secure Conversations",
+  "supportSecurityDescription": "All chat conversations are encrypted and follow our strict privacy and security protocols.",
+  "supportChatAvailable": "Live Chat is Currently Available",
+  "supportChatUnavailable": "Live Chat is Currently Unavailable",
+  "supportChatStartButton": "Start Chat",
+  "supportChatLoading": "Loading...",
+  "supportChatOpened": "Support chat opened",
+  "supportChatError": "Unable to open support chat. Please try again later.",
+  "supportAlternativeTitle": "Alternative Ways to Contact Us",
+  "supportEmailTitle": "Email Support",
+  "supportEmailDescription": "Send us an email and we'll respond within 24 hours on business days.",
+  "supportPhoneTitle": "Phone Support",
+  "supportPhoneDescription": "Call our support line for immediate assistance during business hours."
 }
